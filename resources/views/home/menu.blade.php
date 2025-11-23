@@ -143,7 +143,7 @@
                         </span>
                     </div>
                     <h2 class="text-lg font-semibold mb-1 text-slate-900 group-hover:text-amber-700">
-                        Panel Admin (Filament)
+                        Panel Admin Agenda Kegiatan
                     </h2>
                     <p class="text-sm text-slate-600 flex-1">
                         Digunakan oleh petugas internal untuk mengelola data agenda kegiatan,
