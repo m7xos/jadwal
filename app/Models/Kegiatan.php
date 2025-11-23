@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Kegiatan extends Model
 {
@@ -18,6 +19,7 @@ class Kegiatan extends Model
         'waktu',
         'tempat',
         'keterangan',
+		'surat_undangan',   // <--- TAMBAHKAN
     ];
 
     protected $casts = [
@@ -37,7 +39,11 @@ class Kegiatan extends Model
         }
 
         // Pastikan locale Carbon dan app di-set ke 'id' jika mau Indonesia
-        return $this->tanggal->translatedFormat('l, d-m-Y');
+        //return $this->tanggal->translatedFormat('l, d-m-Y');
+		// Hasil contoh: "Senin, 24 November 2025"
+        return $this->tanggal
+            ->locale('id')
+            ->isoFormat('dddd, D MMMM Y');
     }
 
     public function getJudulSingkatAttribute(): string
