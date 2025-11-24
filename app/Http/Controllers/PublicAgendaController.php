@@ -30,4 +30,20 @@ class PublicAgendaController extends Controller
             'past'     => $past,
         ]);
     }
+	
+	public function tv()
+    {
+        $today = Carbon::today();
+
+        $agendaToday = Kegiatan::with('personils')
+            ->whereDate('tanggal', $today)
+            ->orderBy('waktu')
+            ->orderBy('nama_kegiatan')
+            ->get();
+
+        return view('public.agenda.tv', [
+            'agendaToday' => $agendaToday,
+            'today'       => $today,
+        ]);
+    }
 }
