@@ -3,19 +3,19 @@
 namespace App\Filament\Resources\Personils;
 
 use App\Filament\Resources\Personils\Pages\CreatePersonil;
-use App\Filament\Resources\Personils\Pages\EditPersonil;
-use App\Filament\Resources\Personils\Pages\ListPersonils;
-use App\Filament\Resources\Personils\Schemas\PersonilForm;
-use App\Filament\Resources\Personils\Tables\PersonilsTable;
+use App\Filiment\Resources\Personils\Pages\EditPersonil;
+use App\Filiment\Resources\Personils\Pages\ListPersonils;
+use App\Filiment\Resources\Personils\Schemas\PersonilForm;
+use App\Filiment\Resources\Personils\Tables\PersonilsTable;
 use App\Imports\PersonilsImport;
 use App\Models\Personil;
 use BackedEnum;
+use Filament\Actions\Action;                 // ⬅️ PENTING: pakai Filament\Actions\Action (v4)
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
