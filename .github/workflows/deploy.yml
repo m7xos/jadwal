@@ -42,7 +42,7 @@ jobs:
             php artisan migrate --force
 
             php artisan migrate --seed
-            
+            php artisan optimize:clear
             php artisan storage:link
             php artisan config:cache
             php artisan route:cache
