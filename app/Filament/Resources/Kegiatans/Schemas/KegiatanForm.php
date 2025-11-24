@@ -23,7 +23,6 @@ class KegiatanForm
                 // =========================
                 Section::make('Informasi Kegiatan')
                     ->schema([
-                        // Upload surat undangan (PDF)
                         FileUpload::make('surat_undangan')
                             ->label('Surat Undangan (PDF)')
                             ->disk('public')
@@ -40,20 +39,45 @@ class KegiatanForm
                                     return;
                                 }
 
+                                // ==== NORMALISASI STATE JADI PATH ====
+                                $path = null;
+
+                                // Single file: bisa berupa TemporaryUploadedFile
+                                if ($state instanceof TemporaryUploadedFile) {
+                                    // absolute path ke file temp (bisa dibaca Spatie)
+                                    $path = $state->getRealPath() ?: $state->getPathname();
+                                }
+                                // Kalau state sudah berupa string path relatif di disk 'public'
+                                elseif (is_string($state)) {
+                                    $path = $state;
+                                }
+                                // Antisipasi kalau suatu saat jadi array (multiple)
+                                elseif (is_array($state) && isset($state[0])) {
+                                    $first = $state[0];
+
+                                    if ($first instanceof TemporaryUploadedFile) {
+                                        $path = $first->getRealPath() ?: $first->getPathname();
+                                    } elseif (is_string($first)) {
+                                        $path = $first;
+                                    }
+                                }
+
+                                if (! $path) {
+                                    return;
+                                }
+
                                 /** @var NomorSuratExtractor $extractor */
                                 $extractor = app(NomorSuratExtractor::class);
 
-                                // $state = path relatif di disk 'public', misal "surat-undangan/xxx.pdf"
-
                                 // ===== NOMOR SURAT =====
-                                $nomor = $extractor->extract($state);
+                                $nomor = $extractor->extract($path);
                                 if (! empty($nomor)) {
                                     $set('nomor', $nomor);
                                 }
 
                                 // ===== HAL / PERIHAL → NAMA KEGIATAN =====
                                 if (method_exists($extractor, 'extractPerihal')) {
-                                    $perihal = $extractor->extractPerihal($state);
+                                    $perihal = $extractor->extractPerihal($path);
                                     if (! empty($perihal)) {
                                         $set('nama_kegiatan', $perihal);
                                     }
@@ -69,7 +93,7 @@ class KegiatanForm
                         TextInput::make('nama_kegiatan')
                             ->label('Nama Kegiatan')
                             ->required()
-                            ->maxLength(500) // dibuat lebih panjang
+                            ->maxLength(500)
                             ->helperText('Diambil otomatis dari HAL/PERIHAL surat (bisa diubah).'),
 
                         DatePicker::make('tanggal')
@@ -92,8 +116,8 @@ class KegiatanForm
                             ->label('Keterangan')
                             ->rows(3),
                     ])
-                    ->columns(2)         // isi form dibagi 2 kolom
-                    ->columnSpanFull(),  // section ini full lebar
+                    ->columns(2)
+                    ->columnSpanFull(),
 
                 // =========================
                 // SECTION: PERSONIL YANG MENGHADIRI (DI BAWAH)
