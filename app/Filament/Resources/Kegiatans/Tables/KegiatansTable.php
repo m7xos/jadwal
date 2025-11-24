@@ -223,7 +223,7 @@ class KegiatansTable
                             }
                         })
                         ->deselectRecordsAfterCompletion()
-                        ->tooltip('Gunakan semua data yang sedang tampil di tabel (berdasarkan filter & pencarian).')
+                        ->tooltip('Gunakan semua data yang sedang tampil di tabel (berdasarkan filter & pencarian).'),
                      //baru   ,
 					BulkAction::make('kirim_wa_belum_disposisi')
 					->label('Kirim WA Agenda Belum Disposisi (Filter)')
