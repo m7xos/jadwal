@@ -5,7 +5,7 @@
     <title>Surat Undangan - {{ $kegiatan->nomor ?? 'Tanpa Nomor' }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    {{-- Tailwind via CDN untuk tampilan cepat --}}
+    {{-- Tailwind via CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -45,7 +45,6 @@
 
 <main class="flex-1">
     <div class="max-w-5xl mx-auto px-2 md:px-4 py-3 md:py-4 h-[calc(100vh-80px)]">
-        {{-- Viewer PDF full height --}}
         <iframe
             src="{{ $fileUrl }}"
             class="w-full h-full rounded-xl border border-slate-800 bg-slate-950"

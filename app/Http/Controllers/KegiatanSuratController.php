@@ -11,7 +11,7 @@ class KegiatanSuratController extends Controller
     /**
      * Tampilkan halaman viewer PDF untuk surat undangan.
      *
-     * Url contoh: /u/123
+     * Contoh URL: /u/123
      */
     public function show(Kegiatan $kegiatan)
     {
