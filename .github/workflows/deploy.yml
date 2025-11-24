@@ -1,0 +1,62 @@
+name: Deploy to VPS watumalang.online
+
+on:
+  push:
+    branches:
+      - master   # ganti kalau kamu pakai 'master' atau branch lain untuk produksi
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add VPS to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to watumalang.online
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          APP_PATH: ${{ secrets.APP_PATH }}
+        run: |
+          ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << 'EOF'
+            set -e
+
+            cd /var/www/jadwal   # atau pakai: cd "$APP_PATH"
+
+            # Ambil kode terbaru dari branch produksi
+            git fetch origin
+            git reset --hard origin/master   # ganti 'main' kalau branch-mu lain
+
+            # Install dependency PHP
+            /usr/local/bin/composer install --no-dev --optimize-autoloader
+
+            # Migrasi database (kalau ada schema baru)
+            php artisan migrate --force
+
+            # Clear & rebuild cache
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            # Kalau pakai queue / schedule bisa tambahkan perintah lain di sini
+
+            # Pastikan permission aman
+            chown -R deploy:www-data storage bootstrap/cache
+            chmod -R 775 storage bootstrap/cache
+
+            # Kalau perlu reload FPM/Apache (biasanya tidak wajib)
+            # systemctl reload php8.4-fpm
+            # systemctl reload apache2
+          EOF
