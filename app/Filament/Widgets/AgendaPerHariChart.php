@@ -9,12 +9,13 @@ use Filament\Widgets\ChartWidget;
 
 class AgendaPerHariChart extends ChartWidget
 {
-    protected static ?string $heading = 'Jumlah Agenda per Hari (14 Hari Terakhir)';
+    // DI VERSI FILAMENT KAMU: heading HARUS non-static
+    protected ?string $heading = 'Jumlah Agenda per Hari (14 Hari Terakhir)';
 
-    // Biar tampil di dashboard utama
-    protected static ?int $sort = 20; // di bawah stats overview
+    // Urutan tampil di dashboard (boleh static)
+    protected static ?int $sort = 20;
 
-    // Optional: auto refresh 60 detik sekali
+    // Auto refresh tiap 60 detik (boleh static)
     protected static ?string $pollingInterval = '60s';
 
     protected function getData(): array
@@ -51,7 +52,7 @@ class AgendaPerHariChart extends ChartWidget
                 [
                     'label' => 'Jumlah Agenda',
                     'data'  => $data,
-                    // warna default dari Filament/ChartJS, tidak perlu set manual
+                    // warna default Chart.js / Filament
                 ],
             ],
             'labels' => $labels,
@@ -60,7 +61,6 @@ class AgendaPerHariChart extends ChartWidget
 
     protected function getType(): string
     {
-        // bisa 'line' atau 'bar'
-        return 'bar';
+        return 'bar'; // bisa diganti 'line' kalau mau
     }
 }
