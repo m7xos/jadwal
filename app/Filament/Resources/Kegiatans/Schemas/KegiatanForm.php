@@ -23,66 +23,59 @@ class KegiatanForm
                 // =========================
                 Section::make('Informasi Kegiatan')
                     ->schema([
-                        FileUpload::make('surat_undangan')
-                            ->label('Surat Undangan (PDF)')
-                            ->disk('public')
-                            ->directory('surat-undangan')
-                            ->preserveFilenames()
-                            ->acceptedFileTypes(['application/pdf'])
-                            ->required()
-                            ->getUploadedFileNameForStorageUsing(
-                                fn (TemporaryUploadedFile $file): string =>
-                                    now()->format('Ymd_His') . '_' . $file->getClientOriginalName()
-                            )
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                if (! $state) {
-                                    return;
-                                }
+                    FileUpload::make('surat_undangan')
+					->label('Surat Undangan (PDF)')
+					->disk('public')
+					->directory('surat-undangan')
+					->preserveFilenames()
+					->acceptedFileTypes(['application/pdf'])
+					->required()
+					->getUploadedFileNameForStorageUsing(
+						fn (TemporaryUploadedFile $file): string =>
+							now()->format('Ymd_His') . '_' . $file->getClientOriginalName()
+					)
+					->afterStateUpdated(function ($state, callable $set) {
+						if (! $state) {
+							return;
+						}
 
-                                // ==== NORMALISASI STATE JADI PATH ====
-                                $path = null;
+						// ==== NORMALISASI STATE JADI PATH ====
+						$path = null;
 
-                                // Single file: bisa berupa TemporaryUploadedFile
-                                if ($state instanceof TemporaryUploadedFile) {
-                                    // absolute path ke file temp (bisa dibaca Spatie)
-                                    $path = $state->getRealPath() ?: $state->getPathname();
-                                }
-                                // Kalau state sudah berupa string path relatif di disk 'public'
-                                elseif (is_string($state)) {
-                                    $path = $state;
-                                }
-                                // Antisipasi kalau suatu saat jadi array (multiple)
-                                elseif (is_array($state) && isset($state[0])) {
-                                    $first = $state[0];
+						if ($state instanceof TemporaryUploadedFile) {
+							$path = $state->getRealPath() ?: $state->getPathname();
+						} elseif (is_string($state)) {
+							$path = $state;
+						} elseif (is_array($state) && isset($state[0])) {
+							$first = $state[0];
 
-                                    if ($first instanceof TemporaryUploadedFile) {
-                                        $path = $first->getRealPath() ?: $first->getPathname();
-                                    } elseif (is_string($first)) {
-                                        $path = $first;
-                                    }
-                                }
+							if ($first instanceof TemporaryUploadedFile) {
+								$path = $first->getRealPath() ?: $first->getPathname();
+							} elseif (is_string($first)) {
+								$path = $first;
+							}
+						}
 
-                                if (! $path) {
-                                    return;
-                                }
+						if (! $path) {
+							return;
+						}
 
-                                /** @var NomorSuratExtractor $extractor */
-                                $extractor = app(NomorSuratExtractor::class);
+						/** @var NomorSuratExtractor $extractor */
+						$extractor = app(NomorSuratExtractor::class);
 
-                                // ===== NOMOR SURAT =====
-                                $nomor = $extractor->extract($path);
-                                if (! empty($nomor)) {
-                                    $set('nomor', $nomor);
-                                }
+						// ===== NOMOR SURAT =====
+						$nomor = $extractor->extract($path);
+						if (! empty($nomor)) {
+							$set('nomor', $nomor);
+						}
 
-                                // ===== HAL / PERIHAL → NAMA KEGIATAN =====
-                                if (method_exists($extractor, 'extractPerihal')) {
-                                    $perihal = $extractor->extractPerihal($path);
-                                    if (! empty($perihal)) {
-                                        $set('nama_kegiatan', $perihal);
-                                    }
-                                }
-                            }),
+						// ===== HAL / PERIHAL → NAMA KEGIATAN =====
+						$perihal = $extractor->extractPerihal($path);
+						if (! empty($perihal)) {
+							$set('nama_kegiatan', $perihal);
+						}
+					}),
+
 
                         TextInput::make('nomor')
                             ->label('Nomor Surat')

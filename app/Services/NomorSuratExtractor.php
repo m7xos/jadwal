@@ -8,7 +8,10 @@ use Spatie\PdfToText\Pdf;
 class NomorSuratExtractor
 {
     /**
-     * @param  string  $path  bisa absolute path (C:\...\file.pdf) atau path relatif di disk (surat-undangan/file.pdf)
+     * Ambil NOMOR SURAT dari PDF.
+     *
+     * @param  string  $path  bisa absolute path (C:\...\file.pdf)
+     *                        atau path relatif di disk 'public' (surat-undangan/file.pdf)
      */
     public function extract(string $path): ?string
     {
@@ -32,12 +35,7 @@ class NomorSuratExtractor
             return null;
         }
 
-        // ========== POLA 1: "Nomor : 800/489/BKD" dll ==========
-        // Cocok dengan:
-        // - 400.10/533/Kesrasos
-        // - 400.10/342/DINSOSPMD
-        // - 300.2.2/2261/Kesra
-        // - 800/489/BKD (PPPK) :contentReference[oaicite:1]{index=1}
+        // ========== POLA 1: "Nomor: 800/489/BKD" dll ==========
         $pattern = '/Nomor\s*[:\.]\s*([0-9A-Za-z.\/-]+)/i';
 
         if (preg_match($pattern, $text, $matches)) {
@@ -49,16 +47,6 @@ class NomorSuratExtractor
         }
 
         // ========== POLA 2: "Nomor" baris sendiri, nomor di baris bawah ==========
-        // Untuk surat model:
-        // Nomor
-        // Sifat
-        // Lampiran
-        // Hal
-        // :
-        // :
-        // :
-        // :
-        // 600.4.15/2255   (nomor surat)
         $lines = preg_split("/\r\n|\n|\r/", $text);
 
         if (! is_array($lines)) {
@@ -100,49 +88,84 @@ class NomorSuratExtractor
 
         return null;
     }
-	    /**
-     * Ambil teks HAL / PERIHAL dari file PDF di storage/public.
-     * Contoh baris yang dicari:
-     *  "HAL : Undangan Rapat Koordinasi ..."
-     *  "Perihal: Rapat Koordinasi Penanggulangan Bencana"
+
+    /**
+     * Ambil HAL / PERIHAL dari PDF.
+     *
+     * @param  string  $path  bisa absolute path atau path relatif di disk 'public'
      */
-    public function extractPerihalFromStoragePath(string $storagePath): ?string
+    public function extractPerihal(string $path): ?string
     {
-        try {
-            $fullPath = Storage::disk('public')->path($storagePath);
-        } catch (\Throwable $e) {
+        // 1. Tentukan full path (logika sama seperti extract())
+        if (is_file($path)) {
+            $fullPath = $path;
+        } else {
+            $fullPath = Storage::disk('public')->path($path);
+        }
+
+        if (! is_file($fullPath) || ! is_readable($fullPath)) {
             return null;
         }
 
-        if (! is_file($fullPath)) {
-            return null;
-        }
-
-        try {
-            $text = Pdf::getText($fullPath);
-        } catch (\Throwable $e) {
-            return null;
-        }
+        // 2. Baca teks dari PDF
+        $text = Pdf::getText($fullPath);
 
         if (! $text) {
             return null;
         }
 
-        // Pecah per baris, cari yang mengandung "HAL" / "PERIHAL"
-        $lines = preg_split('/\r\n|\r|\n/', $text);
+        // Pecah teks per baris
+        $lines = preg_split("/\r\n|\n|\r/", $text);
 
+        if (! is_array($lines)) {
+            return null;
+        }
+
+        // ========== POLA 1: "Hal: Undangan ...." / "Perihal : ..." satu baris ==========
         foreach ($lines as $line) {
-            if (preg_match('/\b(?:HAL|PERIHAL)\s*[:.]\s*(.+)$/iu', $line, $m)) {
-                $subject = trim($m[1]);
-                // rapikan spasi berlebih
-                $subject = preg_replace('/\s+/', ' ', $subject);
-                // batasi panjang biar nggak terlalu panjang
-                return mb_strimwidth($subject, 0, 200, '...');
+            $line = trim($line);
+
+            if ($line === '') {
+                continue;
+            }
+
+            // Hanya cek baris yang DIAWALI Hal/Perihal, untuk menghindari "hal tersebut..."
+            if (preg_match('/^(hal|perihal)\b\s*[:\-]?\s*(.+)$/iu', $line, $matches)) {
+                $subject = trim($matches[2] ?? '');
+
+                if ($subject !== '') {
+                    // rapikan spasi
+                    $subject = preg_replace('/\s+/', ' ', $subject);
+
+                    return mb_strimwidth($subject, 0, 200, '...');
+                }
+            }
+        }
+
+        // ========== POLA 2: "Hal" / "Perihal" di satu baris, isi di baris setelahnya ==========
+        for ($i = 0; $i < count($lines); $i++) {
+            $current = trim($lines[$i]);
+
+            if ($current === '') {
+                continue;
+            }
+
+            // Baris hanya "Hal" / "Perihal"
+            if (preg_match('/^(hal|perihal)\s*$/iu', $current)) {
+                for ($j = $i + 1; $j < min($i + 5, count($lines)); $j++) {
+                    $candidate = trim($lines[$j]);
+
+                    if ($candidate === '' || $candidate === ':') {
+                        continue;
+                    }
+
+                    $candidate = preg_replace('/\s+/', ' ', $candidate);
+
+                    return mb_strimwidth($candidate, 0, 200, '...');
+                }
             }
         }
 
         return null;
     }
-
 }
-
