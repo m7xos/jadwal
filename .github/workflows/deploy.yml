@@ -3,7 +3,7 @@ name: Deploy to VPS watumalang.online
 on:
   push:
     branches:
-      - main   # ganti kalau pakai branch lain
+      - master   # ganti kalau pakai branch lain
 
 jobs:
   deploy:
@@ -34,7 +34,7 @@ jobs:
             cd /var/www/jadwal
 
             git fetch origin
-            git reset --hard origin/main   # ganti kalau branch deploy-mu bukan main
+            git reset --hard origin/master   # ganti kalau branch deploy-mu bukan main
 
             # sesuaikan path composer di server (cek dengan: which composer)
             /usr/local/bin/composer install --no-dev --optimize-autoloader
