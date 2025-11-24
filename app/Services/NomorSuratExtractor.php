@@ -100,4 +100,49 @@ class NomorSuratExtractor
 
         return null;
     }
+	    /**
+     * Ambil teks HAL / PERIHAL dari file PDF di storage/public.
+     * Contoh baris yang dicari:
+     *  "HAL : Undangan Rapat Koordinasi ..."
+     *  "Perihal: Rapat Koordinasi Penanggulangan Bencana"
+     */
+    public function extractPerihalFromStoragePath(string $storagePath): ?string
+    {
+        try {
+            $fullPath = Storage::disk('public')->path($storagePath);
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        if (! is_file($fullPath)) {
+            return null;
+        }
+
+        try {
+            $text = Pdf::getText($fullPath);
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        if (! $text) {
+            return null;
+        }
+
+        // Pecah per baris, cari yang mengandung "HAL" / "PERIHAL"
+        $lines = preg_split('/\r\n|\r|\n/', $text);
+
+        foreach ($lines as $line) {
+            if (preg_match('/\b(?:HAL|PERIHAL)\s*[:.]\s*(.+)$/iu', $line, $m)) {
+                $subject = trim($m[1]);
+                // rapikan spasi berlebih
+                $subject = preg_replace('/\s+/', ' ', $subject);
+                // batasi panjang biar nggak terlalu panjang
+                return mb_strimwidth($subject, 0, 200, '...');
+            }
+        }
+
+        return null;
+    }
+
 }
+

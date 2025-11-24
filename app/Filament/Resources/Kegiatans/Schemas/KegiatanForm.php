@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Filament\Resources\Kegiatans\Schemas;
-use Filament\Forms\Components\Toggle;
 
 use App\Services\NomorSuratExtractor;
 use Filament\Forms\Components\DatePicker;
@@ -19,14 +18,19 @@ class KegiatanForm
     {
         return $schema
             ->components([
+                // =========================
+                // SECTION: INFORMASI KEGIATAN
+                // =========================
                 Section::make('Informasi Kegiatan')
                     ->schema([
+                        // Upload surat undangan (PDF)
                         FileUpload::make('surat_undangan')
                             ->label('Surat Undangan (PDF)')
                             ->disk('public')
                             ->directory('surat-undangan')
                             ->preserveFilenames()
                             ->acceptedFileTypes(['application/pdf'])
+                            ->required()
                             ->getUploadedFileNameForStorageUsing(
                                 fn (TemporaryUploadedFile $file): string =>
                                     now()->format('Ymd_His') . '_' . $file->getClientOriginalName()
@@ -36,24 +40,27 @@ class KegiatanForm
                                     return;
                                 }
 
-                                // Tentukan path file yang benar
-                                if ($state instanceof TemporaryUploadedFile) {
-                                    // Saat baru upload → file temp
-                                    $path = $state->getRealPath();
-                                } elseif (is_string($state)) {
-                                    // Saat edit / sudah tersimpan → path relatif atau absolut
-                                    $path = $state;
-                                } else {
-                                    return;
-                                }
-
                                 /** @var NomorSuratExtractor $extractor */
                                 $extractor = app(NomorSuratExtractor::class);
 
-                                $nomor = $extractor->extract($path);
+                                // Nomor surat (kalau service punya method ini)
+                                $nomor = null;
+                                if (method_exists($extractor, 'extractFromStoragePath')) {
+                                    $nomor = $extractor->extractFromStoragePath($state);
+                                }
 
-                                if ($nomor) {
+                                if (! empty($nomor)) {
                                     $set('nomor', $nomor);
+                                }
+
+                                // Hal / Perihal -> Nama kegiatan (kalau service punya method ini)
+                                $perihal = null;
+                                if (method_exists($extractor, 'extractPerihalFromStoragePath')) {
+                                    $perihal = $extractor->extractPerihalFromStoragePath($state);
+                                }
+
+                                if (! empty($perihal)) {
+                                    $set('nama_kegiatan', $perihal);
                                 }
                             }),
 
@@ -61,12 +68,13 @@ class KegiatanForm
                             ->label('Nomor Surat')
                             ->required()
                             ->maxLength(100)
-                            ->helperText('Akan otomatis diisi dari PDF jika pola "Nomor :" atau "Nomor" ditemukan.'),
+                            ->helperText('Akan otomatis diisi dari PDF jika pola nomor surat dikenali.'),
 
                         TextInput::make('nama_kegiatan')
                             ->label('Nama Kegiatan')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(500) // dibuat lebih panjang
+                            ->helperText('Diambil otomatis dari HAL/PERIHAL surat (bisa diubah).'),
 
                         DatePicker::make('tanggal')
                             ->label('Hari / Tanggal')
@@ -83,17 +91,17 @@ class KegiatanForm
                             ->label('Tempat')
                             ->required()
                             ->maxLength(255),
-						Toggle::make('sudah_disposisi')
-							->label('Sudah Disposisi Pimpinan?')
-							->helperText('Centang jika surat undangan sudah mendapatkan disposisi pimpinan.')
-							->default(false),
-							
+
                         Textarea::make('keterangan')
                             ->label('Keterangan')
                             ->rows(3),
                     ])
-                    ->columns(2),
+                    ->columns(2)         // isi form dibagi 2 kolom
+                    ->columnSpanFull(),  // section ini full lebar
 
+                // =========================
+                // SECTION: PERSONIL YANG MENGHADIRI (DI BAWAH)
+                // =========================
                 Section::make('Personil yang Menghadiri')
                     ->schema([
                         Select::make('personils')
@@ -103,7 +111,9 @@ class KegiatanForm
                             ->preload()
                             ->searchable()
                             ->helperText('Pilih personil yang akan menghadiri kegiatan ini.'),
-                    ]),
+                    ])
+                    ->columns(1)
+                    ->columnSpanFull(),  // section ini juga full lebar, otomatis di bawah
             ]);
     }
 }
