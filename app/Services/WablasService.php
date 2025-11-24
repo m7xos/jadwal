@@ -20,15 +20,15 @@ class WablasService
     {
         $this->baseUrl   = rtrim(config('wablas.base_url', 'https://solo.wablas.com'), '/');
         $this->token     = (string) config('wablas.token', '');
-        $this->secretKey = config('wablas.secret_key');      // boleh null / kosong
+        $this->secretKey = config('wablas.secret_key'); // boleh null / kosong
         $this->groupId   = (string) config('wablas.group_id', '');
     }
 
     public function isConfigured(): bool
     {
-        return $this->baseUrl !== '' &&
-            $this->token !== '' &&
-            $this->groupId !== '';
+        return $this->baseUrl !== ''
+            && $this->token !== ''
+            && $this->groupId !== '';
     }
 
     protected function getAuthHeaderValue(): string
@@ -48,7 +48,10 @@ class WablasService
                 'Authorization' => $this->getAuthHeaderValue(),
                 'Content-Type'  => 'application/json',
             ])
-            ->withOptions(['verify' => false]); // kalau SSL sudah rapi, boleh dihapus verify=false
+            ->withOptions([
+                // kalau SSL sudah rapi, boleh dihapus verify=false
+                'verify' => false,
+            ]);
     }
 
     /**
@@ -60,7 +63,7 @@ class WablasService
             return null;
         }
 
-        // path relatif di disk 'public' → /storage/...
+        // path relatif di disk 'public' -> /storage/...
         $relativeUrl = Storage::disk('public')->url($path);
 
         // jadikan absolute URL: https://domainmu/storage/...
@@ -72,180 +75,178 @@ class WablasService
      *
      * @param iterable<Kegiatan> $kegiatans
      */
-   /**
- * Format pesan rekap untuk banyak kegiatan (untuk grup WA).
- *
- * @param iterable<Kegiatan> $kegiatans
- */
-	protected function buildGroupMessage(iterable $kegiatans): string
-	{
-		$items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
-		$items = $items->sortBy('tanggal');
+    protected function buildGroupMessage(iterable $kegiatans): string
+    {
+        $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
+        $items = $items->sortBy('tanggal');
 
-		$messageLines = [];
+        $lines = [];
 
-		$messageLines[] = '*REKAP AGENDA KEGIATAN KANTOR*';
-		$messageLines[] = '';
+        $lines[] = '*REKAP AGENDA KEGIATAN KANTOR*';
+        $lines[] = '';
 
-		if ($items->isNotEmpty()) {
-			$messageLines[] = '📅 Tanggal rekap: *' .
-				optional($items->first()->tanggal)->format('d-m-Y') . '*';
-			$messageLines[] = '';
-		}
+        if ($items->isNotEmpty()) {
+            $lines[] = '📅 Tanggal rekap: *' .
+                optional($items->first()->tanggal)->format('d-m-Y') . '*';
+            $lines[] = '';
+        }
 
-		$no = 1;
+        $no = 1;
 
-		/** @var \App\Models\Kegiatan $kegiatan */
-		foreach ($items as $kegiatan) {
-			if ($no > 1) {
-				$messageLines[] = '────────────────────────';
-			}
+        /** @var \App\Models\Kegiatan $kegiatan */
+        foreach ($items as $kegiatan) {
+            if ($no > 1) {
+                $lines[] = '────────────────────────';
+            }
 
-			// Judul kegiatan
-			$messageLines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
+            // Judul kegiatan
+            $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
 
-			// Detail utama
-			$messageLines[] = '🆔 *Nomor Surat*  : ' . ($kegiatan->nomor ?? '-');
-			$messageLines[] = '📅 *Hari/Tanggal* : ' . ($kegiatan->tanggal_label ?? '-');
-			$messageLines[] = '⏰ *Waktu*        : ' . ($kegiatan->waktu ?? '-');
-			$messageLines[] = '📍 *Tempat*       : ' . ($kegiatan->tempat ?? '-');
+            // Detail utama
+            $lines[] = '🆔 *Nomor Surat*  : ' . ($kegiatan->nomor ?? '-');
+            $lines[] = '📅 *Hari/Tanggal* : ' . ($kegiatan->tanggal_label ?? '-');
+            $lines[] = '⏰ *Waktu*        : ' . ($kegiatan->waktu ?? '-');
+            $lines[] = '📍 *Tempat*       : ' . ($kegiatan->tempat ?? '-');
 
-			// Personil
-			$personils = $kegiatan->personils ?? collect();
-			if ($personils->isNotEmpty()) {
-				$messageLines[] = '👥 *Personil Hadir*:';
-				foreach ($personils as $p) {
-					$jabatan = $p->jabatan ? ' (' . $p->jabatan . ')' : '';
-					$messageLines[] = '   • ' . $p->nama . $jabatan;
-				}
-			} else {
-				$messageLines[] = '👥 *Personil Hadir*: -';
-			}
+            // Personil
+            $personils = $kegiatan->personils ?? collect();
+            if ($personils->isNotEmpty()) {
+                $lines[] = '👥 *Personil Hadir*:';
+                foreach ($personils as $p) {
+                    $jabatan = $p->jabatan ? ' (' . $p->jabatan . ')' : '';
+                    $lines[] = '   • ' . $p->nama . $jabatan;
+                }
+            } else {
+                $lines[] = '👥 *Personil Hadir*: -';
+            }
 
-			// Keterangan
-			if (! empty($kegiatan->keterangan)) {
-				$messageLines[] = '📝 *Keterangan*:';
-				$messageLines[] = $kegiatan->keterangan;
-			}
+            // Keterangan
+            if (! empty($kegiatan->keterangan)) {
+                $lines[] = '📝 *Keterangan*:';
+                $lines[] = $kegiatan->keterangan;
+            }
 
-			// Link surat undangan
-			$suratUrl = $this->getSuratUrl($kegiatan->surat_undangan ?? null);
-			if ($suratUrl) {
-				$messageLines[] = '📎 *Surat Undangan (PDF)*:';
-				$messageLines[] = $suratUrl;
-			}
+            // Link surat undangan
+            $suratUrl = $this->getSuratUrl($kegiatan->surat_undangan ?? null);
+            if ($suratUrl) {
+                $lines[] = '📎 *Surat Undangan (PDF)*:';
+                $lines[] = $suratUrl;
+            }
 
-			$messageLines[] = ''; // spasi antar agenda
-			$no++;
-		}
+            $lines[] = ''; // spasi antar agenda
+            $no++;
+        }
 
-		$messageLines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
+        $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
 
-		return implode("\n", $messageLines);
-	}
-	/**
-	 * Kirim ke grup WA: daftar agenda yang BELUM disposisi.
-	 *
-	 * @param iterable<Kegiatan> $kegiatans
-	 */
-	protected function buildGroupMessageBelumDisposisi(iterable $kegiatans): string
-	{
-		$items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
-		$items = $items->sortBy('tanggal');
+        return implode("\n", $lines);
+    }
 
-		$lines = [];
+    /**
+     * Format pesan ringkas untuk agenda yang BELUM disposisi.
+     *
+     * Hanya menampilkan: nomor surat, nama kegiatan, waktu, tempat, link surat.
+     *
+     * @param iterable<Kegiatan> $kegiatans
+     */
+    protected function buildGroupMessageBelumDisposisi(iterable $kegiatans): string
+    {
+        $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
+        $items = $items->sortBy('tanggal');
 
-		$lines[] = '*AGENDA MENUNGGU DISPOSISI PIMPINAN*';
-		$lines[] = '';
-		$lines[] = 'Berikut daftar kegiatan yang belum mendapatkan disposisi pimpinan:';
-		$lines[] = '';
+        $lines = [];
 
-		$no = 1;
+        $lines[] = '*AGENDA MENUNGGU DISPOSISI PIMPINAN*';
+        $lines[] = '';
+        $lines[] = 'Berikut daftar kegiatan yang belum mendapatkan disposisi pimpinan:';
+        $lines[] = '';
 
-		/** @var \App\Models\Kegiatan $kegiatan */
-		foreach ($items as $kegiatan) {
-			if ($no > 1) {
-				$lines[] = '────────────────────────';
-			}
+        $no = 1;
 
-			$lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
-			$lines[] = '🆔 *Nomor Surat* : ' . ($kegiatan->nomor ?? '-');
-			$lines[] = '⏰ *Waktu*       : ' . ($kegiatan->waktu ?? '-');
-			$lines[] = '📍 *Tempat*      : ' . ($kegiatan->tempat ?? '-');
+        /** @var \App\Models\Kegiatan $kegiatan */
+        foreach ($items as $kegiatan) {
+            if ($no > 1) {
+                $lines[] = '────────────────────────';
+            }
 
-			$suratUrl = $this->getSuratUrl($kegiatan->surat_undangan ?? null);
-			if ($suratUrl) {
-				$lines[] = '📎 *Surat Undangan (PDF)*';
-				$lines[] = $suratUrl;
-			}
+            $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
+            $lines[] = '🆔 *Nomor Surat* : ' . ($kegiatan->nomor ?? '-');
+            $lines[] = '⏰ *Waktu*       : ' . ($kegiatan->waktu ?? '-');
+            $lines[] = '📍 *Tempat*      : ' . ($kegiatan->tempat ?? '-');
 
-			$lines[] = ''; // spasi antar kegiatan
-			$no++;
-		}
+            $suratUrl = $this->getSuratUrl($kegiatan->surat_undangan ?? null);
+            if ($suratUrl) {
+                $lines[] = '📎 *Surat Undangan (PDF)*';
+                $lines[] = $suratUrl;
+            }
 
-		if ($no === 1) {
-			$lines[] = '_Tidak ada agenda yang berstatus menunggu disposisi._';
-		} else {
-			$lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
-		}
+            $lines[] = ''; // spasi antar kegiatan
+            $no++;
+        }
 
-		$lines[] = '';
-		$lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
+        if ($no === 1) {
+            $lines[] = '_Tidak ada agenda yang berstatus menunggu disposisi._';
+        } else {
+            $lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
+        }
 
-		return implode("\n", $lines);
-	}
-/**
- * Format pesan khusus utk 1 kegiatan ke WA personil.
- */
-	protected function buildPersonilMessage(Kegiatan $kegiatan): string
-	{
-		$lines = [];
+        $lines[] = '';
+        $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
 
-		$lines[] = '*UNDANGAN / INFORMASI KEGIATAN*';
-		$lines[] = '────────────────────────';
-		$lines[] = '';
+        return implode("\n", $lines);
+    }
 
-		$lines[] = '*Nama Kegiatan*';
-		$lines[] = ($kegiatan->nama_kegiatan ?? '-');
-		$lines[] = '';
+    /**
+     * Format pesan khusus utk 1 kegiatan ke WA personil.
+     */
+    protected function buildPersonilMessage(Kegiatan $kegiatan): string
+    {
+        $lines = [];
 
-		$lines[] = '*Nomor Surat*';
-		$lines[] = ($kegiatan->nomor ?? '-');
-		$lines[] = '';
+        $lines[] = '*UNDANGAN / INFORMASI KEGIATAN*';
+        $lines[] = '────────────────────────';
+        $lines[] = '';
 
-		$lines[] = '*Hari / Tanggal*';
-		$lines[] = ($kegiatan->tanggal_label ?? '-');
-		$lines[] = '';
+        $lines[] = '*Nama Kegiatan*';
+        $lines[] = ($kegiatan->nama_kegiatan ?? '-');
+        $lines[] = '';
 
-		$lines[] = '*Waktu*';
-		$lines[] = ($kegiatan->waktu ?? '-');
-		$lines[] = '';
+        $lines[] = '*Nomor Surat*';
+        $lines[] = ($kegiatan->nomor ?? '-');
+        $lines[] = '';
 
-		$lines[] = '*Tempat*';
-		$lines[] = ($kegiatan->tempat ?? '-');
-		$lines[] = '';
+        $lines[] = '*Hari / Tanggal*';
+        $lines[] = ($kegiatan->tanggal_label ?? '-');
+        $lines[] = '';
 
-		if (! empty($kegiatan->keterangan)) {
-			$lines[] = '*Keterangan*';
-			$lines[] = $kegiatan->keterangan;
-			$lines[] = '';
-		}
+        $lines[] = '*Waktu*';
+        $lines[] = ($kegiatan->waktu ?? '-');
+        $lines[] = '';
 
-		// Link surat undangan kalau ada
-		$suratUrl = $this->getSuratUrl($kegiatan->surat_undangan ?? null);
-		if ($suratUrl) {
-			$lines[] = '📎 *Surat Undangan (PDF)*';
-			$lines[] = $suratUrl;
-			$lines[] = '';
-		}
+        $lines[] = '*Tempat*';
+        $lines[] = ($kegiatan->tempat ?? '-');
+        $lines[] = '';
 
-		$lines[] = 'Mohon kehadiran Bapak/Ibu sesuai jadwal di atas.';
-		$lines[] = '';
-		$lines[] = '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._';
+        if (! empty($kegiatan->keterangan)) {
+            $lines[] = '*Keterangan*';
+            $lines[] = $kegiatan->keterangan;
+            $lines[] = '';
+        }
 
-		return implode("\n", $lines);
-	}
+        // Link surat undangan kalau ada
+        $suratUrl = $this->getSuratUrl($kegiatan->surat_undangan ?? null);
+        if ($suratUrl) {
+            $lines[] = '📎 *Surat Undangan (PDF)*';
+            $lines[] = $suratUrl;
+            $lines[] = '';
+        }
 
+        $lines[] = 'Mohon kehadiran Bapak/Ibu sesuai jadwal di atas.';
+        $lines[] = '';
+        $lines[] = '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._';
+
+        return implode("\n", $lines);
+    }
 
     /**
      * Kirim rekap ke GRUP WA.
@@ -299,6 +300,64 @@ class WablasService
         $json = $response->json();
 
         Log::info('WablasService: response sendGroupRekap', [
+            'response' => $json,
+        ]);
+
+        return (bool) data_get($json, 'status', false);
+    }
+
+    /**
+     * Kirim ke grup WA: daftar agenda yang BELUM disposisi.
+     *
+     * @param iterable<Kegiatan> $kegiatans
+     */
+    public function sendGroupBelumDisposisi(iterable $kegiatans): bool
+    {
+        if (! $this->isConfigured()) {
+            Log::error('WablasService: konfigurasi belum lengkap untuk sendGroupBelumDisposisi', [
+                'base_url'  => $this->baseUrl,
+                'token_set' => $this->token !== '',
+                'group_id'  => $this->groupId,
+            ]);
+
+            return false;
+        }
+
+        $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
+
+        if ($items->isEmpty()) {
+            Log::info('WablasService: sendGroupBelumDisposisi dipanggil tanpa data kegiatan');
+
+            return false;
+        }
+
+        $message = $this->buildGroupMessageBelumDisposisi($items);
+
+        $payload = [
+            'data' => [
+                [
+                    'phone'   => $this->groupId,  // ID grup dari config
+                    'message' => $message,
+                    'isGroup' => 'true',
+                ],
+            ],
+        ];
+
+        $response = $this->client()
+            ->post($this->baseUrl . '/api/v2/send-message', $payload);
+
+        if (! $response->successful()) {
+            Log::error('WablasService: HTTP error kirim agenda belum disposisi', [
+                'status' => $response->status(),
+                'body'   => $response->body(),
+            ]);
+
+            return false;
+        }
+
+        $json = $response->json();
+
+        Log::info('WablasService: response sendGroupBelumDisposisi', [
             'response' => $json,
         ]);
 
