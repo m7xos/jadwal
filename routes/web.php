@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PublicKegiatanController;
+use App\Http\Controllers\KegiatanSuratController;
 
 //Route::get('/', function () {
 //    return view('audio');
