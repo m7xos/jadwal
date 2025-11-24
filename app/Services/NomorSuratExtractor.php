@@ -35,7 +35,7 @@ class NomorSuratExtractor
             return null;
         }
 
-        // ========== POLA 1: "Nomor: 800/489/BKD" dll ==========
+        // ========== POLA 1: "Nomor : 800/489/BKD" dll ==========
         $pattern = '/Nomor\s*[:\.]\s*([0-9A-Za-z.\/-]+)/i';
 
         if (preg_match($pattern, $text, $matches)) {
@@ -96,7 +96,7 @@ class NomorSuratExtractor
      */
     public function extractPerihal(string $path): ?string
     {
-        // 1. Tentukan full path (logika sama seperti extract())
+        // 1. Tentukan full path
         if (is_file($path)) {
             $fullPath = $path;
         } else {
@@ -114,14 +114,14 @@ class NomorSuratExtractor
             return null;
         }
 
-        // Pecah teks per baris
+        // Pecah per baris
         $lines = preg_split("/\r\n|\n|\r/", $text);
 
         if (! is_array($lines)) {
             return null;
         }
 
-        // ========== POLA 1: "Hal: Undangan ...." / "Perihal : ..." satu baris ==========
+        // ========== POLA 1: "Hal : Revisi Undangan ..." / "Perihal: Undangan ..." (1 baris) ==========
         foreach ($lines as $line) {
             $line = trim($line);
 
@@ -129,12 +129,11 @@ class NomorSuratExtractor
                 continue;
             }
 
-            // Hanya cek baris yang DIAWALI Hal/Perihal, untuk menghindari "hal tersebut..."
-            if (preg_match('/^(hal|perihal)\b\s*[:\-]?\s*(.+)$/iu', $line, $matches)) {
+            // Awalan Hal/Perihal (case-insensitive), boleh ada titik dua / minus
+            if (preg_match('/^\s*(hal|perihal)\b\s*[:\-]?\s*(.+)$/iu', $line, $matches)) {
                 $subject = trim($matches[2] ?? '');
 
                 if ($subject !== '') {
-                    // rapikan spasi
                     $subject = preg_replace('/\s+/', ' ', $subject);
 
                     return mb_strimwidth($subject, 0, 200, '...');
@@ -142,7 +141,7 @@ class NomorSuratExtractor
             }
         }
 
-        // ========== POLA 2: "Hal" / "Perihal" di satu baris, isi di baris setelahnya ==========
+        // ========== POLA 2: "Hal" / "Perihal" sendirian, isi baris setelahnya ==========
         for ($i = 0; $i < count($lines); $i++) {
             $current = trim($lines[$i]);
 
@@ -150,8 +149,8 @@ class NomorSuratExtractor
                 continue;
             }
 
-            // Baris hanya "Hal" / "Perihal"
-            if (preg_match('/^(hal|perihal)\s*$/iu', $current)) {
+            // Baris hanya "Hal", "Hal:", "Perihal", "Perihal:"
+            if (preg_match('/^\s*(hal|perihal)\b\s*[:\-]?\s*$/iu', $current)) {
                 for ($j = $i + 1; $j < min($i + 5, count($lines)); $j++) {
                     $candidate = trim($lines[$j]);
 
