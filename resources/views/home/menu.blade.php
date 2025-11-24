@@ -22,7 +22,7 @@
         <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
                 <h1 class="text-2xl md:text-3xl font-bold tracking-tight">
-                    Sistem Aplikasi Kantor
+                    Selamat datang
                 </h1>
                 <p class="text-sm md:text-base text-sky-100 mt-1">
                     Silakan pilih aplikasi yang ingin digunakan.
