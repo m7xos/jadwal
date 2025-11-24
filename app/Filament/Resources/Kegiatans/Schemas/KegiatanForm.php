@@ -24,42 +24,41 @@ class KegiatanForm
                 Section::make('Informasi Kegiatan')
                     ->schema([
                         // Upload surat undangan (PDF)
-						FileUpload::make('surat_undangan')
-							->label('Surat Undangan (PDF)')
-							->disk('public')
-							->directory('surat-undangan')
-							->preserveFilenames()
-							->acceptedFileTypes(['application/pdf'])
-							->required()
-							->getUploadedFileNameForStorageUsing(
-								fn (TemporaryUploadedFile $file): string =>
-									now()->format('Ymd_His') . '_' . $file->getClientOriginalName()
-							)
-							->afterStateUpdated(function ($state, callable $set) {
-								if (! $state) {
-									return;
-								}
+                        FileUpload::make('surat_undangan')
+                            ->label('Surat Undangan (PDF)')
+                            ->disk('public')
+                            ->directory('surat-undangan')
+                            ->preserveFilenames()
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->required()
+                            ->getUploadedFileNameForStorageUsing(
+                                fn (TemporaryUploadedFile $file): string =>
+                                    now()->format('Ymd_His') . '_' . $file->getClientOriginalName()
+                            )
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if (! $state) {
+                                    return;
+                                }
 
-								/** @var NomorSuratExtractor $extractor */
-								$extractor = app(NomorSuratExtractor::class);
+                                /** @var NomorSuratExtractor $extractor */
+                                $extractor = app(NomorSuratExtractor::class);
 
-								// $state = path relatif di disk 'public', misal "surat-undangan/xxx.pdf"
+                                // $state = path relatif di disk 'public', misal "surat-undangan/xxx.pdf"
 
-								// ===== NOMOR SURAT =====
-								$nomor = $extractor->extract($state);
+                                // ===== NOMOR SURAT =====
+                                $nomor = $extractor->extract($state);
+                                if (! empty($nomor)) {
+                                    $set('nomor', $nomor);
+                                }
 
-								if (! empty($nomor)) {
-									$set('nomor', $nomor);
-								}
-
-								// ===== HAL / PERIHAL → NAMA KEGIATAN =====
-								$perihal = $extractor->extractPerihal($state);
-
-								if (! empty($perihal)) {
-									$set('nama_kegiatan', $perihal);
-								}
-							}),
-
+                                // ===== HAL / PERIHAL → NAMA KEGIATAN =====
+                                if (method_exists($extractor, 'extractPerihal')) {
+                                    $perihal = $extractor->extractPerihal($state);
+                                    if (! empty($perihal)) {
+                                        $set('nama_kegiatan', $perihal);
+                                    }
+                                }
+                            }),
 
                         TextInput::make('nomor')
                             ->label('Nomor Surat')
@@ -110,7 +109,7 @@ class KegiatanForm
                             ->helperText('Pilih personil yang akan menghadiri kegiatan ini.'),
                     ])
                     ->columns(1)
-                    ->columnSpanFull(),  // section ini juga full lebar, otomatis di bawah
+                    ->columnSpanFull(),
             ]);
     }
 }
