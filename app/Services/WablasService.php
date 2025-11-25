@@ -140,6 +140,7 @@ class WablasService
             if (! empty($kegiatan->keterangan)) {
                 $lines[] = '📝 *Keterangan*:';
                 $lines[] = $kegiatan->keterangan;
+				$lines = [];
             }
 
             // Short-link surat undangan
@@ -189,7 +190,7 @@ class WablasService
             $lines[] = '🆔 *Nomor Surat* : ' . ($kegiatan->nomor ?? '-');
             $lines[] = '⏰ *Waktu*       : ' . ($kegiatan->waktu ?? '-');
             $lines[] = '📍 *Tempat*      : ' . ($kegiatan->tempat ?? '-');
-
+			$lines = [];
             $suratUrl = $this->getShortSuratUrl($kegiatan);
             if ($suratUrl) {
                 $lines[] = '📎 *Surat Undangan (PDF)*';
