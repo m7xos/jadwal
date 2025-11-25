@@ -100,10 +100,8 @@ class WablasService
         $lines[] = '';
 
         if ($items->isNotEmpty()) {
-            $lines[] = '📅 Tanggal rekap: *' .
-                optional($items->first()->tanggal)->format('d-m-Y') . '*';
+            $lines[] = '📅 Tanggal rekap: *' . now()->format('d-m-Y H:i') . ' WIB*';
             $lines[] = '';
-        }
 
         $no = 1;
 
