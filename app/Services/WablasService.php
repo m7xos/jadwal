@@ -89,35 +89,36 @@ class WablasService
      *
      * @param iterable<Kegiatan> $kegiatans
      */
-    protected function buildGroupMessage(iterable $kegiatans): string
+        protected function buildGroupMessage(iterable $kegiatans): string
     {
         $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
         $items = $items->sortBy('tanggal');
 
         $lines = [];
 
+        // HEADER
         $lines[] = '*REKAP AGENDA KEGIATAN KANTOR*';
         $lines[] = '';
 
         if ($items->isNotEmpty()) {
             // Tanggal + jam rekap
-            $lines[] = '📅 Tanggal rekap: _' . now()->format('d-m-Y H:i') . ' WIB_';
+            $lines[] = '📅 Tanggal rekap: ' . now()->format('d-m-Y H:i') . ' WIB';
 
-            // ➕ HARI & TANGGAL AGENDA YANG SEDANG DIFILTER
+            // Hari & tanggal agenda yang sedang difilter (diambil dari kegiatan pertama)
             $first = $items->first();
             if ($first && $first->tanggal) {
                 try {
-                    // Pastikan locale Indonesia, misal: Senin, 1 Januari 2025
                     $label = $first->tanggal->locale('id')->isoFormat('dddd, D MMMM Y');
                     $lines[] = '📌 Agenda untuk: *' . $label . '*';
                 } catch (\Throwable $e) {
-                    // Abaikan jika terjadi error parsing tanggal, jangan ganggu pengiriman pesan
+                    // Abaikan error agar tidak menggagalkan pengiriman pesan
                 }
             }
 
-            $lines[] = '';
+            $lines[] = ''; // spasi setelah header
         }
 
+        // ISI AGENDA
         $no = 1;
 
         /** @var \App\Models\Kegiatan $kegiatan */
@@ -129,65 +130,61 @@ class WablasService
             // Judul kegiatan
             $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
 
-            // Detail utama
-           // $lines[] = '🆔 *Nomor Surat*  : ' . ($kegiatan->nomor ?? '-');
-            $lines[] = ' *Hari/Tanggal* : ' . ($kegiatan->tanggal_label ?? '-');
-            $lines[] = ' *Waktu*             : ' . ($kegiatan->waktu ?? '-');
-            $lines[] = ' *Tempat*            : ' . ($kegiatan->tempat ?? '-');
+            // Detail utama (format ringkas)
+            $lines[] = '📅 ' . ($kegiatan->tanggal_label ?? '-');
+            $lines[] = '⏰ ' . ($kegiatan->waktu ?? '-');
+            $lines[] = '📍 ' . ($kegiatan->tempat ?? '-');
 
-            // Personil
+            // Personil yang ditugaskan
             $personils = $kegiatan->personils ?? collect();
             if ($personils->isNotEmpty()) {
-                $lines[] = '👥 *Pegawai yang ditugaskan*:';
+                // Satu baris: nama + jabatan, dipisah dengan "; "
+                $lines[] = '👥 ' . $personils->map(function ($p) {
+                    $jabatan = $p->jabatan ? ' (' . $p->jabatan . ')' : '';
+                    return $p->nama . $jabatan;
+                })->implode('; ');
 
+                // Tag nomor WA untuk notifikasi
                 $mentionTags = [];
 
                 foreach ($personils as $p) {
-                    $jabatan = $p->jabatan ? ' (' . $p->jabatan . ')' : '';
-                    $lines[] = '   • ' . $p->nama . $jabatan;
-
-                    // Tambah tag nomor WA (jika ada)
                     $rawNo = trim((string) ($p->no_wa ?? ''));
-                    if ($rawNo !== '') {
-                        // Hapus karakter non angka
-                        $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
-
-                        if ($digits !== '') {
-                            // Normalisasi: 08xxxxx -> 628xxxxx
-                            if (substr($digits, 0, 1) === '0') {
-                                $digits = '62' . substr($digits, 1);
-                            }
-                            // Kalau sudah 62xxxxx dibiarkan
-                            $mentionTags[] = '@' . $digits;
-                        }
+                    if ($rawNo === '') {
+                        continue;
                     }
+
+                    // Hapus karakter non-angka
+                    $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
+                    if ($digits === '') {
+                        continue;
+                    }
+
+                    // Normalisasi: 08xxxxx -> 628xxxxx
+                    if (substr($digits, 0, 1) === '0') {
+                        $digits = '62' . substr($digits, 1);
+                    }
+
+                    $mentionTags[] = '@' . $digits;
                 }
 
                 if (! empty($mentionTags)) {
-                    // Baris khusus tag personil
-                    $lines[] = ' Notifikasi: ' . implode(' ', $mentionTags);
+                    $lines[] = '🔔 ' . implode(' ', $mentionTags);
                 }
             } else {
-                $lines[] = ' *Pegawai yang ditugaskan*: -';
-            }
-
-            // Keterangan
-            if (! empty($kegiatan->keterangan)) {
-                $lines[] = ' *Keterangan*:';
-                $lines[] = $kegiatan->keterangan;
+                $lines[] = '👥 -';
             }
 
             // Short-link surat undangan
             $suratUrl = $this->getShortSuratUrl($kegiatan);
             if ($suratUrl) {
-                $lines[] = '📎 *Surat Undangan (PDF)*:';
-                $lines[] = $suratUrl;
+                $lines[] = '📎 ' . $suratUrl;
             }
 
             $lines[] = ''; // spasi antar agenda
             $no++;
         }
 
+        // FOOTER
         $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
 
         return implode("\n", $lines);
