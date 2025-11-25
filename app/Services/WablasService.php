@@ -101,7 +101,20 @@ class WablasService
 
         if ($items->isNotEmpty()) {
             // Tanggal + jam rekap
-            $lines[] = '📅 Tanggal rekap: *' . now()->format('d-m-Y H:i') . ' WIB*';
+            $lines[] = '📅 Tanggal rekap: _' . now()->format('d-m-Y H:i') . ' WIB_';
+
+            // ➕ HARI & TANGGAL AGENDA YANG SEDANG DIFILTER
+            $first = $items->first();
+            if ($first && $first->tanggal) {
+                try {
+                    // Pastikan locale Indonesia, misal: Senin, 1 Januari 2025
+                    $label = $first->tanggal->locale('id')->isoFormat('dddd, D MMMM Y');
+                    $lines[] = '📌 Agenda untuk: *' . $label . '*';
+                } catch (\Throwable $e) {
+                    // Abaikan jika terjadi error parsing tanggal, jangan ganggu pengiriman pesan
+                }
+            }
+
             $lines[] = '';
         }
 
