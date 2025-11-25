@@ -126,7 +126,7 @@
                                 @if($kegiatan->personils && $kegiatan->personils->isNotEmpty())
                                     <div class="mt-3 text-sm">
                                         <div class="text-[11px] uppercase tracking-wide text-slate-400 mb-1">
-                                            Personil yang menghadiri
+                                            Personil yang ditugaskan
                                         </div>
                                         <ul class="list-disc list-inside space-y-0.5 text-slate-700">
                                             @foreach($kegiatan->personils as $p)

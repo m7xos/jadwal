@@ -3,13 +3,14 @@
 namespace App\Filament\Resources\Kegiatans\Schemas;
 
 use App\Services\NomorSuratExtractor;
-use App\Models\Personil; // ⬅️ TAMBAHAN
+use App\Models\Personil;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;     // ⬅️ TAMBAHAN
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle; // ⬅️ TAMBAHAN
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -109,6 +110,10 @@ class KegiatanForm
                         Textarea::make('keterangan')
                             ->label('Keterangan')
                             ->rows(3),
+
+                        // ⬇️ FIELD HIDDEN UNTUK STATUS DISPOSISI (0 / 1)
+                        Hidden::make('sudah_disposisi')
+                            ->default(0),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
@@ -118,7 +123,7 @@ class KegiatanForm
                 // =========================
                 Section::make('Personil yang Menghadiri')
                     ->schema([
-                        // ⬇️ TOGGLE BARU: PILIH SEMUA PEGAWAI
+                        // ⬇️ TOGGLE: PILIH SEMUA PEGAWAI
                         Toggle::make('semua_personil')
                             ->label('Pilih semua pegawai')
                             ->helperText('Centang jika undangan melibatkan seluruh personil.')
@@ -144,6 +149,17 @@ class KegiatanForm
                             ->multiple()
                             ->preload()
                             ->searchable()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                // $state = array id personil atau null
+                                if (is_array($state) && count($state) > 0) {
+                                    // Ada personil -> sudah disposisi
+                                    $set('sudah_disposisi', 1);
+                                } else {
+                                    // Tidak ada personil -> belum disposisi
+                                    $set('sudah_disposisi', 0);
+                                }
+                            })
                             ->helperText('Pilih personil yang akan menghadiri kegiatan ini.'),
                     ])
                     ->columns(1)
