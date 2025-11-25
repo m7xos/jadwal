@@ -100,8 +100,10 @@ class WablasService
         $lines[] = '';
 
         if ($items->isNotEmpty()) {
+            // Tanggal + jam rekap
             $lines[] = '📅 Tanggal rekap: *' . now()->format('d-m-Y H:i') . ' WIB*';
             $lines[] = '';
+        }
 
         $no = 1;
 
@@ -119,7 +121,6 @@ class WablasService
             $lines[] = '📅 *Hari/Tanggal* : ' . ($kegiatan->tanggal_label ?? '-');
             $lines[] = '⏰ *Waktu*        : ' . ($kegiatan->waktu ?? '-');
             $lines[] = '📍 *Tempat*       : ' . ($kegiatan->tempat ?? '-');
-	        $lines = [];
 
             // Personil
             $personils = $kegiatan->personils ?? collect();
@@ -131,14 +132,12 @@ class WablasService
                 }
             } else {
                 $lines[] = '👥 *Personil Hadir*: -';
-
             }
 
             // Keterangan
             if (! empty($kegiatan->keterangan)) {
                 $lines[] = '📝 *Keterangan*:';
                 $lines[] = $kegiatan->keterangan;
-				$lines = [];
             }
 
             // Short-link surat undangan
@@ -188,7 +187,7 @@ class WablasService
             $lines[] = '🆔 *Nomor Surat* : ' . ($kegiatan->nomor ?? '-');
             $lines[] = '⏰ *Waktu*       : ' . ($kegiatan->waktu ?? '-');
             $lines[] = '📍 *Tempat*      : ' . ($kegiatan->tempat ?? '-');
-			$lines = [];
+
             $suratUrl = $this->getShortSuratUrl($kegiatan);
             if ($suratUrl) {
                 $lines[] = '📎 *Surat Undangan (PDF)*';
