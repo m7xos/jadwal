@@ -130,10 +130,10 @@ class WablasService
             $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
 
             // Detail utama
-            $lines[] = '🆔 *Nomor Surat*  : ' . ($kegiatan->nomor ?? '-');
-            $lines[] = '📅 *Hari/Tanggal* : ' . ($kegiatan->tanggal_label ?? '-');
-            $lines[] = '⏰ *Waktu*              : ' . ($kegiatan->waktu ?? '-');
-            $lines[] = '📍 *Tempat*            : ' . ($kegiatan->tempat ?? '-');
+           // $lines[] = '🆔 *Nomor Surat*  : ' . ($kegiatan->nomor ?? '-');
+            $lines[] = ' *Hari/Tanggal* : ' . ($kegiatan->tanggal_label ?? '-');
+            $lines[] = ' *Waktu*             : ' . ($kegiatan->waktu ?? '-');
+            $lines[] = ' *Tempat*            : ' . ($kegiatan->tempat ?? '-');
 
             // Personil
             $personils = $kegiatan->personils ?? collect();
@@ -165,15 +165,15 @@ class WablasService
 
                 if (! empty($mentionTags)) {
                     // Baris khusus tag personil
-                    $lines[] = '🔔 Notifikasi: ' . implode(' ', $mentionTags);
+                    $lines[] = ' Notifikasi: ' . implode(' ', $mentionTags);
                 }
             } else {
-                $lines[] = '👥 *Pegawai yang ditugaskan*: -';
+                $lines[] = ' *Pegawai yang ditugaskan*: -';
             }
 
             // Keterangan
             if (! empty($kegiatan->keterangan)) {
-                $lines[] = '📝 *Keterangan*:';
+                $lines[] = ' *Keterangan*:';
                 $lines[] = $kegiatan->keterangan;
             }
 
@@ -221,9 +221,9 @@ class WablasService
             }
 
             $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
-            $lines[] = '🆔 *Nomor Surat* : ' . ($kegiatan->nomor ?? '-');
-            $lines[] = '⏰ *Waktu*       : ' . ($kegiatan->waktu ?? '-');
-            $lines[] = '📍 *Tempat*      : ' . ($kegiatan->tempat ?? '-');
+            //$lines[] = '🆔 *Nomor Surat* : ' . ($kegiatan->nomor ?? '-');
+            $lines[] = ' *Waktu*       : ' . ($kegiatan->waktu ?? '-');
+            $lines[] = ' *Tempat*      : ' . ($kegiatan->tempat ?? '-');
 
             $suratUrl = $this->getShortSuratUrl($kegiatan);
             if ($suratUrl) {
