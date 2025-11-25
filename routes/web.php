@@ -15,7 +15,7 @@ Route::view('/', 'home.menu')->name('home');
 //    ->name('agenda.kegiatan.public');
 
 Route::get('/agenda-kegiatan', [PublicAgendaController::class, 'index'])
-    ->name('agenda.kegiatan.public');
+    ->name('public.agenda.index');
 
 // Halaman tampilan TV (yang full-screen tadi)
 Route::get('/agenda-kegiatan-tv', [PublicAgendaController::class, 'tv'])

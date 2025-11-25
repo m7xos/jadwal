@@ -4,34 +4,83 @@ namespace App\Http\Controllers;
 
 use App\Models\Kegiatan;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class PublicAgendaController extends Controller
 {
-    public function index()
-    {
-        $today = Carbon::today();
+    public function index(Request $request)
+	{
+		$today = Carbon::today();
 
-        $upcoming = Kegiatan::with('personils')
-            ->whereDate('tanggal', '>=', $today)
-            ->orderBy('tanggal')
-            ->orderBy('waktu')
-            ->get();
+		$startInput = $request->input('tanggal_mulai');
+		$endInput   = $request->input('tanggal_selesai');
 
-        $past = Kegiatan::with('personils')
-            ->whereDate('tanggal', '<', $today)
-            ->orderByDesc('tanggal')
-            ->orderBy('waktu')
-            ->limit(20)
-            ->get();
+		$startDate = null;
+		$endDate   = null;
 
-        return view('public.agenda.index', [
-            'today'    => $today,
-            'upcoming' => $upcoming,
-            'past'     => $past,
-        ]);
-    }
-	
-	public function tv()
+		// Parse tanggal mulai
+		if ($startInput) {
+			try {
+				$startDate = Carbon::parse($startInput)->startOfDay();
+			} catch (\Exception $e) {
+				$startDate = null;
+			}
+		}
+
+		// Parse tanggal selesai
+		if ($endInput) {
+			try {
+				$endDate = Carbon::parse($endInput)->endOfDay();
+			} catch (\Exception $e) {
+				$endDate = null;
+			}
+		}
+
+		// Jika dua-duanya ada dan start > end, tukar
+		if ($startDate && $endDate && $startDate->greaterThan($endDate)) {
+			[$startDate, $endDate] = [$endDate, $startDate];
+		}
+
+		// Query agenda HARI INI & MENDATANG (dalam rentang)
+		$upcomingQuery = Kegiatan::with('personils');
+
+		if ($startDate) {
+			$upcomingQuery->whereDate('tanggal', '>=', $startDate);
+		} else {
+			// default: dari hari ini ke depan
+			$upcomingQuery->whereDate('tanggal', '>=', $today);
+		}
+
+		if ($endDate) {
+			$upcomingQuery->whereDate('tanggal', '<=', $endDate);
+		}
+
+		$upcoming = $upcomingQuery
+			->orderBy('tanggal')
+			->orderBy('waktu')
+			->get();
+
+		// Riwayat: sebelum tanggal dasar (pakai tanggal_mulai kalau ada, kalau tidak pakai today)
+		$pastBaseDate = $startDate ?? $today;
+
+		$past = Kegiatan::with('personils')
+			->whereDate('tanggal', '<', $pastBaseDate)
+			->orderByDesc('tanggal')
+			->orderBy('waktu')
+			->limit(20)
+			->get();
+
+		return view('public.agenda.index', [
+			'today'     => $today,     // tetap untuk header "Hari ini"
+			'upcoming'  => $upcoming,
+			'past'      => $past,
+			'startDate' => $startDate,
+			'endDate'   => $endDate,
+		]);
+	}
+
+
+    public function tv()
     {
         $today = Carbon::today();
 
