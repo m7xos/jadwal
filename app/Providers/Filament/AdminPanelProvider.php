@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Widgets\AgendaPerHariChart;
 use App\Filament\Widgets\AgendaStatsOverview;
+use App\Filament\Pages\LaporanSuratMasukBulanan;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
@@ -22,6 +23,9 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        // URL laporan bulanan yang sudah kamu tes: http://127.0.0.1/admin/laporan-surat-masuk-bulanan
+        $laporanUrl = url('/admin/laporan-surat-masuk-bulanan');
+
         return $panel
             ->default()
             ->id('admin')
@@ -65,6 +69,13 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('heroicon-o-globe-alt')
                     ->group('Halaman Publik')
                     ->sort(100),
+
+                // Rekap bulanan (laporan surat masuk bulanan) di tab baru
+                NavigationItem::make('Rekap Bulanan')
+                    ->url($laporanUrl, shouldOpenInNewTab: true)
+                    ->icon('heroicon-o-document-text')
+                    ->group('Halaman Publik')
+                    ->sort(110),
             ])
 
             ->middleware([
