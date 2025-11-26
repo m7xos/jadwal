@@ -206,8 +206,6 @@ class WablasService
 		return implode("\n", $lines);
 	}
 
-    }
-
     /**
      * Format pesan ringkas untuk agenda yang BELUM disposisi.
      *
