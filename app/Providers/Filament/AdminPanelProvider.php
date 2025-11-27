@@ -74,7 +74,7 @@ class AdminPanelProvider extends PanelProvider
                 NavigationItem::make('Rekap Bulanan')
                     ->url($laporanUrl, shouldOpenInNewTab: true)
                     ->icon('heroicon-o-document-text')
-                    ->group('Halaman Publik')
+                    ->group('Laporan')
                     ->sort(110),
             ])
 
