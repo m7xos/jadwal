@@ -52,9 +52,9 @@ class KegiatansTable
                     ->searchable()
                     ->wrap(),
 
-                TextColumn::make('personils_count')
-                    ->label('Jml Personil')
-                    ->counts('personils'),
+               // TextColumn::make('personils_count')
+                //    ->label('Jml Personil')
+                 //   ->counts('personils'),
 
                 TextColumn::make('keterangan')
                     ->label('Keterangan')
@@ -102,11 +102,12 @@ class KegiatansTable
             ])
 
             // ================== AKSI PER RECORD ==================
+          
             ->recordActions([
                 EditAction::make(),
 
                 DeleteAction::make(),
-
+                /**
                 // Kirim 1 kegiatan ke grup WA
                 Action::make('kirim_wa_grup')
                     ->label('Kirim WA Grup')
@@ -114,7 +115,7 @@ class KegiatansTable
                     ->requiresConfirmation()
                     ->modalHeading('Kirim agenda ini ke grup WhatsApp?')
                     ->action(function (Kegiatan $record) {
-                        /** @var WablasService $wablas */
+                        
                         $wablas = app(WablasService::class);
 
                         $record->loadMissing('personils');
@@ -135,6 +136,7 @@ class KegiatansTable
                                 ->send();
                         }
                     }),
+                    **/
 
                 // Kirim ke WA semua personil 1 kegiatan
                 Action::make('kirim_wa_personil')
