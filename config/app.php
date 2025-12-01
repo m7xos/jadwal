@@ -107,6 +107,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Home Menu Visibility
+    |--------------------------------------------------------------------------
+    |
+    | Allows toggling the Admin Panel entry on the public home menu. Set to
+    | false to hide the link when the panel should not be exposed.
+    |
+    */
+
+    'show_admin_panel_menu' => env('SHOW_ADMIN_PANEL_MENU', true),
+
+    /*
+    |--------------------------------------------------------------------------
     | Maintenance Mode Driver
     |--------------------------------------------------------------------------
     |
