@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Kegiatan;
+use App\Models\Personil;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -254,10 +255,53 @@ class WablasService
             $lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
         }
 
+        $leadershipTags = $this->getPersonilTagsByJabatan([
+            'Camat Watumalang',
+            'Sekretaris Kecamatan Watumalang',
+        ]);
+
+        if (! empty($leadershipTags)) {
+            $lines[] = '';
+            $lines[] = '*Mohon petunjuk/arahan disposisi:*';
+            $lines[] = implode(' ', $leadershipTags);
+        }
+
         $lines[] = '';
         $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * Ambil tag nomor WhatsApp berdasarkan jabatan tertentu.
+     *
+     * @param array<int, string> $jabatanList
+     * @return array<int, string>
+     */
+    protected function getPersonilTagsByJabatan(array $jabatanList): array
+    {
+        $personils = Personil::query()
+            ->whereIn('jabatan', $jabatanList)
+            ->get(['nama', 'no_wa', 'jabatan']);
+
+        $tags = [];
+
+        foreach ($personils as $personil) {
+            $rawNo  = trim((string) ($personil->no_wa ?? ''));
+            $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
+
+            if ($digits === '') {
+                continue;
+            }
+
+            if (substr($digits, 0, 1) === '0') {
+                $digits = '62' . substr($digits, 1);
+            }
+
+            $tags[] = '@' . $digits;
+        }
+
+        return $tags;
     }
 
     /**
