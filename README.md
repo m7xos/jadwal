@@ -21,6 +21,22 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## Development setup
+
+Before running the combined dev server and queue workers with `composer run dev`, install the PHP dependencies so `vendor/autoload.php` is available:
+
+```bash
+composer install
+```
+
+If you have not already installed the front-end dependencies, run:
+
+```bash
+npm install
+```
+
+After these steps, `composer run dev` should start the Laravel server, queue worker, and Vite without fatal autoload errors.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
