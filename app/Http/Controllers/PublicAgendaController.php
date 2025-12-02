@@ -42,7 +42,11 @@ class PublicAgendaController extends Controller
 		}
 
 		// Query agenda HARI INI & MENDATANG (dalam rentang)
-		$upcomingQuery = Kegiatan::with('personils');
+                $upcomingQuery = Kegiatan::with('personils')
+                        ->where(function ($query) {
+                                $query->whereNull('jenis_surat')
+                                    ->orWhere('jenis_surat', 'undangan');
+                        });
 
 		if ($startDate) {
 			$upcomingQuery->whereDate('tanggal', '>=', $startDate);
@@ -63,8 +67,12 @@ class PublicAgendaController extends Controller
 		// Riwayat: sebelum tanggal dasar (pakai tanggal_mulai kalau ada, kalau tidak pakai today)
 		$pastBaseDate = $startDate ?? $today;
 
-		$past = Kegiatan::with('personils')
-			->whereDate('tanggal', '<', $pastBaseDate)
+                $past = Kegiatan::with('personils')
+                        ->where(function ($query) {
+                                $query->whereNull('jenis_surat')
+                                    ->orWhere('jenis_surat', 'undangan');
+                        })
+                        ->whereDate('tanggal', '<', $pastBaseDate)
 			->orderByDesc('tanggal')
 			->orderBy('waktu')
 			->limit(20)
@@ -85,6 +93,10 @@ class PublicAgendaController extends Controller
         $today = Carbon::today();
 
         $agendaToday = Kegiatan::with('personils')
+            ->where(function ($query) {
+                $query->whereNull('jenis_surat')
+                    ->orWhere('jenis_surat', 'undangan');
+            })
             ->whereDate('tanggal', $today)
             ->orderBy('waktu')
             ->orderBy('nama_kegiatan')

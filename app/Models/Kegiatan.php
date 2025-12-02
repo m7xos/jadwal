@@ -13,17 +13,22 @@ class Kegiatan extends Model
     protected $table = 'kegiatans';
 
     protected $fillable = [
+        'jenis_surat',
         'nomor',
         'nama_kegiatan',
         'tanggal',
         'waktu',
         'tempat',
         'keterangan',
-		'surat_undangan',   // <--- TAMBAHKAN
-		'sudah_disposisi',   // <--- baru
+                'surat_undangan',   // <--- TAMBAHKAN
+                'sudah_disposisi',   // <--- baru
+        'batas_tindak_lanjut',
+        'tl_reminder_sent_at',
     ];
 
     protected $casts = [
+        'batas_tindak_lanjut' => 'datetime',
+        'tl_reminder_sent_at' => 'datetime',
         'tanggal' => 'date',
         'sudah_disposisi' => 'boolean',   // <--- baru
     ];

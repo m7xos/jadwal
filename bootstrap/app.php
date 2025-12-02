@@ -3,8 +3,16 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Console\Scheduling\Schedule;
+use App\Console\Commands\KirimPengingatTindakLanjut;
 
 return Application::configure(basePath: dirname(__DIR__))
+    ->withCommands([
+        KirimPengingatTindakLanjut::class,
+    ])
+    ->withSchedule(function (Schedule $schedule) {
+        $schedule->command('surat:ingatkan-tl')->everyFifteenMinutes();
+    })
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         commands: __DIR__.'/../routes/console.php',

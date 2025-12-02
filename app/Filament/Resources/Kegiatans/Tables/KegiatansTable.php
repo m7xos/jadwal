@@ -32,6 +32,20 @@ class KegiatansTable
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('jenis_surat')
+                    ->label('Jenis Surat')
+                    ->formatStateUsing(function (string $state): string {
+                        return match ($state) {
+                            'tindak_lanjut' => 'Surat Masuk (TL)',
+                            default => 'Surat Undangan',
+                        };
+                    })
+                    ->badge()
+                    ->colors([
+                        'warning' => 'tindak_lanjut',
+                        'primary' => 'undangan',
+                    ]),
+
                 TextColumn::make('nama_kegiatan')
                     ->label('Nama Kegiatan')
                     ->searchable()
@@ -60,6 +74,11 @@ class KegiatansTable
                     ->label('Keterangan')
                     ->limit(40)
                     ->tooltip(fn ($state) => $state),
+
+                TextColumn::make('batas_tindak_lanjut')
+                    ->label('Batas TL')
+                    ->dateTime('d-m-Y H:i')
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('tanggal', 'asc')
 
@@ -99,6 +118,10 @@ class KegiatansTable
                                 ->isoFormat('dddd, D MMMM Y'),
                         ];
                     }),
+
+                Filter::make('tindak_lanjut')
+                    ->label('Surat Tindak Lanjut')
+                    ->query(fn (Builder $query): Builder => $query->where('jenis_surat', 'tindak_lanjut')),
             ])
 
             // ================== AKSI PER RECORD ==================
