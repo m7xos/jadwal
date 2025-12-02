@@ -5,12 +5,14 @@ namespace App\Filament\Resources\Kegiatans\Schemas;
 use App\Services\NomorSuratExtractor;
 use App\Models\Personil;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;     // ⬅️ TAMBAHAN
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Get;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -26,8 +28,27 @@ class KegiatanForm
                 // =========================
                 Section::make('Informasi Kegiatan')
                     ->schema([
+                        Select::make('jenis_surat')
+                            ->label('Jenis Surat')
+                            ->options([
+                                'undangan'      => 'Surat Undangan (tampil di publik)',
+                                'tindak_lanjut' => 'Surat Masuk (ada batas tindak lanjut)',
+                            ])
+                            ->default('undangan')
+                            ->required()
+                            ->native(false)
+                            ->helperText('Pilih apakah surat undangan atau surat masuk dengan batas tindak lanjut.')
+                            ->reactive(),
+
+                        DateTimePicker::make('batas_tindak_lanjut')
+                            ->label('Batas Waktu Tindak Lanjut')
+                            ->seconds(false)
+                            ->visible(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
+                            ->required(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
+                            ->helperText('Wajib diisi untuk surat masuk yang harus ditindaklanjuti.'),
+
                         FileUpload::make('surat_undangan')
-                            ->label('Surat Undangan (PDF)')
+                            ->label('Berkas Surat (PDF)')
                             ->disk('public')
                             ->directory('surat-undangan')
                             ->preserveFilenames()
