@@ -15,6 +15,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Get;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
@@ -29,19 +30,27 @@ class KegiatanForm
                 // =========================
                 Section::make('Informasi Kegiatan')
                     ->schema([
-                        Radio::make('jenis_surat')
+                        Select::make('jenis_surat')
                             ->label('Jenis Surat')
                             ->options([
-                                'undangan' => 'Surat Undangan (ditampilkan di dashboard publik)',
-                                'kegiatan_tindak_lanjut' => 'Surat Kegiatan (ada batas waktu tindak lanjut)',
+                                'undangan'      => 'Surat Undangan (tampil di publik)',
+                                'tindak_lanjut' => 'Surat Masuk (ada batas tindak lanjut)',
                             ])
-                            ->live()
                             ->default('undangan')
-                            ->inline()
-                            ->helperText('Pilih "Surat Kegiatan" untuk surat masuk non-undangan yang memiliki tenggat tindak lanjut.'),
+                            ->required()
+                            ->native(false)
+                            ->helperText('Pilih apakah surat undangan atau surat masuk dengan batas tindak lanjut.')
+                            ->reactive(),
+
+                        DateTimePicker::make('batas_tindak_lanjut')
+                            ->label('Batas Waktu Tindak Lanjut')
+                            ->seconds(false)
+                            ->visible(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
+                            ->required(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
+                            ->helperText('Wajib diisi untuk surat masuk yang harus ditindaklanjuti.'),
 
                         FileUpload::make('surat_undangan')
-                            ->label('Surat Undangan (PDF)')
+                            ->label('Berkas Surat (PDF)')
                             ->disk('public')
                             ->directory('surat-undangan')
                             ->preserveFilenames()

@@ -33,6 +33,20 @@ class KegiatansTable
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('jenis_surat')
+                    ->label('Jenis Surat')
+                    ->formatStateUsing(function (string $state): string {
+                        return match ($state) {
+                            'tindak_lanjut' => 'Surat Masuk (TL)',
+                            default => 'Surat Undangan',
+                        };
+                    })
+                    ->badge()
+                    ->colors([
+                        'warning' => 'tindak_lanjut',
+                        'primary' => 'undangan',
+                    ]),
+
                 TextColumn::make('nama_kegiatan')
                     ->label('Nama Kegiatan')
                     ->searchable()
@@ -62,21 +76,10 @@ class KegiatansTable
                     ->limit(40)
                     ->tooltip(fn ($state) => $state),
 
-                TextColumn::make('jenis_surat')
-                    ->label('Jenis Surat')
-                    ->badge()
-                    ->formatStateUsing(function (?string $state) {
-                        return match ($state) {
-                            'kegiatan_tindak_lanjut' => 'Kegiatan (TL)',
-                            default => 'Undangan',
-                        };
-                    }),
-
-                TextColumn::make('tindak_lanjut_deadline')
-                    ->label('Batas Waktu TL')
+                TextColumn::make('batas_tindak_lanjut')
+                    ->label('Batas TL')
                     ->dateTime('d-m-Y H:i')
-                    ->toggleable()
-                    ->sortable(),
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('tanggal', 'asc')
 
@@ -117,12 +120,9 @@ class KegiatansTable
                         ];
                     }),
 
-                SelectFilter::make('jenis_surat')
-                    ->label('Jenis Surat')
-                    ->options([
-                        'undangan' => 'Surat Undangan',
-                        'kegiatan_tindak_lanjut' => 'Surat Kegiatan (TL)',
-                    ]),
+                Filter::make('tindak_lanjut')
+                    ->label('Surat Tindak Lanjut')
+                    ->query(fn (Builder $query): Builder => $query->where('jenis_surat', 'tindak_lanjut')),
             ])
 
             // ================== AKSI PER RECORD ==================
