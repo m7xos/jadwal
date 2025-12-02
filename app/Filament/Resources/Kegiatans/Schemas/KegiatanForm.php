@@ -45,8 +45,8 @@ class KegiatanForm
                         DateTimePicker::make('batas_tindak_lanjut')
                             ->label('Batas Waktu Tindak Lanjut')
                             ->seconds(false)
-                            ->visible(fn (FormsGet $get) => $get('jenis_surat') === 'tindak_lanjut')
-                            ->required(fn (FormsGet $get) => $get('jenis_surat') === 'tindak_lanjut')
+                            ->visible(fn (SchemaGet $get) => $get('jenis_surat') === 'tindak_lanjut')
+                            ->required(fn (SchemaGet $get) => $get('jenis_surat') === 'tindak_lanjut')
                             ->helperText('Wajib diisi untuk surat masuk yang harus ditindaklanjuti.'),
 
                         FileUpload::make('surat_undangan')
