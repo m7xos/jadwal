@@ -8,12 +8,14 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;     // ⬅️ TAMBAHAN
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Schemas\Components\Utilities\Get as SchemaGet;
+use Filament\Forms\Get as FormsGet;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
@@ -53,7 +55,8 @@ class KegiatanForm
                             ->directory('surat-undangan')
                             ->preserveFilenames()
                             ->acceptedFileTypes(['application/pdf'])
-                            ->required()
+                            ->required(fn (Get $get) => $get('jenis_surat') === 'undangan')
+                            ->hidden(fn (Get $get) => $get('jenis_surat') === 'kegiatan_tindak_lanjut')
                             ->getUploadedFileNameForStorageUsing(
                                 fn (TemporaryUploadedFile $file): string =>
                                     now()->format('Ymd_His') . '_' . $file->getClientOriginalName()
@@ -117,6 +120,14 @@ class KegiatanForm
                             ->required()
                             ->displayFormat('d-m-Y'),
 
+                        DateTimePicker::make('tindak_lanjut_deadline')
+                            ->label('Batas Waktu Tindak Lanjut')
+                            ->seconds(false)
+                            ->native(false)
+                            ->required(fn (Get $get) => $get('jenis_surat') === 'kegiatan_tindak_lanjut')
+                            ->visible(fn (Get $get) => $get('jenis_surat') === 'kegiatan_tindak_lanjut')
+                            ->helperText('Tanggal batas waktu tindak lanjut (TL) untuk surat kegiatan non-undangan.'),
+
                         TextInput::make('waktu')
                             ->label('Waktu')
                             ->placeholder('Contoh: 09.00 - 11.00 WIB')
@@ -135,6 +146,23 @@ class KegiatanForm
                         // ⬇️ FIELD HIDDEN UNTUK STATUS DISPOSISI (0 / 1)
                         Hidden::make('sudah_disposisi')
                             ->default(0),
+
+                        Toggle::make('tampilkan_di_public')
+                            ->label('Tampilkan di dashboard publik')
+                            ->helperText('Surat kegiatan dengan TL tidak akan ditampilkan di dashboard publik.')
+                            ->live()
+                            ->default(true)
+                            ->disabled(fn (Get $get) => $get('jenis_surat') === 'kegiatan_tindak_lanjut')
+                            ->afterStateHydrated(function ($state, callable $set, Get $get) {
+                                if ($state === null) {
+                                    $set('tampilkan_di_public', $get('jenis_surat') === 'undangan');
+                                }
+                            })
+                            ->afterStateUpdated(function ($state, callable $set, Get $get) {
+                                if ($get('jenis_surat') === 'kegiatan_tindak_lanjut') {
+                                    $set('tampilkan_di_public', false);
+                                }
+                            }),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),

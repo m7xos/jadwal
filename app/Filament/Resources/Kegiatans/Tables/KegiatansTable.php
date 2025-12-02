@@ -16,6 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 //tambahan
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;

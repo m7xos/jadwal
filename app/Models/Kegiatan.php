@@ -31,6 +31,9 @@ class Kegiatan extends Model
         'tl_reminder_sent_at' => 'datetime',
         'tanggal' => 'date',
         'sudah_disposisi' => 'boolean',   // <--- baru
+        'tampilkan_di_public' => 'boolean',
+        'tindak_lanjut_deadline' => 'datetime',
+        'tindak_lanjut_reminder_sent_at' => 'datetime',
     ];
 
     public function personils()
@@ -56,5 +59,16 @@ class Kegiatan extends Model
     public function getJudulSingkatAttribute(): string
     {
         return $this->nama_kegiatan . ' (' . $this->tanggal_label . ')';
+    }
+
+    public function getTindakLanjutDeadlineLabelAttribute(): ?string
+    {
+        if (! $this->tindak_lanjut_deadline) {
+            return null;
+        }
+
+        return $this->tindak_lanjut_deadline
+            ->locale('id')
+            ->isoFormat('dddd, D MMMM Y HH.mm');
     }
 }
