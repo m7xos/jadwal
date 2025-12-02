@@ -16,6 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 //tambahan
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
@@ -60,6 +61,22 @@ class KegiatansTable
                     ->label('Keterangan')
                     ->limit(40)
                     ->tooltip(fn ($state) => $state),
+
+                TextColumn::make('jenis_surat')
+                    ->label('Jenis Surat')
+                    ->badge()
+                    ->formatStateUsing(function (?string $state) {
+                        return match ($state) {
+                            'kegiatan_tindak_lanjut' => 'Kegiatan (TL)',
+                            default => 'Undangan',
+                        };
+                    }),
+
+                TextColumn::make('tindak_lanjut_deadline')
+                    ->label('Batas Waktu TL')
+                    ->dateTime('d-m-Y H:i')
+                    ->toggleable()
+                    ->sortable(),
             ])
             ->defaultSort('tanggal', 'asc')
 
@@ -99,6 +116,13 @@ class KegiatansTable
                                 ->isoFormat('dddd, D MMMM Y'),
                         ];
                     }),
+
+                SelectFilter::make('jenis_surat')
+                    ->label('Jenis Surat')
+                    ->options([
+                        'undangan' => 'Surat Undangan',
+                        'kegiatan_tindak_lanjut' => 'Surat Kegiatan (TL)',
+                    ]),
             ])
 
             // ================== AKSI PER RECORD ==================

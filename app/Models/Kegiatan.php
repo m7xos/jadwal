@@ -19,13 +19,20 @@ class Kegiatan extends Model
         'waktu',
         'tempat',
         'keterangan',
-		'surat_undangan',   // <--- TAMBAHKAN
-		'sudah_disposisi',   // <--- baru
+        'surat_undangan',   // <--- TAMBAHKAN
+        'sudah_disposisi',   // <--- baru
+        'jenis_surat',
+        'tampilkan_di_public',
+        'tindak_lanjut_deadline',
+        'tindak_lanjut_reminder_sent_at',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
         'sudah_disposisi' => 'boolean',   // <--- baru
+        'tampilkan_di_public' => 'boolean',
+        'tindak_lanjut_deadline' => 'datetime',
+        'tindak_lanjut_reminder_sent_at' => 'datetime',
     ];
 
     public function personils()
@@ -51,5 +58,16 @@ class Kegiatan extends Model
     public function getJudulSingkatAttribute(): string
     {
         return $this->nama_kegiatan . ' (' . $this->tanggal_label . ')';
+    }
+
+    public function getTindakLanjutDeadlineLabelAttribute(): ?string
+    {
+        if (! $this->tindak_lanjut_deadline) {
+            return null;
+        }
+
+        return $this->tindak_lanjut_deadline
+            ->locale('id')
+            ->isoFormat('dddd, D MMMM Y HH.mm');
     }
 }
