@@ -2,18 +2,17 @@
 
 namespace App\Filament\Resources\Kegiatans\Schemas;
 
-use App\Services\NomorSuratExtractor;
 use App\Models\Personil;
+use App\Services\NomorSuratExtractor;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Hidden;     // ⬅️ TAMBAHAN
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Get as FormsGet;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -33,8 +32,9 @@ class KegiatanForm
                         Select::make('jenis_surat')
                             ->label('Jenis Surat')
                             ->options([
-                                'undangan'      => 'Surat Undangan (tampil di publik)',
-                                'tindak_lanjut' => 'Surat Masuk (ada batas tindak lanjut)',
+                                'undangan'        => 'Surat Undangan (tampil di publik)',
+                                'tindak_lanjut'   => 'Surat Masuk (ada batas tindak lanjut)',
+                                'kegiatan_tindak_lanjut' => 'Kegiatan Tindak Lanjut',
                             ])
                             ->default('undangan')
                             ->required()
@@ -45,8 +45,9 @@ class KegiatanForm
                         DateTimePicker::make('batas_tindak_lanjut')
                             ->label('Batas Waktu Tindak Lanjut')
                             ->seconds(false)
-                            ->visible(fn (SchemaGet $get) => $get('jenis_surat') === 'tindak_lanjut')
-                            ->required(fn (SchemaGet $get) => $get('jenis_surat') === 'tindak_lanjut')
+                            // ⬇️ PAKAI Get, BUKAN SchemaGet
+                            ->visible(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
+                            ->required(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
                             ->helperText('Wajib diisi untuk surat masuk yang harus ditindaklanjuti.'),
 
                         FileUpload::make('surat_undangan')
@@ -143,7 +144,7 @@ class KegiatanForm
                             ->label('Keterangan')
                             ->rows(3),
 
-                        // ⬇️ FIELD HIDDEN UNTUK STATUS DISPOSISI (0 / 1)
+                        // FIELD HIDDEN UNTUK STATUS DISPOSISI (0 / 1)
                         Hidden::make('sudah_disposisi')
                             ->default(0),
 
@@ -168,23 +169,20 @@ class KegiatanForm
                     ->columnSpanFull(),
 
                 // =========================
-                // SECTION: PERSONIL YANG MENGHADIRI (DI BAWAH)
+                // SECTION: PERSONIL YANG MENGHADIRI
                 // =========================
                 Section::make('Personil yang Menghadiri')
                     ->schema([
-                        // ⬇️ TOGGLE: PILIH SEMUA PEGAWAI
                         Toggle::make('semua_personil')
                             ->label('Pilih semua pegawai')
                             ->helperText('Centang jika undangan melibatkan seluruh personil.')
-                            ->reactive()
-                            ->dehydrated(false) // tidak disimpan ke database
+                            ->live()
+                            ->dehydrated(false)
                             ->afterStateUpdated(function ($state, callable $set) {
                                 if (! $state) {
-                                    // jika toggle di-uncheck, biarkan user atur manual
                                     return;
                                 }
 
-                                // Ambil semua ID personil
                                 $allIds = Personil::query()
                                     ->pluck('id')
                                     ->all();
@@ -198,14 +196,11 @@ class KegiatanForm
                             ->multiple()
                             ->preload()
                             ->searchable()
-                            ->reactive()
+                            ->live()
                             ->afterStateUpdated(function ($state, callable $set) {
-                                // $state = array id personil atau null
                                 if (is_array($state) && count($state) > 0) {
-                                    // Ada personil -> sudah disposisi
                                     $set('sudah_disposisi', 1);
                                 } else {
-                                    // Tidak ada personil -> belum disposisi
                                     $set('sudah_disposisi', 0);
                                 }
                             })
