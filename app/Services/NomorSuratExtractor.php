@@ -81,11 +81,6 @@ class NomorSuratExtractor
                     }
                 }
             }
-
-            // Fallback: jika baris awal dokumen sudah menyerupai nomor surat
-            if ($i < 15 && $this->isNomorSuratCandidate($current) && ! in_array(strtolower($current), $skipWords, true)) {
-                return $current;
-            }
         }
 
         // ========== POLA 3: cari kandidat nomor di 20 baris pertama (surat resmi biasanya di atas) ==========
@@ -107,20 +102,6 @@ class NomorSuratExtractor
         }
 
         return $best;
-    }
-
-    protected function isNomorSuratCandidate(string $value): bool
-    {
-        $value = preg_replace('/\s+/', ' ', trim($value));
-
-        // Hapus titik/koma di akhir
-        $value = rtrim($value, '.,;');
-
-        if (strlen($value) < 3 || strlen($value) > 120) {
-            return false;
-        }
-
-        return (bool) preg_match('/^[0-9A-Za-z][0-9A-Za-z.\/-]+[0-9A-Za-z]$/', $value);
     }
 
     /**
@@ -162,22 +143,12 @@ class NomorSuratExtractor
                 continue;
             }
 
-            if (preg_match('/^\s*(hal|perihal)\b\s*[:\-]?\s*(.*)$/iu', $current, $matches)) {
-                $subjectParts = [];
-                $inline = $this->cleanSubject($matches[2] ?? '');
-
-                if ($inline !== '') {
-                    $subjectParts[] = $inline;
-                }
-
-                for ($j = $i + 1; $j < min($i + 6, count($lines)); $j++) {
+            // Baris hanya "Hal", "Hal:", "Perihal", "Perihal:"
+            if (preg_match('/^\s*(hal|perihal)\b\s*[:\-]?\s*$/iu', $current)) {
+                for ($j = $i + 1; $j < min($i + 5, count($lines)); $j++) {
                     $candidate = trim($lines[$j]);
 
                     if ($candidate === '' || $candidate === ':') {
-                        if (! empty($subjectParts)) {
-                            break;
-                        }
-
                         continue;
                     }
 
