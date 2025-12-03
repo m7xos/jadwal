@@ -15,57 +15,49 @@ class NomorSuratExtractor
      */
     public function extract(string $path): ?string
     {
-        // 1. Tentukan full path
-        if (is_file($path)) {
-            // Sudah absolute path (temp file / dll)
-            $fullPath = $path;
-        } else {
-            // Anggap path relatif di disk 'public'
-            $fullPath = Storage::disk('public')->path($path);
-        }
-
-        if (! is_file($fullPath) || ! is_readable($fullPath)) {
-            return null;
-        }
-
-        // 2. Baca teks dari PDF
-        $text = Pdf::getText($fullPath);
+        $text = $this->readPdfText($path);
 
         if (! $text) {
             return null;
         }
 
-        // ========== POLA 1: "Nomor : 800/489/BKD" dll ==========
-        $pattern = '/Nomor\s*[:\.]\s*([0-9A-Za-z.\/-]+)/i';
+        $lines = $this->splitLines($text);
 
-        if (preg_match($pattern, $text, $matches)) {
-            $line = trim($matches[1]);
-            // jaga-jaga kalau masih ada line break
-            $line = preg_split("/\r\n|\n|\r/", $line)[0] ?? $line;
+        // ========== POLA 1: "Nomor : 800/489/BKD" / "No. 800/123/ABC" ==========
+        $pattern = '/\b(?:nomor|no)\b\s*[:\.\-]?\s*([0-9A-Za-z.\/-][0-9A-Za-z.\/-\s]{0,50})/iu';
 
-            return trim($line);
+        if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                $normalized = $this->normalizeNomor($match[1] ?? '');
+
+                if ($normalized) {
+                    return $normalized;
+                }
+            }
         }
 
         // ========== POLA 2: "Nomor" baris sendiri, nomor di baris bawah ==========
-        $lines = preg_split("/\r\n|\n|\r/", $text);
-
-        if (! is_array($lines)) {
-            return null;
-        }
-
         $skipWords = [
             'nomor',
+            'no',
             'sifat',
             'lampiran',
             'hal',
+            'perihal',
             ':',
             'nomor:',
+            'nomor.',
+            'nomor-',
         ];
 
         for ($i = 0; $i < count($lines); $i++) {
             $current = trim($lines[$i]);
 
-            if (preg_match('/^Nomor\b/i', $current)) {
+            if ($current === '') {
+                continue;
+            }
+
+            if (preg_match('/^\s*(nomor|no)\b/iu', $current)) {
                 // Lihat beberapa baris setelah "Nomor"
                 for ($j = $i + 1; $j < min($i + 10, count($lines)); $j++) {
                     $candidate = trim($lines[$j]);
@@ -78,9 +70,10 @@ class NomorSuratExtractor
                         continue;
                     }
 
-                    // cocokkan pola nomor surat: angka, huruf, titik, slash, minus
-                    if (preg_match('/^[0-9A-Za-z.\/-]+$/', $candidate)) {
-                        return $candidate;
+                    $normalized = $this->normalizeNomor($candidate);
+
+                    if ($normalized) {
+                        return $normalized;
                     }
                 }
             }
@@ -96,30 +89,13 @@ class NomorSuratExtractor
      */
     public function extractPerihal(string $path): ?string
     {
-        // 1. Tentukan full path
-        if (is_file($path)) {
-            $fullPath = $path;
-        } else {
-            $fullPath = Storage::disk('public')->path($path);
-        }
-
-        if (! is_file($fullPath) || ! is_readable($fullPath)) {
-            return null;
-        }
-
-        // 2. Baca teks dari PDF
-        $text = Pdf::getText($fullPath);
+        $text = $this->readPdfText($path);
 
         if (! $text) {
             return null;
         }
 
-        // Pecah per baris
-        $lines = preg_split("/\r\n|\n|\r/", $text);
-
-        if (! is_array($lines)) {
-            return null;
-        }
+        $lines = $this->splitLines($text);
 
         // ========== POLA 1: "Hal : Revisi Undangan ..." / "Perihal: Undangan ..." (1 baris) ==========
         foreach ($lines as $line) {
@@ -131,12 +107,10 @@ class NomorSuratExtractor
 
             // Awalan Hal/Perihal (case-insensitive), boleh ada titik dua / minus
             if (preg_match('/^\s*(hal|perihal)\b\s*[:\-]?\s*(.+)$/iu', $line, $matches)) {
-                $subject = trim($matches[2] ?? '');
+                $normalized = $this->normalizePerihal($matches[2] ?? '');
 
-                if ($subject !== '') {
-                    $subject = preg_replace('/\s+/', ' ', $subject);
-
-                    return mb_strimwidth($subject, 0, 200, '...');
+                if ($normalized) {
+                    return $normalized;
                 }
             }
         }
@@ -158,13 +132,81 @@ class NomorSuratExtractor
                         continue;
                     }
 
-                    $candidate = preg_replace('/\s+/', ' ', $candidate);
+                    $normalized = $this->normalizePerihal($candidate);
 
-                    return mb_strimwidth($candidate, 0, 200, '...');
+                    if ($normalized) {
+                        return $normalized;
+                    }
                 }
             }
         }
 
         return null;
+    }
+
+    private function readPdfText(string $path): ?string
+    {
+        if (is_file($path)) {
+            $fullPath = $path;
+        } else {
+            $fullPath = Storage::disk('public')->path($path);
+        }
+
+        if (! is_file($fullPath) || ! is_readable($fullPath)) {
+            return null;
+        }
+
+        $text = Pdf::getText($fullPath);
+
+        return $text ?: null;
+    }
+
+    private function splitLines(string $text): array
+    {
+        return preg_split("/\r\n|\n|\r/", $text) ?: [];
+    }
+
+    private function normalizeNomor(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = preg_split("/\r\n|\n|\r/", $value)[0] ?? $value;
+        $value = trim($value, " \t\n\r\0\x0B:.-");
+        $value = preg_replace('/\s+/', '', $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (! preg_match('/[0-9A-Za-z]/', $value)) {
+            return null;
+        }
+
+        if (! preg_match('/^[0-9A-Za-z.\/-]+$/', $value)) {
+            return null; // mengandung karakter aneh -> abaikan
+        }
+
+        return $value;
+    }
+
+    private function normalizePerihal(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = preg_split("/\r\n|\n|\r/", $value)[0] ?? $value;
+        $value = trim($value, " \t\n\r\0\x0B:.-");
+        $value = preg_replace('/^[0-9]+[\).]\s*/', '', $value); // buang numbering seperti "1. ..." / "2) ..."
+        $value = preg_replace('/^[-•]\s*/u', '', $value); // buang bullet
+        $value = preg_replace('/\s+/', ' ', $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        return mb_strimwidth($value, 0, 200, '...');
     }
 }
