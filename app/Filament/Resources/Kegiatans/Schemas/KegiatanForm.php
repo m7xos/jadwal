@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Kegiatans\Schemas;
 
+use App\Models\Kegiatan;
 use App\Models\Personil;
 use App\Services\NomorSuratExtractor;
 use Filament\Forms\Components\DatePicker;
@@ -12,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -104,7 +106,38 @@ class KegiatanForm
                             ->label('Nomor Surat')
                             ->required()
                             ->maxLength(100)
-                            ->helperText('Akan otomatis diisi dari PDF jika pola nomor surat dikenali.'),
+                            ->helperText('Akan otomatis diisi dari PDF jika pola nomor surat dikenali.')
+                            ->unique(table: Kegiatan::class, column: 'nomor', ignoreRecord: true)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, callable $set, Get $get, ?Kegiatan $record) {
+                                $nomor = trim((string) $state);
+
+                                if ($nomor === '') {
+                                    return;
+                                }
+
+                                $existing = Kegiatan::query()
+                                    ->where('nomor', $nomor)
+                                    ->when(
+                                        $record,
+                                        fn ($query) => $query->where('id', '!=', $record->id)
+                                    )
+                                    ->first();
+
+                                if (! $existing) {
+                                    return;
+                                }
+
+                                Notification::make()
+                                    ->title('Nomor surat duplikat')
+                                    ->body(
+                                        "Nomor surat {$nomor} sudah terdaftar untuk surat "
+                                        . ($existing->nama_kegiatan ?? '-')
+                                    )
+                                    ->danger()
+                                    ->persistent()
+                                    ->send();
+                            }),
 
                         TextInput::make('nama_kegiatan')
                             ->label('Nama Kegiatan')
@@ -143,19 +176,13 @@ class KegiatanForm
 
                         Toggle::make('tampilkan_di_public')
                             ->label('Tampilkan di dashboard publik')
-                            ->helperText('Surat tindak lanjut tidak akan ditampilkan di dashboard publik.')
+                            ->helperText('Pilih apakah surat ini akan ditampilkan di dashboard publik.')
                             ->live()
                             ->default(true)
-                            ->disabled(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
                             ->afterStateHydrated(function ($state, callable $set, Get $get) {
                                 if ($state === null) {
-                                    // Undangan => tampil, Tindak lanjut => tidak
+                                    // Undangan => tampil, Tindak lanjut => tidak (bisa diubah oleh user)
                                     $set('tampilkan_di_public', $get('jenis_surat') === 'undangan');
-                                }
-                            })
-                            ->afterStateUpdated(function ($state, callable $set, Get $get) {
-                                if ($get('jenis_surat') === 'tindak_lanjut') {
-                                    $set('tampilkan_di_public', false);
                                 }
                             }),
                     ])
