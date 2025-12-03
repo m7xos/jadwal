@@ -15,21 +15,7 @@ class NomorSuratExtractor
      */
     public function extract(string $path): ?string
     {
-        // 1. Tentukan full path
-        if (is_file($path)) {
-            // Sudah absolute path (temp file / dll)
-            $fullPath = $path;
-        } else {
-            // Anggap path relatif di disk 'public'
-            $fullPath = Storage::disk('public')->path($path);
-        }
-
-        if (! is_file($fullPath) || ! is_readable($fullPath)) {
-            return null;
-        }
-
-        // 2. Baca teks dari PDF
-        $text = Pdf::getText($fullPath);
+        $text = $this->readPdfText($path);
 
         if (! $text) {
             return null;
@@ -125,19 +111,7 @@ class NomorSuratExtractor
      */
     public function extractPerihal(string $path): ?string
     {
-        // 1. Tentukan full path
-        if (is_file($path)) {
-            $fullPath = $path;
-        } else {
-            $fullPath = Storage::disk('public')->path($path);
-        }
-
-        if (! is_file($fullPath) || ! is_readable($fullPath)) {
-            return null;
-        }
-
-        // 2. Baca teks dari PDF
-        $text = Pdf::getText($fullPath);
+        $text = $this->readPdfText($path);
 
         if (! $text) {
             return null;
