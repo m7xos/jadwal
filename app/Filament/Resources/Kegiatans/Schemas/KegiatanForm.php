@@ -178,13 +178,7 @@ class KegiatanForm
                             ->label('Tampilkan di dashboard publik')
                             ->helperText('Pilih apakah surat ini akan ditampilkan di dashboard publik.')
                             ->live()
-                            ->default(true)
-                            ->afterStateHydrated(function ($state, callable $set, Get $get) {
-                                if ($state === null) {
-                                    // Undangan => tampil, Tindak lanjut => tidak (bisa diubah oleh user)
-                                    $set('tampilkan_di_public', $get('jenis_surat') === 'undangan');
-                                }
-                            }),
+                            ->default(true),
                     ])
                     ->columns(2)
                     ->columnSpanFull(),
