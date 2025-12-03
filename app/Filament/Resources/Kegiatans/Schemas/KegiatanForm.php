@@ -31,8 +31,8 @@ class KegiatanForm
                         Select::make('jenis_surat')
                             ->label('Jenis Surat')
                             ->options([
-                                'undangan'      => 'Surat Undangan (tampil di publik)',
-                                'tindak_lanjut' => 'Surat Masuk (ada batas tindak lanjut)',
+                                'undangan'      => 'Surat Undangan',
+                                'tindak_lanjut' => 'Surat Masuk',
                             ])
                             ->default('undangan')
                             ->required()
