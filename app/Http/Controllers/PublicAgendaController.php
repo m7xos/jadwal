@@ -45,7 +45,11 @@ class PublicAgendaController extends Controller
                 $upcomingQuery = Kegiatan::with('personils')
                         ->where(function ($query) {
                                 $query->whereNull('jenis_surat')
-                                    ->orWhere('jenis_surat', 'undangan');
+                                    ->orWhere('jenis_surat', 'undangan')
+                                    ->orWhere(function ($query) {
+                                        $query->where('jenis_surat', 'tindak_lanjut')
+                                            ->where('tampilkan_di_public', true);
+                                    });
                         });
 
 		if ($startDate) {
@@ -70,7 +74,11 @@ class PublicAgendaController extends Controller
                 $past = Kegiatan::with('personils')
                         ->where(function ($query) {
                                 $query->whereNull('jenis_surat')
-                                    ->orWhere('jenis_surat', 'undangan');
+                                    ->orWhere('jenis_surat', 'undangan')
+                                    ->orWhere(function ($query) {
+                                        $query->where('jenis_surat', 'tindak_lanjut')
+                                            ->where('tampilkan_di_public', true);
+                                    });
                         })
                         ->whereDate('tanggal', '<', $pastBaseDate)
 			->orderByDesc('tanggal')
@@ -95,7 +103,11 @@ class PublicAgendaController extends Controller
         $agendaToday = Kegiatan::with('personils')
             ->where(function ($query) {
                 $query->whereNull('jenis_surat')
-                    ->orWhere('jenis_surat', 'undangan');
+                    ->orWhere('jenis_surat', 'undangan')
+                    ->orWhere(function ($query) {
+                        $query->where('jenis_surat', 'tindak_lanjut')
+                            ->where('tampilkan_di_public', true);
+                    });
             })
             ->whereDate('tanggal', $today)
             ->orderBy('waktu')
