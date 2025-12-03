@@ -52,17 +52,13 @@ class NomorSuratExtractor
             return null;
         }
 
-        // ========== POLA 2: "Nomor" baris sendiri, nomor di baris bawah ==========
         $skipWords = [
             'nomor',
-            'no',
             'sifat',
             'lampiran',
             'hal',
-            'perihal',
             ':',
             'nomor:',
-            'no:',
         ];
 
         // Cari baris yang ada kata "Nomor" atau "No" lalu ambil kandidat terdekat
@@ -161,9 +157,9 @@ class NomorSuratExtractor
             }
         }
 
-        // ========== POLA 2: "Hal" / "Perihal" sendirian, isi baris setelahnya (bisa multi-line) ==========
+        // ========== POLA 2: "Hal" / "Perihal" sendirian, isi baris setelahnya ==========
         for ($i = 0; $i < count($lines); $i++) {
-            $current = $lines[$i];
+            $current = trim($lines[$i]);
 
             if ($current === '') {
                 continue;
