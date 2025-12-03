@@ -35,18 +35,27 @@ class NomorSuratExtractor
             return null;
         }
 
+        $text = preg_replace('/[\x00-\x1F\x7F]/', ' ', $text);
+
+        $inlinePatterns = [
+            // "Nomor : 800/489/BKD" / "No. : KU.01/123" / "No : B-12/UND"
+            '/\bNomor\s*[:\.]\s*([0-9A-Za-z.\/-]{3,})/iu',
+            '/\bNo\.?\s*[:\.]\s*([0-9A-Za-z.\/-]{3,})/iu',
+        ];
+
         // ========== POLA 1: "Nomor : 800/489/BKD" dll ==========
-        $pattern = '/Nomor\s*[:\.]\s*([0-9A-Za-z.\/-]+)/i';
+        foreach ($inlinePatterns as $pattern) {
+            if (preg_match($pattern, $text, $matches)) {
+                $line = trim($matches[1]);
+                $line = preg_split("/\r\n|\n|\r/", $line)[0] ?? $line;
 
-        if (preg_match($pattern, $text, $matches)) {
-            $line = trim($matches[1]);
-            // jaga-jaga kalau masih ada line break
-            $line = preg_split("/\r\n|\n|\r/", $line)[0] ?? $line;
-
-            return trim($line);
+                if ($this->isNomorSuratCandidate($line)) {
+                    return $line;
+                }
+            }
         }
 
-        // ========== POLA 2: "Nomor" baris sendiri, nomor di baris bawah ==========
+        // ========== POLA 2: "Nomor" baris sendiri atau diikuti nomor ==========
         $lines = preg_split("/\r\n|\n|\r/", $text);
 
         if (! is_array($lines)) {
@@ -55,6 +64,8 @@ class NomorSuratExtractor
 
         $skipWords = [
             'nomor',
+            'no',
+            'no.',
             'sifat',
             'lampiran',
             'hal',
@@ -65,28 +76,53 @@ class NomorSuratExtractor
         for ($i = 0; $i < count($lines); $i++) {
             $current = trim($lines[$i]);
 
-            if (preg_match('/^Nomor\b/i', $current)) {
+            if ($current === '') {
+                continue;
+            }
+
+            // Nomor/No bisa diikuti teks di baris yang sama atau baris selanjutnya
+            if (preg_match('/^(Nomor|No\.?)\b\s*(?:[:\.]\s*)?(.*)$/iu', $current, $matches)) {
+                $inline = trim($matches[2] ?? '');
+
+                if ($inline !== '' && $this->isNomorSuratCandidate($inline)) {
+                    return $inline;
+                }
+
                 // Lihat beberapa baris setelah "Nomor"
                 for ($j = $i + 1; $j < min($i + 10, count($lines)); $j++) {
                     $candidate = trim($lines[$j]);
 
-                    if ($candidate === '') {
+                    if ($candidate === '' || in_array(strtolower($candidate), $skipWords, true)) {
                         continue;
                     }
 
-                    if (in_array(strtolower($candidate), $skipWords, true)) {
-                        continue;
-                    }
-
-                    // cocokkan pola nomor surat: angka, huruf, titik, slash, minus
-                    if (preg_match('/^[0-9A-Za-z.\/-]+$/', $candidate)) {
+                    if ($this->isNomorSuratCandidate($candidate)) {
                         return $candidate;
                     }
                 }
             }
+
+            // Fallback: jika baris awal dokumen sudah menyerupai nomor surat
+            if ($i < 15 && $this->isNomorSuratCandidate($current) && ! in_array(strtolower($current), $skipWords, true)) {
+                return $current;
+            }
         }
 
         return null;
+    }
+
+    protected function isNomorSuratCandidate(string $value): bool
+    {
+        $value = preg_replace('/\s+/', ' ', trim($value));
+
+        // Hapus titik/koma di akhir
+        $value = rtrim($value, '.,;');
+
+        if (strlen($value) < 3 || strlen($value) > 120) {
+            return false;
+        }
+
+        return (bool) preg_match('/^[0-9A-Za-z][0-9A-Za-z.\/-]+[0-9A-Za-z]$/', $value);
     }
 
     /**
@@ -114,6 +150,8 @@ class NomorSuratExtractor
             return null;
         }
 
+        $text = preg_replace('/[\x00-\x1F\x7F]/', ' ', $text);
+
         // Pecah per baris
         $lines = preg_split("/\r\n|\n|\r/", $text);
 
@@ -131,17 +169,19 @@ class NomorSuratExtractor
 
             // Awalan Hal/Perihal (case-insensitive), boleh ada titik dua / minus
             if (preg_match('/^\s*(hal|perihal)\b\s*[:\-]?\s*(.+)$/iu', $line, $matches)) {
-                $subject = trim($matches[2] ?? '');
+                $subject = $this->cleanSubject($matches[2] ?? '');
 
                 if ($subject !== '') {
-                    $subject = preg_replace('/\s+/', ' ', $subject);
-
-                    return mb_strimwidth($subject, 0, 200, '...');
+                    return $subject;
                 }
             }
         }
 
-        // ========== POLA 2: "Hal" / "Perihal" sendirian, isi baris setelahnya ==========
+        $stopWords = [
+            'nomor', 'no', 'no.', 'lampiran', 'sifat', 'tembusan', 'kepada', 'kpd', 'dari', 'hal', 'perihal',
+        ];
+
+        // ========== POLA 2: "Hal" / "Perihal" sendirian, isi baris setelahnya + gabungan beberapa baris ==========
         for ($i = 0; $i < count($lines); $i++) {
             $current = trim($lines[$i]);
 
@@ -149,22 +189,56 @@ class NomorSuratExtractor
                 continue;
             }
 
-            // Baris hanya "Hal", "Hal:", "Perihal", "Perihal:"
-            if (preg_match('/^\s*(hal|perihal)\b\s*[:\-]?\s*$/iu', $current)) {
-                for ($j = $i + 1; $j < min($i + 5, count($lines)); $j++) {
+            if (preg_match('/^\s*(hal|perihal)\b\s*[:\-]?\s*(.*)$/iu', $current, $matches)) {
+                $subjectParts = [];
+                $inline = $this->cleanSubject($matches[2] ?? '');
+
+                if ($inline !== '') {
+                    $subjectParts[] = $inline;
+                }
+
+                for ($j = $i + 1; $j < min($i + 6, count($lines)); $j++) {
                     $candidate = trim($lines[$j]);
 
                     if ($candidate === '' || $candidate === ':') {
+                        if (! empty($subjectParts)) {
+                            break;
+                        }
+
                         continue;
                     }
 
-                    $candidate = preg_replace('/\s+/', ' ', $candidate);
+                    if (preg_match('/^('.implode('|', $stopWords).')\b/i', strtolower($candidate))) {
+                        break;
+                    }
 
-                    return mb_strimwidth($candidate, 0, 200, '...');
+                    $cleaned = $this->cleanSubject($candidate);
+
+                    if ($cleaned !== '') {
+                        $subjectParts[] = $cleaned;
+                    }
+
+                    if (str_ends_with($cleaned, '.') || str_ends_with($cleaned, ';')) {
+                        break;
+                    }
+                }
+
+                $combined = $this->cleanSubject(implode(' ', $subjectParts));
+
+                if ($combined !== '') {
+                    return $combined;
                 }
             }
         }
 
         return null;
+    }
+
+    protected function cleanSubject(string $subject): string
+    {
+        $subject = preg_replace('/\s+/', ' ', trim($subject));
+        $subject = preg_replace('/^[0-9]+[).\-]\s+/', '', $subject); // hapus penomoran awal
+
+        return mb_strimwidth($subject, 0, 200, '...');
     }
 }
