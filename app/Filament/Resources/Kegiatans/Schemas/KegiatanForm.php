@@ -186,7 +186,7 @@ class KegiatanForm
                 // =========================
                 // SECTION: PERSONIL YANG MENGHADIRI
                 // =========================
-                Section::make('Personil yang Menghadiri')
+                Section::make('Personil yang ditugaskan')
                     ->schema([
                         Toggle::make('semua_personil')
                             ->label('Pilih semua pegawai')
