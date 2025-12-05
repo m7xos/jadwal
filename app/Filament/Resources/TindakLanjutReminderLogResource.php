@@ -4,14 +4,17 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TindakLanjutReminderLogResource\Pages;
 use App\Models\TindakLanjutReminderLog;
+use App\Services\WablasService;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Actions\Action;
+use Filament\Notifications\Notification;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Carbon;
 
 class TindakLanjutReminderLogResource extends Resource
 {
@@ -92,6 +95,59 @@ class TindakLanjutReminderLogResource extends Resource
                         'response' => $record->response,
                     ]))
                     ->hidden(fn (TindakLanjutReminderLog $record) => empty($record->response)),
+                Action::make('resend')
+                    ->label('Kirim Ulang')
+                    ->icon('heroicon-m-arrow-path')
+                    ->requiresConfirmation()
+                    ->visible(fn (TindakLanjutReminderLog $record) => $record->status !== 'success')
+                    ->action(function (TindakLanjutReminderLog $record) {
+                        $kegiatan = $record->kegiatan;
+
+                        if (! $kegiatan) {
+                            Notification::make()
+                                ->title('Kegiatan tidak ditemukan')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        /** @var WablasService $wablas */
+                        $wablas = app(WablasService::class);
+
+                        if (! $wablas->isConfigured()) {
+                            Notification::make()
+                                ->title('Konfigurasi Wablas belum lengkap')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
+                        $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+                        $success = (bool) ($result['success'] ?? false);
+
+                        $record->status = $success ? 'success' : 'failed';
+                        $record->error_message = $result['error'] ?? null;
+                        $record->response = $result['response'] ?? null;
+                        $record->sent_at = $success ? Carbon::now() : $record->sent_at;
+                        $record->save();
+
+                        if ($success) {
+                            $kegiatan->forceFill(['tl_reminder_sent_at' => Carbon::now()])->save();
+
+                            Notification::make()
+                                ->title('Pengingat berhasil dikirim ulang')
+                                ->success()
+                                ->send();
+                        } else {
+                            Notification::make()
+                                ->title('Pengingat gagal dikirim ulang')
+                                ->body($record->error_message ?? 'Coba lagi nanti.')
+                                ->danger()
+                                ->send();
+                        }
+                    }),
             ])
             ->bulkActions([]);
     }
