@@ -21,9 +21,10 @@ class PersonilForm
                             ->maxLength(255),
 						
 						TextInput::make('nip')
-							->label('NIP')
+							->label('NIP (dipakai untuk login)')
 							->maxLength(30)
-							->nullable(),
+							->required()
+							->unique(table: \App\Models\Personil::class, column: 'nip', ignoreRecord: true),
 
                         TextInput::make('jabatan')
                             ->label('Jabatan')
@@ -33,7 +34,8 @@ class PersonilForm
                             ->label('Nomor WA')
                             ->placeholder('Contoh: 6281234567890')
                             ->required()
-                            ->maxLength(20),
+                            ->maxLength(20)
+                            ->helperText('Nomor WA ini juga dipakai sebagai password login.'),
 
                         Textarea::make('keterangan')
                             ->label('Keterangan')

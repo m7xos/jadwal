@@ -5,6 +5,10 @@ namespace App\Providers\Filament;
 use App\Filament\Widgets\AgendaPerHariChart;
 use App\Filament\Widgets\AgendaStatsOverview;
 use App\Filament\Pages\LaporanSuratMasukBulanan;
+use App\Filament\Pages\RoleAccessSettings;
+use App\Filament\Auth\Login as PersonilLogin;
+use App\Http\Middleware\EnsureRoleHasPageAccess;
+use App\Support\RoleAccess;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
@@ -30,7 +34,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(PersonilLogin::class)
+            ->authGuard('personil')
             ->colors([
                 'primary' => Color::Sky,
             ])
@@ -44,6 +49,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->pages([
                 Dashboard::class,
+                RoleAccessSettings::class,
             ])
             ->discoverWidgets(
                 in: app_path('Filament/Widgets'),
@@ -75,7 +81,8 @@ class AdminPanelProvider extends PanelProvider
                     ->url($laporanUrl, shouldOpenInNewTab: true)
                     ->icon('heroicon-o-document-text')
                     ->group('Laporan')
-                    ->sort(110),
+                    ->sort(110)
+                    ->visible(fn () => RoleAccess::canSeeNav(auth()->user(), 'filament.admin.pages.laporan-surat-masuk-bulanan')),
             ])
 
             ->middleware([
@@ -89,6 +96,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                EnsureRoleHasPageAccess::class,
             ]);
     }
 }
