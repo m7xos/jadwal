@@ -26,6 +26,7 @@ class Kegiatan extends Model
         'tampilkan_di_public',
         'batas_tindak_lanjut',
         'tl_reminder_sent_at',
+        'tindak_lanjut_selesai_at',
     ];
 
     protected $casts = [
@@ -36,6 +37,7 @@ class Kegiatan extends Model
         'tampilkan_di_public' => 'boolean',
         'tindak_lanjut_deadline' => 'datetime',
         'tindak_lanjut_reminder_sent_at' => 'datetime',
+        'tindak_lanjut_selesai_at' => 'datetime',
     ];
 
     public function personils()
