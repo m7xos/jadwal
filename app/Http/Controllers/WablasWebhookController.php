@@ -95,6 +95,7 @@ class WablasWebhookController extends Controller
         $kegiatan->loadMissing('personils');
 
         $allowedJabatan = $this->allowedRoles();
+        $rolePatterns = $this->allowedRolePatterns();
 
         $assignedNumbers = ($kegiatan->personils ?? collect())
             ->map(fn (Personil $personil) => $this->normalizeNumberFromDb($personil->no_wa))
@@ -102,7 +103,13 @@ class WablasWebhookController extends Controller
             ->values();
 
         $roleNumbers = Personil::query()
-            ->whereIn('jabatan', $allowedJabatan)
+            ->where(function ($q) use ($allowedJabatan, $rolePatterns) {
+                $q->whereIn('jabatan', $allowedJabatan);
+
+                foreach ($rolePatterns as $pattern) {
+                    $q->orWhere('jabatan', 'like', $pattern);
+                }
+            })
             ->get()
             ->map(fn (Personil $personil) => $this->normalizeNumberFromDb($personil->no_wa))
             ->filter()
@@ -125,6 +132,14 @@ class WablasWebhookController extends Controller
         return [
             'Arsiparis Terampil',
             'Pranata Komputer Terampil',
+        ];
+    }
+
+    protected function allowedRolePatterns(): array
+    {
+        return [
+            '%arsiparis%',
+            '%pranata komputer%',
         ];
     }
 
