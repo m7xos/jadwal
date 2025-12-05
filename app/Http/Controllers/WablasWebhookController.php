@@ -25,7 +25,11 @@ class WablasWebhookController extends Controller
         }
 
         $normalizedMessage = strtolower(preg_replace('/\s+/', ' ', $message));
-        if ($normalizedMessage !== 'selesai tl') {
+
+        $explicitId = $this->extractKegiatanIdFromMessage($message);
+        $containsSelesai = str_contains($normalizedMessage, 'selesai');
+
+        if (! $containsSelesai && ! in_array($normalizedMessage, ['selesai tl', 'tl selesai'])) {
             return response()->json(['ignored' => 'not a selesai tl command']);
         }
 
@@ -39,7 +43,7 @@ class WablasWebhookController extends Controller
             return response()->json(['ignored' => 'no sender number']);
         }
 
-        $kegiatan = $this->resolveKegiatanForCompletion();
+        $kegiatan = $this->resolveKegiatanForCompletion($explicitId);
         if (! $kegiatan) {
             return response()->json(['ignored' => 'no pending TL found']);
         }
@@ -63,7 +67,7 @@ class WablasWebhookController extends Controller
         $this->markReminderLogCompleted($kegiatan);
 
         $sent = $wablas->sendGroupText(
-            '*TERIMA KASIH*\nSurat sudah ditindaklanjuti.\nJudul Pengingat: *TL-' . $kegiatan->id . "*\nNomor: *" . ($kegiatan->nomor ?? '-') . "*\nPerihal: *" . ($kegiatan->nama_kegiatan ?? '-') . '*'
+            '*TERIMA KASIH*\nSurat sudah ditindaklanjuti.\nKode Pengingat: *TL-' . $kegiatan->id . "*\nNomor: *" . ($kegiatan->nomor ?? '-') . "*\nPerihal: *" . ($kegiatan->nama_kegiatan ?? '-') . '*'
         );
 
         if (! $sent) {
@@ -75,8 +79,16 @@ class WablasWebhookController extends Controller
         return response()->json(['status' => 'ok']);
     }
 
-    protected function resolveKegiatanForCompletion(): ?Kegiatan
+    protected function resolveKegiatanForCompletion(?int $kegiatanId = null): ?Kegiatan
     {
+        if ($kegiatanId) {
+            return Kegiatan::query()
+                ->where('id', $kegiatanId)
+                ->where('jenis_surat', 'tindak_lanjut')
+                ->whereNull('tindak_lanjut_selesai_at')
+                ->first();
+        }
+
         $log = TindakLanjutReminderLog::query()
             ->whereHas('kegiatan', fn ($q) => $q
                 ->where('jenis_surat', 'tindak_lanjut')
@@ -141,6 +153,16 @@ class WablasWebhookController extends Controller
             '%arsiparis%',
             '%pranata komputer%',
         ];
+    }
+
+    protected function extractKegiatanIdFromMessage(string $message): ?int
+    {
+        $matches = [];
+        if (preg_match('/tl[-\\s]?(\d+)/i', $message, $matches)) {
+            return (int) $matches[1];
+        }
+
+        return null;
     }
 
     protected function normalizeNumber(string $digits): string
