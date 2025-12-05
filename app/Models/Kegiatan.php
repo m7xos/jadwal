@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\TindakLanjutReminderLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
@@ -41,6 +42,41 @@ class Kegiatan extends Model
     {
         return $this->belongsToMany(Personil::class, 'kegiatan_personil')
             ->withTimestamps();
+    }
+
+    public function tindakLanjutReminderLogs()
+    {
+        return $this->hasMany(TindakLanjutReminderLog::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(function (Kegiatan $kegiatan) {
+            if ($kegiatan->jenis_surat !== 'tindak_lanjut') {
+                return;
+            }
+
+            if ($kegiatan->tl_reminder_sent_at) {
+                return;
+            }
+
+            if (! $kegiatan->batas_tindak_lanjut) {
+                return;
+            }
+
+            $shouldEnsureLog = $kegiatan->wasRecentlyCreated
+                || $kegiatan->wasChanged('jenis_surat')
+                || $kegiatan->wasChanged('batas_tindak_lanjut');
+
+            if (! $shouldEnsureLog) {
+                return;
+            }
+
+            TindakLanjutReminderLog::firstOrCreate(
+                ['kegiatan_id' => $kegiatan->id],
+                ['status' => 'pending'],
+            );
+        });
     }
 
     public function getTanggalLabelAttribute(): string

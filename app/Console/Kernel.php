@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Console\Commands\KirimPengingatTindakLanjut;
 use App\Console\Commands\RemindTindakLanjutCommand;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -14,6 +15,7 @@ class Kernel extends ConsoleKernel
      * @var array<int, class-string>
      */
     protected $commands = [
+        \App\Console\Commands\KirimPengingatTindakLanjut::class,
         RemindTindakLanjutCommand::class,
     ];
 
@@ -22,7 +24,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('kegiatan:remind-tindak-lanjut')->everyTenMinutes();
+        // Jalankan lebih sering agar pengiriman H-1 menit tidak terlewat.
+        $schedule->command('surat:ingatkan-tl')->everyMinute();
     }
 
     /**

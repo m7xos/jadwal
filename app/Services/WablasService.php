@@ -92,12 +92,24 @@ class WablasService
      */
     protected function buildTindakLanjutReminderMessage(Kegiatan $kegiatan): string
     {
+        $kegiatan->loadMissing('personils');
+
         $lines = [];
+
+        $nomorSurat = trim((string) ($kegiatan->nomor ?? ''));
+        if ($nomorSurat === '') {
+            $nomorSurat = '-';
+        }
+
+        $perihal = trim((string) ($kegiatan->nama_kegiatan ?? ''));
+        if ($perihal === '') {
+            $perihal = '-';
+        }
 
         $lines[] = '*PENGINGAT BATAS TINDAK LANJUT SURAT*';
         $lines[] = '';
-        $lines[] = 'Nomor Surat : *' . ($kegiatan->nomor ?? '-') . '*';
-        $lines[] = 'Perihal     : *' . ($kegiatan->nama_kegiatan ?? '-') . '*';
+        $lines[] = 'Nomor Surat : *' . $nomorSurat . '*';
+        $lines[] = 'Perihal      : *' . $perihal . '*';
 
         if ($kegiatan->tanggal) {
             $lines[] = 'Tanggal     : ' . $kegiatan->tanggal_label;
@@ -138,7 +150,10 @@ class WablasService
             $lines[] = $suratUrl;
         }
 
-        $tags = $this->getDispositionTags();
+        $tags = array_values(array_unique([
+            ...$this->getDispositionTags(),
+            ...$this->getPersonilTagsForKegiatan($kegiatan),
+        ]));
         if (! empty($tags)) {
             $lines[] = '';
             $lines[] = 'Mohon tindak lanjut:';
@@ -171,6 +186,22 @@ class WablasService
         }
 
         return $tags;
+    }
+
+    protected function getPersonilTagsForKegiatan(Kegiatan $kegiatan): array
+    {
+        $personils = $kegiatan->personils ?? collect();
+
+        if ($personils->isEmpty()) {
+            return [];
+        }
+
+        return $personils
+            ->map(fn ($personil) => $this->formatMention($personil->no_wa))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /**
@@ -429,7 +460,7 @@ class WablasService
         return implode("\n", $lines);
     }
 
-    public function sendGroupTindakLanjutReminder(Kegiatan $kegiatan): bool
+    public function sendGroupTindakLanjutReminder(Kegiatan $kegiatan): array
     {
         if (! $this->isConfigured()) {
             Log::error('WablasService: konfigurasi belum lengkap untuk pengingat TL', [
@@ -438,7 +469,11 @@ class WablasService
                 'group_id'  => $this->groupId,
             ]);
 
-            return false;
+            return [
+                'success' => false,
+                'error' => 'Konfigurasi Wablas tidak lengkap',
+                'response' => null,
+            ];
         }
 
         $message = $this->buildTindakLanjutReminderMessage($kegiatan);
@@ -448,13 +483,25 @@ class WablasService
                 [
                     'phone'   => $this->groupId,
                     'message' => $message,
-                    'isGroup' => 'true',
+                    'isGroup' => true,
                 ],
             ],
         ];
 
-        $response = $this->client()
-            ->post($this->baseUrl . '/api/v2/send-message', $payload);
+        try {
+            $response = $this->client()->post($this->baseUrl . '/api/v2/send-message', $payload);
+        } catch (\Throwable $exception) {
+            Log::error('WablasService: HTTP error kirim pengingat TL', [
+                'message' => $exception->getMessage(),
+                'kegiatan_id' => $kegiatan->id,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $exception->getMessage(),
+                'response' => null,
+            ];
+        }
 
         if (! $response->successful()) {
             Log::error('WablasService: HTTP error kirim pengingat TL', [
@@ -462,7 +509,11 @@ class WablasService
                 'body'   => $response->body(),
             ]);
 
-            return false;
+            return [
+                'success' => false,
+                'error' => 'HTTP ' . $response->status(),
+                'response' => $response->json(),
+            ];
         }
 
         $json = $response->json();
@@ -472,7 +523,11 @@ class WablasService
             'kegiatan' => $kegiatan->id,
         ]);
 
-        return (bool) data_get($json, 'status', false);
+        return [
+            'success' => (bool) data_get($json, 'status', false),
+            'response' => $json,
+            'error' => null,
+        ];
     }
 
     public function sendGroupRekap(iterable $kegiatans): bool
