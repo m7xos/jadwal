@@ -429,7 +429,7 @@ class WablasService
         return implode("\n", $lines);
     }
 
-    public function sendGroupTindakLanjutReminder(Kegiatan $kegiatan): bool
+    public function sendGroupTindakLanjutReminder(Kegiatan $kegiatan): array
     {
         if (! $this->isConfigured()) {
             Log::error('WablasService: konfigurasi belum lengkap untuk pengingat TL', [
@@ -438,7 +438,11 @@ class WablasService
                 'group_id'  => $this->groupId,
             ]);
 
-            return false;
+            return [
+                'success' => false,
+                'error' => 'Konfigurasi Wablas tidak lengkap',
+                'response' => null,
+            ];
         }
 
         $message = $this->buildTindakLanjutReminderMessage($kegiatan);
@@ -448,13 +452,25 @@ class WablasService
                 [
                     'phone'   => $this->groupId,
                     'message' => $message,
-                    'isGroup' => 'true',
+                    'isGroup' => true,
                 ],
             ],
         ];
 
-        $response = $this->client()
-            ->post($this->baseUrl . '/api/v2/send-message', $payload);
+        try {
+            $response = $this->client()->post($this->baseUrl . '/api/v2/send-message', $payload);
+        } catch (\Throwable $exception) {
+            Log::error('WablasService: HTTP error kirim pengingat TL', [
+                'message' => $exception->getMessage(),
+                'kegiatan_id' => $kegiatan->id,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $exception->getMessage(),
+                'response' => null,
+            ];
+        }
 
         if (! $response->successful()) {
             Log::error('WablasService: HTTP error kirim pengingat TL', [
@@ -462,7 +478,11 @@ class WablasService
                 'body'   => $response->body(),
             ]);
 
-            return false;
+            return [
+                'success' => false,
+                'error' => 'HTTP ' . $response->status(),
+                'response' => $response->json(),
+            ];
         }
 
         $json = $response->json();
@@ -472,7 +492,11 @@ class WablasService
             'kegiatan' => $kegiatan->id,
         ]);
 
-        return (bool) data_get($json, 'status', false);
+        return [
+            'success' => (bool) data_get($json, 'status', false),
+            'response' => $json,
+            'error' => null,
+        ];
     }
 
     public function sendGroupRekap(iterable $kegiatans): bool

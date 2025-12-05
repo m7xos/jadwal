@@ -43,6 +43,11 @@ class Kegiatan extends Model
             ->withTimestamps();
     }
 
+    public function tindakLanjutReminderLogs()
+    {
+        return $this->hasMany(TindakLanjutReminderLog::class);
+    }
+
     public function getTanggalLabelAttribute(): string
     {
         if (! $this->tanggal) {

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Kegiatan;
+use App\Models\TindakLanjutReminderLog;
 use App\Services\WablasService;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
@@ -38,11 +39,10 @@ class RemindTindakLanjutCommand extends Command
 
         /** @var Collection<int, Kegiatan> $kegiatans */
         $kegiatans = Kegiatan::query()
-            ->where('jenis_surat', 'kegiatan_tindak_lanjut')
-            ->where('tampilkan_di_public', false)
-            ->whereNotNull('tindak_lanjut_deadline')
-            ->whereNull('tindak_lanjut_reminder_sent_at')
-            ->where('tindak_lanjut_deadline', '<=', Carbon::now())
+            ->where('jenis_surat', 'tindak_lanjut')
+            ->whereNotNull('batas_tindak_lanjut')
+            ->whereNull('tl_reminder_sent_at')
+            ->where('batas_tindak_lanjut', '<=', Carbon::now())
             ->get();
 
         if ($kegiatans->isEmpty()) {
@@ -54,11 +54,20 @@ class RemindTindakLanjutCommand extends Command
         $sent = 0;
 
         foreach ($kegiatans as $kegiatan) {
-            $success = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+            $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+            $success = (bool) ($result['success'] ?? false);
+
+            TindakLanjutReminderLog::create([
+                'kegiatan_id' => $kegiatan->id,
+                'status' => $success ? 'success' : 'failed',
+                'error_message' => $result['error'] ?? null,
+                'response' => $result['response'] ?? null,
+                'sent_at' => $success ? Carbon::now() : null,
+            ]);
 
             if ($success) {
                 $kegiatan->update([
-                    'tindak_lanjut_reminder_sent_at' => Carbon::now(),
+                    'tl_reminder_sent_at' => Carbon::now(),
                 ]);
                 $sent++;
 

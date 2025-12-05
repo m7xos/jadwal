@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Kegiatan;
+use App\Models\TindakLanjutReminderLog;
 use App\Services\WablasService;
 use Illuminate\Console\Command;
 
@@ -36,7 +37,16 @@ class KirimPengingatTindakLanjut extends Command
         }
 
         foreach ($dueKegiatans as $kegiatan) {
-            $success = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+            $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+            $success = (bool) ($result['success'] ?? false);
+
+            TindakLanjutReminderLog::create([
+                'kegiatan_id' => $kegiatan->id,
+                'status' => $success ? 'success' : 'failed',
+                'error_message' => $result['error'] ?? null,
+                'response' => $result['response'] ?? null,
+                'sent_at' => $success ? now() : null,
+            ]);
 
             if ($success) {
                 $kegiatan->forceFill(['tl_reminder_sent_at' => now()])->save();
