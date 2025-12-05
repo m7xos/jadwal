@@ -106,25 +106,10 @@ class WablasService
             $perihal = '-';
         }
 
-        $reminderTitle = 'TL-' . $kegiatan->id;
-
-        $lines[] = '*PENGINGAT BATAS TINDAK LANJUT SURAT*';
+        $lines[] = '*Pengingat TL Surat Nomor: ' . $nomorSurat . '*';
         $lines[] = '';
-        $lines[] = 'Judul Pengingat : *' . $reminderTitle . '*';
-        $lines[] = 'Nomor Surat     : *' . $nomorSurat . '*';
-        $lines[] = 'Perihal         : *' . $perihal . '*';
-
-        if ($kegiatan->tanggal) {
-            $lines[] = 'Tanggal     : ' . $kegiatan->tanggal_label;
-        }
-
-        if ($kegiatan->waktu) {
-            $lines[] = 'Waktu       : ' . $kegiatan->waktu;
-        }
-
-        if ($kegiatan->tempat) {
-            $lines[] = 'Tempat      : ' . $kegiatan->tempat;
-        }
+        $lines[] = 'Perihal       : ' . $perihal;
+        $lines[] = 'Tanggal       : ' . ($kegiatan->tanggal_label ?? '-');
 
         $deadline = $kegiatan->batas_tindak_lanjut ?? $kegiatan->tindak_lanjut_deadline;
         $deadlineLabel = '-';
@@ -137,20 +122,15 @@ class WablasService
             $deadlineLabel = $kegiatan->tindak_lanjut_deadline_label;
         }
 
-        $lines[] = 'Batas TL    : ' . $deadlineLabel;
-
-        $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
-        if ($keterangan !== '') {
-            $lines[] = '';
-            $lines[] = 'Catatan:';
-            $lines[] = $keterangan;
-        }
+        $lines[] = 'Batas TL      : ' . $deadlineLabel;
+        $lines[] = '';
 
         $suratUrl = $this->getShortSuratUrl($kegiatan);
         if ($suratUrl) {
             $lines[] = '';
             $lines[] = '📎 Surat (PDF):';
             $lines[] = $suratUrl;
+            $lines[] = '';
         }
 
         $tags = array_values(array_unique([
@@ -161,10 +141,11 @@ class WablasService
             $lines[] = '';
             $lines[] = 'Mohon tindak lanjut:';
             $lines[] = implode(' ', $tags);
+            $lines[] = '';
         }
 
-        $lines[] = '';
         $lines[] = '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._';
+        $lines[] = '_Balas pesan ini dengan Selesai TL jika sudah selesai_';
 
         return implode("\n", $lines);
     }
@@ -242,7 +223,13 @@ class WablasService
             return false;
         }
 
-        return (bool) data_get($response->json(), 'status', false);
+        $json = $response->json();
+
+        Log::info('WablasService: response sendGroupText', [
+            'response' => $json,
+        ]);
+
+        return (bool) data_get($json, 'status', false);
     }
 
     /**

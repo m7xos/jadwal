@@ -59,9 +59,15 @@ class WablasWebhookController extends Controller
 
         $this->markReminderLogCompleted($kegiatan);
 
-        $wablas->sendGroupText(
+        $sent = $wablas->sendGroupText(
             '*TERIMA KASIH*\nSurat sudah ditindaklanjuti.\nJudul Pengingat: *TL-' . $kegiatan->id . "*\nNomor: *" . ($kegiatan->nomor ?? '-') . "*\nPerihal: *" . ($kegiatan->nama_kegiatan ?? '-') . '*'
         );
+
+        if (! $sent) {
+            Log::error('Wablas webhook: gagal kirim balasan terima kasih', [
+                'kegiatan_id' => $kegiatan->id,
+            ]);
+        }
 
         return response()->json(['status' => 'ok']);
     }
