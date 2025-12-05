@@ -24,8 +24,8 @@ class WablasWebhookController extends Controller
             return response()->json(['ignored' => 'empty message']);
         }
 
-        $normalizedMessage = strtolower($message);
-        if (! in_array($normalizedMessage, ['selesai tl', 'selesai tl'])) {
+        $normalizedMessage = strtolower(preg_replace('/\s+/', ' ', $message));
+        if ($normalizedMessage !== 'selesai tl') {
             return response()->json(['ignored' => 'not a selesai tl command']);
         }
 
@@ -60,7 +60,7 @@ class WablasWebhookController extends Controller
         $this->markReminderLogCompleted($kegiatan);
 
         $wablas->sendGroupText(
-            '*TERIMA KASIH*\nSurat sudah ditindaklanjuti.\nNomor: *' . ($kegiatan->nomor ?? '-') . "*\nPerihal: *" . ($kegiatan->nama_kegiatan ?? '-') . '*'
+            '*TERIMA KASIH*\nSurat sudah ditindaklanjuti.\nJudul Pengingat: *TL-' . $kegiatan->id . "*\nNomor: *" . ($kegiatan->nomor ?? '-') . "*\nPerihal: *" . ($kegiatan->nama_kegiatan ?? '-') . '*'
         );
 
         return response()->json(['status' => 'ok']);
@@ -72,7 +72,7 @@ class WablasWebhookController extends Controller
             ->whereHas('kegiatan', fn ($q) => $q
                 ->where('jenis_surat', 'tindak_lanjut')
                 ->whereNull('tindak_lanjut_selesai_at'))
-            ->latest()
+            ->orderByDesc('created_at')
             ->first();
 
         return $log?->kegiatan;

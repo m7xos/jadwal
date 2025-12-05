@@ -106,10 +106,13 @@ class WablasService
             $perihal = '-';
         }
 
+        $reminderTitle = 'TL-' . $kegiatan->id;
+
         $lines[] = '*PENGINGAT BATAS TINDAK LANJUT SURAT*';
         $lines[] = '';
-        $lines[] = 'Nomor Surat : *' . $nomorSurat . '*';
-        $lines[] = 'Perihal      : *' . $perihal . '*';
+        $lines[] = 'Judul Pengingat : *' . $reminderTitle . '*';
+        $lines[] = 'Nomor Surat     : *' . $nomorSurat . '*';
+        $lines[] = 'Perihal         : *' . $perihal . '*';
 
         if ($kegiatan->tanggal) {
             $lines[] = 'Tanggal     : ' . $kegiatan->tanggal_label;
