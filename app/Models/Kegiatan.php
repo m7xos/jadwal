@@ -26,12 +26,14 @@ class Kegiatan extends Model
         'tampilkan_di_public',
         'batas_tindak_lanjut',
         'tl_reminder_sent_at',
+        'tl_final_reminder_sent_at',
         'tindak_lanjut_selesai_at',
     ];
 
     protected $casts = [
         'batas_tindak_lanjut' => 'datetime',
         'tl_reminder_sent_at' => 'datetime',
+        'tl_final_reminder_sent_at' => 'datetime',
         'tanggal' => 'date',
         'sudah_disposisi' => 'boolean',   // <--- baru
         'tampilkan_di_public' => 'boolean',

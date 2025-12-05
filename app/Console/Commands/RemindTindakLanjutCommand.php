@@ -37,23 +37,22 @@ class RemindTindakLanjutCommand extends Command
             return self::FAILURE;
         }
 
-        /** @var Collection<int, Kegiatan> $kegiatans */
-        $kegiatans = Kegiatan::query()
+        $now = Carbon::now();
+        $sent = 0;
+        $processedIds = [];
+
+        // Pengingat awal (5 jam sebelum batas TL)
+        $firstBatch = Kegiatan::query()
             ->where('jenis_surat', 'tindak_lanjut')
             ->whereNotNull('batas_tindak_lanjut')
             ->whereNull('tl_reminder_sent_at')
-            ->where('batas_tindak_lanjut', '<=', Carbon::now()->addHours(5))
+            ->whereNull('tindak_lanjut_selesai_at')
+            ->where('batas_tindak_lanjut', '<=', $now->copy()->addHours(5))
             ->get();
 
-        if ($kegiatans->isEmpty()) {
-            $this->info('Tidak ada surat kegiatan yang perlu diingatkan.');
+        foreach ($firstBatch as $kegiatan) {
+            $processedIds[] = $kegiatan->id;
 
-            return self::SUCCESS;
-        }
-
-        $sent = 0;
-
-        foreach ($kegiatans as $kegiatan) {
             $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
             $success = (bool) ($result['success'] ?? false);
 
@@ -64,18 +63,55 @@ class RemindTindakLanjutCommand extends Command
             $log->status = $success ? 'success' : 'failed';
             $log->error_message = $result['error'] ?? null;
             $log->response = $result['response'] ?? null;
-            $log->sent_at = $success ? Carbon::now() : null;
+            $log->sent_at = $success ? Carbon::now() : $log->sent_at;
             $log->save();
 
             if ($success) {
                 $kegiatan->update([
-                    'tl_reminder_sent_at' => Carbon::now(),
+                    'tl_reminder_sent_at' => $log->sent_at ?? Carbon::now(),
                 ]);
                 $sent++;
-
                 $this->info("Pengingat dikirim untuk kegiatan #{$kegiatan->id}");
             } else {
                 Log::warning('Gagal mengirim pengingat TL WA untuk kegiatan.', [
+                    'kegiatan_id' => $kegiatan->id,
+                ]);
+            }
+        }
+
+        // Pengingat terakhir tepat saat atau setelah batas TL jika belum selesai.
+        $finalBatch = Kegiatan::query()
+            ->where('jenis_surat', 'tindak_lanjut')
+            ->whereNotNull('batas_tindak_lanjut')
+            ->whereNull('tindak_lanjut_selesai_at')
+            ->whereNull('tl_final_reminder_sent_at')
+            ->where('batas_tindak_lanjut', '<=', $now)
+            ->whereNotIn('id', $processedIds)
+            ->get();
+
+        foreach ($finalBatch as $kegiatan) {
+            $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+            $success = (bool) ($result['success'] ?? false);
+
+            $log = TindakLanjutReminderLog::firstOrNew([
+                'kegiatan_id' => $kegiatan->id,
+            ]);
+
+            $log->status = $success ? 'success' : 'failed';
+            $log->error_message = $result['error'] ?? null;
+            $log->response = $result['response'] ?? null;
+            $log->sent_at = $success ? Carbon::now() : $log->sent_at;
+            $log->save();
+
+            if ($success) {
+                $kegiatan->update([
+                    'tl_reminder_sent_at' => $kegiatan->tl_reminder_sent_at ?? $log->sent_at ?? Carbon::now(),
+                    'tl_final_reminder_sent_at' => $log->sent_at ?? Carbon::now(),
+                ]);
+                $sent++;
+                $this->info("Pengingat terakhir dikirim untuk kegiatan #{$kegiatan->id}");
+            } else {
+                Log::warning('Gagal mengirim pengingat terakhir TL WA untuk kegiatan.', [
                     'kegiatan_id' => $kegiatan->id,
                 ]);
             }
