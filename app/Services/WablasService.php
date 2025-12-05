@@ -106,10 +106,13 @@ class WablasService
             $perihal = '-';
         }
 
+        $kodePengingat = 'TL-' . $kegiatan->id;
+
         $lines[] = '*Pengingat TL Surat Nomor: ' . $nomorSurat . '*';
         $lines[] = '';
-        $lines[] = 'Perihal       : ' . $perihal;
-        $lines[] = 'Tanggal       : ' . ($kegiatan->tanggal_label ?? '-');
+        $lines[] = 'Kode Pengingat : ' . $kodePengingat;
+        $lines[] = 'Perihal        : ' . $perihal;
+        $lines[] = 'Tanggal        : ' . ($kegiatan->tanggal_label ?? '-');
 
         $deadline = $kegiatan->batas_tindak_lanjut ?? $kegiatan->tindak_lanjut_deadline;
         $deadlineLabel = '-';
@@ -122,7 +125,7 @@ class WablasService
             $deadlineLabel = $kegiatan->tindak_lanjut_deadline_label;
         }
 
-        $lines[] = 'Batas TL      : ' . $deadlineLabel;
+        $lines[] = 'Batas TL       : ' . $deadlineLabel;
         $lines[] = '';
 
         $suratUrl = $this->getShortSuratUrl($kegiatan);
