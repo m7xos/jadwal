@@ -110,7 +110,7 @@ class WablasService
 
         $lines[] = '*Pengingat TL Surat Nomor: ' . $nomorSurat . '*';
         $lines[] = '';
-        $lines[] = 'Kode Pengingat : ' . $kodePengingat;
+        $lines[] = 'Kode TL        : ' . $kodePengingat;
         $lines[] = 'Perihal        : ' . $perihal;
         $lines[] = 'Tanggal        : ' . ($kegiatan->tanggal_label ?? '-');
 
@@ -130,7 +130,7 @@ class WablasService
 
         $suratUrl = $this->getShortSuratUrl($kegiatan);
         if ($suratUrl) {
-            $lines[] = '';
+            //$lines[] = '';
             $lines[] = '📎 Surat (PDF):';
             $lines[] = $suratUrl;
             $lines[] = '';
@@ -147,9 +147,10 @@ class WablasService
             $lines[] = '';
         }
 
-        $lines[] = '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._';
+        $lines[] = '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_*';
         $lines[] = '';
-        $lines[] = '*_Balas pesan ini dengan "TL-' . $kegiatan->id . ' selesai" jika sudah menyelesaikan TL_*';
+        $lines[] = '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._';
+        
 
         return implode("\n", $lines);
     }
