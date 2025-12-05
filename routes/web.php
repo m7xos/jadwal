@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 //use App\Http\Controllers\PublicKegiatanController;
 use App\Http\Controllers\KegiatanSuratController;
 use App\Http\Controllers\PublicAgendaController;
-use App\Http\Controllers\WablasWebhookController;
 
 //Route::get('/', function () {
 //    return view('audio');
@@ -28,9 +27,6 @@ Route::view('/pengingat-audio', 'pengingat.audio')
 	
 Route::get('/u/{kegiatan}', [KegiatanSuratController::class, 'show'])
     ->name('kegiatan.surat.short');
-
-Route::post('/wablas/webhook', WablasWebhookController::class)
-    ->name('wablas.webhook');
 	
 Route::get('/login', function () {
     return redirect()->route('filament.admin.auth.login');
