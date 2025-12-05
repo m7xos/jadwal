@@ -204,6 +204,44 @@ class WablasService
             ->all();
     }
 
+    public function sendGroupText(string $message): bool
+    {
+        if (! $this->isConfigured()) {
+            return false;
+        }
+
+        $payload = [
+            'data' => [
+                [
+                    'phone' => $this->groupId,
+                    'message' => $message,
+                    'isGroup' => true,
+                ],
+            ],
+        ];
+
+        try {
+            $response = $this->client()->post($this->baseUrl . '/api/v2/send-message', $payload);
+        } catch (\Throwable $exception) {
+            Log::error('WablasService: HTTP error kirim teks grup', [
+                'message' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
+
+        if (! $response->successful()) {
+            Log::error('WablasService: HTTP error kirim teks grup', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return false;
+        }
+
+        return (bool) data_get($response->json(), 'status', false);
+    }
+
     /**
      * Format pesan rekap untuk banyak kegiatan (untuk grup WA).
      *
