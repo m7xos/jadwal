@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\KodeSurat;
 use Illuminate\Support\Facades\Storage;
 use Spatie\PdfToText\Pdf;
 
 class NomorSuratExtractor
 {
+    private ?array $kodeSuratPrefixes = null;
+
     /**
      * Ambil NOMOR SURAT dari PDF.
      *
@@ -36,18 +39,14 @@ class NomorSuratExtractor
         }
 
         // ========== POLA 1: "Nomor : 800/489/BKD" dll ==========
-        $pattern = '/Nomor\s*[:\.]\s*((?:\$\{\s*nomor_naskah\s*\})|[0-9A-Za-z.\/-]+)/i';
+        $pattern = '/Nomor\s*[:\.]\s*([0-9A-Za-z.\/-]+)/i';
 
         if (preg_match($pattern, $text, $matches)) {
             $line = trim($matches[1]);
             // jaga-jaga kalau masih ada line break
             $line = preg_split("/\r\n|\n|\r/", $line)[0] ?? $line;
 
-            $line = trim($line);
-
-            if ($this->isNomorCandidate($line)) {
-                return $line;
-            }
+            return trim($line);
         }
 
         // ========== POLA 2: "Nomor" baris sendiri, nomor di baris bawah ==========
@@ -83,37 +82,30 @@ class NomorSuratExtractor
                     }
 
                     // cocokkan pola nomor surat: angka, huruf, titik, slash, minus
-                    if ($this->isNomorCandidate($candidate)) {
+                    if (preg_match('/^[0-9A-Za-z.\/-]+$/', $candidate)) {
                         return $candidate;
                     }
                 }
             }
         }
 
-        // Fallback: placeholder langsung tanpa pola terstruktur
-        if (preg_match('/\$\{\s*nomor_naskah\s*\}/i', $text)) {
-            return '${nomor_naskah}';
+        // ========== POLA 3: gunakan kode surat yang tersimpan (prefix sebelum '/') ==========
+        $kodePrefixes = $this->getKodeSuratPrefixes();
+
+        if (! empty($kodePrefixes)) {
+            $escaped = array_map(fn (string $code) => preg_quote($code, '#'), $kodePrefixes);
+            $escaped = array_values(array_filter($escaped));
+
+            if (! empty($escaped)) {
+                $patternKode = '#(' . implode('|', $escaped) . ')\s*/\s*([0-9A-Za-z.\-]+)#';
+
+                if (preg_match($patternKode, $text, $matches)) {
+                    return trim(($matches[1] ?? '') . '/' . ($matches[2] ?? ''));
+                }
+            }
         }
 
         return null;
-    }
-
-    /**
-     * Cek apakah kandidat nilai nomor surat valid (nomor atau placeholder).
-     */
-    private function isNomorCandidate(string $value): bool
-    {
-        $value = trim($value);
-
-        if ($value === '') {
-            return false;
-        }
-
-        if (preg_match('/^\$\{\s*nomor_naskah\s*\}$/i', $value)) {
-            return true;
-        }
-
-        return (bool) preg_match('/^[0-9A-Za-z.\/-]+$/', $value);
     }
 
     /**
@@ -192,11 +184,23 @@ class NomorSuratExtractor
             }
         }
 
-        // Fallback: placeholder langsung tanpa label Hal/Perihal
-        if (preg_match('/\$\{\s*hal\s*\}/iu', $text)) {
-            return '${hal}';
+        return null;
+    }
+
+    private function getKodeSuratPrefixes(): array
+    {
+        if ($this->kodeSuratPrefixes !== null) {
+            return $this->kodeSuratPrefixes;
         }
 
-        return null;
+        $this->kodeSuratPrefixes = KodeSurat::query()
+            ->pluck('kode')
+            ->filter()
+            ->map(fn ($kode) => trim((string) $kode))
+            ->filter()
+            ->values()
+            ->all();
+
+        return $this->kodeSuratPrefixes;
     }
 }
