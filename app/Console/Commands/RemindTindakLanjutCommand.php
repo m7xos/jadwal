@@ -119,6 +119,7 @@ class RemindTindakLanjutCommand extends Command
 
         $this->info("Total pengingat terkirim: {$sent}");
 
-        return $sent > 0 ? self::SUCCESS : self::FAILURE;
+        // Jangan anggap error jika tidak ada yang perlu dikirim.
+        return self::SUCCESS;
     }
 }
