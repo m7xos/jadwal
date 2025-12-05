@@ -9,6 +9,7 @@ use App\Filament\Resources\Personils\Schemas\PersonilForm;
 use App\Filament\Resources\Personils\Tables\PersonilsTable;
 use App\Imports\PersonilsImport;
 use App\Models\Personil;
+use App\Support\RoleAccess;
 use BackedEnum;
 use Filament\Actions\Action;                 // v4: Action dari sini
 use Filament\Forms;
@@ -81,6 +82,11 @@ class PersonilResource extends Resource
                 ->modalSubmitActionLabel('Import')   // ⬅️ ini yang benar di Filament v4
                 ->modalWidth('md'),
         ]);
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return RoleAccess::canSeeNav(auth()->user(), 'filament.admin.resources.personils');
     }
 
     public static function getPages(): array

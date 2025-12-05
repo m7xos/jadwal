@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TindakLanjutReminderLogResource\Pages;
 use App\Models\TindakLanjutReminderLog;
 use App\Services\WablasService;
+use App\Support\RoleAccess;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -150,6 +151,11 @@ class TindakLanjutReminderLogResource extends Resource
                     }),
             ])
             ->bulkActions([]);
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return RoleAccess::canSeeNav(auth()->user(), 'filament.admin.resources.tindak-lanjut-reminder-logs');
     }
 
     public static function getPages(): array

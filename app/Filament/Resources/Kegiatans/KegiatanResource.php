@@ -8,6 +8,7 @@ use App\Filament\Resources\Kegiatans\Pages\ListKegiatans;
 use App\Filament\Resources\Kegiatans\Schemas\KegiatanForm;
 use App\Filament\Resources\Kegiatans\Tables\KegiatansTable;
 use App\Models\Kegiatan;
+use App\Support\RoleAccess;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -34,6 +35,11 @@ class KegiatanResource extends Resource
     public static function table(Table $table): Table
     {
         return KegiatansTable::configure($table);
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return RoleAccess::canSeeNav(auth()->user(), 'filament.admin.resources.kegiatans');
     }
 
     public static function getPages(): array
