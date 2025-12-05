@@ -157,24 +157,29 @@ class WablasService
 
     protected function getDispositionTags(): array
     {
-        $tags = [];
-
-        $targets = [
-            ['number' => config('wablas.camat_wa'), 'label' => 'Camat'],
-            ['number' => config('wablas.sekcam_wa'), 'label' => 'Sekretaris Kecamatan'],
+        $roles = [
+            'Camat Watumalang',
+            'Sekretaris Kecamatan Watumalang',
         ];
 
-        foreach ($targets as $target) {
-            $mention = $this->formatMention($target['number']);
+        return Personil::query()
+            ->whereIn('jabatan', $roles)
+            ->get(['no_wa', 'jabatan'])
+            ->map(function (Personil $personil) {
+                $mention = $this->formatMention($personil->no_wa);
 
-            if (! $mention) {
-                continue;
-            }
+                if (! $mention) {
+                    return null;
+                }
 
-            $tags[] = $mention . ' (' . $target['label'] . ')';
-        }
+                $label = trim((string) $personil->jabatan);
 
-        return $tags;
+                return $label !== '' ? $mention . ' (' . $label . ')' : $mention;
+            })
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     protected function getPersonilTagsForKegiatan(Kegiatan $kegiatan): array

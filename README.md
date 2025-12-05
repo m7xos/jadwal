@@ -1,75 +1,37 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Jadwal TL Reminders
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
 
-## About Laravel
+## Instalasi server baru
+- Prasyarat: PHP 8.3+ (CLI), Composer, Node (untuk build front-end jika diperlukan), Git, dan `pdftotext`.
+- Clone repo, lalu:
+  - `composer install`
+  - `npm install && npm run build` (jika butuh aset produksi)
+  - `cp .env.example .env` kemudian isi konfigurasi.
+  - `php artisan key:generate`
+  - `php artisan migrate`
+  - `php artisan storage:link`
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Konfigurasi .env penting
+- Database: `DB_*`
+- App: `APP_URL`, `APP_TIMEZONE`
+- Wablas: `WABLAS_BASE_URL`, `WABLAS_TOKEN`, `WABLAS_SECRET_KEY` (opsional), `WABLAS_GROUP_ID`, `WABLAS_FINISH_WHITELIST` (comma separated, optional)
+- PDF to text: `PDFTOTEXT_PATH=/usr/bin/pdftotext` (untuk Ubuntu)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Webhook Wablas (wajib)
+- Endpoint utama: `POST https://<APP_URL>/api/wablas/webhook`.
+- Endpoint legacy (masih tersedia, tanpa prefix API): `POST https://<APP_URL>/wablas/webhook`. Pilih salah satu; disarankan memakai endpoint utama `/api/wablas/webhook`.
+- Pesan masuk grup dengan teks `TL-<id> selesai` (atau mengandung “selesai” + kode TL) akan menandai surat selesai TL bila nomor pengirim diizinkan (penerima TL atau jabatan Arsiparis/Pranata Komputer, atau nomor owner/sender grup).
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Cron scheduler
+- Jalankan `artisan schedule:run` tiap menit dengan user yang punya izin tulis ke `storage/logs` (contoh www-data):
+  - `sudo crontab -u www-data -e`
+  - Tambahkan:
+    ```
+    * * * * * cd /var/www/jadwal && /usr/bin/php artisan schedule:run >> /var/www/jadwal/storage/logs/schedule.log 2>&1
+    ```
+- Pastikan path PHP sesuai (`which php`) dan folder proyek/log bisa ditulis user cron.
 
-## Development setup
-
-Before running the combined dev server and queue workers with `composer run dev`, install the PHP dependencies so `vendor/autoload.php` is available:
-
-```bash
-composer install
-```
-
-If you have not already installed the front-end dependencies, run:
-
-```bash
-npm install
-```
-
-After these steps, `composer run dev` should start the Laravel server, queue worker, and Vite without fatal autoload errors.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Catatan operasional
+- Scheduler menjalankan pengingat TL (awal H-5 jam, akhir saat batas TL) dan webhook Wablas menangani balasan “TL-{id} selesai”.
+- Jika device Wablas atau config tidak lengkap, pengiriman gagal dan status log menjadi failed; kirim ulang via aksi “Kirim Ulang” di Log Pengingat TL.
