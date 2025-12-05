@@ -148,7 +148,8 @@ class WablasService
         }
 
         $lines[] = '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._';
-        $lines[] = '_Balas pesan ini dengan Selesai TL jika sudah selesai_';
+        $lines[] = '';
+        $lines[] = '*_Balas pesan ini dengan "TL-' . $kegiatan->id . ' selesai" jika sudah menyelesaikan TL_*';
 
         return implode("\n", $lines);
     }
