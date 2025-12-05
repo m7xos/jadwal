@@ -1,0 +1,2968 @@
+000.1;KETATAUSAHAAN DAN KERUMAHTANGGAAN
+000.1.1;Telekomunikasi 
+000.1.2;Perjalanan Dinas Dalam Negeri
+000.1.2.1;Perjalanan Dinas Kepala Daerah
+000.1.2.2;Perjalanan Dinas DPRD
+000.1.2.3;Perjalanan Dinas Pegawai
+000.1.3;Perjalanan Dinas Luar Negeri
+000.1.3.1;Perjalanan Dinas Kepala Daerah
+000.1.3.2;Perjalanan Dinas DPRD
+000.1.3.3;Perjalanan Dinas Pegawai
+000.1.4;Penggunaan Fasilitas Kantor (antara lain: Permintaan dan penggunaan ruang, gedung, kendaraan, wisma, rumah dinas dan fasilitas kantor lainnya)
+000.1.5;Rapat pimpinan antara lain: Notula/Risalah Rapat
+000.1.6;Penyediaan Konsumsi 
+000.1.7;Pengurusan Kendaraan Dinas 
+000.1.7.1;Pengurusan surat-surat kendaraan dinas
+000.1.7.2;Pemeliharaan dan perbaikan
+000.1.7.3;Pengurusan kehilangan dan masalah kendaraan
+000.1.8;Pemeliharaan Gedung, Taman dan Peralatan Kantor
+000.1.8.1;Pertamanan/ Landscape
+000.1.8.2;Penghijauan
+000.1.8.3;Perbaikan Gedung
+000.1.8.4;Perbaikan Peralatan Kantor
+000.1.8.5;Perbaikan Rumah Dinas/ Wisma
+000.1.8.6;Kebersihan Gedung dan Taman
+000.1.9;Pengelolaan Jaringan Listrik, Air, Telepon dan Komputer
+000.1.9.1;Perbaikan / Pemeliharaan
+000.1.9.2;Pemasangan
+000.1.10;Ketertiban dan Keamanan
+000.1.10.1;Pengamanan, Penjagaan, dan Pengawalan terhadap Pejabat, Kantor dan Rumah Dinas
+000.1.10.2;Laporan Ketertiban dan Keamanan
+000.1.11;Administrasi Pengelolaan Parkir
+000.1.12;Administrasi Pakaian Dinas Pegawai, Satpam, Petugas Kebersihan dan Pegawai lainnya
+000.2;PERLENGKAPAN
+000.2.1;Inventarisasi dan Penyimpanan
+000.2.1.1;Data hasil inventarisasi dan penyimpanan
+000.2.2.2;Laporan dan evaluasi inventarisasi dan penyimpanan
+000.2.2;Pemeliharaan peralatan kantor 
+000.2.2.1;Data hasil pemeliharaan kantor
+000.2.2.2;Laporan dan evaluasi pemeliharaan kantor
+000.2.3;Distribusi 
+000.2.3.1;Barang habis pakai
+"000.2.3.2;Barang milik daerah
+"
+000.2.4;Penghapusan Barang Milik Daerah antara lain: Keputusan Pembentukan Tim, Berita Acara Penghapusan Barang Milik Daerah, Daftar Barang yang dihapuskan, Laporan Hasil Pelaksanaan Penghapusan BMD termasuk didalamnya proses lelang penghapusan
+000.2.5;Pengelolaan Database Barang Milik Daerah
+000.3;PENGADAAN
+000.3.1;Rencana pengadaan Barang dan jasa (antara lain: : Identifikasi dan analisis kebutuhan barang/jasa, penyusunan dan penetapan rencana penganggaran pengadaan, penetapan kebijakan umum, penyusunan kerangka Acuan Kerja (KAK), Pengumuman Rencana Umum Pengadaan)
+000.3.2;Pengadaan Langsung (antara lain: persiapan pemilihan penyedia, pelaksanaan pemilihan penyedia, penandatanganan kontrak, pelaksanaan kontrak)
+000.3.3;Pengadaan Tidak Langsung/Lelang (antara lain: persiapan pemilihan penyedia, pelaksanaan pemilihan penyedia, penandatanganan kontrak, pelaksanaan kontrak)
+000.3.4;Swakelola (antara lain: perencanaan, pelaksanaan dan evaluasi)
+000.3.5;Pengolahan Sistem Informasi Pengadaan antara lain : Data base pengguna sistem informasi pengadaan barang/jasa, Data Base kontrak, Data Base Pengadaan Barang/jasa
+000.3.6;Monitoring dan evaluasi pelaksanaan kebijakan dan pelaksanaan pengadaan antara lain: Laporan Hasil Monitoring, Laporan hasil evaluasi
+000.4;PERPUSTAKAAN
+000.4.1;Kebijakan di bidang Perpustakaan yang dilakukan oleh Pemerintah Daerah
+000.4.2;Deposit Bahan Pustaka
+000.4.2.1;Serah Simpan Karya Cetak dan Karya Rekam
+000.4.2.2;Pangkalan Data Penerbit dan Pengusaha Rekaman
+000.4.2.3;Terbitan Internasional dan Regional
+000.4.2.4;Pemantauan Wajib Serah Simpan Karya Cetak dan Karya Rekam
+000.4.2.5;Bibliografi  dan Katalog
+000.4.3;Koleksi Pustaka
+000.4.3.1;Pembelian
+000.4.3.2;Hibah 
+000.4.3.3;Hadiah
+000.4.3.4;Tukar Menukar
+000.4.3.5;Implementasi Undang-Undang KCKR
+000.4.3.6;Terbitan Internal  
+000.4.3.7;Pendistribusian bahan pustaka surplus
+000.4.3.8;Inventarisasi koleksi (Buku Induk)
+000.4.4;Pengolahan Bahan Pustaka
+000.4.5;Pangkalan Data Katalog Koleksi
+000.4.6;Layanan Perpustakaan
+000.4.6.1;Keanggotaan
+000.4.6.2;Peminjaman
+000.4.6.3;Pengembangan gemar baca
+000.4.7;Kerjasama Perpustakaan 
+000.4.7.1;MoU
+000.4.7.2;Perjanjian kerjasama
+000.4.7.3;Partisipasi organisasi profesi dan kerjasama internasional
+000.4.8;Pengembangan Implementasi Teknologi Informasi Perpustakaan
+000.4.8.1;Pengembangan situs web
+000.4.8.2;Pengembangan kemas ulang informasi multimedia
+000.4.8.3;Pengembangan program aplikasi perpustakaan
+000.4.8.4;Pengembangan pangkalan data kepustakaan digital
+000.4.9;Pangkalan Data Layanan Perpustakaan 
+000.4.10;Konservasi
+000.4.10.1;Perawatan Bahan Perpustakaan
+000.4.10.2;Perbaikan Bahan Perpustakaan
+000.4.10.3;Penjilidan Bahan Perpustakaan
+000.4.11;Reprografi (Mikrofilm, Reproduksi Foto)
+000.4.12;Transformasi Digital
+000.4.13;Kurasi Digital
+000.4.14;Pengembangan Perpustakaan 
+000.4.14.1;Perpustakaan Umum
+000.4.14.2;Perpustakaan Khusus
+000.4.14.3;Perpustakaan Sekolah
+000.4.14.4;Perpustakaan Perguruan Tinggi
+000.5;KEARSIPAN
+000.5.1;Kebijakan di bidang kearsipan yang dilakukan oleh Pemerintah Daerah
+000.5.2;Pembinaan Kearsipan
+000.5.2.1;Pengembangan Profesi Arsiparis, antara lain Formasi Jabatan Arsiparis, Analisis Kebutuhan Arsiparis
+000.5.2.2;Bimbingan Konsultasi Arsiparis
+000.5.2.3;Penilaian Arsiparis
+000.5.2.4;Pemilihan Arsiparis Teladan, antara lain Berkas Penyelenggaraan Pemilihan Arsiparis Teladan, Berkas Penetapan Arsiparis Teladan
+000.5.2.5;Data Base Arsiparis
+000.5.2.6;Bimbingan Konsultasi Kearsipan
+000.5.2.7;Supervisi dan Evaluasi, antara lain : Perencaan Supervisi dan Evaluasi, Pelaksanaan Supervisi dan Evaluasi, Laporan Hasil Supervisi dan Evaluasi
+000.5.2.8;Data Base Bimbingan dan Konsultasi dan Supervisi
+000.5.2.9;Fasilitasi Kearsipan, antara lain : Fasilitasi SDM Kearsipan, Fasilitasi Prasarana dan Sarana Kearsipan
+000.5.2.10;Lembaga/Unit Kearsipan Teladan, antara lain : Berkas Penyelenggaraan Pemilihan Lembaga/Unit Kearsipan, Berkas Penetapan Lembaga/Unit Kearsipan Teladan
+000.5.2.11;Jadwal Retensi Arsip, antara lain : Berkas Usulan Persetujuan JRA, Surat Persetujuan JRA dari Kepala ANRI
+000.5.3;Pengelolaan Arsip Dinamis
+000.5.3.1;Penciptaan (antara lain: Buku Registrasi Naskah Masuk dan Keluar, Buku Agenda, Kartu Kendali, Lembar Pengantar/Buku Ekspedisi)
+000.5.3.2;Pemberkasan Arsip Aktif (antara lain: daftar berkas dan daftar isi berkas)
+000.5.3.3;Penataan Arsip Inaktif (antara lain: daftar arsip inaktif, daftar arsip inaktif tematik)
+000.5.3.4;Penggunaan (antara lain: daftar arsip dinamis berdasarkan sistem klasifikasi keamanan dan akses arsip dinamis, bukti peminjaman arsip)
+000.5.3.5;Autentikasi Arsip Dinamis (antara lain: pembuktian autentisitas, pendapat tenaga ahli, pengujian, penetapan autentisitas arsip dinamis)
+000.5.4;Program Arsip Vital (antara lain:  Identifikasi Arsip Vital, Perlindungan dan Pengamanan Arsip Vital, Penyelamatan Arsip Vital dan Pemulihan Arsip Vital)
+000.5.5;Pengelolaan Arsip Terjaga (antara lain: Daftar Identifikasi Arsip Terjaga, Daftar Berkas Arsip Terjaga, Daftar Isi Berkas Arsip Terjaga, Surat Penetapan Autentifikasi Arsip Terjaga, Surat Penyerahan Arsip Terjaga, Daftar Salinan Autentik Arsip Terjaga, Berita Acara Penyerahan Salinan Autentik Arsip Terjaga
+000.5.6;Penyusutan Arsip
+000.5.6.1;Pemindahan Arsip (antara lain:Berita Acara Pemindahan, Daftar Arsip yang dipindahkan)
+000.5.6.2;Pemusnahan Arsip (antara lain: SK Penetapan Panitia Penilai Arsip, Pertimbangan Panitia Penilai, Permintaan Persetujuan Kepala ANRI untuk pemusnahan arsip dengan retensi sekurang-kurangnya 10 Tahun atau Persetujuan Kepala Daerah selaku Pimpinan Pencipta Arsip untuk pemusnahan arsip dengan retensi di bawah 10 Tahun, Penetapan Arsip Yang Dimusnahkan, Berita Acara Pemusnahan Arsip, Daftar Arsip Yang Dimusnahkan.
+000.5.6.3;Penyerahan Arsip Statis (antara lain: Pembentukan panitia penilai, Notulen rapat panitia, Surat pertimbangan panitia penilai, Surat persetujuan dari Kepala Lembaga Kearsipan, Surat pernyataan autentik, terpercaya, utuh, dan digunakan dari pencipta arsip, Keputusan Penetapan Penyerahan, Berita Acara Penyerahan Arsip, Daftar Arsip yang diserahkan)
+000.5.7;Alih Media Arsip (antara lain:  Kebijakan alih media, Autentikasi, Berita Acara, Daftar Arsip yang alih mediakan)
+000.5.8;Data Base Pengelolaan Arsip Dinamis
+000.5.8.1;Data Base Pengelolaan Arsip Aktif
+000.5.8.2;Data Base Pengelolaan Arsip Inaktif
+000.5.9;Pengelolaan Arsip Statis
+000.5.9.1;Akuisisi (antara lain : Monitoring fisik dan daftar, Verifikasi terhadap daftar arsip, Menetapkan status arsip statis, Persetujuan untuk Penyerahan, Penetapan arsip yang diserahkan Berita Acara Penyerahan, Daftar Arsip yang diserahkan 
+000.5.9.2;Penghargaan dan Imbalan
+000.5.9.3;Sejarah Lisan (antara lain: Administrasi kegiatan, Berita Acara Wawancara Sejarah Lisan, Laporan Kegiatan, Hasil Wawancara (Kaser/CD/media lain sesuai perkembangan TI, dan Transkip)
+000.5.9.4;Daftar Pencarian Arsip Statis (antara lain: pengumuman, akuisisi daftar pencarian arsip statis)
+000.5.9.5;Menyusun Sarana Bantu Temu Balik (antara lain: daftar arsip statis, inventaris arsip statis, guide)
+000.5.9.6;Preservasi Preventif (antara lain: penyimpanan, pengendalian hama terpadu, reproduksi (alih media)
+000.5.9.7;Preservasi Kuratif 
+000.5.9.8;Autentikasi Arsip Statis (antara lain: pembuktian autentisitas, pendapat tenaga ahli, pengujian, penetapan autentitas arsip statis)
+000.5.9.9;Akses Arsip Statis (antara lain: Layanan arsip, Penerbitan naskah sumber)
+000.5.10;Jasa Kearsipan (antara lain konsultasi kearsipan, manual kearsipan, penataan arsip, otomasi kearsipan, penyimpanan arsip, perawatan dan pemeliharaan arsip)
+000.5.11;Pengelolaan SIKN dan JIKN
+000.5.12;Pelindungan dan penyelamatan arsip akibat bencana
+000.5.13;Penyelamatan arsip Perangkat Daerah digabung dan/atau dibubarkan
+000.5.14;Penerbitan izin penggunaan arsip yang bersifat tertutup
+000.5.15;Pengawasan Kearsipan
+000.5.15.1;Pengawasan Kearsipan Internal
+000.5.15.2;Pengawasan Kearsipan Eksternal
+000.5.15.3;Sanksi
+000.6;PERSANDIAN 
+000.6.1;Kebijakan di bidang Persandian yang dilakukan oleh Pemerintah Daerah
+000.6.2;Pengamanan persandian
+000.6.2.1;Pengamanan sinyal: teknik sandi dan kripto
+000.6.2.2;Analisis sinyal: teknik sandi dan kripto
+000.6.2.3;Materiil sandi: sistem dan peralatan
+000.6.3;Pengkajian persandian: Kriptografi, Peralatan Sandi, Komunikasi Sandi
+000.6.3.1;Perencanaan Pengkajian
+000.6.3.2;Administrasi Pengkajian
+000.6.3.3;Pelaksanaan
+000.6.3.4;Pelaporan
+000.6.4;Pembinaan dan Pengendalian Persandian
+000.6.4.1;Sumber Daya Manusia (SDM)
+000.6.4.2;Jaring Komunikasi
+000.6.5;Layanan Sertifikasi Elektronik
+000.6.5.1;Perencanaan dan Administrasi
+000.6.5.2;Pelaksanaan Verifikasi
+000.6.5.3;Pelaksanaan Perjanjian Kerjasama
+000.6.5.4;Penyesuaian Sistem dan Testing
+000.6.5.5;Pelaksanaan Bimbingan Teknis Pengguna
+000.6.5.6;Pelaksanaan Penerbitan Sertifikat Elektronik
+000.6.5.7;Pelaporan
+000.7;PERENCANAAN PEMBANGUNAN                                 
+000.7.1;Musyawarah Perencanaan Pembangunan/Musrenbang
+000.7.1.1;Musrenbang Provinsi
+000.7.1.2;Musrenbang Nasional
+000.7.1.3;Musrenbang Kab/Kota
+000.7.1.4;Musrenbang Kecamatan
+000.7.1.5;Musrenbang Kelurahan
+000.7.1.6;Musrenbang Desa
+000.7.2;Perencanaan Pembangungan Daerah
+000.7.2.1;Rencana Pembangunan Jangka Panjang
+000.7.2.2;Rencana Pembangunan Jangka Menengah
+000.7.2.3;Rencana Anggaran Daerah
+000.7.2.4;Rencana Pembangunan Tahunan 
+000.7.2.5;Rencana Pembentukan Satuan Kerja Perangkat Daerah
+000.7.2.6;Program kerja tahunan
+000.7.2.7;Penetapan / Kontrak Kinerja
+000.7.2.8;Laporan Berkala
+000.7.2.9;Laporan Insidential
+000.7.2.10;Evaluasi Program
+000.7.3;Koordinasi dan Sinkronisasi Perencanaan Pembangunan
+000.7.4;Konsultasi Perencanaan Pembangunan
+000.7.5;Pemantauan, Evaluasi, Penilaian, dan Pelaporan Perencanaan Pembangunan
+000.7.6;Aksi Strategis Daerah
+000.7.6.1;Rancangan awal perencanaan aksi strategi daerah
+000.7.6.2;Rapat pembahasan rancangan awal dengan Perangkat Daerah
+000.7.6.3;Sosisalisasi dengan Perangkat Daerah
+000.7.6.4;Rancangan akhir perencanaan aksi strategi daerah
+000.7.6.5;Penerapan perencaan aksi strategi daerah
+000.7.7;Perencanaan Pendanaan Pembangunan
+000.7.7.1;Pendanaan Nasional dan Hibah
+000.7.7.2;Pendanaan Daerah
+000.7.7.3;Kerjasama Pembangunan Nasional
+000.7.7.4;Surat Berharga Syariah Negara
+000.7.7.5;Pendanaan On Top atau Inisiatif Baru
+000.8;ORGANISASI DAN TATA LAKSANA 
+000.8.1;Struktur Organisasi di lingkungan Pemerintahan Daerah Kab/Kota
+000.8.1.1;Pembentukan
+000.8.1.2;Pengubahan
+000.8.1.3;Pembubaran
+000.8.2;Uraian Jabatan 
+000.8.2.1;Analisa Jabatan
+000.8.2.2;Analisa Beban Kerja
+000.8.3;Ketatalaksanaan
+000.8.3.1;Proses Bisnis
+000.8.3.2;Standar Pelayanan
+000.8.3.3;Standar Operasional Prosedur
+000.8.3.4;Pelayanan Publik
+000.8.4;Standar Kompetensi jabatan struktural dan fungsional
+000.8.5;Evaluasi Kelembagaan
+000.8.6;Koordinasi Penguatan Reformasi dan Birokrasi
+000.8.6.1;Budaya Kerja
+000.8.6.2;Penilaian Mandiri Reformasi Birokrasi
+000.8.6.3;Akuntabilitas Kinerja Instansi Pemerintah
+000.9;PENELITIAN, PENGKAJIAN, DAN PENGEMBANGAN 
+000.9.1;Kebijakan di bidang penelitian, pengkajian, pengembangan  yang dilakukan oleh pemerintah daerah
+000.9.2;Penelitian, Pengkajian dan Pengembangan meliputi: rencana kerja, administrasi penelitian, pelaksanaan, hasil penelitian/pengkajian/rekomendasi
+000.9.3;Sosialisasi dan desiminasi hasil penelitian, hasil pengkajian dan pengembangan
+000.9.4;Bimbingan teknis penelitian, pengkajian dan pengembangan
+000.9.5;Forum komunikasi penelitian,  pengembangan dan penerapan ilmu pengetahuan dan teknologi
+000.9.6;Data dan informasi hasil penelitian, pengembangan dan penerapan ilmu pengetahuan dan teknologi
+000.9.7;Master proceeding/ jurnal penelitian, pengembangan dan penerapan ilmu pengetahuan dan teknologi
+000.9.8;Hak atas kekayaan intelektual (HaKI)
+000.9.9;Evaluasi Pelaksanaan Kebijakan
+000.9.10;Seminar, lokakarya, temukarya, workshop
+100;PEMERINTAHAN
+100.1;OTONOMI DAERAH
+100.1.1;Kebijakan di bidang Otonomi Daerah yang dilakukan oleh Pemerintah Daerah
+100.1.2;Penyelenggaraan Pemerintah Daerah (Fasilitasi, Bimbingan , Pengawasan, Monitoring dan Evaluasi)
+100.1.3;Penataan Daerah, Pembinaan Daerah Pemekaran, Otonomi Khusus, Daerah Istimewa dan Dewan Pertimbangan Otonomi Daerah (Fasilitasi, Monitoring, dan Evaluasi)
+100.1.4;Pemilihan  Kepala Daerah, DPRD, dan Hubungan Antar Lembaga (Fasilitasi, Monitoring, dan Evaluasi)
+100.1.4.1;Penyelenggaraan Pemilihan Umum Kepala Daerah
+100.1.4.2;Administrasi Kepala Daerah dan DPRD
+100.1.4.3;Penyiapan Perumusan Kebijakan Pemberdayaan Kapasitas Kepala Daerah dan DPRD di Bidang Pemerintahan
+100.1.4.4;Hubungan Antar Lembaga Daerah (Pemerintah Daerah dan DPRD)
+100.1.4.5;Assosiasi Daerah
+100.1.5;Otonomi khusus dan daerah istimewa
+100.1.6;Peningkatan Kapasitas Dan Evaluasi Kinerja Daerah (Fasilitasi, Monitoring, dan Evaluasi )
+100.1.6.1;Kinerja Penyelenggaraan Pemerintahan Daerah
+100.1.6.2;Kemampuan Penyelenggaraan Otonomi Daerah
+100.1.6.3;Pengembangan Kapasitas Daerah
+100.1.7; LKPJ/ LKPJAMJ dan LPPD (Fasilitasi, Monitoring dan Evaluasi)
+100.2;PEMERINTAHAN UMUM
+100.2.1;Kebijakan di bidang Pemerintahan Umum yang dilakukan oleh Pemerintah Daerah
+100.2.2;Dekonsentrasi dan Kerjasama
+100.2.1;Fasilitasi, Koordinasi, Pembinaan dan Pengawasan, serta Monitoring dan Evaluasi Dekonsentrasi dan Tugas Pembantuan
+100.2.2;Fasilitasi, Koordinasi, Pembinaan dan Pengawasan, serta Monitoring dan  Evaluasi Tugas Gubernur Sebagai Wakil Pemerintah
+100.2.3;Fasilitasi, Koordinasi, Pembinaan dan Pengawasan, serta Monitoring dan Evaluasi Kerjasama Daerah
+100.2.4;Fasilitasi Kecamatan
+100.2.5;Fasilitasi Pelayanan Umum
+100.2.3;Wilayah Administrasi dan Perbatasan
+100.2.3.1;Toponimi dan Data Wilayah
+100.2.3.2;Pengembangan dan Penataan Batas Antar Negara
+100.2.3.3;Batas Antar Daerah Wilayah
+100.2.3.4;Penataan Batas Wilayah Antar Kecamatan, Batas Wilayah Antar Kelurahan  Satu Kecamatan Dan Batas Wilayah Kelurahan Antar Kecamatan
+100.2.3.5;Pemeliharaan Batas Wilayah
+100.3;HUKUM
+100.3.1;Program Legislasi
+100.3.1.1;Bahan/Materi Program Legislasi Daerah
+100.3.1.2;Program Legislasi
+100.3.2;Rancangan Peraturan Perundang-Undangan Rancangan Peraturan Daerah, termasuk naskah akademik, rancangan awal sampai dengan rancangan akhir dan telaah hukum sampai diundangkan
+100.3.3;Keputusan/Ketetapan Pimpinan Pemerintah  
+100.3.3.1;Keputusan / Ketetapan Gubernur
+100.3.3.2;Keputusan / Ketetapan Bupati
+100.3.3.3;Keputusan / Ketetapan Walikota
+100.3.3.4;Keputusan Sekretaris Daerah Provinsi
+100.3.3.5;Keputusan Sekretaris Daerah Kabupaten
+100.3.3.6;Keputusan Sekretaris Daerah Kota
+100.3.4;Instruksi / Surat Edaran 
+100.3.4.1;Instruksi / Surat Edaran Provinsi
+100.3.4.2;Instruksi / Surat Edaran Kabupaten
+100.3.4.3;Instruksi / Surat Edaran Kota
+100.3.4.4;Instruksi / Surat Edaran Setingkat Eselon II
+100.3.5;Surat Perintah
+100.3.5.1;Surat Perintah Gubernur
+100.3.5.2;Surat Perintah Bupati
+100.3.5.3;Surat Perintah Walikota
+100.3.5.4;Surat Perintah Setingkat Eselon II
+100.3.6;Standar/ Pedoman/ Prosedur Kerja/ Petunjuk Pelaksanaan/ Petunjuk Teknis 
+100.3.7.1;Dalam Negeri
+100.3.7.2;Luar Negeri
+"100.3.8;Dokumentasi  Hukum, (antara lain: Undang-Undang, Peraturan Pemerintah, Keputusan Presiden dan Peraturan-Peraturan yang dijadikan referensi)
+"
+100.3.9;Sosialisasi/Penyuluhan/Pembinaan Hukum
+100.3.10;Bantuan/ Konsultasi Hukum/ Advokasi Pemberian bantuan/ konsultasi hukum (Pidana, Perdata, Tata Usaha Negara dan Agama)
+100.3.11;Kasus/ Sengketa Hukum
+100.3.11.1;Pidana Kasus/ sengketa pidana, baik kejahatan maupun pelanggaran
+100.3.11.2;Perdata Kasus/sengketa perdata
+100.3.11.3;Tata Usaha Negara
+100.3.11.4;Perburuhan
+100.3.11.5;Arbitrase
+100.3.11.6;Sengketa Adat
+100.3.12;Perijinan
+100.3.13;Hak atas Kekayaan Intelektual (HAKI)
+100.3.13.1;Hak Cipta
+100.3.13.2;Hak Paten
+100.3.13.3;Hak Desain Industri
+100.3.13.4;Hak Rahasia Dagang
+100.3.13.5;Hak Merk
+"100.3.14;Permohonan HAKI yang ditolak 
+"
+200;POLITIK
+200.1;KESATUAN BANGSA DAN POLITIK 
+200.1.1;Kebijakan di bidang Kesatuan Bangsa dan Politik yang dilakukan oleh Pemerintah Daerah
+200.1.2;Bina Ideologi dan Wawasan Kebangsaan
+200.1.2.1;Ketahanan Ideologi Negara
+200.1.2.2;Wawasan Kebangsaan
+200.1.2.3;Bela Negara
+200.1.2.4;Nilai Nilai Sejarah Kebangsaan
+200.1.2.5;Pembauran dan Kewarganegaraan
+200.1.3;Kewaspadaan Nasional
+200.1.3.1;Fasilitasi dan Evaluasi Kewaspadaan Dini dan Kerjasama Intelijen Keamanan
+200.1.3.2;Fasilitasi Bina Masyarakat Perbatasan Antar Negara dan Kehidupan Masyarakat Perbatasan
+200.1.3.3;Fasilitasi dan Evaluasi Penanganan Konflik Pemerintahan
+200.1.3.4;Fasilitasi dan Laporan Penanganan Konflik Sosial
+200.1.3.5;Fasilitasi Pengawasan Orang Asing dan Lembaga Asing
+200.1.4;Ketahanan Seni, Budaya, Adat, Agama, dan Kemasyarakatan
+200.1.4.1;Ketahanan Seni
+200.1.4.2;Ketahanan Budaya
+200.1.4.3;Agama dan Kepercayaan
+200.1.4.4;Organisasi Kemasyarakatan 
+200.1.4.5;Masalah Sosial Kemasyarakatan
+200.1.4.6;Fasilitasi
+200.1.4.7;Pelaksanaan Identifikasi dan Kompilasi Organisasi Masyarakat
+200.1.4.8;Laporan Hasil Kerjasama Kegiatan Dengan Ormas/LNL
+200.1.4.9;Evaluasi Aktifitas Ormas : Sanksi Administrasi
+200.1.4.10;Fasilitasi Sengketa Ormas
+200.1.4.11;Fasilitasi Ormas
+200.1.5;Politik Dalam Negeri
+200.1.5.1;Implementasi Kebijakan Politik
+200.1.5.2;Fasilitasi Kelembagaan Politik Pemerintahan
+200.1.5.3;Fasilitasi Kelembagaan Partai Politik
+200.1.5.4;Verifikasi dan Evaluasi Partai Politik Yang Memperoleh Kursi
+200.1.5.5;Partai Politik Yang Tidak Memperoleh Kursi
+200.1.5.6;Pemerintah Daerah
+200.1.5.7;Database Parpol
+200.1.5.8;Pendidikan Budaya Politik
+200.1.5.9;Pemilihan Umum
+200.1.6;Ketahanan Ekonomi
+200.1.6.1;Ketahanan Sumberdaya Alam dan Kesenjangan Perekonomian
+200.1.6.2;Ketahanan Perdagangan Investasi, Fiskal dan Moneter
+200.1.6.3;Perilaku Perekonomian Masyarakat
+200.1.6.4;Ketahanan Lembaga Sosial Ekonomi
+200.2;PEMILU
+200.2.1;Kebijakan di bidang  Pemilu yang dilakukan oleh Pemerintah Daerah
+200.2.2;Pemutakhiran dan Penyusunan Daftar Pemilih 
+200.2.2.1;Daftar Penduduk Potensial Pemilih (DP4) Pemilu 
+200.2.2.2;Daftar Pemilih Sementara (DPS)
+200.2.2.3;Daftar Pemilih Tambahan
+200.2.2.4;Keputusan KPU tentang Daftar Pemilih Tetap (DPT)
+200.2.2.5;Rekapitulasi Daftar Pemilih Tetap (DPT) 
+200.2.3;Pendaftaran dan Verifikasi Peserta Pemilu 
+200.2.3.1;Dokumen pendaftaran peserta Pemilu dari partai politik
+200.2.3.2;Dokumen hasil verifikasi administrasi dan faktual partai politik
+200.2.3.3;Dokumen pendaftaran peserta Pemilu dari Calon Perseorangan 
+200.2.3.4;Dokumen hasil verifikasi administrasi dan faKtual
+200.2.4;Penetapan Peserta Pemilu 
+200.2.4.1;Penetapan Daerah Pemilihan dan Jumlah Kursi Anggota 
+200.2.4.2;Keputusan KPU tentang penetapan daerah pemilihan dan jumlah kursi Anggota DPR
+200.2.4.3;Keputusan KPU tentang penetapan daerah pemilihan dan jumlah kursi Anggota DPR
+200.2.4.4;Keputusan KPU tentang penetapan daerah pemilihan dan jumlah kursi Anggota DPRD Kabupaten/Kota
+270.04.05;Peta Daerah Pemilihan
+200.2.5;Pencalonan Pemilu 
+200.2.5.1;Petunjuk teknis pencalonan 
+200.2.5.2;Surat pencalonan pendaftaran 
+200.2.5.3;Daftar bakal calon 
+200.2.5.4;Dokumen persyaratan masing-masing bakal  calon
+200.2.5.5;Dokumen verifikasi administrasi 
+200.2.5.6;Daftar Calon Sementara dan Calon Tetap 
+200.2.6;Kampanye Pemilu 
+200.2.6.1;Keputusan KPU tentang penetapan jadwal kampanye
+200.2.6.2;Nama juru kampanye/pelaksana kampanye
+200.2.6.3;Peringatan tertulis/penghentian kegiatan kampanye
+200.2.7;Dana Kampanye 
+200.2.7.1;Pedoman audit dana kampanye
+200.2.7.2;Laporan dana kampanye peserta Pemilu 
+200.2.7.3;Laporan hasil audit dana kampanye
+200.2.8;Pemungutan dan Penghitungan Suara 
+200.2.8.1;Keputusan KPU tentang desain dan spesifikasi surat suara
+200.2.8.2;Master surat suara
+200.2.8.3;Surat suara yang terpakai
+200.2.8.4;Surat Suara Tidak terpakai (rusak, salah, dan tidak digunakan)
+200.2.8.5;Formulir pemilu di Pemerintah Daerah 
+200.2.9;Penetapan Hasil Pemilu 
+200.2.10;Perselisihan Hasil Pemilu 
+200.2.10.1;Surat-surat mengenai Perselisihan Hasil Pemilu
+200.2.10.2;Jawaban dan kesimpulan termohon
+200.2.10.3;Salinan Putusan lembaga peradilan
+200.2.11;Laporan hasil penyelenggaraan Pemilu
+300;KEAMANAN DAN KETERTIBAN
+300.1;SATUAN POLISI PAMONG PRAJA
+300.1.1;Kebijakan di bidang Polisi Pamong Praja yang dilakukan di Pemerintah Daerah
+300.1.2.1;Tata Operasiona Polisi Pamong Praja
+300.1.2.2;Sarana Prasarana Polisi Pamong Praja
+300.1.3;Peningkatan Kapasitas SDM Polisi Pamong Praja
+300.1.4;Perlindungan Masyarakat
+300.1.5;Penyidik Pegawai Negeri Sipil
+300.1.6;Perlindungan Hak-Hak Sipil dan Hak Asasi Manusia
+300.2;PENANGGULANGAN BENCANA, PENCARIAN, DAN PERTOLONGAN
+300.2.1;Kebijakan di bidang Penanggulangan Bencana yang dilakukan oleh Pemerintah Daerah
+300.2.2;Perencanaan Penanggulangan Bencana, Pencarian, dan Pertolongan
+300.2.2.1;Rencana dan standardisasi dan  pengawakan dan perbekalan
+300.2.2.2;Kurikulum dan silabus, evaluasi dan monitoring
+300.2.2.3;Tenaga pencarian pertolongan, penyiapan potensi pencarian dan pertolongan
+300.2.2.4;Permasyarakatan pencarian dan pertolongan, sertifikasi pencarian dan pertolongan
+300.2.2.5;Perencanaan dan standardisasi, penyelenggaraan operasi SAR, Siaga dan latihan, tempat latihan
+300.2.2.6;Registrasi BEACON
+300.2.3;Pencegahan dan Kesiapsiagaan
+300.2.4;Potensi Pencarian dan Pertolongan
+300.2.5;Bina Ketenagaan dan Pemasyarakatan
+300.2.5.1;Rencana Pendidikan dan Pelatihan
+300.2.5.2;Penyiapan tenaga dan potensi Pencarian dan Pertolongan
+300.2.5.3;Pemasyarakatan dan Sertifikasi Pencarian dan Pertolongan
+300.2.5.4;Pemasyarakatan Pencarian dan Pertolongan (Sosialisasi dan Penyuluhan)
+300.2.5.5;Sertifikasi Pencarian dan Pertolongan
+300.2.6;Operasi Pencarian dan Pertolongan
+300.2.7;Rencana Pengembangan dan Standardisasi  Komunikasi
+300.2.8;Operasi Komunikasi
+300.2.8.1;Operasi Peralatan Komunikasi (Berita SAR)
+300.2.8.2;Operasi Peralatan Deteksi Dini (Berita SAR)
+300.2.8.3;Registrasi BEACON
+300.2.9;Inventarisasi dan Pemeliharaan
+300.2.10;Pengembangan Sistem Informasi
+300.2.11;Penyajian dan Layanan Informasi
+300.2.12;Pelapooran dan Evaluasi
+300.2.12.1;Laporan Harian
+300.2.12.2;Laporan Bulanan
+300.2.12.3;Laporoan Tahunan
+300.2.12.4;Evaluasi
+400;KESEJAHTERAAN RAKYAT
+400.1; PEMBANGUNAN DAERAH TERTINGGAL
+400.1.1;Kebijakan di bidang Pembangunan Daerah Tertinggal yang dilakukan oleh Pemerintah Daerah 
+400.1.2;Pembangunan Sumber Daya
+400.1.2.1;Fasilitasi Pendidikan ketrampilan Pengembangan Sumber Daya
+400.1.2.2;Fasilitasi Kesehatan Pengembangan Sumber Daya
+400.1.2.3;Fasilitasi Sumber daya hayati dan Pengembangan Sumber Daya
+400.1.2.4;Fasilitasi Mineral, energi dan lingkungan hidup 
+400.1.2.5;Fasilitasi Teknologi dan inovasi 
+400.1.2.6;Koordinasi pelaksanaan kebijakan pengembangan sumber daya
+400.1.2.7;Pemantauan dan evaluasi
+400.1.3;Peningkatan Infrastruktur 
+400.1.3.1;Fasilitasi Transportasi peningkatan infrastruktur
+400.1.3.2;Fasilitasi Informasi dan Telekomunikasi dalam peningkatan infrastruktur
+400.1.3.3;Fasilitasi Sosial dalam peningkatan infrastruktur
+400.1.3.4;Fasilitasi Ekonomi dalam peningkatan infrastruktur
+400.1.3.5;Fasilitasi energi dalam peningkatan infrastruktur
+400.1.3.6;Koordinasi pelaksanaan kebijakan peningkatan infrastruktur
+400.1.3.7;Pemantauan dan evaluasi
+400.1.4;Pembinaan Ekonomi dan Dunia Usaha
+400.1.4.1;Fasilitasi Invenstasi pembinaan ekonomi dan dunia usaha
+400.1.4.2;Fasilitasi Kelembagaan ekonomi dan dunia usaha
+400.1.4.3;Fasilitasi Usaha mikro, kecil dan menengah
+400.1.4.4;Fasilitasi Kemitraan usaha
+400.1.4.5;Fasilitasi Pengembangan komoditas unggulan
+400.1.4.6;Koordinasi pelaksanaan kebijakan pembinaan ekonomi dan dunia usaha
+400.1.4.7;Pemantauan dan evaluasi
+400.1.4.8;Identifikasi dan inventarisasi pengembangan usaha ekonomi perdesaan tertinggal
+400.1.4.9;Fasilitasi pengembangan usaha ekonomi perdesaan tertinggal
+400.1.4.10;Monitoring dan evaluasi Ekonomi desa tertinggal
+400.1.4.11;Identifikasi dan inventarisasi pengembangan masyarakat dan desa tertinggal
+400.1.4.12;Fasilitasi pengembangan masyarakat dan desa tertinggal
+400.1.4.13;Monitoring dan evaluasi Masyarakat tertinggal
+400.1.4.14;Fasilitasi Kerja Sama antar Desa
+400.1.5;Pembinaan Lembaga Sosial dan Budaya
+400.1.5.1;Penguatan kapasitas lembaga lokal
+400.1.5.2;Penguatan organisasi masyarakat
+400.1.5.3;Pemberdayaan masyarakat
+400.1.5.4;Kerjasama antar lembaga sosial dan budaya
+400.1.5.5;Ketenagakerjaan
+400.1.5.6;Koordinasi pelaksanaan kebijakan pembinaan lembaga sosial dan budaya
+400.1.5.7;Pemantauan dan evaluasi
+400.1.6;Pengembangan  Daerah Khusus 
+400.1.6.1;Fasilitasi pengembangan Daerah perbatasan
+400.1.6.2;Fasilitasi pengembangan Daerah rawan konflik dan bencana
+400.1.6.3;Fasilitasi pengembangan Daerah Perdesaan
+400.1.6.4;Fasilitasi pengembangan Daerah pulau terpencil dan terluar
+400.1.6.5;Fasilitasi pengembangan Wilayah strategis
+400.1.6.6;Koordinasi pelaksanaan kebijakan pengembangan daerah khusus
+400.1.6.7;Pemantauan dan evaluasi
+400.2;PEMBERDAYAAN PEREMPUAN DAN PERLINDUNGAN ANAK
+400.2.1;Kebijakan di bidang Pemberdayaan Perempuan dan Perlindungan Anak yang dilakukan oleh Pemerintah Daerah
+400.2.2;Pengarusutamaan Gender Ekonomi, Politik Sosial dan Hukum
+400.2.2.1;Data gender 
+400.2.2.2;Advokasi dan fasilitasi
+400.2.3;Perlindungan Perempuan (Kekerasan, Masalah Sosial, Tenaga Kerja, Korban Perdagangan)
+400.2.3.1;Pencegahan Kekerasan terhadap Perempuan
+400.2.3.2;Data perlindungan perempuan
+400.2.3.3;Advokasi dan fasilitasi
+400.2.3.4;Monitoring, evaluasi dan analisa kebijakan perlindungan perempuan
+400.2.3.5;Sistem aplikasi dan jaringan informasi gender
+400.2.3.6;Analisis dan penyajian informasi gender
+400.2.3.7;Partisipasi publik untuk kesejahteraan ibu
+400.2.4;Perlindungan Anak (Hak Sipil, Masalah Sosial, Kekerasan Terhadap Anak,  Anak Berkebutuhan Khusus, Anak Berhadapan Dengan Hukum)
+400.2.4.1;Pencegahan Kekerasan terhadap Anak
+400.2.4.2;Data perlindungan anak
+400.2.4.3;Advokasi dan fasilitasi 
+400.2.4.4;Monitoring, evaluasi dan analisa kebijakan perlindungan anak
+400.2.4.5;Partisipasi publik untuk kesejahteraan anak
+400.2.5;Tumbuh Kembang Anak (Pendidikan, Kesehatan, Partisipasi, Lingkungan dan Penanaman Nilai-Nilai Luhur, Pengembangan Kota Layak Anak)
+400.2.5.1;Pemenuhan Hak Anak
+400.2.5.2;Data Klaster Hak Anak
+400.2.5.3;Data tumbuh kembang anak
+400.2.5.4;Advokasi dan fasilitasi 
+400.2.5.5;Monitoring, evaluasi dan analisa kebijakan tumbuh kembang anak
+400.2.5.6;Penyelenggaraan parenting pola pengasuhan anak
+400.2.6;Penghargaan terkait gender (Anugerah Parahita Ekapraya/APE)
+400.2.7;Penghargaan Kabupaten Layak Anak
+400.2.8;Penghargaan Desa Ramah Perempuan Peduli Anak
+400.3;PENDIDIKAN
+400.3.1;Kebijakan di bidang Pendidikan yang dilakukan oleh Pemerintah Daerah
+400.3.2;Pendidikan Anak Usia Dini (PAUD) Nonformal, Informal
+400.3.2.1;Bahan Ajar (Alat Permainan Edukatif)
+400.3.2.2;Pelatihan Sosial
+400.3.2.3;Peringatan Hari anak
+400.3.2.4;Block Grant
+400.3.3;Pendidikan Masyarakat
+400.3.3.1;Penyelenggaraan Program
+400.3.3.2;Penilaian dan pemberian bantuan sosial
+400.3.3.3;Pembinaan Program
+400.3.3.4;Lomba/Pemberian Penghargaan
+400.3.3.5;Pameran
+400.3.3.6;Rakor
+400.3.3.7;Sosialisasi
+400.3.3.8;Sertifikasi dan Akreditasi
+400.3.4;Kursus/Pelatihan Pendidik dan Tenaga Pendidik
+400.3.5;Pendidikan Dasar dan Menengah Pertama
+400.3.5.1;Kurikulum, bahan ajar
+400.3.5.2;Block Grant
+400.3.5.3;Pelatihan, Bimtek, sosialisasi,
+400.3.5.4;Lomba, penghargaan, penganugerahan
+400.3.5.5;Bantuan operasional sekolah (BOS)
+400.3.5.6;Bantuan Siswa Miskin
+400.3.6;Pendidikan khusus/Layanan Khusus
+400.3.6.1;Kurikulum,Bahan ajar, alat bantu pembelajaran
+400.3.6.2;Block Grant
+400.3.6.3;Lomba, festival
+400.3.6.4;Sosialisasi, bimtek
+400.3.6.5;Pendataan
+400.3.6.6;Kelembagaan
+400.3.7;Pembinaan Pendidik dan Tenaga Pendidik
+400.3.7.1;Pendataan dan Pemeetaan
+400.3.7.2;Uji Kompetensi Guru
+400.3.7.3;Sertifikasi Guru
+400.3.7.4;Penghargaan guru dan tenaga kependidikan
+400.3.7.5;Peningkatan kesejahteraan guru
+400.3.7.6;Sosialisasi, bimtek
+400.3.7.7;Block Grant
+400.3.8;Sekolah Menengah Atas
+400.3.8.1;Kurikulum
+400.3.8.2;Bahan Ajar
+400.3.8.3;Pelatihan
+400.3.8.4;Block grant
+400.3.8.5;Bimbingan teknis/sosialisasi
+400.3.8.6;Lomba , Sayembara, festival 
+400.3.8.7;Bantuan operasional Sekolah (BOS)
+400.3.8.8;Bantuan siswa miskin
+400.3.9;Pendidikan Khusus-Layanan Khusus
+400.3.9.1;Bahan ajar
+400.3.9.2;Petunjuk Teknis
+400.3.9.3;Block grant
+400.3.9.4;Sosialisasi, bimtek
+400.3.9.5;Lomba, sayembara, jambore, festival
+400.3.9.6;Kurikulum/bahan pembelajaran
+400.3.9.7;Alat bantu pembelajaran
+400.3.9.8;Pendataan
+400.3.9.9;Kelembagaan (Unit kesehatan sekolah, Pendidikan jasmani adaptif, pendidikan inklusi 
+400.3.10;Pendidik dan Tenaga Pendidik
+400.3.10.1;Pendataan dan Pemetaan
+400.3.10.2;Uji Kompetensi Guru
+400.3.10.3;Setifikasi Guru
+400.3.10.4;Penilaian prestasi kerja guru dan pengawas sekolah
+400.3.10.5;Penghargaan guru dan tenaga kependidikan
+400.3.10.6;Peningkatan kesejahteraan guru dan tenaga pendidik
+400.3.10.7;Block grant
+400.3.10.8;Bimbingan teknis/sosialisasi
+400.3.11;Penilaian Pendidikan
+400.3.11;Penilaian Akademik
+400.3.12;Penilaian Non Akademik
+400.3.13;Analisis dan Sistem Informasi Penilaian
+400.3.12;Data dan Statistik Pendidikan
+400.3.12.1;Data peserta didik, pendidik dan tenaga kependidikan
+400.3.12.2;Data Satuan Pendidikan dan Proses Pembelajaran
+400.3.13;Prasarana dan Sarana Pendidikan
+400.3.13.1;Prasarana Pendidikan
+400.3.13.2;Sarana Pendidikan
+400.3.13.3;Monitoring dan Evaluasi
+400.4;KEOLAHRAGAAN
+400.4.1;Kebijakan di bidang Keolahragaan yang dilakukan oleh Pemerintah Daerah
+400.4.2;Pengelolaan Olahraga Pendidikan
+400.4.2.1;Olahraga Pendidikan Dasar dan Menengah
+400.4.2.2;Olahraga Pendidikan Tinggi
+400.4.2.3;Olahraga Pendidikan Nonformal dan Informal
+400.4.3;Pengelolaan Olahraga Rekreasi
+400.4.3.1;Olahraga Massal
+400.4.3.2;Olahraga Tradisional
+400.4.3.3;Olahraga Petualangan, Tantangan dan wisata
+400.4.4;Pengelolaan Pembinaan Sentra dan sekolah Khusus Olahraga
+400.4.4.1;Olahraga Pendidikan
+400.4.4.2;Olahraga Rekreasi
+400.4.4.3;Olahraga Prestasi
+400.4.4.4;Sekolah Khusus Olahraga
+400.4.5;Pengembangan Olahraga Tradisional dan Layanan Khusus
+400.4.5.1;Olahraga Tradisional
+400.4.5.2;Layanan Khusus
+400.4.6;Kemitraan dan Penghargaan Olahraga
+400.4.6.1;Kemitraan Keolahragaan
+400.4.6.2;Penghargaan Olahraga
+400.4.7;Pembibitan dan IPTEK Olahraga
+400.4.7.1;Pembibitan Olahraga
+400.4.7.2;Kompetisi
+400.4.7.3;IPTEK Olahraga
+400.4.8;Peningkatan Tenaga dan Organisasi Keolahragaan
+400.4.8.1;Tenaga Keolahragaan
+400.4.8.2;Organisasi Keolahragaan
+400.4.9;Industri dan Promosi Olahraga
+400.4.9.1;Industri Olahraga
+400.4.9.2;Promosi Olahraga
+400.4.10;Olahraga Prestasi
+400.4.10.1;Daerah
+400.4.10.2;Nasional
+400.4.10.3;Internasional
+400.4.11;Standardisasi dan Infrastruktur Olahraga
+400.4.11.1;Standardisasi Keolahragaan
+400.4.11.2;Akreditasi dan Sertifikasi Keolahragaan
+400.4.11.3;Infrastruktur Olahraga
+400.5;KEPEMUDAAN
+400.5.1;Kebijakan di bidang Kepemudaan yang dilakukan oleh Pemerintah Daerah
+400.5.2;Peningkatan Tenaga dan Sumber Daya Pemuda
+400.5.2.1;Penelusuran (Duta Kepemudaan)
+400.5.2.2;Pengkajian (Rekomendasi Kepemudaan melalui forum kepemudaan)
+400.5.2.3;Pengembangan
+400.5.3;Peningkatan Wawasan Pemuda
+400.5.3.1;Wawasan Kebangsaan
+400.5.3.2;Wawasan Lingkungan
+400.5.3.3;Wawasan Sosial dan Hukum
+400.5.4;Peningkatan Kapasitas Pemuda
+400.5.4.1;Kapasitas Iman dan Taqwa
+400.5.4.2;Kapasitas IPTEK
+400.5.4.3;Pemanfaatan IPTEK
+400.5.5;Peningkatan Kreativitas Pemuda (Pemetaan Kreativitas/seni kepemudaan)
+400.5.5.1;Pengkajian
+400.5.5.2;Pengembangan
+400.5.5.3;Pendayagunaan (fasilitasi)
+400.5.6;Kepemimpinan dan Kepeloporan Pemuda
+400.5.6.1;Kepemimpinan : Penelusuran, Pengaderan, Pendayagunaan
+400.5.6.2;Kepeloporan Pemuda : Kesukarelawanan. Pengembangan kepedulian, pendampingan
+400.5.7;Kewirausahaan
+400.5.7.1;Kelembagaan
+400.5.7.2;Pengaderan
+400.5.7.3;Perintisan
+400.5.8;Organisasi Kepemudaan dan Pengawasan Kepramukaan
+400.5.8.1;Pemberdayaan Organisasi Kepemudaan : Kelembagaan dan Sumberdaya
+400.5.8.2;Pemberdayaan Organisasi Kemahasiswaan : Kelembagaan dan Sumberdaya
+400.5.8.3;Pemberdayaan Organisasi Kepelajaran: Kelembagaan dan Sumberdaya
+400.5.8.4;Pengawasan Kepramukaan : Kelembagaan, Program dan Sumberdaya
+400.5.9;Standardisasi dan Infrastruktur Pemuda
+400.5.9.1;Standardisasi
+400.5.9.2;Infrastruktur Pemuda
+400.5.10;Kemitraan dan Penghargaan Pemuda
+400.5.10.1;Kemitraan
+400.5.10.2;Penghargaan Pemuda
+400.6;KEBUDAYAAN
+400.6.1;Kebijakan di bidang Kebudayaan yang dilakukan oleh Pemerintah Daerah
+400.6.2;Pelestarian Cagar Budaya dan Permuseuman
+400.6.2.1;Registrasi Nasional
+400.6.2.2;Pelindungan
+400.6.2.3;Pengembangan dan Pemanfaatan
+400.6.2.4;Eksplorasi dan Dokumentasi
+400.6.3;Pembinaan Kesenian dan Perfilman
+400.6.3.1;Pembinaan Seni Pertunjukan
+400.6.3.2;Pembinaan Seni Rupa
+400.6.3.3;Pembinaan Seni Literasi dan apresiasi film
+400.6.3.4;Dokumentasi dan Publikasi
+400.6.4;Sejarah dan Nilai Budaya
+400.6.4.1;Sejarah
+400.6.4.2;Pemetaan nilai
+400.6.4.3;Verifikasi dan Perumusan Nilai
+400.6.4.4;Dokumentasi dan Publikasi
+400.6.4.5;Dokumentasi sejarah dan nilai sejarah
+400.6.4.6;Publikasi sejarah dan nilai sejarah
+400.6.5;Internalisasi Nilai dan Diplomasi Budaya
+400.6.5.1;Internalisasi nilai budaya
+400.6.5.2;Kekayaan budaya
+400.6.5.3;Warisan budaya nasional dan dunia
+400.6.5.4;Diplomasi budaya
+400.7;KESEHATAN
+400.7.1;Kebijakan di bidang Kesehatan yang dilakukan oleh Pemerintah Daerah
+400.7.2;Upaya Kesehatan Dasar
+400.7.2.1;Pelayanan kedokteran keluarga 
+400.7.2.2;Praktek klinis dokter di pelayanan kesehatan primer
+400.7.2.3;Pelaksanaan kesehatan primer
+400.7.2.4;Kesehatan gigi dan mulut di puskesmas
+400.7.2.5;Kesehatan gigi dan mulut di rumah sakit 
+400.7.2.6;ICD 10, Destistry & Stomatology
+400.7.2.7;Infeksi menular lewat transfusi darah
+400.7.2.8;Penyakit mulut di tingkat primer
+400.7.2.9;Pembiayaan darah
+400.7.2.10;Penggunaan darah rasional
+400.7.2.11;Unit transfusi darah, bank darah rumah sakit dan jejaring pelayanan darah
+400.7.2.12;Pelayanan kesehatan di daerah terpencil, sangat terpencil dan kepulauan
+400.7.2.13;Akreditasi puskesmas
+400.7.2.14;Puskesmas berprestasi
+400.7.3;Upaya Kesehatan Rujukan
+400.7.3.1;Pelayanan kesehatan rujukan
+400.7.3.2;Pelayanan kedokteran, organisasi profesi dan konsorsium upaya kesehatan ( KUK )
+400.7.3.3;Pelayanan rumah sakit privat
+400.7.3.4;Pelayanan kesehatan rumah sakit khusus dan fasilitas pelayanan kesehatan lainnya
+400.7.3.5;Pelayanan kesehatan rumah sakit pendidikan 
+400.7.3.6;Pelayanan pasien jaminan kesehatan
+400.7.3.7;Fasilitas pelayanan kesehatan asing dan perdagangan jasa
+400.7.3.8;Badan pengawas rumah sakit
+400.7.3.9;Perizinan dan penetapan kelas rumah sakit kelas A dan Penanam Modal Asing (PMA)
+400.7.3.10;Akreditasi rumah sakit dan fasilitas kesehatan lainnya
+400.7.4;Keperawatan dan keteknisian medik
+400.7.4.1;Pelayanan Keperawatan Dasar 
+400.7.4.2;Pelayanan keperawatan profesional di rumah sakit
+400.7.4.3;Pelayanan Keperawatan di Rumah Sakit Umum
+400.7.4.4;Pelayanan Keperawatan di Rumah Sakit Khusus
+400.7.4.5;Bina pelayanan kebidanan
+400.7.5;Penunjang medik dan sarana kesehatan
+400.7.5.1;Mikrobiologi dan imunologi
+400.7.5.2;Patologi dan toksilogi
+400.7.5.3;Radiologi
+400.7.5.4;Perizinan dan sertifikasi
+400.7.5.5;Sarana dan prasarana kesehatan
+400.7.5.6;Peralatan medis di fasilitas pelayanan kesehatan
+400.7.5.7;Aplikasi sarana dan prasarana alat kesehatan
+400.7.6;Kesehatan Jiwa
+400.7.6.1;Kesehatan jiwa di non fasilitas pelayanan kesehatan
+400.7.6.2;Bina kesehatan jiwa di fasilitas pelayanan kesehatan
+400.7.6.3;Etikolegal dan asesmen
+400.7.6.4;Pencegahan dan penanggulangan narkotika dan sejenisnya
+400.7.6.5;Etikolegal dan asesmen
+400.7.6.6;Kesehatan jiwa kelompok beresiko
+400.7.7;Surveilans, Imunisasi, Karantina dan Kesehatan Matra
+400.7.7.1;Surveilans dan respon kejadian luar biasa
+400.7.7.2;Imunisasi
+400.7.7.3;Karantina kesehatan dan kesehatan di pelabuhan
+400.7.7.4;Kesehatan matra
+400.7.8;Pengendalian penyakit menular langsung
+400.7.8.1;Pengendalian tuberkolosis
+400.7.8.2;Pengendalian AIDS dan penyakit  menular seksual
+400.7.8.3;Pengendalian infeksi saluran pernafasan akut
+400.7.8.4;Pengendalian diare dan infeksi saluran pencernaan
+400.7.8.5;Pengendalian kusta dan frambusia
+400.7.9;Pengendalian penyakit bersumber binatang
+400.7.9.1;Pengendalian malaria
+400.7.9.2;Pengendalian arbovirosis
+400.7.9.3;Pengendalian zoonosis
+400.7.9.4;Pengendalian filariasis dan kecacingan
+400.7.10;Pengendalian penyakit tidak menular
+400.7.10.1;Pengendalian penyakit jantung dan pembuluh darah
+400.7.10.2;Pengendalian penyakit diabetes melitus dan penyakit metabolik
+400.7.10.3;Penyakit kanker
+400.7.10.4;Penyakit kronis dan generatif
+400.7.10.5;Gangguan akibat kecelakaan dan tindak kekerasan
+400.7.11;Penyehatan lingkungan
+400.7.11.1;Penyehatan air dan sanitasi dasar
+400.7.11.2;Pemukiman dan tempat umum
+400.7.11.3;Kawasan dan sanitasi darurat
+400.7.11.4;Higien sanitasi pangan
+400.7.11.5;Pengamanan limbah, udara, radiasi
+400.7.12;Pengembangan dan penapisan teknologi pengendalian penyakit dan pengendalian lingkungan
+400.7.13;Gizi
+400.7.13.1;Gizi makro 
+400.7.13.2;Gizi mikro
+400.7.13.3;Gizi klinik dan diatetik
+400.7.13.4;Konsumsi makanan dan jasa  makanan 
+400.7.13.5;Kewaspadaan gizi
+400.7.14;Kesehatan ibu
+400.7.14.1;Kesehatan ibu hamil
+400.7.14.2;Kesehatan ibu  bersalin dan nifas
+400.7.14.3;Kesehatan maternal dengan pencegahan  komplikasi
+400.7.14.4;Keluarga berencana
+400.7.14.5;Perlindungan kesehatan reproduksi
+400.7.15;Kesehatan anak
+400.7.15.1;Kelangsungan hidup bayi
+400.7.15.2;Kelangsungan anak balita dan pra sekolah
+400.7.15.3;Kewaspadaan penanganan balita beresiko
+400.7.15.4;Kualitas hidup anak usia sekolah dan remaja
+400.7.15.5;Perlindungan kesehatan anak
+400.7.16;Kesehatan Tradisional alternatif dan komplementer
+400.7.16.1;Kesehatan tradisional keterampilan
+400.7.16.2;Kesehatan tradisional ramuan
+400.7.16.3;Kesehatan alternatif dan komplementer
+400.7.16.4;Penapisan dan kemitraan 
+400.7.17;Kesehatan kerja dan Olah raga
+400.7.17.1;Pelayanan kesehatan kerja
+400.7.17.2;Kapasitas kerja
+400.7.17.3;Lingkungan kerja
+400.7.17.4;Kemitraan kesehatan kerja
+400.7.17.5;Kesehatan perkotaan
+400.7.17.6;Kesehatan olahraga
+400.7.18;Obat Publk dan perbekalan kesehatan
+400.7.18.1;Harga obat publik
+400.7.18.2;Pengadaan obat
+400.7.18.3;Perbekalan kesehatan
+400.7.19;Produksi dan distribusi alat kesehatan
+400.7.19.1;Alat kesehatan
+400.7.19.2;Produsen dan distributor alat kesehatan dan obat
+400.7.19.3;Produk diagnostik in vitro dan perbekalan kesehatan rumah tangga
+400.7.20;Kefarmasian
+400.7.20.1;Pelayanan kefarmasian
+400.7.20.2;Farmasi klinis
+400.7.20.3;Farmasi Komunitas
+400.7.20.4;Penggunaan obat rasional
+400.7.21;Produksi dan distribusi kefarmasian
+400.7.21.1;Obat tradisional
+400.7.21.2;Kosmetik dan makanan
+400.7.21.3;Narkotika, psikotropika, prekursor farmasi dan sediaan farmasi khusus
+400.7.21.4;Kemandirian obat dan bahan baku obat
+400.7.22;Surat Keterangan, Sertifikasi dan Perijinan
+400.7.22.1;Surat keterangan
+400.7.22.2;Sertifikasi dan perijinan
+400.7.23;Penanggulangan Krisis Kesehatan
+400.7.23.1;Pencegahan, mitigasi dan kesiapsiagaan
+400.7.23.2;Tanggap darurat dan pemulihan
+400.7.23.3;Pemantauan dan informasi
+400.7.23.4;Penanggulangan krisis kesehatan dalam bidang pengendalian penyakit dan penyehatan
+400.7.23.5;Pelayanan kesehatan reproduksi situasi bencana
+400.7.24;Pengembangan dan Jaminan Kesehatan
+400.7.24.1;Tersedianya data NHA setiap tahun
+400.7.24.2;Tersedianya dokumen teknis penguatan pelaksanaan JKN
+400.7.25;Intelegensia Kesehatan
+400.7.25.1;Pemeliharaan dan peningkatan kemampuan inteligensia kesehatan
+400.7.25.2;Penanggulangan masalah inteligensia kesehatan
+400.7.26.1;Pelayanan dan pendayagunaan sumber daya kesehatan haji
+400.7.26.2;Peningkatan kesehatan dan pengendalian faktor risiko kesehatan haji
+400.7.27;Promosi Kesehatan
+400.7.27.1;Sarana Promosi Kesehatan
+400.7.27.2;Pembinaan advokasi dan kemitraan serta pemberdayaan peran
+400.7.27.3;Pengembangan pesan promosi kesehatan
+400.7.27.4;Hari kesehatan
+400.7.28;Data dan Informasi
+400.7.28.1;Statistik kesehatan
+400.7.28.2;Analisis dan diseminasi informasi
+400.7.28.3;Pengembangan sistem informasi dan bank data kesehatan
+400.7.29;Pengawasan Obat Tradisional, Kosmetik dan Produk Komplimen
+400.7.29.1;Penilaian obat tradisional, suplemen makanan dan kosmetik
+400.7.29.2;Standardisasi obat tradisional, kosmetik dan produk komplimen
+400.7.29.3;Inspeksi dan sertifikasi obat tradisional, kosmetik dan produk komplimen
+400.7.29.4;Obat Asli Indonesia
+400.7.30;Pengawasan Keamanan Pangan dan Bahan Berbahaya
+400.7.30.1;Penilaian keamanan pangan
+400.7.30.2;Standardisasi produk pangan
+400.7.30.3;Inspeksi dan sertifikasi produk pangan
+400.7.30.4;Surveilan dan penyuluhan keamanan pangan
+400.7.30.5;Pengawasan produk dan bahan berbahaya
+400.7.31;Rekam Medis
+400.8;AGAMA DAN KEPERCAYAAN
+400.8.1;Kebijakan di bidang Agama dan Kepercayaan yang dilakukan oleh Pemerintah Daerah
+400.8.2;Fasilitasi
+400.8.2.1;Data Forum Komunikasi Umat Beragama (FKUB) Prov/Kab/Kota
+400.8.2.2;Pelaksanaan Kerukunan Umat Beragama dan Kepercayaan
+400.8.2.3;Pelestarian Nilai-Nilai Keagamaan dan Kepercayan
+400.8.2.4;Kasus Keagamaan
+400.8.2.5;Kasus Aliran Keagamaan
+400.8.3;Pembinaan Kepercayaan Kepada Tuhan YME
+400.8.3.1;Kelembagaan dan kepercayaan
+400.8.3.2;Pembinaan Kerukunan Hidup Beragama
+400.8.3.3;Komunitas Kepercayaan
+400.8.3.4;Pengetahuan dan ekspresi budaya tradisional
+400.8.3.5;Lingkungan Budaya dan Pranata Sosial
+400.9;SOSIAL
+400.9.1;Kebijakan di bidang Sosial yang dilakukan oleh Pemerintah Daerah
+400.9.2;Kesejahteraan Sosial Anak
+400.9.2.1;Kesejahteraan sosial anak balita 
+400.9.2.2;Kesejahteraan sosial anak terlantar 
+400.9.2.3;Kesejahteraan sosial anak berhadapan dengan hukum 
+400.9.2.4;Kesejahteraan sosial anak dengan kecatatan 
+400.9.2.5;Kesejahteraan sosial anak yang membutuhkan perlindungan khusus 
+400.9.3;Rehabilitasi Sosial
+400.9.3.1;Rehabilitasi sosial orang dengan kecacatan tubuh dan bekas penderita penyakit kronis, netra dan rungu wicara, mental 
+400.9.3.2;Kelembagaan dan advokasi social
+400.9.3.3;Asistensi dan pemeliharaan kesejahteraan social
+400.9.4;Rehabilitasi Sosial Tuna Sosial
+400.9.4.1;Gelandangan, pengemis dan pemulung
+400.9.4.2;Tuna susila dan korban traffking perempuan
+400.9.4.3;Warga binaan lembaga pemasyarakatan meliputi penyiapan, reintegrasi
+400.9.4.4;Pelayanan sosial orang dengan HIV / AIDS dan kelompok minoritas
+400.9.5;Rehabilitasi Sosial Korban Penyalahgunaan NAPZA
+400.9.6;Pelayanan sosial lanjut usia
+400.9.6.1;Pelayanan sosial dalam dan luar panti
+400.9.6.2;Pengembangan kelembagaan meliputi pembinaan lembaga, kerjasama lembaga
+400.9.6.3;Advokasi dan pelayanan sosial kedaruratan
+400.9.7;Pengumpulan dan Pengelolaan sumber dana bantuan sosial
+400.9.8;Perlindungan Sosial Korban Tindak Kekerasan dan Pekerja Migran
+400.9.9;Perlindungan Sosial Korban Bencana Sosial
+400.9.9.1;Ketahanan sosial masyarakat meliputi keserasian sosial, penguatan Sumber Daya
+400.9.9.2;Tanggap darurat meliputi bantuan darurat, advokasi sosial
+400.9.9.3;Pemulihan sosial meliputi penguatan sosial, reintegrasi sosial
+400.9.9.4;Kerjasama meliputi kerjasama pemerintah, kerjasama non pemerintah
+400.9.10;Perlindungan Sosial Korban Bencana Alam
+400.9.10.1;Kesiapsiagaan dan mitigasi
+400.9.10.2;Tanggap darurat meliputi bantuan darurat, advokasi sosial
+400.9.10.3;Pemulihan sosial dan penguatan sosial
+400.9.10.4;Kerjasama 
+400.9.11;Jaminan Sosial
+400.9.11.1;Seleksi dan vrifikasi
+400.9.11.2;Asuransi kesejahteraan sosial meliputi kelembagaan, pengelolaan premi
+400.9.11.3;Bantuan langsung dan tunjangan berkelanjutan meliputi pendampingan dan penyaluran
+400.9.11.4;Kerjasama 
+400.9.12;Pemberdayaan keluarga dan kelembagaan Sosial
+400.9.12.1;Ketahanan keluarga 
+400.9.12.2;Asistensi keluarga dan pemberdayaan perempuan
+400.9.12.3;Tenaga kesejahteraan sosial masyarakat dan organisasi sosial
+400.9.12.4;Kemitraan dunia usaha 
+400.9.12.5;Karang taruna meliputi kelembagaan, pengembangan kapasitas
+400.9.13;Pemberdayaan komunitas adat terpencil
+400.9.13.1;Persiapan pemberdayaan 
+400.9.13.2;Pemberdayaan sumber daya manusia 
+400.9.13.3;Penggalian dan pengembangan potensi 
+400.9.13.4;Keserasian dan penguatan komunitas adat terpencil 
+400.9.13.5;Kerjasama kelembagaan 
+400.9.14;Penanggulangan Kemiskinan Perkotaan dan Perdesaan
+400.9.14.1;Identifikasi dan analisis
+400.9.14.2;Pengembangan kapasitas 
+400.9.14.3;Penataan sosial lingkungan kumuh 
+400.9.14.4;Advokasi sosial dan pengembangan aksesibilitas
+400.9.14.5;Bantuan Langsung
+400.9.14.6;Kerjasama Kelembagaan
+400.9.15;Kepahlawanan, Keperintisan dan Kesetiakawanan Sosial
+400.9.15.1;Penghargaan dan kesejahteraan keluarga pahlawan 
+400.9.15.2;Pelestarian nilai-nilai kepahlawanan dan keperintisan 
+400.9.15.3;Pengembangan kesetiakawanan sosial 
+400.9.15.4;Pengelolaan taman makam pahlawan 
+400.10;PEMBERDAYAAN MASYARAKAT DESA
+400.10.1;Kebijakan di bidang Pemberdayaan Masyarakat Desa yang dilakukan oleh Pemerintah Daerah                
+400.10.2;Pemerintahan Desa dan Kelurahan
+400.10.2.1;Fasilitasi Pengembangan Desa dan Kelurahan
+400.10.2.2;Administrasi Pemerintahan Desa dan Kelurahan
+400.10.2.3;Fasilitasi Permusyawaratan Desa
+400.10.2.4;Fasilitasi Pengelolaan Keuangan dan Aset Desa
+400.10.2.5;Pengembangan Kapasitas Desa
+400.10.3;Kelembagaan dan Pelatihan Masyarakat
+400.10.3.1;Lembaga Masyarakat
+400.10.3.2;Pembangunan Partisipatif
+400.10.3.3;Pendataan Potensi Masyarakat
+400.10.3.4;Pengembangan Kawasan Perdesaan
+400.10.3.5;Pelatihan Masyarakat
+400.10.4;Pemberdayaan Adat dan Sosial Budaya Masyarakat
+400.10.4.1;Budaya Nusantara
+400.10.4.2;Pemberdayaan Perempuan
+400.10.4.3;Pemberdayaan dan Kesejahteraan Keluarga
+400.10.4.4;Kesejahteraan Sosial
+400.10.4.5;Tenaga Kerja Perdesaan
+400.10.5;Usaha Ekonomi Masyarakat
+400.10.5.1;Usaha Pertanian dan Pangan
+400.10.5.2;Usaha Perkreditan dan Simpan Pinjam
+400.10.5.3;Produksi dan Pemasaran
+400.10.5.4;Usaha Ekonomi dan Keluarga
+400.10.5.5;Ekonomi Perdesaan dan Masyarakat Tertinggal
+400.10.6;Sumberdaya Alam dan Teknologi Tepat Guna Perdesaan
+400.10.6.1;Fasilitasi Konservasi dan Rehabilitasi Lingkungan Perdesaan
+400.10.6.2;Fasilitasi Pemanfaatan Lahan dan Pesisir Perdesaan
+400.10.6.3;Fasilitasi Prasarana dan Sarana Perdesaan
+400.10.6.4;Fasilitasi Pemetaan Kebutuhan dan Pengkajian Teknologi Perdesaan
+400.10.6.5;Pemasyarakatan dan Kerjasama Teknologi Perdesaan
+400.10.7;Badan Usaha Milik Desa (Bumdes)
+400.11;PERTAMANAN DAN PEMAKAMAN
+400.11.1;Kebijakan di bidang Pertamanan dan Pemakaman yang dilakukan oleh Pemerintah Daerah                 
+400.11.2;Pertamanan
+400.11.2.1;Perencanaan Pertamanan
+400.11.2.2;Taman Kota
+400.11.2.3;Tata Hias dan Ornamen Kota
+400.11.3;Pemakaman
+400.11.3.1;Perencanaan Pemakaman
+400.11.3.2;Pemakaman
+400.11.3.3;Pelayanan Pemakaman
+400.11.4;Jalur Hijau
+400.11.4.1;Perencanaan Jalur Hijau
+400.11.4.2;Jalur Hijau Jalan
+400.11.4.3;Jalur Hijau Penyempurna dan Tepian Air
+400.11.5;Peran Serta Masyarakat
+400.11.6;Pengawasan dan Penindakan 
+400.11.7;Pengelolaan Data
+400.11.8;Evaluasi dan Pelaporan
+400.12;KEPENDUDUKAN DAN CATATAN SIPIL
+400.12.1;Kebijakan di bidang Kependudukan dan Catatan Sipil yang dilakukan oleh Pemerintah Daerah.                
+400.12.2;Pendaftaran Penduduk
+400.12.2.1;Identitas Penduduk
+400.12.2.2;Pindah Datang Penduduk Dalam Wilayah NKRI
+400.12.2.3;Pindah Datang Penduduk Antar Negara
+400.12.2.4;Pendataan Penduduk Rentan
+400.12.2.5;Monitoring Evaluasi dan Dokumentasi
+400.12.3;Pencatatan Sipil
+400.12.3.1;Kelahiran dan Kematian
+400.12.3.2;Perkawinan dan Perceraian
+400.12.3.3;Pengangkatan Pengakuan dan Pengesahan Anak serta Perubahan
+400.12.3.4;Pencatatan Kewarganegaraan
+400.12.3.5;Monitoring Evaluasi dan Dokumentasi
+400.12.4;Pengelolaan Informasi Administrasi Kependudukan
+400.12.4.1;Sistem Informasi Administrasi Kependudukan
+400.12.4.2;Kelembagaan Informasi Administrasi Kependudukan
+400.12.4.3;Pengelolaan data Administrasi Kependudukan
+400.12.4.4;Penyajian dan Layanan Informasi Administrasi Kependudukan
+400.12.4.5;Monitoring Evaluasi dan Dokumentasi
+400.12.5;Pengembangan Kebijakan Kependudukan
+400.12.5.1;Kuantitas Penduduk
+400.12.5.2;Kualitas Penduduk
+400.12.5.3;Mobilitas Penduduk
+400.12.5.4;Perlindungan dan Pemberdayaan Penduduk
+400.12.5.5;Pengembangan Wawasan Kependudukan, Monitoring dan Evaluasi
+400.12.6;Penyerasian Kependudukan
+400.12.6.1;Indikator Kependudukan
+400.12.6.2;Proyeksi Penduduk
+400.12.6.3;Perencanaan Kependudukan
+400.12.6.4;Penyerasian Kebijakan Kependudukan dengan Lembaga Non Pemerintah
+400.12.6.5;Pelaksanaan Penyerasian Kebijakan Kependudukan dengan Lembaga Pemerintah
+400.13;KELUARGA BERENCANA
+400.13.1;Kebijakan di bidang Keluarga Berencana yang dilakukan oleh Pemerintah Daerah
+400.13.2;Analisis pengaduan kebijakan pengendalian penduduk
+400.13.2.1;Pengumpulan dan pengolahan data
+400.13.2.2;Evaluasi dan pelaporan
+400.13.3;Fasilitas pengaduan kebijakan pengendalian penduduk
+400.13.3.1;Penyiapan fasilitas
+400.13.3.2;Evaluasi dan pelaporan
+400.13.4;Profil dan proyeksi penduduk
+400.13.4.1;Data profil dan proyeksi penduduk
+400.13.4.2;Evaluasi data profil dan proyeksi penduduk
+400.13.5;Penetapan parameter pengendalian penduduk
+400.13.5.1;Penetapan sasaran parameter
+400.13.5.2;Evaluasi sasaran parameter
+400.13.6;Pemanfaatan perencanaan pengendalian penduduk
+400.13.6.1;Pemanfaatan profil dan proyeksi
+400.13.6.2;Pemanfaatan parameter
+400.13.7;Pengembangan Sistem
+400.13.7.1;Pengembangan Sistem Jalur Pendidikan Formal
+400.13.7.2;Pengembangan Sistem Jalur Pendidikan Nonformal dan Informal
+400.13.8;Pengembangan Materi
+400.13.8.1;Pengembangan Materi Jalur Pendidikan Formal
+400.13.8.2;Pengembangan Materi Jalur Pendidikan Nonformal dan Informal
+400.13.9;Monitoring dan Evaluasi
+400.13.9.1;Monitoring dan Evaluasi Jalur Pendidikan Formal
+400.13.9.2;Monitoring dan Evaluasi Jalur Pendidikan Nonformal dan Informal
+400.13.10;Analisis Sosial
+400.13.11;Analisis Ekonomi
+400.13.12;Analisis Dampak Politik, Pertahanan dan Keamanan
+400.13.13;Analisis Daya Dukung dan Daya Tampung Lingkungan
+400.13.14;Bina Keluarga Berencana Rumah Sakit dan Klinik Pemerintah
+400.13.15;Jaminan pelayanan dan penyediaan sarana keluarga berencana
+400.13.16;Kualitas pelayanan keluarga berencana pemerintah
+400.13.16.1;Standarisasi pelayanan keluarga berencana pemerintah
+400.13.16.2;Monitoring dan evaluasi pelayanan keluarga berencana pemerintah
+400.13.17;Bina keluarga berencana rumah sakit dan klinik swasta
+400.13.18;Jaminan dan ketersediaan sarana keluarga berencana swasta
+400.13.19;Kualitas pelayanan keluarga berencana swasta
+400.13.19.1;Standarisasi pelayanan keluarga berencana swasta
+400.13.19.2;Monitoring dan Evaluasi pelayanan keluarga berencana swasta
+400.13.20;Akses dan kualitas pelayanan keluarga berencana jalur wilayah tertinggal, terpencil dan perbatasan 
+400.13.20.1;Peningkatan akses pelayanan keluarga berencana wilayah tertinggal, terpencil, dan perbatasan
+400.13.20.2;Peningkatan kualitas pelayanan keluarga berencana wilayah tertinggal, terpencil, dan perbatasan
+400.13.21;Akses dan kualitas pelayanan keluarga berencana wilayah miskin perkotaan 
+400.13.21.1;Peningkatan akses pelayanan keluarga berencana wilayah miskin perkotaan
+400.13.21.2;Peningkatan kualitas pelayanan keluarga berencana wilayah miskin perkotaan
+400.13.22;Kesertaan keluarga berencana pria 
+400.13.22.1;Peningkatan akses keluarga berencana pria
+400.13.22.2;Peningkatan partisipasi keluarga berencana pria
+400.13.23;Kelangsungan hidup ibu, bayi, dan anak
+400.13.24;Pencegahan PMS dan HIV/AIDS
+400.13.25;Pencegahan kanker alat reproduksi dan penanggulangan infertilitas
+400.13.26;Pelembagaan bina keluarga Balita dan anak
+400.13.26.1;Pengembangan kelompok bina keluarga Balita dan anak
+400.13.26.2;Pengembangan kemitraan bina keluarga dan anak
+400.13.27;Monitoring dan evaluasi bina keluarga Balita dan anak
+400.13.27.1;Monitoring bina keluarga Balita dan anak
+400.13.27.2;Evaluasi dan pelaporan bina keluarga Balita dan anak
+400.13.28;Pelembagaan bina ketahanan remaja
+400.13.28.1;Pelembagaan bina ketahanan remaja jalur pendidikan
+400.13.28.2;Pelembagaan bina ketahanan remaja jalur masyarakat
+400.13.29;Monitoring dan evaluasi bina ketahanan remaja
+400.13.29.1;Monitoring bina ketahanan remaja
+400.13.29.2;Evaluasi dan pelaporan bina ketahanan remaja
+400.13.30;Pengembangan Program Bina Ketahanan Keluarga Lansia dan Rentan
+400.13.30.1;Pengembangan Program Bina Ketahanan keluarga Lansia
+400.13.30.2;Pengembangan Program Bina Ketahanan keluarga Rentan
+400.13.31;Pelembagaan Bina Ketahanan keluarga Lansia dan Rentan
+400.13.31.1;Pengembangan Kelompok Bina Ketahanan Keluarga Lansia dan Rentan
+400.13.31.2;Pengembangan Kemitraan Bina Ketahanan Keluarga Lansia dan Rentan
+400.13.32;Monitoring dan evaluasi bina ketahanan keluarga Lansia dan Rentan
+400.13.32.1;Monitoring Bina Ketahanan Keluarga Lansia dan Rentan
+400.13.32.2;Evaluasi dan pelaporan bina ketahanan keluarga Lansia dan Rentan
+400.13.33;Pengembangan program usaha ekonomi keluarga 
+400.13.34;Peningkatan teknologi dan permodalan usaha ekonomi keluarga
+400.13.35;Peningkatan manajemen usaha ekonomi keluarga
+400.13.35.1;Pengembangan administrasi dan keuangan kelompok usaha ekonomi keluarga
+400.13.35.2;Pengemangan pemasaran kelompok usaha ekonomi keluarga
+400.13.36;Monitoring dan evaluasi usaha ekonomi keluarga
+400.13.37;Pengembangan Program Pusat pelayanan Keluarga Sejahtera
+400.13.38;Pelembagaan Pusat Pelayanan Keluarga Sejahtera
+400.13.38.1;Pengembangan Pusat Pelayanan Keluarga Sejahtera
+400.13.38.2;Pengembangan Kemiitraan Pusat Pelayanan Keluarga Sejahtera
+400.13.39;Monitoring dan Evaluasi Pusat Pelayanan Keluarga Sejahtera
+400.13.39.1;Monitoring Pusat Pelayanan Keluarga Sejahtera
+400.13.39.2;Evaluasi dan pelaporan Pusat Pelayanan Keluarga Sejahtera
+400.13.40;Pengembangan advokasi dan komunikasi, informasi, edukasi
+400.13.40.1;Perencanaan advokasi dan komunikasi, informasi, edukasi
+400.13.40.2;Evaluasi dan pelaporan advokasi dan komunikasi, informasi, edukasi
+400.13.41;Advokasi dan pencitraan
+400.13.42;Komunikasi, Informasi dan Edukasi
+400.13.42.1;Promosi
+400.13.42.2;Sarana produksi media komunikasi
+400.13.42.3;Produk media komunikasi
+400.13.43;Hubungan dengan lembaga pemerintah pusat dan provinsi
+400.13.44;Hubungan dengan lembaga pemerintah kabupaten dan kota
+400.13.44.1;Pengembangan hubungan dengan lembaga pemerintah kabupaten dan kota
+400.13.44.2;Penguatan hubungan dengan lembaga pemerintah kabupaten dan kota
+400.13.45;Hubungan dengan lembaga nonpemerintah
+400.13.45.1;Pengembangan hubungan dengan lembaga nonpemerintah
+400.13.45.2;Penguatan hubungan dengan lembaga nonpemerintah
+400.13.46;Tenaga Lini Lapangan
+400.13.46;Tenaga Lini Lapangan
+400.13.46.2;Monitoring dan evaluasi tenaga lini lapangan
+400.13.47;Institusi Masyarakat Pedesaan
+400.13.47.1;Pengembangan institusi masyarakat pedesaan
+400.13.47.2;Monitoring dan evaluasi institusi masyarakat pedesaan
+400.13.48;Mekanisme Operasional lini lapangan
+400.13.48.1;Pengembangan mekanisme operasional lini lapangan
+400.13.48.2;Monitoring dan evaluasi mekanisme operasional lini lapangan
+400.13.49;Pengembangan sistem pencatatan dan pelaporan
+400.13.49.1;Perumusan pola sistem pencatatan dan pelaporan
+400.13.49.2;Monitoring dan evaluasi sistem pencatatan dan pelaporan
+400.13.50;Pengumpulan dan pengolahan data
+400.13.51;Analisis dan evaluasi
+400.13.51.1;Analisis dan evaluasi pengendalian penduduk
+400.13.51.2;Analisis dan evaluasi keluarga berencana dan keluarga sejahtera
+400.13.52;Sistem aplikasi dan bank data
+400.13.52.1;Pengembangan sistem aplikasi
+400.13.52.2;Pengelolaan bank data
+400.13.53;Infrastruktur teknologi informasi
+400.13.53.1;Pengembangan infrastruktur teknologi informasi
+400.13.53.2;Pemeliharaan infrastruktur teknologi informasi
+400.13.54;Dokumentasi dan penyebarluasan informasi
+400.13.54.1;Dokumentasi dan perpustakaan
+400.13.54.2;Pengelolaan situs BKKBN dan media konferensi
+400.14;HUBUNGAN MASYARAKAT
+400.14.1;Keprotokolan 
+400.14.1.1;Penyelenggaraan acara kedinasan ( upacara,pelantikan,peresmian,dan jamuan termasuk acara peringatan hari-hari besar ) 
+400.14.1.2;Buku tamu Keprotokolan
+400.14.1.3;Agenda kegiatan pimpinan daerah
+400.14.1.4;Kunjungan dinas dalam dan luar negeri
+400.14.2;Daftar nama/alamat kantor /pejabat
+400.14.2;Daftar nama/alamat kantor /pejabat
+400.14.4;Pengumpulan,pengolahan dan penyajian informasi kelembagaan
+400.14.4.1;Kliping koran
+400.14.4.2;Brosur /Leaflet/poster /plakat
+400.14.4.3;Pengumuman /pemberitaan
+400.14.5;Hubungan antar lembaga dan Pemerintahan Daerah
+400.14.5.1;Hubungan antar lembaga pemerintah
+400.14.5.2;Hubungan dengan organisasi sosial / LSM
+400.14.5.3;Hubungan dengan perusahaan
+400.14.5.4;Hubungan dengan Perguruan Tinggi/ sekolah, termasuk magang, Pendidikan Sistem Ganda (PSG)/ Praktek Kerja Lapang (PKL)
+400.14.5.5;Forum Kehumasan
+400.14.5.6;Hubungan dengan Media Massa 
+400.14.6;Dengar pendapat/hearing DPRD
+400.14.7;Bahan/materi pidato/sidang Muspida Provinsi/Kota/Kabupaten
+400.14.8;Penerbitan Majalah,buletin,koran dan jurnal
+400.14.9;Publikasi melalui media cetak  maupun elektronik
+400.14.10;Pameran /sayemara/lomba/festival,pembuatan spanduk dan iklan
+400.14.11;Penghargaan/tanda kenang-kenangan
+400.14.12;Ucapan Terimakasih, Ucapan Selamat, Bela Sungkawa, Permohonan Maaf
+500;PEREKONOMIAN
+500.1;KETAHANAN PANGAN
+500.1.1;Kebijakan di bidang Ketahanan Pangan yang dilakukan Pemerintah Daerah
+500.1.2;Ketersediaan dan Kerawanan Pangan
+500.1.2.1;Ketersediaan Pangan
+500.1.2.2;Akses Pangan 
+500.1.2.3;Kerawanan Pangan
+500.1.3;Distribusi dan Cadangan Pangan
+500.1.3.1;Distribusi Pangan
+500.1.3.2;Harga Pangan
+500.1.3.3;Cadangan Pangan
+500.1.4;Penganekaragaman Konsumsi dan Ketahanan Pangan
+500.1.4.1;Konsumsi Pangan
+500.1.4.2;Penganekaragaman Pangan
+500.1.4.3;Keamanan Pangan Segar
+500.1.5;Penguatan Kelembagaan Ketahanan Pangan
+500.1.5.1;Dewan Ketahanan Pangan
+500.1.5.2;Penghargaan Ketahan Pangan
+500.1.6;Swasembada Pangan (Kearifan Lokal)
+500.1.7;Bimbingan Teknis
+500.1.8;Evaluasi
+500.2;PERDAGANGAN
+500.2.1;Kebijakan di bidang Perdagangan yang dilakukan oleh Pemerintah Daerah 
+500.2.2;Perdagangan Dalam Negeri
+500.2.2.1;Bina Usaha Kelembagaan dan Penguatan Usaha
+500.2.2.2;Bisa Usaha Jasa Perdangan
+500.2.2.3;Bina Usaha Dagang Asing dan Keagenan
+500.2.2.4;Informasi Perusahaan
+500.2.2.5;Pelaku Pasar
+500.2.2.6;Iklim Usaha dan Bimbingan Teknis Usaha Dagang Kecil Menengah
+500.2.2.7;Fasilitasi Usaha dan Pemasaran Usaha Dagang Kecil Menengah
+500.2.2.8;Pengembangan Produk Lokal
+500.2.2.9;Pencitraan Produk Dalam Negeri
+500.2.2.10;Pengembangan Sarana Distribusi
+500.2.2.11;Pengelolaan Sarana Distribusi
+500.2.2.12;Kerjasama Pengembangan Sistem Logistik
+500.2.2.13;Informasi dan Bimbingan Teknis Penyedia Jasa Logistik
+500.2.2.14;Informasi Pasar
+500.2.2.15;Informasi Hasil Industri
+500.2.2.16;Barang Strategis
+500.2.2.17;Bahan Pokok Agro
+500.2.3;Standarisasi dan Perlindungan Konsumen
+500.2.3.1;Kelembagaan dan informasi standar
+500.2.3.2;Kerjasama Standarisasi
+500.2.3.3;Perumusan dan penerapan standar
+500.2.3.4;Tata usaha
+500.2.3.5;Kerjasama, informasi, dan publikasi
+500.2.3.6;Analisa penyelenggaraan perlindungan konsumen
+500.2.3.7;Bimbingan konsumen dan pelaku usaha
+500.2.3.8;Fasilitas kelembagaan
+500.2.3.9;Produk pertambangan dan aneka industri
+500.2.3.10;Produk pertanian, kimia dan kehutanan
+500.2.3.11;Jasa
+500.2.3.12;Kerjasama
+500.2.3.13;Sarana dan Kerjasama
+500.2.3.14;Kelembagaan dan dan penilaian
+500.2.3.15;UTTP dan Standar Ukuran
+500.2.3.16;Pengawasan
+500.2.3.17;Balai pengelolaan Standar Nasional Satuan Ukuran
+500.2.3.18;Balai Pengujian UTTP
+500.2.4;Perdagangan Berjangka Komoditi
+500.2.4.1;Pengkajian pasar
+500.2.4.2;Pengawasan Transaksi
+500.2.4.3;Pengawasan Keuangan dan Audit
+500.2.4.4;Pengkajian pasar
+500.2.4.5;Pengembangan Pasar
+500.2.4.6;Sistem informasi
+500.2.4.7;Pembinaan pasar lelang dan sistem resi gudang
+500.2.4.8;Pengawasan pasar lelang
+500.2.4.9;Pengawasan sistem gudang
+500.2.5;Bimbingan Teknis
+500.2.6;Evaluasi
+500.3;KOPERASI DAN USAHA KECIL MENENGAH
+500.3.1;Kebijakan di bidang Koperasi dan Usaha Kecil Menengah yang dilakukan oleh  Pemerintah Daerah                
+500.3.2;Kelembagaan Koperasi dan UKM
+500.3.2.1;Organisasi dan Badan Hukum Koperasi
+500.3.2.2;Tata Laksana Koperasi dan UKM
+500.3.2.3;Keanggotaan Koperasi
+500.3.2.4;Pengendalian dan Akuntabilitas
+500.3.3;Produksi
+500.3.3.1;Pertanian Tanaman Pangan dan Hortikultura
+500.3.3.2;Kehutanan dan Perkebunan
+500.3.3.3;Perikanan dan Peternakan
+500.3.3.4;Industri Kerajinan dan Pertambangan
+500.3.3.5;Ketenagalistrikan dan Aneka Usaha
+500.3.4;Pembiayaan
+500.3.4.1;Program Pendanaan 
+500.3.4.2;Pengembangan dan Pengendalian Simpan Pinjam
+500.3.4.3;Urusan Permodalan
+500.3.4.4;Asuransi dan Jasa Keuangan
+500.3.4.5;Pembiayaan dan Penjaminan Kredit
+500.3.4.6;Lembaga Pengelola Dana Bergulir KUKM (LPDB)
+500.3.5;Pemasaran dan Jaringan Usaha
+500.3.5.1;Perdagangan Dalam Negeri
+500.3.5.2;Ekspor dan Impor
+500.3.5.3;Sarana dan Prasarana Pemasaran
+500.3.5.4;Kemitraan dan Jaringan Usaha
+500.3.5.5;Informasi dan Publikasi Bisnis
+500.3.5.6;Lembaga Layanan Pemasaran LLP Koperasi dan UKM
+500.3.6;Pengembangan Sumber Daya Manusia
+500.3.6.1;Pengembangan Kewirausahaan
+500.3.6.2;Kebijakan Pendidikan Koperasi dan UKM
+500.3.6.3;Peran Serta Masyarakat
+500.3.6.4;Monitoring dan Evaluasi Diklat Koperasi dan UKM
+500.3.6.5;Advokasi 
+500.3.7;Pengembangan dan Restrukturisasi Usaha
+500.3.7.1;Produktifitas dan Mutu
+500.3.7.2;Restrukturisasi Usaha
+500.3.7.3;Pemberdayaan Lembaga Pengembangan Bisnis (LPB)
+500.3.7.4;Fasilitasi Investasi UKMK 
+500.3.7.5;Pengembangan Sarana Bisnis
+500.3.8;Pengkajian Sumber Daya UKMK
+500.3.8.1;Penelitian Koperasi 
+500.3.8.2;Penelitian UKM
+500.3.8.3;Penelitian Sumber Daya
+500.3.8.4;Pengembangan Perkaderan UMK
+500.3.9;Pedagang Kaki Lima (PKL)
+500.3.10;Pedagang Kaki Lima (PKL)
+500.3.10.1;Peraturan Perundang-Undangan
+500.3.10.2;Sarana dan Prasarana
+500.3.11;Monitoring dan Evaluasi
+500.4;KEHUTANAN
+500.4.1; Kebijakan di bidang Kehutanan yang dilakukan oleh Pemerintah Daerah
+500.4.2;Penyuluhan
+500.4.2.1;Program Kerja Penyuluhan
+500.4.2.2;Materi Penyuluhan
+500.4.2.3;Program Penyuluhan
+500.4.2.4;Sarana Penyuluhan
+500.4.2.5;Pengembangan Tenaga Penyuluhan
+500.4.2.6;Pelaksanaan Penyuluhan
+500.4.2.7;Pemberdayaan Masyarakat
+500.4.2.8;Deseminasi 
+500.4.2.9;Evaluasi, dan Laporan
+500.4.3;Planologi Kehutanan
+500.4.3.1;Perencanaan Makro Kawasan Hutan 
+500.4.3.2;Penataan Ruang Kawasan Hutan
+500.4.3.3;Statistik dan Jaringan Komunikasi Data Kehutanan
+500.4.3.4;Pengukuhan dan Penataaan Kawasan Hutan 
+500.4.3.5;Perubahan Fungsi dan Peruntukan Kawasan Hutan
+500.4.3.6;Informasi dan Dokumentasi Kawasan Hutan 
+500.4.3.7;Inventarisasi Sumber Daya Hutan
+500.4.3.8;Pemantauan Sumber Daya Hutan 
+500.4.3.9;Pemetaan Sumber Daya Hutan 
+500.4.3.10;Jaringan Data Spasial
+500.4.3.11;Penggunaan Kawasan Hutan
+500.4.3.12;Penerimaan Negara Bukan Pajak (PNBP) Penggunaan Kawasan Hutan
+500.4.3.13;Informasi Penggunaan Kawasan Hutan 
+500.4.3.14;Pembentukan Wilayah Pengelolaan Hutan
+500.4.3.15;Penyiapan Areal Pemanfaatan Hutan 
+500.4.3.16;Informasi Wilayah Pengelolaan dan Pemanfaatan Kawasan Hutan
+500.4.4;Bina Usaha Kehutanan
+500.4.4.1;Data areal HPH /HTI/IUPHHK
+500.4.4.2;SK HPH/HTI/IUPHHK
+500.4.4.3;Kerjasama
+500.4.4.4;Pembatalan/Penolakan
+500.4.4.5;Perpanjangan
+500.4.4.6;Modal dan Peralatan  
+500.4.4.7;Investasi Industri
+500.4.4.8;Peralatan
+500.4.4.9;Tenaga Kerja
+500.4.4.10;Pemegang Saham
+500.4.4.11;Neraca Perusahaan
+500.4.4.12;Rencana Karya Kesatuan Pengelolaan Hutan Produksi (KPHP) 
+500.4.4.13;Rencana Karya Pengusahaan Hutan (RKPH) 
+500.4.4.14;Rencana Karya Tahunan Pengusahaan Hutan (RKT)
+500.4.4.15;Rencana Karya Lima Tahun Pengusahaan Hutan (RKL)
+500.4.4.16;Target Produksi RKT dan Beban Kerja
+500.4.4.17;Produksi Kayu
+500.4.4.18;Produksi non kayu
+500.4.4.19;Industri Kayu HPH/HTI/IUPHHK
+500.4.4.20;Industri Kayu Non HPH/HTI/IUPHHK
+500.4.4.21;Industri Non Kayu
+500.4.4.22;Hutan Tanaman Industri Pulp
+500.4.4.23;Hutan Tanaman Industri Pertukangan
+500.4.4.24;Pelanggaran dan Sanksi
+500.4.4.25;Pemblokiran
+500.4.4.26;Denda
+500.4.4.27;Pencabutan Areal HPH/HTI/IUPHHK
+500.4.4.28;Pola Pemanfaatan Hutan Produksi
+500.4.4.29;Penataan Pemanfaatan Hutan Produksi
+500.4.4.30;Informasi Sumber Daya Hutan Produksi
+500.4.4.31;Pengembangan Investasi Usaha
+500.4.4.32;Penyiapan Pemanfaatan Hutan Alam
+500.4.4.33;Rencana Kerja Pemanfaatan Hutan Alam/Rencana Kerja Usaha Produksi Hasil 
+500.4.4.34;Produksi Hutan Alam
+500.4.4.35;Penilaian Kinerja Usaha Pemanfaatan Hutan Alam
+500.4.4.36;Pengembangan Hutan Tanaman Industri
+500.4.4.37;Pengembangan Hutan Tanaman Rakyat
+500.4.4.38;Pengembangan Rencana Kerja dan Produksi Hutan Tanaman/Rencana Kerja Usaha Produksi 
+500.4.4.39;Penilaian Kinerja Pengembangan Usaha Pemanfaatan Hutan Tanaman
+500.4.4.40;Pembiayaan Hutan Tanaman
+500.4.4.41;Penerimaan Negara Bukan Pajak Hasil Hutan
+500.4.4.42;Peredaran Hasil Hutan
+500.4.4.43;Pengukuran dan Pengujian Hasil Hutan
+500.4.4.44;Penertiban Peredaran Hasil Hutan 
+500.4.4.45;Pengolahan dan Pemasaran Hasil Hutan
+500.4.4.46;Pengendalian Bahan Baku dan Industri Primer Hasil Hutan
+500.4.4.47;Penilaian Kinerja Industri dan Pemasaran Hasil Hutan
+500.4.4.48;Pembinaan HPH/HTI/IUPHHK
+500.4.4.49;Pembinaan TPTI/TPTJ/Silvikultur
+500.4.5;Standardisasi dan Lingkungan
+500.4.5.1;Standardisasi
+500.4.5.2;Sarana Pengujian Hasil Hutan
+500.4.5.3;Pengembangan
+500.4.5.4;Pemasaran Hasil Hutan
+500.4.5.5;Pengendalian Lingkungan
+500.4.5.6;Angkutan Hasil Hutan
+500.4.5.7;Tanda Pengenal Perusahaan Tata Usaha Hasil Hutan
+500.4.5.8;Legalitas Tata Usaha Hasil Hutan
+500.4.5.9;Palu Tok Kualitas Tata Usaha Hasil Hutan
+500.4.5.10;Pass Angkutan Hasil Hutan
+500.4.5.11;Sertifikat Ekspor Hasil Hutan
+500.4.6;Perlindungan Hutan dan Konservasi Alam
+500.4.6.1;Flora dan Fauna yang Dilindungi 
+500.4.6.2;Flora dan Fauna yang Tidak Dilindungi
+500.4.6.3;Lembaga Konservasi/Kebun Binatang
+500.4.6.4;Konvensi Keanekaragaman Hayati
+500.4.6.5;Kawasan Konservasi
+500.4.6.6;Pengamanan Hutan
+500.4.6.7;Program dan Evaluasi Penyidikan dan Perlindungan
+500.4.6.8;Penyidikan dan Perlindungan Wilayah Hutan
+500.4.6.9;Polisi Kehutanan dan Penyidik Pegawai Negeri Sipil (PPNS)
+500.4.6.10;Pemanfaatan Jasa Lingkungan dan Wisata Alam
+500.4.6.11;Bina Cinta Alam
+500.4.6.12;Kader Konservasi Sumber Daya Alam
+500.4.6.13;Data organisasi pencinta alam dan kader konservasi SDA
+500.4.7;Bina Pengelolaan Daerah Aliran Sungai dan Perhutanan Sosial
+500.4.7.1;Pengelolaan Benih
+500.4.7.2;Kebun Benih
+500.4.7.3;Tegakan Benih
+500.4.7.4;Pengadaan Benih
+500.4.7.5;Pengujian dan Penyimpanan Benih
+500.4.7.6;Lalu Lintas Angkutan Benih
+500.4.7.7;Pembibitan
+500.4.7.8;Lalu Lintas Angkutan Benih
+500.4.7.9;Pengembangan Usaha Perbenihan
+500.4.7.10;Pengendalian Peredaran Benih 
+500.4.7.11;Rehabilitasi Hutan dan Lahan
+500.4.7.12;Tanaman Reboisasi
+500.4.7.13;Pengelolaan Daerah Aliran Sungai (DAS)
+500.4.7.14;Perhutanan Sosial
+500.4.7.15;Pengendalian Perladangan
+500.4.8;Penelitian dan Pengembangan Kehutanan
+500.4.8.1;Penelitian, Pengkajian dan Pengembangan Kehutanan
+500.4.8.2;Monitoring dan Evaluasi Penelitian
+500.4.8.3;Diseminasi
+500.4.8.4;Gelar Teknologi
+500.4.8.5;Forum Komunikasi Penelitian dan Pengembangan
+500.5;KELAUTAN DAN PERIKANAN
+500.5.1;Kebijakan di bidang Kelautan dan Perikanan yang dilakukan oleh Pemerintah Daerah 
+500.5.2;Perikanan Tangkap
+500.5.2.1;Data dan Statistik Perikanan Tangkap
+500.5.2.2;Rancang Bangun dan Kelaikan Kapal Perikanan
+500.5.2.3;Rancang Bangun dan Kelaikan Alat Tangkap Ikan
+500.5.2.4;Pendaftaran Kapal Perikanan
+500.5.2.5;Pengawakan Kapal dan Ketenagakerjaan Perikanan
+500.5.2.6;Perbantuan dan Evaluasi Kapal Perikanan dan Alat Penangkapan Ikan
+500.5.2.7;Alokasi Usaha Penangkapan Ikan
+500.5.2.8;Tata Pengusahaan Penangkapan Ikan
+500.5.2.9;Verifikasi Dokumen Penangkapan Ikan
+500.5.2.10;Pelayanan Dokumen Penangkapan Ikan
+500.5.2.11;Pemantauan dan Evaluasi Pelayanan Usaha Penangkapan Ikan
+500.5.2.12;Kelembgaan Usaha Penangkapan 
+500.5.2.13;Investasi dan Permodalan Usaha
+500.5.2.14;Kenelayanan
+500.5.2.15;Pembinaan Pengelolaan Usaha
+500.5.2.16;Pemantauan dan Evaluasi Usaha Penangkapan Ikan
+500.5.3;Perikanan Budidaya
+500.5.3.1;Potensi Lahan dan Air
+500.5.3.2;Prasarana dan Sarana Budidaya Air Tawar
+500.5.3.3;Pengelolaan Induk Perbenihan ikan air tawar
+500.5.3.4;Perbenihan Skala Kecil
+500.5.3.5;Informasi dan Distribusi Pembenihan
+500.5.3.6;Budidaya Air Tawar
+500.5.3.7;Budidaya Ikan Hias
+500.5.3.8;Sertifikasi Budidaya Perikanan
+500.5.3.9;Data dan Statistik Perikanan Budidaya
+500.5.3.10;Hama dan Penyakit Ikan
+500.5.3.11;Perlindungan Lingkungan Budidaya
+500.5.3.12;Investasi dan Permodalan Usaha Budidaya
+500.5.3.13;Kewirausahaan Budidaya
+500.5.3.14;Pelayanan Usaha Budidaya
+500.5.3.15;Kelembagaan dan Ketenagaakerjaan
+500.5.3.16;Promosi Usaha dan Budaya
+500.5.4;Pengolahan dan Pemasaran Hasil Perikanan
+500.5.4.1;Standarisasi Pengolahan Hasil
+500.5.4.2;Pengembangan Produk
+500.5.4.3;Pengembangan Usaha Mikro, Kecil, dan Menengah 
+500.5.4.4;Industri Pengolahan
+500.5.4.5;Sarana dan Prasarana Pengolahan Hasil
+500.5.4.6;Standarisasi Pengembangan Produk Non Konsumsi
+500.5.4.7;Promosi dan Jaringan Ikan Hias
+500.5.4.8;Pengembangan Industri
+500.5.4.9;Sarana dan Prasarana Pengembangan Produk Non Konsumsi
+500.5.4.10;Kelembagaan Pemasaran Dalam Negeri
+500.5.4.11;Analisis dan Informasi Pasar Dalam Negeri
+500.5.4.12;Jaringan Distribusi dan Kemitraan Pemasaran Dalam Negeri
+500.5.4.13;Promosi dan Kerja Sama Pemasaran Dalam Negeri
+500.5.4.14;Sarana dan Prasarana Pemasaran Dalam Negeri
+500.5.4.15;Kelembagaan Pemasaran Luar Negeri
+500.5.4.16;Analisis dan Informasi Pemasaran Luar Negeri
+500.5.4.17;Pengembangan Ekspor
+500.5.4.18;Pengembangan Impor
+500.5.4.19;Promosi dan Kerja Sama Pemasaran Luar Negeri
+500.5.4.20;Pelayanan Usaha
+500.5.4.21;Kemitraan Usaha
+500.5.4.22;Ketenagakerjaan Pengolahan dan Pemasaran
+500.5.4.23;Investasi dan Permodalan 
+500.5.4.24;Informasi dan Promosi
+500.5.5;Kelautan, Pesisir, dan Pulau-Pulau Kecil
+500.5.5.1;Rencana Tata Ruang Laut Nasional dan Perairan Yurisdiksi
+500.5.5.2;Rencana Tata Ruang dan Zona Wilayah I
+500.5.5.3;Rencana Tata Ruang dan Zona Wilayah II
+500.5.5.4;Informasi dan Evaluasi Spasial
+500.5.5.5;Jejaring, Data, dan Informasi Konservasi
+500.5.5.6;Konservasi Wawasan
+500.5.5.7;Konservasi Jenis Ikan
+500.5.5.8;Pemanfaatan Kawasan dan Jenis Ikan
+500.5.5.9;Mitigasi Bencana Lingkungan
+500.5.5.10;Pendayagunaan Sumber Daya Kelautan
+500.5.5.11;Penanggulangan Pencemaran Sumber Daya Pesisir dan Laut
+500.5.5.12;Rehabilitasi dan Reklamasi
+500.5.5.13;Identifikasi Pulau-Pulau Terkecil
+500.5.5.14;Pengelolaan Ekosistem Pulau-Pulau Terkecil
+500.5.5.15;Investasi dan Promosi Pulau-Pulau Terkecil
+500.5.5.16;Sarana dan Prasarana Pulau-Pulau Terkecil
+500.5.5.17;Akses Permodalan
+500.5.5.18;Akses Ilmu Pengetahuan dan Teknologi
+500.5.5.19;Sosial Budaya Masyarakat
+500.5.5.20;Pengembangan Usaha
+500.5.6;Pengawasan Sumber Daya Kelautan Dan Perikanan
+500.5.6.1;Pengawasan Penangkapan Wilayah Barat
+500.5.6.2;Pengawasan Penangkapan Wilayah Timur
+500.5.6.3;Pengawasan Pengangkutan, Pengolahan dan Pemasaran
+500.5.6.4;Pengawasan Usaha Budidaya
+500.5.6.5;Pengawasan Ekosistem Perairan dan Kawasan Konservasi
+500.5.6.6;Pengawasan Pencemaran Perairan
+500.5.6.7;Pengawasan Pesisir dan Pulau-Pulau Terkecil
+500.5.6.8;Pengawasan Jasa Kelautan dan Sumber Daya Non Hayati
+500.5.6.9;Logistik dan Operasional Wilayah Barat
+500.5.6.10;Logistik dan Operasional Wilayah Timur
+500.5.6.11;Perawatan Kapal Pengawas
+500.5.6.12;Pengawakan Kapal Pengawas
+500.5.6.13;Sistem Pemantauan
+500.5.6.14;Pemantauan Pemanfaatan Sumber Daya Kelautan
+500.5.6.15;Pemantauan Sumber Daya Perikanan
+500.5.6.16;Pengembangan Infrastruktur Pengawasan
+500.5.6.17;Penyidikan
+500.5.6.18;Penanganan Barang Bukti dan Awak Kapal
+500.5.6.19;Kerja Sama Penegakan Hukum dan Fasilitas PPNS Perikanan
+500.5.6.20;Pemantauan dan Evaluasi Penanganan Pelanggaran
+500.5.7;Karantina Ikan
+500.5.7.1;Pemeriksaan Ikan 
+500.5.7.2;Penahanan
+500.5.7.3;Pengasingan
+500.5.7.4;Pengamatan
+500.5.7.5;Pengakuan
+500.5.7.6;Penolakan
+500.5.7.7;Pemusnahan
+500.5.7.8;Persyaratan lalu Lintas Pemasukan
+500.5.7.9;Persyaratan lalu Lintas Pengeluaran
+500.5.7.10;Permohonan Sertifikat
+500.5.7.11;Pemasukan Formulir
+500.5.7.12;Pemasukan Sertifikat
+500.5.7.13;Evaluasi dan Monitoring Sertifikat
+500.5.7.14;Surat Perintah
+500.5.7.15;Rekomendasi
+500.5.7.16;Penutupan Suatu Area
+500.5.7.17;Pelanggaran Lalu Lintas Ikan
+500.5.7.18;Pengawasan Peraturan Perkarantinaan
+500.5.7.19;Pengawasan Pelaksanaan Operasional
+500.5.7.20;Instalasi Karantina Sementara
+500.5.7.21;Lokasi Karantina
+500.6;PERTANIAN
+500.6.1;Kebijakan di bidang Pertanian yang dilakukan oleh Pemerintah Daerah 
+500.6.2;Perlindungan hortikultura
+500.6.2.1;Perlindungan Tanaman Buah
+500.6.2.2;Perlindungan Tanaman Sayuran dan Tanaman Obat
+500.6.2.3;Perlindungan Tanaman Florikultura
+500.6.2.4;Dampak iklim dan Persyaratan Teknis
+500.6.3;Perbenihan Hortikultura
+500.6.3.1;Perbenihan Hortikultura
+500.6.3.1;Penilaian Varietas
+500.6.3.2;Pengawasan Mutu Benih
+500.6.3.3;Budidaya dan Pascapanen Florikultura
+500.6.4.1;Basis Data Lahan
+500.6.4.2;Pengendalian Lahan
+500.6.4.3;Optimasi, Rehabilitasi dan Konservasi Lahan
+500.6.4.4;Perluasan Kawasan Tanaman Pangan
+500.6.4.5;Perluasan Kawasan Hortikultura, Perkebunan dan Peternakan
+500.6.5;Pengelolaan Air Irigasi
+500.6.5.1;Pengembangan Sumber Air
+500.6.5.2;Pengembangan Jaringan dan Optimasi Air
+500.6.5.3;Iklim, Konservasi Air dan Lingkungan Hidup
+500.6.5.4;Kelembagaan
+500.6.6;Pembiayaan Pertanian
+500.6.6.1;Pembiayaan Program
+500.6.6.2;Pembiayaan Syariah dan Kerja Sama
+500.6.6.3;Pembiayaan agribisnis
+500.6.6.4;Kelembagaan dan Pemberdayaan agribisnis
+500.6.7;Pupuk Pestisida
+500.6.7.1;Pupuk Organik dan Pembenah Tanah
+500.6.7.2;Pupuk Anorganik
+500.6.7.3;Pestisida
+500.6.7.4;Pengawasan Pupuk dan Pestisida
+500.6.8;Alat dan Mesin Pertanian
+500.6.8.1;Pengembangan Alat dan Mesin Pertanian
+500.6.8.2;Pengawasan dan Peredaran Alat dan Mesin Pertanian
+500.6.8.3;Kelembagaan dan Pelayanan Alat dan Mesin Pertanian
+500.6.9;Perbenihan Tanaman Pangan
+500.6.9.1;Penilaian Varietas dan Pengawasan Mutu Benih
+500.6.9.2;Produksi Benih Serealia
+500.6.9.3;Produksi Benih Aneka Kacang dan Umbi
+500.6.9.4;Kelembagaan Benih
+500.6.10;Budidaya Serealia
+500.6.10.1;Padi Irigasi dan Rawa
+500.6.10.2;Padi Tadah Hujan dan Lahan Kering
+500.6.10.3;Jagung
+500.6.10.4;Serealia Lain
+500.6.11;Budidaya Aneka Kacang dan Umbi
+500.6.11.1;Kedelai
+500.6.11.2;Ubi Kayu
+500.6.11.3;Aneka Kacang
+500.6.11.4;Aneka Umbi
+500.6.12;Tanaman Pangan
+500.6.12.1;Pengeloalan Data Organisasi Pengganggu Tumbuhan
+500.6.12.2;Dampak Perubahan Iklim
+500.6.12.3;Teknoogi Pengendalian Organisme Pengganggu Tumbuhan
+500.6.12.4;Pengelolaan Pengendalian Hama Tepadu
+500.6.13;Pascapanen Tanaman Pangan
+500.6.13.1;Padi
+500.6.13.2;Jagung dan Serealia alin
+500.6.13.3;Kedelai dan Aneka Kacang
+500.6.13.4;Aneka Umbi
+500.6.14;Pengolahan Hasil Pertanian
+500.6.14.1;Tanaman Pangan
+500.6.14.2;Holtikurtura
+500.6.14.3;Perkebunan
+500.6.14.4;Peternakan
+500.6.15;Mutu dan Standariasi
+500.6.15.1;Standardisasi
+500.6.15.2;Penerapan dan Pengawasan Jaminan Mutu
+500.6.15.3;Akreditasi dan Kelembagaan
+500.6.15.4;Kerjasama dan Harmonisasi
+500.6.16;Pengembangan Usaha dan Investasi
+500.6.16.1;Kemitraan dan Kewirausahaan
+500.6.16.2;Investasi
+500.6.16.3;Promosi Dalam Negeri
+500.6.16.4;Promosi Luar Negeri
+500.6.17;Pemasaran Domestik
+500.6.17.1;Informasi Pasar
+500.6.17.2;Pemantauan Pasar dan Stabilisasi Harga 
+500.6.17.3;Sarana dan Kelembagaan Pasar
+500.6.17.4;Jaringan Pemasaran
+500.6.18;Administrasi Penelitian, Pengkajian, dan Pengembangan, Antara lain : Rencana Kerja, TOR/ Proposal, Pembentukan Tim Kerja dan Surat menyurat
+500.6.19;Hasil Penelitian, Pengkajian, dan Pengembangan
+500.6.19.1;Hasil Penelitian dan Pengembangan 
+500.6.19.2;Hasil Pengkajian dan Kebijakan dan Strategi
+500.6.20;Diseminasi 
+500.6.21;Publikasi Hasil Penelitian/ Pengkajian
+500.6.21.1;Pameran, Temu Lapang, Temu Bisnis, Demlot, Seminar Lokakarya, Temu Karya, Workshop
+500.6.21.2;Jurnal, Buletin, Monograf, Prosiding, dan Pubikasi lainnya
+500.6.22;Bimbingan Teknis Penelitian, Pengkajian, dan Pengembangan   
+500.6.23;Forum Komunikasi Penelitian dan Pengembangan
+500.6.24;Data Penelitian dan Pengembangan
+500.6.25;Evaluasi Penelitian/ Pengkajian dan Pengembangan
+500.6.26;Hak Atas Kekayaan Intelektual (HAKI)
+500.6.26.1;Hak Cipta
+500.6.26.2;Hak Paten Sederhana
+500.6.26.3;Hak Paten Biasa
+500.6.26.4;Hak Merek
+500.6.26.5;Pendaftaran Varietas Tanaman 
+500.6.26.6;Permohonan Hak  PVTT  Tanaman Semusim dan Tahunan
+500.6.26.7;Permohonan HKI yang ditolak
+500.6.27;Pelayanan Perijinan Pertanian
+500.6.27.1;Sarana I ( bidang pupuk, pestisida, alat dan mesin pertanian )
+500.6.27.2;Sarana II ( bidang benih tanaman, bahan penelitian, teknis pangan segar asal tumbuhan, teknis pengalihan saham perkebunan )
+500.6.27.3;Sarana III ( bidang bibit, karkas,daging, dan jeroan, pakan ternak, obat hewan, dan teknis sumber daya genetik ternak )
+500.6.28;Pelayanan Hukum
+500.6.28.1;Sertifikasi
+500.6.28.2;Pertimbangan Hukum
+500.6.29;Karantina Pertanian
+500.6.29.1;Karantina Tumbuhan
+500.6.29.2;Karantina Hewan
+500.6.30;Bimbingan Teknis
+500.6.31;Evaluasi
+500.7.1;Kebijakan di bidang Peternakan yang dilakukan oleh Pemerintah Daerah
+500.7.2;Peternakan dan Kesehatan Hewan
+"500.7.2.1;Perbibitan Ternak, Antara lain: Produksi Bibit Ternak Ruminansia, Produksi Bibit Ternak Non Ruminansia, Penilaian dan Pelepasan Bibit ternak, Pengembangan Bibit Ternak, Surat Rekomendasi & Persetjuan Pemasukan/ Pengeluaran
+"
+500.7.2.2;Pakan Ternak
+500.7.2.3;Budidaya Ternak
+500.7.2.4;Kesehatan Hewan, Antara lain: Pengamatan Penyakit Hewan, Pencegahan dan Pemberantasan Penyakit Hewan, Perlindungan Hewan, Kelembagaan dan Sumber Daya Kesehatan Hewan, Pengawasan Obat Hewan
+500.7.2.5;Kesehatan Masyarakat Veteriner dan Pascapanen, Antara lain: Pascapanen, Higien Sanitasi, Pengawasan Sanitary dan Keamanan Produk Hewan, Zoonosis dan Kesejahteraan Hewan, Pengujian dan Sertifikasi Produk Hewan, Surat Rekomendasi & Persetjuan Pemasukan/ Pengeluaran
+500.7.3;Bimbingn Teknis
+500.7.4;Evaluasi
+500.8.1;Kebijakan di bidang Perkebunan yang dilakukan oleh Pemerintah Daerah 
+500.8.2;Tanaman Semusim
+500.8.2.1;Identifikasi dan Pendayagunaan Sumber Daya Tanaman Semusim
+500.8.2.2;Perbenihan Tanaman Semusim
+500.8.2.3;Budidaya Teknologi Budidaya Tanaman Semusim
+500.8.2.4;Pemberdayaan Tanaman Semusim
+500.8.3;Tanaman Rempah & Penyegar
+500.8.3.1;Identifikasi dan Pendayaguunaan Sumber Daya Tanaman Rempah & Penyegar
+500.8.3.2;Perbenihan Tanaman Rempah & Penyegar
+500.8.3.3;Budidaya Tanaman Rempah & Penyegar
+500.8.3.4;Pemberdayaan dan Kelembagaan Tanaman Rempah & Penyegar
+500.8.4;Tanaman Tahunan
+500.8.4.1;Identifikasi dan Pendayagunaan Sumber Daya, Tanaman Tahunan
+500.8.4.2;Perbenihan Tanaman Tahunan
+500.8.4.3;Budidaya Tanaman Tahunan
+500.8.4.4;Pemberdayaan dan Kelembagaan Tanaman Tahunan
+500.8.5;Perlindungan Perkebunan
+500.8.5.1;Identifikasi dan Pengendalian Organisme Pengganggu Tumbuhan Tanaman Semusim, Perlindungan Perkebunan
+500.8.5.2;Identifikasi dan Pengendalian Organisme Pengganggu Tumbuhan Tanaman Rempah dan Penyegar
+500.8.5.3;Identifikasi dan Pengendalian Organisme Pengganggu Tumbuhan Tanaman Tahunan
+500.8.5.4;Dampak Perubahan Iklim dan Pencegahan Kebakaran
+500.8.6;Pascapanen dan Pembinaan Usaha
+500.8.6.1;Pascapanen Tanaman Semusim, Rempah dan Penyegar
+500.8.6.2;Pascapanen Tanaman Tahunan
+500.8.6.3;Bimbingan Usaha dan Perkebunan Berkelanjutan
+500.8.6.4;Gangguan Usaha dan Penanganan Konflik
+500.8.7;Bimbingan Teknis Perkebunan
+500.8.8;Evaluasi Perkebunan
+500.9;PERINDUSTRIAN
+500.9.1;Kebijakan di bidang Perindustrian yang dilakukan oleh Pemerintah Daerah
+500.9.2;Iklim Usaha dan Kerja Sama
+500.9.2.1;Industri Manufaktur
+500.9.2.2;Industri Agro
+500.9.2.3;Industri Unggulan Berbasis Teknologi Tinggi
+500.9.2.4;Industri Kecil dan Menengah
+500.9.3;Promosi Industri
+500.9.3.1;Industri Manufaktur
+500.9.3.2;Promosi Industri Agro
+500.9.3.3;Industri Unggulan Berbasis Teknologi Tinggi
+500.9.3.4;Industri Kecil dan Menengah
+500.9.4;Standarisasi dan Teknologi 
+500.9.4.1;Industri Manufaktur
+500.9.4.2;Industri Agro
+500.9.4.3;Industri Unggulan Berbasis Teknologi Tinggi
+500.9.4.4;Industri Kecil dan Menengah
+500.9.5;Hak dan Kekayaan Intelektual
+500.9.5.1;Industri Manufaktur
+500.9.5.2;Industri Agro
+500.9.5.3;Industri Unggulan Berbasis Teknologi Tinggi
+500.9.5.4;Industri Kecil dan Menengah
+500.9.6;Industri Hijau
+500.9.6.1;Industri Manufaktur
+500.9.6.2;Industri Agro
+500.9.6.3;Industri Unggulan Berbasis Teknologi Tinggi
+500.9.6.4;Industri Kecil dan Menengah
+500.9.7;Analisis Kerja Sama Industri Unggulan Kabupaten/Kota
+500.9.8;Monitoring dan Evaluasi Kompetensi Inti Industri (Provinsi dan Kabupaten/Kota)
+500.9.9;Pengembangan Infrastruktur Pendukung Pengembangan Kawasan Industri
+500.9.10;Fasilitasi Pengembangan Kawasan Industri
+500.9.11;Kerja Sama Ketahanan Industri Internasional 
+500.9.12;Standarisasi
+500.9.12.1;Standar
+500.9.12.2;Penyiapan Penerapan
+500.9.12.3;Infrastruktur Standar
+500.9.13;Pengkajian Kebijakan dan Iklim Usaha Industri
+500.9.13.1;Kebijakan Industri
+500.9.13.2;Perpajakan dan Tarif
+500.9.13.3;Pengembangan Model Industrial
+500.9.14;Pengkajian Industri Hijau dan Lingkungan Hidup
+500.9.14.1;Industri Hijau
+500.9.14.2;Lingkungan Hidup
+500.9.14.3;Energi
+500.9.15;Teknologi dan Hak Kekayaan Intelektual
+500.9.15.1;Pengkajian dan Penerapan Kebijakan Teknologi Industri
+500.9.15.2;Pengkajian dan Penerapan Inovasi Teknologi Industri
+500.9.15.3;Pengembangan Hak Kekayaan Intelektual
+500.9.16;Monitoring dan Evaluasi Kompetensi Industri
+500.10;ENERGI DAN SUMBER DAYA MINERAL
+500.10.1;Kebijakan di bidang Energi dan Sumber Daya Mineral yang dilakukan oleh Pemerintah Daerah                 
+500.10.2;Rekomendasi Kegeologian
+500.10.2.1;Mitigasi Gunung Api, Gempa Bumi, Tsunami, dan Gerakan Tanah
+500.10.2.2;Air Tanah dan Geologi Tata Lingkungan
+500.10.2.3;Pertambangan
+500.10.2.4;Panas Bumi
+500.10.2.5;Geosains
+500.10.2.6;Pengukuran Time Domain Electromagnetic (TDEM)
+500.10.2.7;Kelayakan Lingkungan
+500.10.3;Penelitian Kegeologian
+500.10.3.1;Administrasi pelaksanaan penelitian
+500.10.3.2;Administrasi tenaga penelitian
+500.10.3.3;Administrasi penggunaan peralatan penelitian
+500.10.3.4;Log-book peralatan survei/peralatan uji/kalibrasi
+500.10.3.5;Hasil  penelitian dan penyelidikan kegeologian
+500.10.3.6;Sumber Daya Geologi
+500.10.3.7;Air Tanah dan Geologi Tata Lingkungan
+500.10.3.8;Vulkanologi dan Mitigasi Bencana Geologi
+500.10.3.9;Survei Geologi
+500.10.4;Inventarisasi dan evaluasi kegeologian
+500.10.4.1;Sumber Daya Geologi
+500.10.4.2;Vulkanologi dan Mitigasi Bencana Geologi
+500.10.4.3;Air Tanah dan Geologi Tata Lingkungan
+500.10.4.4;Survei Geologi
+500.10.4.5;Konservasi
+500.10.5;Administrasi Pelayanan Kegeologian dan Penyajian Data dan Informasi
+500.10.5.1;Peta potensi dan sebaran
+500.10.5.2;Air Tanah dan Geologi Tata Lingkungan
+500.10.5.3;Mitigasi Bencana Gunungapi, Gerakan Tanah, Gempa Bumi dan Tsunami, Semburan Lumpur/Gas serta kebakaran Batubara
+500.10.5.4;Survei Geologi
+500.10.6;Pembinaan Program Minyak dan Gas Bumi
+500.10.6.1;Rencana Induk Jaringan Gas Bumi 
+500.10.6.2;Rencana dan Realisasi Investasi 
+500.10.6.3;Penetapan Harga Minyak Mentah
+500.10.6.4;Penetapan Bagii Hasil Penerimaan Negara Bukan Pajak (PNBP) Minyak dan Gas Bumi
+500.10.6.5;Pelaksanaan Pemeriksaan dan Pengujian PNBP
+500.10.6.6;Verifikasi Tingkat Komponen Dalam Negeri (TKDN)
+500.10.6.7;Rekomendasi Kemampuan Produksi Barang dan Jasa Dalam Negeri
+500.10.6.8;Rencana Kebutuhan Impor Barang (RKIB) dan Rencana Impor Barang (RIB)
+500.10.7;Pembinaan Usaha Hulu Minyak dan Gas Bumi
+500.10.7.1;Penyiapan dan Penawaran Wilayah Kerja (WK) Minyak dan Gas Bumi (Konvensional dan Non Konvensional)
+500.10.7.2;Eksplorasi Minyak dan Gas Bumi (antara lain: Pemanfaatan Data Migas untuk presentasi makalah, publikasi makalah, pembukaan data, Izin Pengiriman Data ke Luar Negeri, Izin Pengiriman Data ke Luar Negeri, Unitisasi Lapangan Minyak dan Gas Bumi, Rekomendasi Pengalihan Interest, Rekomendasi Penyisihan Wilayah Kerja Minyak dan Gas Bumi, Penyiapan Dokumen Pengakhiran Kontrak, Laporan Data Survei Seismik, Laporan Data Pemboran Sumur Eksplorasi per semester, Laporan Data Pemboran Sumur Eksplorasi Tahunan)
+500.10.7.3;Eksploitasi Minyak dan Gas Bumi (antara lain: Rekomendasi Penggunaan Data Eksploitasi (publikasi makalah, analisa laboratorium, Reprocessing), Penetapan Pengusahaan Minyak Bumi dari Sumur Tua, Penetapan Pengusahaan Lapangan Produksi yang Dikembalikan Kepada Pemerintah, Buku Cadangan Minyak dan Gas Bumi, Data Cadangan Strategis/Penyangga Minyak dan Gas Bumi, Laporan Hasil Pemantauan Data Produksi Minyak dan Gas Bumi, Laporan Hasil Inventarisasi Mutu Minyak dan Gas Bumi)
+500.10.7.4;Pengembangan lapangan Minyak dan Gas Bumi (POD)
+500.10.7.5;Perpanjangan Kontrak KKS
+500.10.7.6;Penetapan Alokasi dan Harga Gas
+500.10.7.7;Partisipasi Interest
+500.10.7.8;Tumpang Tindih Lahan
+500.10.8.1;Perumusan pedoman, prosedur, layanan serta pengawasan Usaha Pengolahan, Pengangkutan, Penyimpanan, dan Niaga Minyak Bumi dan Gas Bumi, Hasil Olahan dan Bahan Bakar Lain, Antara lain: Pedoman dan Prosedur, Layanan Usaha (Izin/rekomendasi/penandasahan), Pengawasan
+500.10.8.2;Fasilitasi dan pertimbangan pelanggaran
+500.10.8.3;Penetapan Harga dan Subsidi Bahan Bakar yang ditetapkan dengan Keputusan Menteri
+500.10.9.1;Perumusan pelaksanaan dan pengawasan Standar Nasional Indonesia (SNI) / Standar Kompetensi Kerja Nasional Indonesia (SKKNI) 
+500.10.9.2;Registrasi Nomor Pelumas Terdaftar (NPT), Antara lain: Berkas permohonan, Berita Acara Hasil Evaluasi, Salinan Sertifikat NPT, Register NPT
+500.10.9.3;Buku Register Welding Procedure Specification (WPS)/ Procedure Qualification Record (PQR) 
+500.10.9.4;Register dan Sertifikat Kualifikasi Juru Las
+500.10.9.5;Keselamatan Hulu Minyak dan Gas Bumi, Antara lain: Pemeriksaan Teknis dan Pengujian Instalasi dan Peralatan, Pemeriksaan Kalibrasi Teknis,  Pengawasan Keselamatan Operasi
+500.10.9.6;Keselamatan Hilir Minyak dan Gas Bumi, Antara lain: Pemeriksaan Teknis dan Pengujian Instalasi dan Peralatan, Pemeriksaan Kalibrasi Teknis, Pengawasan Keselamatan Operasi
+500.10.9.7;Keselamatan Kerja dan Lindungan Lingkungan
+500.10.9.8;Dokumen Persetujuan Penunjukkan Kepala/Wakil Kepala Teknik Tambang Hulu dan Hilir, Antara lain: Dokumen Permohonan Pengajuan persetujuan penunjukkan Calon kepala/wakil kepala teknik tambang minyak dan gas bumi, Surat Undangan Presentasi, Makalah Presentasi, Surat Persetujuan/ Pengesahan penunjukan kepala/wakil Kepala Teknik Tambang Minyak dan Gas Bumi
+500.10.9.9;Penghargaan Keselamatan Kerja, Antara lain: Surat Permohonan Mendapatkan Penghargaan, Surat Penugasan Dalam Rangka Verifikasi,  Berkas Hasil Evaluasi Verifikasi, Salinan Tanda Penghargaan, Dokumen Pengajuan dan penilaian Tanda Penghargaan Keselamatan Minyak dan Gas Bumi
+500.10.9.10;Usaha penunjang
+500.10.10;Infrastruktur Minyak dan Gas Bumi
+500.10.10.1;Perencanaan Program Kerja Pembangunan Infrastruktur Minyak dan Gas Bumi
+500.10.10.2;Pengadaan Pembangunan Infrastruktur Minyak dan Gas Bumi
+500.10.10.3;Pelaksanaan  Pembangunan Infrastruktur Minyak dan Gas Bumi
+500.10.10.4;Pengawasan dan Evaluasi Pembangunan Infrastuktur Minyak dan Gas Bumi
+500.10.11;Penyiapan Program Energi Terbarukan dan Konservasi Energi
+500.10.11.1;Usulan Wilayah Kerja Panas Bumi 
+500.10.11.2;Usul Program Aneka Energi Pemerintah Daerah dan Lembaga
+500.10.11.3;Penyiapan Program Pemanfaatan Energi
+500.10.11.4;Proyeksi Kebutuhan Energi dari EBT
+500.10.11.5;Perencanaan Pemanfaatan Energi dari EBT
+500.10.11.6;Penyusunan Neraca Energi
+500.10.11.7;Road Map di Bidang EBT
+500.10.12;Panas Bumi
+500.10.12.1;Penerbitan Surat Keterangan Terdaftar (SKT) 
+500.10.12.2;Sertifikasi Kelayakan Penggunaan Instalasi (SKPI)
+500.10.12.3;Sertifikasi Kelayakan Penggunaan Peralatan
+500.10.12.4;Rekomendasi Bahan Peledak 
+500.10.12.5;Perizinan penggunaan gudang bahan peledak 
+500.10.12.6;Izin Tangki Bahan Bakar Cair
+500.10.12.7;Persetujuan sertifikasi Welding Prosedure Specifikation (WPS) dan Prosedure Qualification Record (PQR) dan kualifikasi Juru LasQualification Record (PQR) dan kualifikasi Juru Las
+500.10.12.8;Penerbitasn Izin Usaha Panas Bumi (IUP)
+500.10.12.9;Penerbitan Izin Panas Bumi (IPB)
+500.10.12.10;Penerbitan Izin Pemanfaatan Langsung (IPL)
+500.10.12.11;Penetapan kapasitas usaha panas bumi 
+500.10.12.12;Penetapan kapasitas Pembangkit Listrik Tenaga Panas Bumi (PLTP) 
+500.10.12.13;Pengawasan Eksplorasi dan Eksploitasi Panas Bumi
+500.10.12.14;Pelaksanaan Kerja Sama Panas Bumi
+500.10.12.15;Inventarisasi, Verifikasi dan Evaluasi Obvitnas Bidang Panas Bumi 
+500.10.12.16;Monitoring Pelaksanaan Program Pengembangan dan Pemberdayaan Masyarakat (PPM) pada Kegiatan Pengusahaan Panas Bumi
+500.10.12.17;Pembinaan dan Pengawasan Investasi Panas Bumi
+500.10.13;Bioenergi
+500.10.13.1;Penerbitan Izin Usaha Niaga Bahan Bakar Nabati (BNN)
+500.10.13.2;Pengadaan Bahan Bakar Nabati (BBN)
+500.10.13.3;Penerbitan Rekomendasi Ekspor - Impor
+500.10.13.4;Penetapan Indeks Harga Pasar BBN (HIP BBN)
+500.10.13.5;Evaluasi/Revisi HIP BBN
+500.10.13.6;Database Pengusahaan Bioenergi
+500.10.13.7;Penetapan Badan Usaha sebagai Pengelola Energi Biomassa atau Biogas untuk Pembangkit Listrik
+500.10.13.8;Penetapan Spesifikasi Bahan Bakar Nabati
+500.10.13.9;Usul Program Bioenergi Pemerintah Daerah dan Lembaga
+500.10.14;Aneka Energi
+500.10.14.1;Penerbitan Izin Usaha Aneka Energi
+500.10.14.2;Penetapan Kapasitas Usaha
+500.10.14.3;Rekomendasi Kompetensi dan Rencana Penggunaan Tenaga Kerja Asing
+500.10.14.4;Rekomendasi Persetujuan Perubahan Pemegang Saham
+500.10.14.5;Persetujuan Rencana Impor Barang (RIB)
+500.10.15;Konservasi Energi
+500.10.15.1;Audit Energi melalui program kemitraan Konservasi Energi
+500.10.15.2;Monitoring Implementasi hasil audit energi melalui program kemitraan konservasi energi
+500.10.15.3;Pembinaan dan pengawasan pelaksanaan manajamen energi di pengguna energi di atas 6.000 TOE
+500.10.15.4;Pengawasan sertifikasi label dan tanda hemat energi pada lampu swabalast
+500.10.15.5;Penyusunan daftar peralatan/teknologi efisiensi
+500.10.15.6;Penyusunan emisi energi gas rumah kaca 
+500.10.15.7;Pemberian insentif dan disinsentif konservasi energi
+500.10.15.8;Profil investasi efisiensi energi
+500.10.15.9;Invesment Grade Audit (IGA)
+500.10.15.10;Bimbingan Teknis Bidang EBTKE
+500.10.16;Perencanaan dan Pembangunan Infrastruktur EBTKE
+500.10.16.1;Usul Pembangunan Infrastruktur Pemerintah Daerah dan Lembaga
+500.10.16.2;Perencanaan  Pembangunan Infrastruktur Minyak dan Gas Bumi
+500.10.16.3;Pelaksanaan Pembangunan Infrastruktur Bidang EBTKE
+500.10.16.4;Evaluasi Program Kerja
+500.10.17;Bina Program Tenaga Listrik
+500.10.17.1;Investasi dan pendanaan tenaga listrik, Antara lain: Dokumen grant/hibah/loan agreement luar negeri, Monitoring loan pembangunan infrastruktur penyediaan tenaga listrik, Laporan penanganan permasalahan infrastruktur  penyediaan tenaga listrik,  Laporan kegiatan investasi dan pendanaan tenaga listrik
+500.10.17.2;Pengembangan listrik pedesaan, Antara lain: Data program listrik perdesaan, Data rasio elektrifikasi (RE) dan Rasio Desa Berlistrik (RD),  Monitoring dan evaluasi listrik perdesaan, Listrik  untuk masyarakat tidak mampu
+500.10.17.3;Data dan Informasi Ketenagalistrikan
+500.10.18;Bina Usaha Ketenagalistikan
+500.10.18.1;Penyiapan Usaha Ketenagalistrikan, Antara lain: Pelayanan izin usaha penyediaan tenaga listrik (IO,  IUPL-S, dan IUPL), Bimbingan Usaha Ketenagalistrikan, Data laporan berkala pemegang Izin
+500.10.18.2;Harga dan Subsidi Listrik
+500.10.18.3;Hubungan komersial tenaga listrik
+500.10.18.4;Perlindungan konsumen listrik, Antara lain: Penanganan pengaduan konsumen listrik, Dokumen Pengawasan tingkat mutu pelayanan tenaga listrik, Dokumen Evaluasi realisasi tingkat mutu pelayanan tenaga listrik, Dokumen evaluasi pemberian kompensasi pinalti tingkat mutu pelayanan PT PLN (Persero)
+500.10.19;Teknik dan Lingkungan Ketenagalistrikan
+500.10.19.1;Kelaikan teknik dan keselamatan ketenagalistrikan
+500.10.19.2;Penyiapan kompetensi dan pengawasan tenaga teknik ketenagalistrikan
+500.10.19.3;Usaha penunjang ketenagalistrikan, Antara lain: Dokumen Izin Usaha Jasa Penunjang Tenaga Listrik (IUJPTL), Dokumen Izin Pemanfaatan Jaringan Tenaga Listrik untuk Kepentingan Telematika (IPJ Telematika), Dokumen Penandasahan Rencana Impor Barang (RIB)
+500.10.19.4;Perlindungan lingkungan ketenagalistrikan, Antara lain: Dokumen forum keselamatan instalasi pemanfaatan tenaga  listrik, Dokumen pelaksanaan pengelolaan lingkungan hidup sektor ketenagalistrikan, Laporan pembinaan dan pengawasan lingkungan,  Dokumen perhitungan faktor emisi Clean Development Mechansim (CDM)
+500.10.20;Sertifikasi
+500.10.20.1;Dokumen Sertifikasi Produk peralatan dan pemanfaatan tenaga listrik
+500.10.20.2;Dokumen Penunjukan Lembaga Sertifikasi Kompetensi (LSK)
+500.10.20.3;Dokumen Penerbitan Sertifikasi Laik Operasi (SLO) Instalasi Tenaga Listrik
+500.10.20.4;Dokumen Pembinaan dan pengawasan sertifikat laik operasi (SLO) instalasi tenaga listrik
+500.10.20.5;Registrasi Sertifikasi
+500.10.21;Akreditasi Ketenagalistrikan
+500.10.22;Standarisasi Kompetensi
+500.10.23;Standardisasi Nasional Indonesia (SNI) Bidang Ketenagalistrikan
+500.10.23.1;Perumusan rancangan SNI bidang ketenagalistrikan
+500.10.23.2;Forum konsensus rancangan SNI bidang ketenagalistrikan
+500.10.23.3;Program pemberlakuan SNI wajib bidang ketenagalistrikan 
+500.10.23.4;Dokumen pengawasan penerapan SNI wajib bidang ketenagalistrikan 
+500.10.24;Standardisasi Usaha Penunjang  Ketenagalistrikan
+500.10.24.1;Klasifikasi usaha penunjang ketenagalistrikan
+500.10.24.2;Kualifikasi usaha penunjang ketenagalistrikan
+500.10.24.3;Dokumen  penunjukan LIT (Lembaga Inspeksi Teknis) 
+500.10.24.4;Laporan berkala pemegang penunjukan LIT 
+500.10.24.5;Laporan hasil pengawasan penunjukan 
+500.10.25;Bina Program Mineral dan Batubara
+500.10.25.1;Penyiapan dan Perencanaan Program Mineral dan Batubara
+500.10.25.2;Rencana Induk Mineral dan Batubara
+500.10.25.3;Pengembangan Investasi dan Kerja Sama Bidang Mineral dan Batubara
+500.10.25.4;Data dan Informasai Mineral dan Batubara
+500.10.25.5;Pelaporan Program Mineral dan Batubara
+500.10.25.6;Perencanaan, Penyiapan dan Penawaran Wilayah Kerja (WK) Mineral dan Batubara melalui lelang reguler
+500.10.25.7;Data dan Informasi Wilayah Mineral dan Batubara
+500.10.25.8;Perencanaan Produksi Mineral dan Batubara
+500.10.25.9;Pengembangan dan Pemanfaatan Mineral dan Batubara
+500.10.26;Pembinaan Pengusahaan Mineral
+500.10.26.1;Ketenagakerjaan
+500.10.26.2;Pemberdayaan masyarakat sekitar tambang
+500.10.26.3;Penyelesaian perselisihan usaha pertambangan mineral
+500.10.26.4;Rekomendasi kegiatan usaha pertambangan mineral
+500.10.26.5;Laporan/data kegiatan eksplorasi mineral
+500.10.26.6;Pengawasan produksi dan pemasaran mineral (logam, bukan logam batuan, radioaktif, dan mineral jarang)
+500.10.26.7;Perizinan  usaha pertambangan mineral
+500.10.26.8;Kontrak Karya (KK)
+500.10.26.9;Pengelolaan barang Kontrak Karya (KK)
+500.10.26.10;Persetujuan Obyek Vital Nasional (OBVITNAS)
+500.10.26.11;Persetujuan perubahan saham direksi, komisaris, pada perusahaan mineral
+500.10.26.12;Teguran kepada pengusahan Kontrak Karya (KK)
+500.10.26.13;Tanggapan kepada pemerintah daerah terkait usaha pertambangan mineral
+500.10.26.14;Pedoman/petunjuk teknis pertambangan mineral termasuk rancangan awal sampul dengan rancangan akhir
+500.10.26.15;Pelaporan usaha pertambangan mineral
+500.10.26.16;Penghargaan usaha pertambangan mineral
+500.10.26.17;Penerbitan sertifikat clear and clean (CnC) Izin Usaha Pertambangan (IUP) Mineral
+500.10.27;Pembinaan Pengusahaan Batubara
+500.10.27.1;Ketenagakerjaan
+500.10.27.2;Pemberdayaan masyarakat sekitar tambang
+500.10.27.3;Penyelesaian perselisihan usaha pertambangan batubara
+500.10.27.4;Rekomendasi kegiatan usaha pertambangan batubara
+500.10.27.5;Laporan/data kegiatan eksplorasi batubara
+500.10.27.6;Pengawasan produksi dan pemasaran batubara (bitumen padat, batuan aspal, batubara dan gambut), Antara lain: Laporan Produksi dan Penjualan Batubara PKP2B, IUP hingga Laporan Kontrak Penjualan  Pertambangan Batubara
+500.10.27.7;Perizinan  Usaha Pertambangan Batubara
+500.10.27.8;Perjanjian Karya Pengusahaan Batubara (PKP2B)
+500.10.27.9;Pengelolaan Barang Perjanjian Karya Pengusahaan Batubara (PKP2B), Antara lain: Persetujuan  Pengadaan Barang Modal (Masterlist)  
+500.10.27.10;Persetujuan Obyek Vital Nasional (OBVITNAS)
+500.10.27.11;Persetujuan perubahan saham direksi, komisaris, pada perusahaan Perjanjian Karya Pengusahaan Batubara (PKP2B)
+500.10.27.12;Teguran kepada pengusahan Perjanjian Karya Pengusahaan Batubara (PKP2B)
+500.10.27.13;Tanggapan kepada pemerintah daerah terkait usaha pertambangan batubara
+500.10.27.14;Pedoman/petunjuk teknis pertambangan mineral termasuk rancangan awal sampul dengan rancangan akhir
+500.10.27.15;Pelaporan usaha pertambangan batubara
+500.10.27.16;Penghargaan usaha pertambangan batubara
+500.10.27.17;Penerbitan sertifikat clear and clean (CnC) Izin Usaha Pertambangan (IUP) Batubara
+500.10.28;Penerimaan Negara
+500.10.28.1;Penerimaan Negara Bukan Pajak
+500.10.28.2;Penetapan Bagi Hasil Penerimaan Negara Bukan Pajak (PNBP) 
+500.10.28.3;Pelaksanaan Pemeriksaan dan Pengujian PNBP
+500.10.29.1;Perumusan RSNI (Rancangan Standar Nasional Indonesia)/ RSKKNI (Rancangan Standar Kompetensi Kerja Nasional Indonesia), Antara lain: Draft Rancangan, Rancangan Standar Nasional 
+500.10.29.2;Pengawasan Standardisasi
+500.10.29.3;Persetujuan Penunjukkan Kepala/Wakil Kepala Teknik Tambang 
+500.10.29.4;Pengawasan Keselamatan Kegiatan dan Keselamatan Pekerja, Antara lain: Laporan Kecelakaan Tambang/Statistik hingga Laporan Hasil Pemeriksaan Keselamatan dan Kesehatan Kerja (K3)
+500.10.29.5;Pemeriksaan teknis dan pengujian instalasi dan peralatan tambang, Antara lain: Pemeriksaan dan Pengujian Instalasi dan Peralatan 
+500.10.29.6;Analisis Mengenai Dampak Lingkungan (AMDAL)
+500.10.29.7;Upaya Pengelolaan Lingkungan (UKL) dan Upaya Pemantauan Lingkungan (UPL)
+500.10.29.8;Rekomendasi bahan kimia
+500.10.29.9;Pengawasan Pelaksanaan Pengelolaan dan Pemantauan Lingkungan, Antara lain: Laporan Pelaksanaan Rencana Pengelolaan Lingkungan (RKL)/Rencana Pemantauan Lingkungan (RPL) hingga Surat Penetapan Jaminan Pasca Tambang 
+500.10.29.10;Laporan berkala teknik dan lingkungan pertambangan/ laporan tahunan, Antara lain: Laporan Bulanan Terjadinya Pencemaran (LPL-5) pelaksanaan reklamasi
+500.10.29.11;Pemberian Penghargaan, Antara lain: Pemberian Penghargaan Lingkungan Pertambangan, Pemberian Penghargaan Keselematan Kerja, Dokumen Pengajuan dan Penilaian Tanda Penghargaan lingkungan Pertambangan, Dokumen Pengajuan dan Penilaian Tanda Penghargaan Keselamatan 
+500.10.29.12;Pengawasan lingkungan pertambangan
+500.10.29.13;Usaha Jasa Mineral dan Batubara
+500.10.29.14;Pembinaan dan pengawasan usaha jasa mineral dan batubara 
+500.10.29.15;Rekomendasi Teknis, Antara lain: Pengajuan Rekomendasi Teknis, Hasil Evaluasi 
+500.10.29.16;Persetujuan Teknis, Antara lain: Pengajuan Persetujuan Teknis, Hasil Evaluasi 
+500.10.29.17;Pengawasan Teknis
+500.10.29.18;Pengawasan   Konservasi Mineral dan Batubara
+500.10.29.19;Peminaan Teknik dan Lingkungan Mineral dan Batubara, Antara lain: Sosialisasi Standardisasi, Bimbingan Teknis 
+500.10.30;Program Penelitian dan Pengembangan
+500.10.30.1;Rencana Penelitian dan Pengembangan
+500.10.30.2;Pengembangan dan inovasi
+500.10.30.3;Dokumen penerapan/pemanfaatan/pendayagunaan/replikasi/prototipe hasil penelitian/pengkajian/pengembangan/inovasi 
+500.10.30.4;Advokasi dan fasilitasi penelitian, pengembangan dan inovasi
+500.10.30.5;Diseminasi hasil penelitian,pengembangan dan penerapan ilmu pengetahuan dan teknologi 
+500.10.30.6;Pembinaan penelitian/Pengembangan,pengkajian, dan penerapan ilmu pengetahunan dan teknologi
+500.10.30.7;Jaringan Sistem Nasional Penelitian, Pengembangan dan Penerapan ilmu pengetahuan dan teknologi 
+500.10.30.8;Data dan informasi hasil penelitian, pengembangan dan penerapan ilmu pengetahuan dan teknologi
+500.10.30.9;Master proceeding/ jurnal penelitian, pengembangan dan penerapan ilmu pengetahuan dan teknologi
+500.10.30.10;Hak atas kekayaan intelektual (HaKI)
+500.10.30.11;Forum komunikasi penelitian, pengembangan dan penerapan ilmu pengetahuan dan teknologi
+500.10.30.12;Layanan jasa penelitian, pengembangan,penerapan IPTEK 
+500.10.30.13;Sertifikasi personil peneliti bidang Sumber Daya Mineral
+500.10.31;Sarana Litbang
+500.10.31.1;Administrasi penggunaan peralatan
+500.10.31.2;Log-book Peralatan Survei/Peralatan Uji Kalibrasi
+500.10.32;Afiliasi
+500.10.32.1;Proyek Percontohan
+500.10.32.2;Promosi dan Layanan Jasa Teknologi
+500.10.32.3;Pembinaan Penelitian dan Pengembangan
+500.10.32.4;Penyajian Informasi
+500.10.33;Penelitian dan Pengembangan Kegeologian
+500.10.33.1;Pemetaaan dan penelitian geologi, geokimia, dan geofisika kelautan
+500.10.33.2;Energi Kelautan dan Kewilayahan Penelitian Energi dan kewilayahan pantai
+500.10.33.3;Penelitian sumber daya energi dan mineral kelautan
+500.10.33.4;Penelitian Sumber Daya Mineral Kelautan
+500.10.34;Penelitian dan Pengembangan Teknologi Minyak dan Gas Bumi
+500.10.34.1;Teknologi Eksplorasi
+500.10.34.2;Teknologi Eksploitasi
+500.10.34.3;Laboratorium
+500.10.34.4;Study
+500.10.34.5;Teknologi Proses
+500.10.34.6;Teknologi Aplikasi Produk
+500.10.34.7;Teknologi Gas
+500.10.35;Penelitian dan Pengembangan Teknologi Mineral Batubara
+500.10.35.1;Teknologi Eksploitasi Tambang dan Pengolahan Sumber Daya
+500.10.35.2;Teknologi Pengolahan dan Pemanfaatan mineral
+500.10.35.3;Teknologi Pemanfaatan Batubara
+500.10.36;Penelitian dan Pengembangan Ketenagalistrikan dan Energi Baru Terbarukan 
+500.10.36.1;Energi baru terbarukan
+500.10.36.2;Teknologi Ketenagalistrikan
+500.10.36.3;Lingkungan dan  Konservasi Energi 
+500.10.36.4;Penelitian dan Pengembangan Teknologi PLTSa (Pembangkit Listrik Tenaga Sampah)  dan Konservasi Energi
+500.11;PERHUBUNGAN
+500.11.1;Kebijakan di bidang Perhubungan yang dilakukan oleh Pemerintah Daerah 
+500.11.2;Jaringan Prasarana dan Pelayanan  
+500.11.2.1;Penentuan lokasi terminal barang tipe pengumpul dan tipe penunjang
+500.11.2.2;Penentuan lokasi terminal penumpang tipe A, tipe B, dan tipe C
+500.11.2.3;Penetapan lokasi terminal barang utama
+500.11.2.4;Standar pelayanan minimal pengoperasian terminal
+500.11.2.5;Jaringan trayek angkutan antar kota/provinsi
+500.11.2.6;Jaringan lintas pada jaringan jalan primer
+500.11.2.7;Penetapan kelas jalan primer
+500.11.2.8;Kualifikasi teknis petugas terminal
+500.11.2.9;Jaringan transportasi jalan sekunder 
+500.11.3;Pengembangan Transportasi Jalan 
+500.11.3.1;Sistem informasi dan komunikasi lalu lintas dan angkutan jalan
+500.11.3.2;Pengembangan transportasi jalan
+500.11.4;Pengujian Kendaraan Bermotor 
+500.11.4.1;Pengesahan hasil uji tipe kendaraan bermotor
+500.11.4.2;Sertifikasi uji tipe kendaraan bermotor
+500.11.4.3;Sertifikasi tenaga penguji kendaraan bermotor
+500.11.4.4;Akreditasi unit pengujian kendaraan bermotor
+500.11.5;Teknologi Kendaraan Bermotor 
+500.11.5.1;Sertifikasi rancang bangun dan rekayasa kendaraan bermotor
+500.11.5.2;Pelaksanaan kalibrasi peralatan uji kendaraan bermotor
+500.11.5.3;Persyaratan teknis dan laik jalan kendaraan bermotor
+500.11.5.4;Harmonisasi dan standardisasi regulasi kendaraan bermotor
+500.11.6;Manajemen dan Rekayasa Lalu Lintas
+500.11.6.1;Analisa dampak lalu lintas jalan nasional di luar kawasan perkotaan
+500.11.6.2;Manajemen dan rekayasa lalu lintas di jalan nasional
+500.11.7;Perlengkapan Jalan
+500.11.7.1;Pedoman teknis perlengkapan jalan
+500.11.7.2;Penimbangan kendaraan bermotor di jalan
+500.11.7.3;Akreditasi unit penimbangan kendaraan bermotor
+500.11.7.4;Kualifikasi teknis petugas penimbangan kendaraan bermotor
+500.11.7.5;Pengadaan, pemasangan, perbaikan, dan pemeliharaan perlengkapan jalan di  jalan nasional
+500.11.8;Angkutan Penumpang
+500.11.8.1;Tarif angkutan penumpang kelas ekonomi
+500.11.8.2;Izin trayek angkutan penumpang untuk trayek lintas batas negara
+500.11.8.3;Izin trayek antar kota antar provinsi
+500.11.8.4;Izin operasi angkutan pariwisata dan angkutan penumpang tidak dalam trayek  yang wilayah pelayanannya bersifat lintas batas negara & antar kota/provinsi
+500.11.8.5;Penilaian kinerja perusahaan angkutan umum
+500.11.8.6;Pemberian subsidi angkutan umum
+500.11.8.7;Angkutan perintis
+500.11.8.8;Penghargaan perusahaan angkutan umum
+500.11.9;Angkutan Barang
+500.11.9.1;Sistem informasi dan komunikasi lalu lintas dan angkutan jalan
+500.11.9.2;Tarif angkutan barang
+500.11.9.3;Izin operasi angkutan barang tertentu
+500.11.9.4;Pembinaan angkutan barang
+500.11.9.5;Izin dispensasi angkutan jalan 
+500.11.10;Monitoring Operasional 
+500.11.10.1;Pengendalian operasional Lalu Lintas dan Angkutan Jalan
+500.11.10.2;Pengawasan, penertiban dan pemberian sanksi administratif terhadap pelanggaran operasional kendaraan angkutan umum yang menjadi kewenangan 
+500.11.10.3;Berkas Pelanggaran Perda 
+500.11.11;Bimbingan Teknis Penyidik Pegawai Negeri Sipil
+500.11.11.1;Pedoman Teknis
+500.11.11.2;Penyidikan pelanggaran Lalu Lintas dan Angkutan Jalan oleh Penyidik Pegawai Negeri Sipil (PPNS)
+500.11.11.3;Bimtek PPNS
+500.11.11.4;Pengusulan pengangkatan dan pemberhentian Penyidik Pegawai Negeri Sipil (PPNS) 
+500.11.12;Analisa dan Evaluasi Jaringan Jaringan Transportasi Sungai, Danau dan Penyeberangan
+500.11.12.1;Pendataan jaringan transportasi sungai, danau, dan penyeberangan
+500.11.12.2;Analisis serta informasi jaringan transportasi sungai, danau, & penyeberangan
+500.11.13;Pengembangan Jaringan Jaringan Transportasi Sungai, Danau dan Penyeberangan
+500.11.13.1;Pengembangan dan penetapan jaringan transportasi sungai, danau dan penyeberangan (peta jaringan, blueprint jaringan)
+500.11.13.2;Pengembangan Sistem Informasi Manajemen (SIM) lalu lintas dan angkutan  sungai, danau dan penyeberangan
+500.11.14;Rancang Bangun Sarana Angkutan Sungai, Danau, dan Penyeberangan
+500.11.15;Bimbingan Perawatan Sarana Angkutan Sungai, Danau, dan Penyeberangan
+500.11.15.1;Perawatan dan pemeliharaan sarana sungai, danau dan penyeberangan
+500.11.15.2;Pengawakan dan registrasi sarana angkutan sungai dan danau danau dan penyeberangan
+500.11.16;Rancang Bangun Pelabuhan Sungai, Danau dan Penyeberangan
+500.11.16.1;Perencanaan dan pembangunan pelabuhan sungai, danau dan penyeberangan
+500.11.16.2;Pemberian sertifikasi pelabuhan penyeberangan
+500.11.16.3;Rekomendasi penetapan lokasi pelabuhan penyeberangan di lintas nasional dan  internasional
+500.11.16.4;Penyelenggaraan, pemeliharaan, perawatan dan perbaikan pelabuhan sungai,  danau dan penyeberangan
+500.11.17;Kualifikasi teknis petugas pelabuhan sungai, danau dan penyeberangan
+500.11.18;Manajemen Lalu Lintas Sungai, Danau dan Penyeberangan
+500.11.18.1;Manajemen lalu lintas
+500.11.18.2;Tata cara berlalu lintas di sungai, danau dan penyeberangan
+500.11.18.3;Penyidik Pegawai Negeri Sipil bidang lalu lintas dan angkutan sungai & danau
+500.11.18.4;Sertifikasi inspektur sungai dan danau dan pejabat pemberangkatan angkutan  sungai dan danau
+500.11.19;Alur dan Perambuan Lalu Lintas Sungai, Danau dan Penyeberangan
+500.11.19.1;Pengerukan alur pelayaran sungai, danau dan kolam pelabuhan penyeberangan
+500.11.19.2;Penetapan kelas alur dan peta alur pelayaran sungai dan danau
+500.11.19.3;Perambuan sungai, danau dan penyeberangan
+500.11.20;Bimbingan Usaha Angkutan Sungai, Danau dan Penyeberangan
+500.11.20.1;Penyelenggaraan angkutan sungai, danau dan penyeberangan
+500.11.20.2;Persetujuan operasi kapal penyeberangan di lintas nasional dan internasional
+500.11.21;Tarif dan Keperintisan
+500.11.21.1;Perhitungan tarif, pemantauan tarif angkutan dan jasa pelabuhan sungai,  danau dan penyeberangan
+500.11.21.2;Kriteria dan pelaksanaan pelayanan keperintisan
+500.11.22;Bina Sistem Transportasi Perkotaan
+500.11.22.1;Jaringan Transportasi Perkotaan
+500.11.22.2;Transportasi perkotaan yang berbasis jalan, jalan rel dan perairan daratan
+500.11.22.3;Transportasi perkotaan untuk kawasan perkotaan yang melebihi satu wilayah  administrasi provinsi
+500.11.23;Lalu Lintas Perkotaan
+500.11.23.1;Manajemen dan rekayasa lalu lintas perkotaan
+500.11.23.2;Manajemen dan rekayasa lalu lintas perkotaan di jalan nasional dalam kawasan  perkotaan
+500.11.23.3;Penanganan lalu lintas perkotaan berbasis teknologi di wilayah 
+500.11.24;Angkutan Perkotaan
+500.11.24.1;Penyelenggaraan angkutan perkotaan dalam trayek
+500.11.24.2;Jaringan trayek perkotaan
+500.11.24.3;Penentuan dan pemenuhan alokasi kebutuhan angkutan perkotaan dalam trayek yang wilayah pelayanannya melebihi satu wilayah administrasi provinsi
+500.11.25;Pengaduan Moda Transportasi Perkotaan  
+500.11.25.1;Penyelenggaraan angkutan perkotaan tidak dalam trayek untuk angkutan penumpang dan/atau barang
+500.11.25.2;Pengaduan moda transportasi perkotaan yang menghubungkan antar simpul (bandara, pelabuhan, stasiun, dan terminal) di kawasan perkotaan yang melebihi satu wilayah administrasi provinsi
+500.11.25.3;Penentuan dan pemenuhan alokasi kebutuhan angkutan perkotaan tidak dalam trayek yang wilayah pelayanannya melebihi satu wilayah administrasi provinsi 
+500.11.26;Dampak Transportasi Perkotaan
+500.11.26.1;Penyelenggaraan transportasi perkotaan berwawasan lingkungan
+500.11.26.2;Penanganan dampak transportasi di kawasan perkotaan
+500.11.26.3;Masterplan pengembangan teknologi transportasi ramah lingkungan
+500.11.26.4;Pelaksanaan analisis dampak lalu lintas di jalan nasional dalam kawasan kota
+500.11.26.5;Rekomendasi hasil analisis dampak lalu lintas di jalan nasional dalam kawasan perkotaan  
+500.11.26.6;Masterplan transportasi perkotaan
+500.11.27;Monitoring dan Evaluasi Manajemen Keselamatan
+500.11.27.1;Monitoring dan evaluasi data kecelakaan
+500.11.27.2;Kualifikasi unit pengkajian
+500.11.27.3;Pengembangan sistem informasi manajemen keselamatan lalu lintas dan angkutan jalan, sungai, danau dan penyeberangan
+500.11.28;Pengembangan Keselamatan
+500.11.28.1;Program keselamatan lalu lintas dan angkutan jalan, sungai, danau, dan penyeberangan
+500.11.28.2;Harmonisasi kebijakan
+500.11.29;Promosi dan Kemitraan Keselamatan
+500.11.29.1;Promosi Keselamatan : penyuluhan, publikasi dan destinasi keselamatan lalu lintas dan angkutan jalan, sungai, danau dan penyeberangan
+500.11.29.2;Kemitraan keselamatan antar lembaga dan masyarakat di bidang keselamatan lalu lintas dan angkutan jalan, sungai, danau dan penyeberangan 
+500.11.30;Bina Keselamatan Angkutan Umum
+500.11.30.1;Keselamatan Pengusahaan Angkutan Umum 
+500.11.30.2;Keselamatan Awak Angkutan Umum dan awak kapal sungai dan danau
+500.11.31;Audit Keselamatan
+500.11.31.1;Pedoman audit keselamatan sarana, prasarana, sumber daya manusia
+500.11.31.2;Identifikasi daerah rawan kecelakaan jalan dan pelaku transportasi jalan dan sungai, danau dan penyeberangan
+500.11.31.3;Audit faktor keselamatan lalu lintas dan angkutan jalan, sungai, danau dan penyeberangan serta laik fungsi jalan
+500.11.32;Inspeksi Keselamatan 
+500.11.32.1;Pedoman keselamatan
+500.11.32.2;Inspeksi keselamatan sarana, prasarana, sumber daya manusia, dan pelaku transportasi jalan dan sungai, danau dan penyeberangan
+500.11.32.3;Investigasi kecelakaan sungai, danau dan penyeberangan serta laik fungsi jalan
+500.11.33;Parkir
+500.11.33.1;Surat Tugas Juru Parkir 
+500.11.33.2;Izin tempat khusus parkir swasta 
+500.11.33.3;Surat Tugas TKP Pemerintah
+500.12;KOMUNIKASI DAN INFORMATIKA
+500.12.1;Kebijakan di bidang Komunikasi dan Informatika yang dilakukan oleh Pemerintah Daerah                 
+500.12.2;Telekomunikasi
+500.12.2.1;Layanan Jaringan Telekomunikasi
+500.12.2.2;Layanan Jasa Telekomunikasi
+500.12.2.3;Penomoran Telekomunikasi dan Informatika
+500.12.2.4;Kelayakan Sistem Telekomunikasi
+500.12.3;Penyiaran
+500.12.3.1;Pemetaan Penyelenggaraan Radio dan Televisi
+500.12.3.2;Database Penyelenggaraan Radio dan Televisi
+500.12.4;Telekomunikasi Khusus, Penyiaran Publik dan Kewajiban Universal
+500.12.4.1;Telekomunikasi Khusus Pemerintah Daerah
+500.12.4.2;Telekomunikasi Khusus Non Pemerintah Daerah
+500.12.4.3;Layanan Khusus Penyiaran
+500.12.4.4;Pelayanan Kewajiban Universal
+500.12.4.5;Pengembangan Infrastruktur
+500.12.5;Pengendalian Informatika
+500.12.5.1;Monitoring dan Evaluasi Jaringan Telekomunikasi
+500.12.5.2;Monitoring dan Evaluasi Jasa Telekomunikasi
+500.12.5.3;Monitoring dan Evaluasi Penyiaran
+500.12.5.4;Pencegahan dan Penertiban
+500.12.6;e- Government
+500.12.6.1;Tata Kelola e-Government
+500.12.6.2;Teknologi dan Infrastruktur e-Government
+500.12.6.3;Interoperabilitas dan Interkonektivitas e-Government
+500.12.6.4;Aplikasi Layanan Kepemerintahan 
+500.12.6.5;Aplikasi Layanan Publik
+500.12.7;e- Business
+500.12.7.1;Tata Kelola e-Business
+500.12.7.2;Teknologi dan Infrastruktur e-Business
+500.12.7.3;Interoperabilitas dan Interkonektivitas e-Business
+500.12.7.4;Aplikasi Layanan e-Busniness
+500.12.8;Pemberdayaan Informatika Masyarakat
+500.12.8.1;Pemberdayaan Informatika Masyarakat Perkotaan
+500.12.8.2;Pemberdayaan Informatika Masyarakat Pedesaan
+500.12.9;Pemberdayaan Industri Informatika
+500.12.9.1;Industri Infrastruktur dan Layanan Aplikasi Informatika
+500.12.9.2;Industri Perangkat Informatika Pengguna
+500.12.9.3;Industri Perangkat Lunak
+500.12.9.4;Industri Konten Multimedia
+500.12.10;Keamanan Informasi
+500.12.10.1;Tata Kelola Keamanan Informasi
+500.12.10.2;Teknologi Keamanan Informasi
+500.12.10.3;Monitoring, Evaluasi dan Tanggap Darurat Keamanan Informasi
+500.12.10.4;Penyidikan dan Penindakan
+500.12.10.5;Budaya Keamanan Informasi
+500.12.11;Komunikasi Publik
+500.12.11.1;Tata Kelola Komunikasi Publik
+500.12.11.2;Pengelolaan Opini Publik
+500.12.11.3;Layanan Komunikasi Publik
+500.12.12;Pengolahan dan Penyediaan Informasi
+500.12.12.1;Informasi Politik, Hukum, dan Keamanan
+500.12.12.2;Informasi Perekonomian
+500.12.12.3;Informasi Kesejahteraan Rakyat
+500.12.13;Pengelolaan Media Publik
+500.12.13.1;Media Cetak
+500.12.13.2;Media Online
+500.12.13.3;Media Luar Ruang dan Audio Visual
+500.12.14;Kemitraan Komunikasi
+500.12.14.1;Kemitraan Pemerintah dan Lembaga Negara
+500.12.14.2;Kemitraan Media dan Dunia Usaha
+500.12.14.3;Kemitraan Organisasi Kemasyarakatan dan Profesi
+500.12.15;Infrastruktur Informatika
+500.12.15.1;Jaringan
+500.12.15.2;Piranti Teknologi Informatika
+500.12.15.3;Keamanan Informatika
+500.12.16;Sistem dan Data
+500.12.16.1;Portal dan Konten
+500.12.16.2;Pengumpulan dan Pengolahan Data
+500.12.16.3;Pengembangan Aplikasi
+500.12.17;Pusat Kerjasama
+500.12.17.1;Kerja Sama daerah
+500.12.17.2;Kerja Sama Bilateral
+500.12.18;Pusat Informasi dan Hubungan Masyarakat
+500.12.18.1;Pelayanan Informasi
+500.12.18.2;Hubungan Masyarakat
+500.12.18.3;Bimbingan Teknis
+500.12.19;Evaluasi
+500.13;PARIWISATA DAN EKONOMI KREATIF
+500.13.1;Kebijakan di bidang Pariwisata dan Ekonomi Kreatif yang dilakukan oleh Pemerintah Daerah
+500.13.2;Pengembangan Destinasi Wisata
+500.13.2.1;Perancangan Destinasi dan Investasi Pariwisata
+500.13.2.2;Pengembangan Daya Tarik Wisata
+500.13.2.3;Industri Pariwisata
+500.13.2.4;Pemberdayaan Masyarakat Destinasi Pariwisata
+500.13.2.5;Pengembangan Wisata Minat Khusus, Konvensi, Insentif, dan Event
+500.13.3;Pemasaran Pariwisata
+500.13.3.1;Pengembangan Pasar dan Informasi Pariwisata
+500.13.3.2;Promosi Pariwisata Luar Negeri
+500.13.3.3;Promosi Pariwisata Dalam Negeri
+500.13.3.4;Pencitraan Indonesia
+500.13.4;Ekonomi Kreatif Berbasis Seni dan Budaya
+500.13.4.1;Pengembangan industri Perfilman
+500.13.4.2;Pengembangan Seni Pertunjukan dan Industri Musik
+500.13.4.3;Pengembangan Seni Rupa
+500.13.5;Ekonomi Kreatif Berbasi Media, Desain, dan IPTEK
+500.13.5.1;Pengembangan Ekonomi Kreatif Berbasis Media
+500.13.5.2;Desain dan Arsitektur
+500.13.5.3;Kerjasama dan Fasilitasi
+500.13.6;Pengembangan Sumber Daya Pariwisata dan Ekonomi Kreatif
+500.13.6.1;Penelitian dan Pengembangan Kebijakan Kepariwisataan
+500.13.6.2;Penelitian dan Pengembangan Kebijakan Ekonomi Kreatif
+500.13.6.3;Pengembangan SDM Kepariwisataan dan Ekonomi Kreatif
+500.13.6.4;Kompetensi Kepariwisataan dan Ekonomi Kreatif
+500.14;STATISTIK
+500.14.1;Kebijakan di bidang Statistik yang dilakukan oleh Pemerintah Daerah
+500.14.2;Sensus Penduduk, Pertanian, dan Ekonomi
+500.14.2.1;Perencanaan
+500.14.2.2;Persiapan, Antara lain: Penyusunan rancangan organisasi kegiatan sensus, Penyusunan Kuesioner, Penyusunan konsep dan definisi, Penyusunan metodologi (cakupan, organisasi, lapangan, ukuran statistik, prosedur), Penyusunan buku pedoman (pencacahan, pengawasan, pengolahan), Penyusunan peta wilayah kerja dan muatan peta wilayah, Penyusunan pedoman sosialisasi, Sosialisasi kegiatan kepada stakeholder dan sumber data (leaflet, poster, pertemuan), Pelaksanaan pertemuan koordinasi (intern dan ekstern), Pelaksanaan pelatihan instruktur (TOT), Pelaksanaan pelatihan petugas, Penyusunan program pengolahan (rule validasi, pemeriksaan data entri, tabulasi), Pelatihan petugas pengolahan, Perancangan tabel, Pelaksanaan Ujicoba
+500.14.2.3;Pelaksanaan Lapangan
+500.14.2.4;Pengolahan, Antara lain: Pengelolaan dokumen (penerimaan/ pengiriman, pengelompokkan/Batching), Pemeriksaan dokumen dan pengkodean (Editing/Coding), Perekaman data (entri, scanner), Tabulasi Data, Pemeriksaan tabulasi, Laporan konsistensi tabulasi
+500.14.2.5;Analisis dan Penyajian Hasil Sensus
+500.14.2.6;Diseminasi hasil sensus
+500.14.3.1;Perencanaan
+500.14.3.2;Persiapan
+500.14.3.3;Pelaksanaan Lapangan, Antara lain: Pelaksanaan listing, Pemilihan sampel, Pengumpulan data, Pemeriksaan, Pengawasan Lapangan, Monitoring kualitas
+500.14.3.4;Pengolahan, Antara lain: Pengelolaan dokumen (penerimaan/ pengiriman, pengelompokkan/ Batching), Pemeriksaan dokumen dan pengkodean (Editing/Coding), Perekaman data (entri, scanner ), Tabulasi Data, Pemeriksaan tabulasi, Laporan konsistensi tabulasi
+500.14.3.5;Analisis dan Penyajian Hasil Survei, Antara lain: Pembahasan angka hasil pengolahan, Penyusunan 
+500.14.3.6;Diseminasi hasil Survei
+500.14.4;KonsolidasiI Data Statistik
+500.14.4.1;Kompilasi Data
+500.14.4.2;Analisis data
+500.14.4.3;Penyusunan Publikasi
+500.14.5;Evaluasi dan Pelaporan Sensus, Survei, dan Konsolidasi Data Statistik
+500.15;KETENAGAKERJAAN
+500.15.1;Kebijakan di bidang Ketenagakerjaan yang dilakukan oleh Pemerintah Daerah
+500.15.2;Perencanaan Tenaga Kerja 
+500.15.2.1;Perencanaan Tenaga Kerja Perusahaan Pemerintah
+500.15.2.2;Perencanaan Tenaga Kerja Perusahaan Swasta
+500.15.3;Pengembangan Standarisasi Kompetensi
+500.15.3.1;Penerapan Standar Kompetensi
+500.15.3.2;Pengembangan Standarisasi Kompetensi
+500.15.3.3;Pengembangan Program Pelatihan Ketenagakerjaan
+500.15.3.4;Pengembangan Program Pelatihan Produktivitas dan Kewirausahaan
+500.15.3.5;Pengembangan Program Pelatihan Ketransmigrasian
+500.15.4;Bina Lembaga dan Sarana Pelatihan Kerja
+500.15.4.1;Akreditasi dan Sistem Informasi Kelembagaan
+500.15.4.2;Pengembangan Sarana dan Fasilitas Lembaga Pelatihan
+500.15.4.3;Pengembangan Standar Mutu (PSM) Lembaga Pelatihan
+500.15.4.4;Sistem Pendanaan dan Kerjasama Antar Lembaga
+500.15.5;Bina Instruktur dan Tenaga Pelatihan
+500.15.5.1;Instruktur dan PSM Lembaga Pelatihan Pemerintah
+500.15.5.2;Instruktur Lembaga Pelatihan Swasta
+500.15.5.3;Tenaga Pelatihan
+500.15.5.4;Sistem Informasi Instruktur, PSM, dan Tenaga Pelatihan
+500.15.6;Bina Pemagangan
+500.15.6.1;Pemagangan Dalam Negeri
+500.15.6.2;Pemagangan Luar Negeri
+500.15.6.3;Perizinan dan Advokasi Pemagangan
+500.15.6.4;Promosi dan Jenjang Pemagangan
+500.15.7;Produktivitas dan Kewirausahaan
+500.15.7.1;Pengembangan Promosi dan Kerjasama Produktivitas dan Kewirausahaan
+500.15.7.2;Pengembangan Sistem dan Peningkatan Produktivitas
+500.15.7.3;Pengembangan Pengukuran dan Kajian Produktivitas
+500.15.7.4;Pengembangan Kewirausahaan
+500.15.8;Pengembangan Pasar Kerja
+500.15.8.1;Informasi Pasar Kerja
+500.15.8.2;Analisis Pasar Kerja 
+500.15.8.3;Bursa Kerja
+500.15.8.4;Analisis Jabatan
+500.15.9;Penempatan Tenaga Kerja Dalam Negeri
+500.15.9.1;Antar Kerja
+500.15.9.2;Penempatan Tenaga Kerja Khusus
+500.15.9.3;Penyuluhan dan Bimbingan Jabatan
+500.15.9.4;Pemberdayaan Pengantar Kerja
+500.15.10;Perluasan Kesempatan Kerja dan Pengembangan Tenaga Kerja Sektor Informal
+500.15.10.1;Tenaga Kerja Mandiri dan Sektoral Informal
+500.15.10.2;Pengembangan Padat Karya
+500.15.10.3;Terapan Teknologi Tepat Guna
+500.15.10.4;Pemberdayaan Pendampingan dan Kerjasama Antar Lembaga
+500.15.11;Standardisasi Profesi
+500.15.11.1;Sistem Informasi dan Registrasi
+500.15.11.2;Pembakuan Akreditasi
+500.15.12;Persyaratan Kerja, Kesejahteraan, dan Analisis Diskriminasi
+500.15.12.1;Peraturan Perusahaan dan Perjanjian Kerjasama Bersama
+500.15.12.2;Perjanjian Kerja
+500.15.12.3;Kesejahteraan Pekerja
+500.15.12.4;Analisis Diskriminasi Syarat Kerja
+500.15.13;Kelembagaan dan Pemasyarakatan Hubungan Industrial
+500.15.13.1;Organisasi Pekerja dan Pengusaha
+500.15.13.2;Kelembagaan Hubungan Industrial
+500.15.13.3;Pemasyarakatan Hubungan Industrial
+500.15.14;Pengupahan dan Penyelesaian Perselisihan Hubungan Industrial 
+500.15.14.1;Pengupahan
+500.15.14.2;Jaminan Sosial Tenaga Kerja Dalam Hubungan Kerja 
+500.15.15;Pencegahan dan Penyelesaian Pelestarian Hubungan Industrial
+500.15.15.1;Pencegahan Perselisihan Hubungan Industrial
+500.15.15.2;Penyelenggaraan Penyelesaian Perselisihan Hubungan Industrial
+500.15.15.3;Pemberdayaan Kelembagaan dan Tenaga Penyelesaian Perselisihan Hubungan Industrial
+500.15.16;Pengawasan Norma Kerja dan Jaminan Sosial Tenaga Kerja 
+500.15.16.1;Pengawasan Norma Kerja
+500.15.16.2;Pengawasan Norma Hubungan Kerja dan Perlindungan Berserikat
+500.15.16.3;Pengawasan Norma Penempatan dan Latihan Tenaga Kerja
+500.15.17;Pengawasan Norma Kerja Perempuan dan Anak
+500.15.17.1;Pengawasan Norma Kerja Perempuan
+500.15.17.2;Pengawasan Norma Kerja Anak
+500.15.17.3;Kerjasama Lintas Sektoral
+500.15.17.4;Advokasi Tenaga Kerja Perempuan dan Anak
+500.15.18;Pengawasan Norma Keselamatan dan Kesehatan Kerja
+500.15.18.1;Pengawasan Norma Mekanik, Pesawat Uap dan Bejana Tekan
+500.15.18.2;Pengawasan Norma Konstruksi Bangunan, Listrik dan Penanggulangan Kebakaran 
+500.15.18.3;Pengawasan Norma Kesehatan Kerja
+500.15.18.4;Pengawasan Norma Lingkungan Kerja dan Bahan Berbahaya
+500.15.18.5;Pengawasan Norma Kelembagaan, Keahlian dan Sistem Manajemen K3
+500.15.19;Laporan Hasil Pengawasan Ketenagaakerjaan
+500.15.20;Bina Penegakan Hukum
+500.15.20.1;Pemeriksaan Norma Ketenagakerjaan
+500.15.20.2;Penyidikan Norma Ketenagakerjaan
+500.15.20.3;Pengembangan Penyidik Pegawai Negeri Sipil
+500.15.20.4;Kerjasama Penegakan Hukum
+500.15.21;Pengkajian dan Bimbingan Teknis Pelayanan Keselamatan dan Kesehatan Kerja (K3)
+500.15.21.1;Analisis dan Standardisasi bidang K 3
+500.15.21.2;Hasil kajian, perekayasaan dan penerapan teknologi dan alih teknologi K 3
+500.15.21.3;Bimbingan Teknis dan Evaluasi Pengkajian K 3
+500.15.21.4;Bimbingan Teknis dan Evaluasi Pelayanan K3
+500.15.22;Pengembangan SDM dan Kompetensi K3
+500.15.22.1;Program, Analisis dan Standardisasi Pengembangan SDM dan Kompetensi K3
+500.15.22.2;Penyebarluasan Informasi Pengembangan SDM dan Kompetensi K3
+500.15.22.3;Kerjasama Tingkat Nasional Bidang Pengembangan SDM dan Kompetensi K3
+500.15.22.4;Kerjasama Tingkat Regional Bidang Pengembangan SDM dan Kompetensi K3
+500.15.22.5;Kerjasama Tingkat Internasional Bidang Pengembangan SDM dan Kompetensi K3
+500.15.22.6;Bimbingan Teknis dan Evaluasi Pengembangan SDM dan Kompetensi K3
+500.16;PENANAMAN MODAL
+500.16.1;Kebijakan di bidang Penanaman Modal yang dilakukan oleh Pemerintah Daerah                
+500.16.2;Perencanaan Penanaman Modal
+500.16.2.1;Perencanaan Industri Agribisnis dan Sumber Daya Alam Lainnya
+500.16.2.2;Perencanaan Industri Manufaktur
+500.16.2.3;Perencanaan Jasa dan Kawasan
+500.16.2.4;Perencanaan Infrastruktur
+500.16.3;Pengembangan Iklim Penanaman Modal
+500.16.3.1;Deregulasi Penanaman Modal
+500.16.3.2;Pengembangan Potensi Daerah
+500.16.3.3;Pemberdayaan Usaha
+500.16.3.4;Pemberdayaan Usaha Pembinaan dan Penyuluhan
+500.16.3.5;Pemberdayaan Usaha Kemitraan Usaha
+500.16.3.6;Pemberdayaan Usaha Pelayanan Usaha
+500.16.4;Promosi Penanaman Modal
+500.16.4.1;Pengembangan Promosi
+500.16.4.2;Analisis Strategi Promosi
+500.16.4.3;Fasilitasi Promosi Luar Negeri
+500.16.4.4;Promosi Sektoral
+500.16.4.5;Fasilitasi Promosi Daerah
+500.16.4.6;Pameran dan Sarana Promosi
+500.16.5;Kerja Sama Penanaman Modal
+500.16.5.1;Kerja Sama Bilateral dan Mulitilateral
+500.16.5.2;Kerja Sama Regional
+500.16.5.3;Kerja Sama Dunia Usaha Internasional
+500.16.6;Pengendalian Pelaksanaan Penanaman Modal
+500.16.6.1;Pemantauan Penanaman Modal
+500.16.6.2;Data Realisasi Penanaman Modal
+500.16.6.3;Bimbingan Sosialisasi Ketentuan Penanaman Modal
+500.16.6.4;Fasilitasi Penyelesaian Masalah
+500.16.6.5;Pengawasan Penanaman Modal
+500.16.6.6;Pencabutan/Pembatalan Perizinan Penanaman Modal
+500.16.7;Pelayanan Penanaman Modal
+500.16.7.1;Pelayanan Aplikasi
+500.16.7.2;Pelayanan Perijinan
+500.16.7.3;Pelayanan Konsultasi Perijinan
+500.16.7.4;Pelayanan Non Perijinan
+500.16.7.5;Pelayanan Fasilitas
+500.17;PERTANAHAN
+500.17.1;Kebijakan di bidang Pertanahan yang dilakukan oleh Pemerintah Daerah
+500.17.2;Pengadaan dan Penataan Administrasi Pertanahan
+500.17.2.1;Fasilitasi Pengadaan Tanah
+500.17.2.2;Pembinaan dan Pengendalian Administrasi Pertanahan
+500.17.2.3;Data dan Informasi Pertanahan
+500.17.2.4;Advokasi dan Pengendalian
+500.17.3;Penatagunaan dan Penguatan Hak Atas Tanah
+500.17.3.1;Penatagunaan Tanah 
+500.17.3.2;Data dan Pemetaan Tematik
+500.17.3.3;Penguatan Atas Tanah
+500.17.4;Sengketa Tanah
+500.17.4.1;Pengkajian dan Penanganan Sengketa
+500.17.4.2;Advokasi dan Pengendalian
+500.18;TRANSMIGRASI
+500.18.1;Kebijakan di bidang Transmigrasi yang dilakukan oleh Pemerintah Daerah
+500.18.2;Penyediaan Tanah Transmigrasi
+500.18.2.1;Fasilitasi Pengadaan Tanah
+500.18.2.2;Pengurusan Legalitas Tanah
+500.18.2.3;Dokumentasi Pertanahan
+500.18.2.4;Advokasi Pertanahan
+500.18.3;Pembangunan Pemukiman dan Infrastruktur Kawasan Transmigrasi
+500.18.3.1;Penyiapan Lahan
+500.18.3.2;Penyiapan Sarana
+500.18.3.3;Penyiapan Prasarana
+500.18.3.4;Evaluasi Kelayakan Permukiman
+500.18.4;Fasilitasi Penempatan Transmigrasi
+500.18.4.1;Penyiapan Calon Transmigrasi
+500.18.4.2;Penyiapan Perpindahan
+500.18.4.3;Pelaksanaan Perpindahan
+500.18.4.4;Penataan dan Adaptasi
+500.18.5;Partisipasi Masyarakat
+500.18.5.1;Promosi dan Motivasi
+500.18.5.2;Kerjasama Kelembagaan
+500.18.5.3;Kerjasama Antar Daerah
+500.18.5.4;Pelayanan Investasi
+500.18.6;Pembinaan Pengembangan Masyarakat dan Kawasan Transmigrasi
+500.18.6.1;Perencanaan Teknis Pengembangan Masyarakat dan Kawasan
+500.18.6.2;Bina Sistem Informasi
+500.18.6.3;Perencanaan Pengembangan Kawasan
+500.18.6.4;Perencanaan Pengembangan Masyarakat
+500.18.6.5;Perencanaan Pengembangan Pusat Pertumbuhan
+500.18.7;Peningkatan Kapasitas Sumber Daya Manusia dan Masyarakat
+500.18.7.1;Bantuan Pangan dan Kesehatan
+500.18.7.2;Fasilitas Sosial Budaya
+500.18.7.3;Pengembangan Kelembagaan
+500.18.7.4;Bina Pendampingan Masyarakat Transmigrasi
+500.18.8;Pengembangan Usaha
+500.18.8.1;Kewirausahaan
+500.18.8.2;Produksi
+500.18.8.3;Pengolahan Hasil dan Pemasaran
+500.18.8.4;Lembaga Ekonomi dan permodalan
+500.18.9;Pengembangan Sarana dan Prasarana Kawasan
+500.18.9.1;Analisis dan Standarisasi Sarana dan Prasarana
+500.18.9.2;Pengembangan Sarana
+500.18.9.3;Pengembangan Prasarana
+500.18.9.4;Evaluasi Pengembangan Sarana dan Prasarana
+500.18.10;Penyerasian Lingkungan
+500.18.10.1;Persiapan Pengelolaan dan Pemantauan Lingkungan
+500.18.10.2;Adaptasi dan Mitigasi Lingkungan
+500.18.10.3;Evaluasi Perkembangan Permukiman Transmigrasi
+500.18.10.4;Evaluasi Perkembangan Pusat Pertumbuhan
+600;PEKERJAAN UMUM DAN KETENAGAAN
+600.1;PEKERJAAN UMUM
+600.1.1;Kebijakan di bidang Pekerjaan Umum yang dilakukan oleh Pemerintah Daerah
+600.1.2;Penatagunaan Sumber Daya Air
+600.1.2.1;Perencanaan Wilayah Sungai 
+600.1.2.2;Kelembagaan
+600.1.2.3;Pemanfaatan Sumber Daya Air
+600.1.2.4;Hidrologi dan Lingkungan Sumber Daya Air 
+600.1.2.5;Pengaturan dan Pemantauan
+600.1.3;Pengembangan Jaringan Sumber Daya Air 
+600.1.3.1;Perencanaan Pengelolaan Sumber Daya Air 
+600.1.3.2;Manajemen Mutu 
+600.1.3.3;Informasi dan Data Sumber Daya Air
+600.1.3.4;Keterpaduan Pemrograman
+600.1.4;Pengelolaan Sumber Daya Air 
+600.1.4.1;Pengelolaan Sungai dan Pantai 
+600.1.4.2;Pengelolaan Irigasi dan Rawa
+600.1.4.3;Pengelolaan Bendungan, Danau, Situ, dan Embung 
+600.1.4.4;Pengelolaan Air Tanah dan Air Baku 
+600.1.5;Operasi dan Pemeliharaan Sumber Daya Air 
+600.1.5.1;Operasi dan Pemeliharaan Sungai dan Pantai 
+600.1.5.2;Operasi dan Pemeliharaan Irigasi dan Rawa 
+600.1.5.3;Operasi dan Pemeliharaan Bendungan, Danau, Situ, dan Embung 
+600.1.5.4;Operasi dan Pemeliharaan Air Tanah dan Air Baku 
+600.1.5.5;Operasi dan Pemeliharaan Pengendalian Lumpur Sidoarjo 
+600.1.6;Pengendalian Lumpur Sidoarjo (Bencana Lokal Lingkup Nasional)
+600.1.6.1;Perencanaan Pengendalian Lumpur Sidoarjo
+600.1.6.2;Pemrograman Pengendalian Lumpur Sidoarjo 
+600.1.6.3;Pelaksanaan Pengendalian Lumpur Sidoarjo 
+600.1.6.4;Pengendalian Dampak Sosial, Ekonomi, dan Lingkungan akibat Lumpur Sidoarjo
+600.1.6.5;Sistem Manajemen Keselamatan dan Kesehatan Kerja
+600.1.7;Pengembangan Jaringan Jalan
+600.1.7.1;Keterpaduan Perencanaan
+600.1.7.2;Sistem Jaringan Jalan
+600.1.7.3;Lingkungan dan Keselamatan Jalan
+600.1.8;Pembangunan Jalan
+600.1.8.1;Standar dan Pedoman
+600.1.8.2;Manajemen Konstruksi
+600.1.8.3;Pengelolaan Gedometrik, Perkerasan, dan Drainage
+600.1.8.4;Pengelolaan Geoteknik dan Manajemen Lereng
+600.1.9;Preservasi Jalan
+600.1.9.1;Standar dan Pedoman
+600.1.9.2;Perencanaan Teknis
+600.1.9.3;Teknik Rekonstruksi
+600.1.9.4;Teknik Pemeliharaan Jalan 
+600.1.10;Pengelolaan Jembatan
+600.1.10.1;Standar dan Pedoman
+600.1.10.2;Perencanaan Teknis
+600.1.10.3;Teknik Jembatan
+600.1.10.4;Teknik Terowongan dan Jembatan Khusus
+600.1.11;Pengelolaan Jalan Bebas Hambatan, Perkotaan, dan Fasilitas Jalan Daerah
+600.1.11.1;Bimbingan Teknik Jalan Daerah
+600.1.11.2;Pengembangan Jalan Metropolitan dan Kota Besar
+600.1.11.3;Pembinaan Teknik Jalan Bebas Hambatan 
+600.1.12;Pengaturan Jalan Tol
+600.1.12.1;Persiapan pengusahaan jalan tol
+600.1.12.2;Pengadaan Investasi Jalan Tol
+600.1.12.3;Teknik Pengaturan Jalan Tol
+600.1.12.4;Pengambilalihan hak pengusahaan jalan tol
+600.1.13;Keterpaduan Infrastruktur Permukiman
+600.1.13.1;Keterpaduan Perencanaan dan Kemitraan
+600.1.13.2;Keterpaduan Pembiayaan dan Pelaksanaan
+600.1.14;Pengembangan Kawasan Permukiman
+600.1.14.1;Perencanaan Teknis
+600.1.14.2;Kawasan Permukiman Perkotaan
+600.1.14.3;Kawasan Permukiman Pedesaan
+600.1.14.4;Kawasan Permukiman Khusus
+600.1.14.5;Kelembagaan
+600.1.15;Pembinaan Penataan Bangunan
+600.1.15.1;Perencanaan Teknis
+600.1.15.2;Penataan Bangunan Gedung
+600.1.15.3;Pengelolaan Rumah Negara
+600.1.15.4;Penataan Bangunan dan Lingkungan Khusus
+600.1.15.5;Kelembagaan
+600.1.16;Pengembangan Sistem Penyediaan Air Minum
+600.1.16.1;Perencanaan Teknis
+600.1.16.2;Sistem Penyediaan Air Minum Perkotaan
+600.1.16.3;Sistem Penyediaan Air Minum Pedesaan
+600.1.16.4;Sistem Penyediaan Air Minum Khusus
+600.1.16.5;Kelembagaan
+600.1.16.6;Peningkatan Penyelenggaraan Sistem Penyediaan Air Minum
+600.1.16.7;Pengelolaan Laboratorium dan Bengkel Kerja
+600.1.17;Pengembangan Penyehatan Lingkungan Permukiman
+600.1.17.1;Perencanaan Teknis
+600.1.17.2;Pengelolaan Air Limbah
+600.1.17.3;Pengelolaan Persampahan
+600.1.17.4;Penyehatan Lingkungan Permukiman Khusus
+600.1.17.5;Kelembagaan
+600.1.17.6;Pengelolaan Laboratorium dan Bengkel Kerja
+600.1.18;Pemantauan dan Evaluasi
+600.2;PERUMAHAN RAKYAT DAN KAWASAN PEMUKIMAN
+600.2.1;Kebijakan di bidang Perumahan Rakyat dan Kawasan Pemukiman yang dilakukan oleh Pemerintah Daerah
+600.2.2;Perencanaan Pembiayaan Perumahan
+600.2.2.1;Keterpaduan Perencanaan
+600.2.2.2;Strategi Pembiayaan dan Analisa Pasar Perumahan
+600.2.2.3;Kemitraan
+600.2.3;Pola Pembiayaan Perumahan
+600.2.3.1;Pola Pembiayaan Perumahan Rumah Umum
+600.2.3.2;Pola Pembiayaan Perumahan Rumah Swadaya dan Mikro Perumahan
+600.2.3.3;Pola Investasi Perumahan
+600.2.4;Pendayagunaan Sumber Pembiayaan Perumahan
+600.2.4.1;Sumber Pembiayaan Primer
+600.2.4.2;Sumber Pembiayaan Sekunder
+600.2.4.3;Sumber Tabungan Perumahan dan Pembiayaan Lainnya
+600.2.4.4;Sistem Pembiayaan Perumahan
+600.2.4.5;Pengelolaan Dana Pembiayaan Perumahan
+600.2.5;Perencanaan Penyediaan Perumahan
+600.2.5.1;Keterpaduan Perencanaan
+600.2.5.2;Analisa Teknik
+600.2.5.3;Rencana Pengembangan Lingkungan Hunian
+600.2.5.4;Kemitraan dan Kelembagaan
+600.2.6;Penyediaan Rumah Susun
+600.2.6.1;Perencanaan Teknik
+600.2.6.2;Penyediaan
+600.2.6.3;Penghunian, Pengalihan, dan Pemanfaatan
+600.2.6.4;Pengelolaan
+600.2.7;Penyediaan Rumah Khusus
+600.2.7.1;Perencanaan Teknik
+600.2.7.2;Penyediaan dan Pengelolaan Rumah Tapak Khusus
+600.2.7.3;Bimbingan teknis dan supervisi
+600.2.7.4;Penyelenggaraan Bantuan Rumah Swadaya
+600.2.7.5;Perencanaan Teknik
+600.2.7.6;Fasilitas Backlog Rumah Swadaya dan Rumah Tidak Layak Huni
+600.2.7.7;Pelaksanaan Bantuan Simultan
+600.2.8;Penyediaan Rumah Umum dan Komersial
+600.2.8.1;Perencanaan Teknik
+600.2.8.2;Pemberian Bantuan Rumah Umum
+600.2.8.3;Fasilitasi Hunian Berimbang
+600.2.8.4;Fasilitasi Penyediaan Lahan Perumahan
+600.2.9;Investasi Infrastruktur
+600.2.9.1;Pelaksanaan Kebijakan Investasi Infrastruktur
+600.2.9.2;Sinkronisasi Investasi Infrastruktur
+600.2.9.3;Fasilitasi dan Mitigasi Risiko Investasi Infrastruktur
+600.2.9.4;Pasar Infrastruktur
+600.2.10;Penyelenggaraan Jasa Konstruksi
+600.2.10.1;Sistem Penyelenggaraan
+600.2.10.2;Kontrak Konstruksi
+600.2.10.3;Konstruksi Berkelanjutan
+600.2.10.4;Manajemen Mutu
+600.2.11;Kelembagaan dan Sumber Daya Konstruksi
+600.2.11.1;Kelembagaan
+600.2.11.2;Material dan Peralatan Konstruksi
+600.2.11.3;Teknologi Konstruksi dan Produksi Dalam Negeri
+600.2.11.4;Usaha Jasa Konstruksi
+600.2.12;Kompetensi dan Produktivitas Konstruksi
+600.2.12.1;Standar dan Materi Kompetensi
+600.2.12.2;Penerapan Kompetensi
+600.2.12.3;Pengembangan Profesi Jasa Konstruksi
+600.2.12.4;Pengembangan Produktivitas
+600.2.13;Peningkatan Kerjasama dan Pemberdayaan Jasa Konstruksi
+600.2.13.1;Peningkatan Kerjasama
+600.2.13.2;Pemberdayaan Jasa Konstruksi
+600.2.14;Peningkatan Jasa Konstruksi
+600.2.14.1;Koordinasi dan Sinkronisasi Rencana Kerja
+600.2.14.2;Pelaksanaan Pengendalian Mutu
+600.2.15;Penerapan Teknologi Konstruksi
+600.2.15.1;Koordinasi, Sinkronisasi, dan Kerjasama Penerapan Teknologi Konstruksi
+600.2.15.2;Pengembangan Materi
+600.2.15.3;Pendayagunaan Material dan Peralatan Konstruksi
+600.2.16;Rencana Pengembangan Infrastruktur Pekerjaan Perumahan Rakyat (PUPR) 
+600.2.16.1;Antar Sektor
+600.2.16.2;Antar Wilayah
+600.2.17;Pengembangan Kawasan Strategis
+600.2.17.1;Keterpaduan Infrastruktur Kawasan Strategis
+600.2.17.2;Pengembangan Infrastruktur Antarkawasan Strategis
+600.2.18;Pengembangan Kawasan Perkotaan
+600.2.18.1;Pengembangan Infrastruktur Kawasan Metropolitan
+600.2.18.2;Pengembangan Infrastruktur Kawasan Kota Besar dan Kota Baru
+600.2.18.3;Pengembangan Infrastruktur Kawasan Kota Kecil dan Pedesaan
+600.2.18.4;Analisa Manfaat dan Skema Pembiayaan
+600.2.18.5;Sinkronisasi Program dan Pembiayaan Infrastruktur Perumahan Rakyat (PUPR) 
+600.2.19;Pemantauan dan Evaluasi
+600.3;TATA RUANG (TATA KOTA)
+600.3.1;Kebijakan di bidang Tata Ruang yang dilakukan Pemerintahan Daerah
+600.3.2;Perencanaan 
+600.3.2.1;Tata Ruang Wilayah Kabupaten (RT/RW)
+600.3.2.2;Rencana Detail Tata Ruang (RDTR)
+600.3.2.3;Rencana Tata Ruang Strategis Kabupaten
+600.3.2.4;Rencana Tata Bangun Lingkungan (RTBL)
+600.3.2.5;Rencana Pengembangan Sistem Sarana dan Prasarana Kabupaten
+600.3.2.6;Rencana Teknis Prasarana Kota
+600.3.2.7;Rencana Teknis Rencana Peremajaan dan Pengembangan Kotas Prasarana Kota
+600.3.3;Pemanfaatan dan Pengendalian
+600.3.3.1;Evaluasi dan Pengawasan Penata Ruang
+600.3.3.2;Ijin Pemanfaatan Ruang
+600.3.3.3;Pembatalan Ijin Pemanfaatan Ruang
+600.3.4;Pemetaan
+600.3.4.1;Peta Dasar
+600.3.4.2;Survey Pemetaan Ruang Darat
+600.3.4.3;Survey Pemetaan Ruang Air
+600.3.4.4;Survey Pemetaan Ruang Udara
+600.4;LINGKUNGAN HIDUP
+600.4.1;Kebijakan di bidang Lingkungan Hidup yang dilakukan oleh Pemerintah Daerah
+600.4.2;Perencanaan Pemanfaatan Sumber Daya Alam dan Lingkungan Hidup
+600.4.2.1;Inventarisasi, Penerapan ekoregion, dan rencana perlindungan dan pengelolaan Lingkungan 
+600.4.2.2;Evaluasi Pemanfaatan Sumber Daya Alam 
+600.4.3.1;Evaluasi Penerapan 
+600.4.3.2;Perencanaan Lingkungan Hidup
+600.4.4;Ekonomi Lingkungan 
+600.4.5;Dampak Lingkungan 
+600.4.5.1;Bimtek Dampak Lingkungan 
+600.4.5.2;Penerapan sistem kebijakan Dampak lingkungan 
+600.4.5.3;Evaluasi dan Tindak Lanjut 
+600.4.6;Pemantauan dan Pengawasan 
+600.4.6.1;Manufaktur Prasarana dan Jasa 
+600.4.6.2;Pertambangan Energi, Minyak dan Gas
+600.4.6.3;Agro Industri dan Usaha Skala Kecil 
+600.4.6.4;Udara Sumber Bergerak 
+600.4.7;Evaluasi dan Pengembangan 
+600.4.7.1;Manufaktur, Prasarana  dan Jasa 
+600.4.7.2;Pertambangan Energi, Minyak dan Gas
+600.4.7.3;Agro Industri dan Usaha Skala Kecil 
+600.4.7.4;Udara Sumber Bergerak 
+600.4.8;Keanekaragaman Hayati dan pengendalian Kerusakan Lahan 
+600.4.8.1;Pengembangan 
+600.4.8.2;Pemanfaatan
+600.4.8.3;Pengelolaan Sumber Daya Genetik 
+600.4.8.4;Keamanan Hayati 
+600.4.8.5;Pengendalian kerusakan Lahan 
+600.4.9;Kerusakan Ekosistem Perairan Darat 
+600.4.9.1;Kerusakan Ekosistem 
+600.4.9.2;Rawa
+600.4.10;Mitigasi dan pelestarian Fungsi Atmosfer 
+600.4.10.1;Perangkat mitigasi
+600.4.10.2;Inventarisasi Emisi Gas Rumah Kaca 
+600.4.10.3;Pengendalian Bahan Perusak Ozon 
+600.4.10.4;Pengendalian Kerusakan Akibat Kebakaran Hutan dan Lahan 
+600.4.11;Adaptasi Perubahan Iklim
+600.4.11.1;Perangkat Adaptasi Perubahan Iklim antara lain : Pengembangan perangkat Adaptasi Perubahan Iklim, Pemantauan dan Evaluasi Adaptasi Perusahaan Iklim 
+600.4.11.2;Kerentanan Perubahan Iklim 
+600.4.12;Pengelolaan Bahan Berbahaya dan Beracun 
+600.4.12.1;Registrasi dan Notifikasi 
+600.4.12.2;Pemantauan Bahan Berbahaya dan Beracun 
+600.4.12.3;Evaluasi dan Tindak Lanjut 
+600.4.13;Verifikasi Pengelolaan Limbah bahan Berbahaya dan beracun 
+600.4.13.1;Pengumpulan dan pemanfaatan 
+600.4.13.2;Pengangkutan dan Pengolahan 
+600.4.13.3;Penimbunan dan Dumping 
+600.4.13.4;Notifikasi dan Rekomendasi Limbah Lintas batas 
+600.4.14;Pengelolaan Limbah B3 dan Pemulihan Kontaminasi Limbah  B3
+600.4.14.1;Pemantauan 
+600.4.14.2;Tanggap darurat dan pemelihan  Kontaminasi 
+600.4.15;Pengelolaan Sampah 
+600.4.15.1;Pembatasan sampah
+600.4.15.2;Daur Ulang dan Pemanfaatan Sampah
+600.4.15.3;Pembentukan Dewan Adipura 
+600.4.15.4;Penetapan pemenang adipura
+600.4.16;Hukum Administrasi Lingkungan 
+600.4.16.1;Pengelolaan dan pengembangan pengaduan
+600.4.16.2;Penataan hukum administrasi lingkungan 
+600.4.17;Penyelesaian Sengketa Lingkungan
+600.4.17.1;Penyelesaian sengketa Melalui Pengadilan
+600.4.17.2;Penyelesaian sengketa lingkungan di luar pengadilan
+600.4.18;Penegakan hukum pidana lingkungan
+600.4.18.1;Penyidikan 
+600.4.18.2;Koordinasi penuntutan, evaluasi, dan tindak lanjut
+600.4.18.3;Koordinasi pembinaan penyidik PNS
+600.4.19;Komunikasi Lingkungan
+600.4.19.1;Pengembangan Komunikasi
+600.4.19.2;Publikasi dan Kampanye
+600.4.20;Penguatan Inisiatif Masyarakat
+600.4.20.1;Komunitas Pendidikan Lingkungan
+600.4.20.2;Kearifan Lingkungan
+600.4.21;Peningkatan Peran Masyarakat
+600.4.21.1;Masyarakat Perkotaan
+600.4.21.2;Masyarakat Pedesaan
+600.4.22;Peningkatan Peran Organisasi Kemasyarakatan
+600.4.22.1;Organisasi Sosial Masyarakat
+600.4.22.2;Organisasi Profesi Dunia Usaha
+600.4.23;Data dan Informasi Lingkungan
+600.4.23.1;Pengelolaan Data
+600.4.23.2;Pengelolaan Informasi
+600.4.23.3;Pengembangan Perangkat Lunak
+600.4.23.4;Pengembangan Sistem dan Layanan Jaringan
+600.4.24;Kelembagaan Lingkungan 
+600.4.24.1;Kelembagaan dan Tata Laksana
+600.4.24.2;Fasilitasi Standar Pelayanan Minimal
+600.4.25;Standarisasi dan teknologi
+600.4.25.1;Standarisasi Manajemen dan dan Pengujian Lingkungan
+600.4.25.2;Standarisasi Kompetensi Keahlian dan Lembaga Penyedia Jasa Lingkungan
+600.4.25.3;Teknologi Ramah Lingkungan
+600.4.26;Pusat Sarana Pengendalian Dampak Lingkungan
+600.4.26.1;Pemantauan dan Kajian Kualitas Lingkungan
+600.4.26.2;Laboratorium Rujukan dan Pengujian
+700;PENGAWASAN
+700.1;PENGAWASAN INTERNAL
+700.1.1;Rencana Pengawasan
+700.1.1.1;Rencana Strategis Pengawasan
+700.1.1.2;Rencana Kerja  Pengawas Tahunan
+700.1.1.3;Rencana Kinerja Tahunan
+700.1.1.4;Rencana dan Penetapan Kinerja Tahunan
+700.1.1.5;Rakor Pengawasan Tingkat Daerah
+700.1.2.1;Laporan Hasil Audit (LHA),  Laporan Hasil Pemeriksaan (LHP), Laporan Hasil  Pemeriksaan Operasional (LHPO), Laporan Hasil Evaluasi (LHE), Laporan Akuntan (LA), Laporan Auditor Independen (LAI) yang memerlukan tindak lanjut (TL)
+700.1.2.2;Laporan Hasil Audit Investigasi (LHAI) yang mengandung unsur Tindak Pidana Korupsi (TPK) dan memerlukan tindak lanjut
+700.1.2.3;Laporan Hasil Audit Investigasi (LHAI) yang mengandung unsur Tindak Pidana Korupsi (TPK) dan tidak memerlukan tindak lanjut
+700.1.2.4;Laporan Perkembangan Penanganan Surat Pengaduan Masyarakat
+700.1.2.5;Laporan Pemutakhiran Data Tindak Lanjut Temuan
+700.1.2.6;Laporan Perkembangan Barang Milik Negara
+700.1.2.7;Laporan Hasil Monitoring dan Evaluasi
+700.1.2.8;Laporan Kegiatan Pendampingan Penyusunan Laporan Keuangan dan Review
+700.1.2.9;Good Corporate Governance (GCG)
+800.1.1;Penyusunan dan Penetapan Kebutuhan Aparatur Sipil Negara
+800.1.1.1;Perencanaan Kebutuhan Aparatur Sipil Negara Antara lain : Bahan penyusunan rencana kebutuhan, Analisis Kebutuhan, Pengolahan data kebutuhan
+800.1.1.2;Perencanaan Pertimbangan Formasi Antara lain : Pertimbangan teknis penetapan formasi ASN, Pertimbangan teknis penetapan formasi ikatan dinas
+800.1.1.3;Penetapan Kebutuhan Aparatur Sipil Negara
+800.1.1.4;Standarisasi Jabatan Antara lain : Informasi Jabatan, Kompetensi Jabatan, Klasifikasi Jabatan
+800.1.2;Formasi dan Pengadaan Pegawai
+800.1.2.1;Formasi ASN Antara lain : Usulan formasi, Usulan permintaan formasi kepada Menpan RB dan Kepala BKN, Persetujuan Formasi, Penetapan Formasi, Penetapan Formasi Khusus
+800.1.2.2;Proses Rekrutmen/Pengadaan ASN Antara lain : Proses Rekrutmen ASN, Penetapan Pengumuman Kelulusan ASN
+800.1.2.3;Pengumuman Kelulusan ASN
+800.1.2.4;Berkas Lamaran Yang Tidak Diterima
+800.1.2.5;Pengangkatan ASN
+800.1.2.6;Open Biding (Seleksi Terbuka Jabatan)
+800.1.2.7;Pengelolaan Sistem Rekrutmen ASN
+800.1.2.8;Fasilitasi Penyelenggaraan Seleksi ASN
+800.1.3;Mutasi Pegawai 
+800.1.3.1;Usulan Alih Status, Pindah Instansi, Pindah Wilayah Kerja, Diperbantukan, Dipekerjakan, Penugasan Sementara, Mutasi antar Perwakilan, Mutasi ke dan dari Perwakilan, Pemindahan Sementara, Persetujuan/Pertimbangan Kepala BKN
+800.1.3.2;Kenaikan Pangkat/Golongan/Jabatan
+800.1.3.3;Pengangkatan dan Pemberhentian Jabatan Struktural/Fungsional
+800.1.3.4;Perubahan Data Dasar/ Status/Kedudukan Hukum Pegawai
+800.1.3.5;Peninjauan Masa Kerja
+800.1.3.6;Badan Pertimbangan Jabatan dan Pangkat (BAPERJAKAT)
+800.1.4;Pengembangan Karir
+800.1.4.1;Usulan Tugas Belajar/ Ijin Belajar/ Diklat/ Kursus/ Magang/ Ujian Dinas/ Praktek Kerja di Instansi lain/ Pertukaran antar ASN dengan pegawai swasta
+800.1.4.2;Penyesuaian ijazah
+800.1.4.3;Penyusunan Sistem Karier
+800.1.4.4;Standar Kinerja Pegawai (SKP) dan Penilaian Prestasi Kerja
+800.1.4.5;Angka Kredit Antara lain : Pengajuan Daftar Usul Pengajuan Angka Kredit, Penilaian Daftar Usul Pengajuan Angka Kredit
+800.1.5;Kinerja Aparatur Sipil Negara
+800.1.5.1;Hasil Penilaian Kinerja dan Standar Kerja
+800.1.5.2;Pengelolaan Database dan Analisis Sistem Informasi Kinerja
+800.1.5.3;Evaluasi dan Pemantauan Penilaian Kinerja dan Standar Kinerja
+800.1.6;Kode Etik, Disiplin, Pemberhentian dan Pensiun ASN
+800.1.6.1;Kode Etik Pegawai
+800.1.6.2;Disiplin
+800.1.6.3;Pemberhentian Dengan Hormat
+800.1.6.4;Pemberhentian Dengan Tidak Hormat
+800.1.6.5;Pemberhentian Sementara
+800.1.6.6;Pensiun ASN Antara lain : Administrasi Pensiun ASN, Penetapan Pensiun ASN, Penetapan Pertimbangan Teknis Pensiun ASN, Pensiun Pejabat Negara dan Janda/ Dudanya
+800.1.7;Bantuan Hukum
+800.1.8;Status dan Kedudukan Pegawai
+800.1.8.1;Status Kepegawaian
+800.1.8.2;Kedudukan Kepegawaian
+800.1.8.3;Keberatan Pegawai
+800.1.8.4;Perselisihan/Sengketa Kepegawaian
+800.1.9;Sistem Informasi Kepegawaian
+800.1.9.1;Pengolahan Data dan Informasi Kepegawaian
+800.1.9.2;Pengembangan Sistem Informasi Kepegawaian
+800.1.9.3;Pengembangan Sistem Pengelolaan Arsip Kepegawaian Elektonik
+800.1.9.4;Sistem Pengelolaan Arsip Kepegawaian Fisik
+800.1.10;Pengawasan dan pengendalian
+800.1.10.1;Formasi, Pengadaan dan Pasca Diklat 
+800.1.10.2;Kepangkatan, Pengangkatan, dan Pemberhentian Dalam Jabatan
+800.1.10.3;Gaji dan Tunjangan, Kesejahteraan dan Kinerja
+800.1.10.4;Kode Etik, Disiplin, Pemberhentian dan Pensiun ASN
+800.1.10.5;Laporan Hasil Pengawasan dan Pengendalian
+800.1.10.6;Sanggahan terhadap Permasalahan Tenaga Honorer
+800.1.11;Administrasi Pegawai
+800.1.11.1;Surat Perintah Dinas/Surat Tugas
+800.1.11.2;Cuti Sakit
+800.1.11.3;Cuti Bersalin
+800.1.11.4;Cuti Tahunan
+800.1.11.5;Cuti Alasan Penting
+800.1.11.6;Cuti Besar
+800.1.11.7;Cuti Di luar Tanggungan Negara
+800.1.11.8;Karpeg/KPE/Karis/Karsu
+800.1.11.9;Keanggotaan Organisasi Profesi/ Kedinasan
+800.1.11.10;Laporan Pajak Penghasilan Pribadi (LP2P)
+800.1.11.11;Keterangan Penerimaan Pembayaran Penghasilan Pegawai (KP4)
+800.1.11.12;Daftar Urut Kepangkatan (DUK)
+800.1.11.13;Pengurusan Kenaikan Gaji Berkala, Mutasi Gaji/ tunjangan
+800.1.12;Kesejahteraan Pegawai
+800.1.12.1;Pemeliharaan Kesehatan Pegawai
+800.1.12.2;Asuransi Pegawai/BPJS
+800.1.12.3;Tabungan Perumahan
+800.1.12.4;Bantuan Sosial
+800.1.12.5;Pakaian Dinas
+800.1.12.6;Layanan Pegawai yang Meninggal Karena Dinas 
+800.1.12.7;Pemberian Tali Kasih
+800.1.12.8;Pemberian Piagam Penghargaan dan Tanda Jasa
+800.1.12.9;Olahraga dan Rekreasi 
+800.1.12.10;Rekam Medis
+800.1.13.1;Pegawai Negeri Sipil (PNS)
+800.1.13.2;Pegawai Pemerintah dengan Perjanjian Kerja (PPPK)
+800.1.13.3;Pejabat Negara dan pejabat lainnya yang disetarakan
+800.1.13.4;Sekretaris Daerah
+800.1.13.5;ASN berjasa/terlibat dalam peristiwa berskala nasional 
+800.1.14;Penilaian Kompetensi
+800.1.14.1;Penilaian Kompetensi
+800.1.14.2;Hasil Penilaian Kompetensi
+800.2.1;Kebijakan di bidang Pendidikan dan Pelatihan yang dilakukan oleh Pemerintah Daerah
+800.2.2;Pendidikan dan Pelatihan
+800.2.2.1;Sistem Informasi program dan pembinaan diklat
+800.2.2.2;Pedoman-pedoman kediklatan 
+800.2.2.3;Kurikulum-kurikulum diklat
+800.2.2.4;Modul-modul diklat
+800.2.2.5;Panduan fasilitator
+800.2.2.6;Saran/rekomendasi penyelenggaraan diklat
+800.2.2.7;Notulen sosialisasi/Rapat Koordinasi Kebijakan Diklat
+800.2.2.8;Monitoring dan evaluasi program dan pembinaan diklat
+800.2.2.9;Konsultasi, advokasi, asistensi diklat
+800.2.3.1;Seleksi dan pengembangan  Widyaiswara
+800.2.3.2;Sertifikasi  Widyaiswara
+800.2.3.3;Monitoring dan evaluasi Widyaiswara
+800.2.3.4;Penilaian  Widyaiswara
+800.2.3.5;Konsultasi, advokasi dan asistensi  Widyaiswara
+800.2.3.6;Sistem Informasi Pembinaan Widyaiswara
+800.2.4;Penyelenggaraan Diklat
+800.2.4.1;Perencanaan; peserta, pengajar, penjadwalan Penyelenggaraan Diklat
+800.2.4.2;Penyelenggaraan Penyelenggaraan Diklat
+800.2.4.3;Konsultasi, advokasi, asistensi penyelenggaraan diklat
+800.2.4.4;Pengembangan bahan ajar dan metodologi pembelajaran
+800.2.4.5;Sistem informasi diklat
+800.2.4.6;Monitoring Penyelenggara Diklat
+800.2.4.7;Monitoring dan evaluasi Pasca diklat
+900.1.1;Rencana Anggaran Pendapatan dan Belanja Daerah (RAPBD) dan Anggaran Pendapatan dan Belanja Daerah Perubahan(APBD-P)
+900.1.1.1;Penyusunan Prioritas Plafon Anggaran (PPA)
+900.1.1.2;Penyusunan Rencana Kerja Anggaran Satuan Kerja Perangkat Daerah (RKASKPD)
+900.1.1.3;Penyampaian Rancangan Anggaran Pendapatan dan Belanja Daerah kepada Dewan Perwakilan
+900.1.1.4;Anggaran Pendapatan dan Belanja Daerah Perubahan (RAPBD-P)
+900.1.2;Penyusunan Anggaran
+900.1.2.1;Musyawarah Rencana Pembangunan (Musrenbang) kecamatan
+900.1.2.2;Musyawarah Rencana Pembangunan (Musrenbang) Kota
+900.1.2.3;Rancangan Dokumen Pelaksanaan Anggaran (RDPA) SKPD yang telah disetujui Sekretaris Daerah
+900.1.2.4;Dokumen Pelaksanaan Anggaran (DPA) SKPD yang telah disahkan oleh Pejabat Pengelola Keuangan Daerah (PPKD)
+900.1.3;Pelaksanaan Anggaran
+900.1.3.1;Surat Penyedia Dana (SPP, SPM dan SP2D): UP, GU, TU, LS
+900.1.3.2;Pendapatan
+900.1.3.3;Belanja
+900.1.3.4;Pembiayaan Daerah
+900.1.3.5;Dokumen Penatausahaan Keuangan
+900.1.3.6;Pertanggungjawaban Penggunaan Dana
+900.1.3.7;Daftar Gaji
+900.1.3.8;Kartu Gaji
+900.1.3.9;Data Rekening Bendahara Umum Daerah (BUD)
+900.1.3.10;Laporan Keuangan   
+900.1.4;Pinjaman/Hibah Luar Negeri
+900.1.4.1;Permohonan Pinjaman/Hibah Luar Negeri (Blue Book)
+900.1.4.2;Dokumen Kesanggupan Negara Donor untuk Membiayai (Green Book)
+900.1.4.3;Dokumen Memorandum of Understanding  (MoU), dan dokumen sejenisnya
+900.1.4.4;Dokumen Loan Agremeent  (PHLN) Antara lain : Draft Agreement, Legal Opinion, Surat Menyurat dengan Lender
+900.1.4.5;Alokasi dan Relokasi Penggunaan Dana Luar Negeri, antara lain: usulan luncuran dana
+900.1.4.6;Aplikasi Penarikan Dana BLN berikut lampirannya 
+900.1.4.7;Dokumen Otorisasi Penarikan Dana (Payment Advice)
+900.1.4.8;Dokumen Realisasi Pencairan Dana Bantuan Luar Negeri, yaitu : Surat Perintah Pencairan Dana, SPM beserta lampirannya, a.l. : SPP, Kontrak, BA, dan data pendukung lainnya.
+900.1.4.9;Replenishment  (Permintaan Penarikan Dana dari Negara Donor) meliputi antara lain : No Objection Letter (NOL), Project Implementation, Notification of Contract, Withdrawal Authorization (WA),
+900.1.4.10;Staff Appraisal Report
+900.1.4.11;Report /Laporan
+900.1.4.12;Laporan Hutang Daerah
+900.1.4.13;Completion Report/Annual Report
+900.1.4.14;Ketentuan/Peraturan yang menyangkut Pinjaman/Hibah Luar Negeri
+900.1.5;Pengelolaan APBD/Dana Pinjaman/Hibah Luar Negeri (PHLN)
+900.1.6;Sistem Akuntansi Keuangan Daerah (SAKD)
+900.1.6.1;Manual Implementasi Sistem Akuntansi Keuangan Daerah (SAKD)
+900.1.6.2;Dokumen Kebijakan Akuntansi
+900.1.6.3;Arsip Data Komputer dan Berita Acara Rekonsiliasi
+900.1.6.4;Laporan Realisasi Anggaran dan Neraca Bulanan/Triwulanan/Semesteran
+900.1.7;Penyaluran Anggaran Tugas Pembantuan
+900.1.7.1;Surat Penetapan Pemimpin Proyek/Bagian Proyek, Bendahara, atas Penggunaan Anggaran Kegiatan Pembantuan, termasuk Specimen Tanda Tangan
+900.1.7.2;Berkas Permintaan Pembayaran (SPP) dan lampirannya : SPP-SPP-Daftar Perincian Penggunaan SPPR-SPDR-L, SPM-LS, SPM-DU, bilyet giro, SPM Nihil, Penagihan/Invoice, Faktur Pajak, Bukti Penerimaan Kas/Bank beserta Bukti Pendukungnya a.l. : Copy Faktur Pajak dan Nota Kredit Bank, Permintaan Pelayanan Jasa/Service Report dan Berita Acara Penyelesaian Pekerjaan
+900.1.7.3;Buku Rekening Bank
+900.1.7.4;Keputusan Pembukuan Rekening
+900.1.7.5;Pembukuan anggaran terdiri antara lain : Buku Kas Umum (BKU), Buku Pembantu, Register dan Buku Tambahan, Daftar Pembukuan Pencairan/Pengeluaran (DPP), Daftar Himpunan Pencairan (DHP), dan Rekening Koran
+900.1.8;Penerimaan Anggaran Tugas Pembantuan
+900.1.8.1;Berkas Penerimaan Keuangan Pelaksanaan dan Tugas Pembantuan termasuk Dana Sisa atau Pengeluaran lainnya
+900.1.8.2;Berkas Penerimaan Pajak termasuk PPh 21, PPh 22, PPh 23, dan PPn dan Denda Keterlambatan Menyelesaikan Pekerjaan
+900.1.9;Penyusunan Anggaran Pilkada dan Biaya Bantuan Pemilu Dari APBD meliputi: Kebijakan Keuangan Pilkada dan Penyusunan Anggaran Bantuan Pemilu, Peraturan/Pedoman/Standar Belanja Pegawai, Barang dan Jasa, Operasional dan Kontingensi untuk Biaya Pilkada dan Bantuan Pemilu, Bahan Usulan Rencana Kegiatan dan Anggaran (RKA) Pilkada KPUD dan Panwasda Kota, PPK, PPS, KPPS dan Permohonan Pengajuan RKA KPUD dan Panwas, Berkas Pembahasan RKA Pilkada dan Bantuan Pemilu, Rencana Anggaran Satuan Kerja (RASK) Pilkada dan Bantuan Pemilu Kota, Dokumen Rancangan Anggaran Satuan Kerja (DRASK) Pilkada KPUD dan Panwas Kota dan Bantuan Biaya Pemilu dari APBD, Berkas Pembentukan Dana Cadangan Pilkada, Bahan Rapat Rancangan Peraturan Daerah tentang Pilkada, dan Bantuan Biaya Pemilu dari APBD, Nota Persetujuan DPRD tentang Perda APBD Pilkada dan Bantuan Biaya Pemilu dari APBD
+900.1.10;Pelaksanaan Anggaran PILKADA dan Anggaran Biaya Bantuan Pemilu
+900.1.10.1;Berkas Penetapan Bendahara dan Atasan Langsung Bendahara KPUD, Bendahara Panwasda dan Bendahara pada Panitia Pilkada dan Pemilu
+900.1.10.2;Berkas Penerimaan Komisi, Rabat Pembayaran Pengadaan Jasa, Bunga, Pelaksanaan Pilkada/Pemilu
+900.1.10.3;Berkas setor sisa dana Pilkada/Pemilu termasuk setor komisi pengadaan barang/jasa, rabat, bunga, jasa giro Berkas Penyaluran Biaya Pemilu termasuk diantaranya Bukti Transfer Bank
+900.1.10.4;Pedoman Dokumen Penyediaan Pembiayaan Kegiatan Operasional (PPKO)  Pemilu termasuk Perubahan/Pergeseran/Revisinya
+900.1.11;Pemeriksaan/Pengawasan Keuangan Daerah
+900.1.11.1;Laporan Hasil Pemeriksaan Badan Pemeriksa Keuangan Republik Indonesia atas Laporan Keuangan
+900.1.11.2;Hasil Pengawasan dan Pemeriksaan Internal
+900.1.11.3;Laporan Aparat Pemeriksa Fungsional
+900.1.11.4;Dokumen Penyelesaian Kerugian Daerah
+900.1.12.1;Anggaran Daerah
+900.1.12.2;Dukungan Teknis Anggaran Daerah
+900.1.13;Pendapatan dan Investasi Daerah
+900.1.13.1;Pajak Daerah dan Retribusi Daerah Antara lain : fasilitasi pelaksanaan kebijakan standardisasi pajak daerah dan retribusi daerah, penyiapan bahan perumusan bimbingan teknis  pajak daerah dan retribusi daerah, penyiapan bahan perumusan analisis dan evaluasi, pemantauan  pajak daerah dan retribusi daerah, penyiapan bahan perumusan kebijakan fasilitasi pemberian insentif pajak daerah dan retribusi daerah
+900.1.13.2;Badan Usaha Milik Daerah Antara lain : fasilitasi serta bimbingan teknis di bidang usaha milik daerah lembaga keuangan, fasilitas serta bimbingan teknis di bidang badan usaha milik daerah lembaga non keuangan, penyiapan pelaksanaan monitoring dan evaluasi badan usaha milik daerah
+900.1.13.3;Badan Layanan Umum Daerah Antara lain : analisis, standardisasi teknis, fasilitasi serta bimbingan teknis, pemantauan dan evaluasi di bidang pola pengelolaan keuangan badan layanan umum daerah, Pembinaan pelaksanaan kebijakan, standardisasi teknis, prosedur dan kriteria, fasilitasi serta bimbingan teknis penerapan pola pengelolaan keuangan keuangan badan layanan umum daerah, Penyiapan pelaksanaan monitoring dan evaluasi pola pengelolaan keuangan badan layanan umum daerah
+900.1.13.4;Pengelolaan Kekayaan Daerah Antara lain : fasilitasi serta bimbingan teknis pengelolaan kekayaan, Fasilitasi serta bimbingan teknis investasi daerah, Penyiapan pelaksanaan monitoring dan evaluasi pengelolaan kekayaan dan investasi daerah
+900.1.13.5;Pinjam Dan Obligasi Daerah Antara lain : fasilitasi pelaksanaan kebijakan pinjaman dan hibah kepada pemerintah daerah dan/atau badan usaha milik daerah, Fasilitasi pelaksanaan kebijakan obligasi daerah, Fasilitasi pelaksanaan kebijakan dana bergulir yang bersumber dari APBN, Bimbingan teknis obligasi daerah, dana bergulir serta penyertaan modal daerah, Penyiapan pelaksanaan monitoring dan evaluasi pinjaman dan hibah, obligasi daerah, dan dana bergulir, dan penyertaan modal daerah
+900.1.14;Fasilitasi Dana Perimbangan
+900.1.14.1;Fasilitasi Dana Alokasi Umum Antara lain : Koordinasi penyiapan data dasar penghitungan, dan rekonsiliasi dana alokasi umum, Sosialisasi dan supervisi dana alokasi umum, Penyiapan pelaksanaan monitoring dan evaluasi dana alokasi umum
+900.1.14.2;Fasilitasi Dana Alokasi Khusus Antara lain : Koordinasi penyiapan data dasar, Sosialisasi dan supervisi dana alokasi khusus, penyiapan pelaksanaan monitoring,  evaluasi dana alokasi khusus, Penyiapan pelaksanaan monitoring,  evaluasi dana alokasi khusus
+900.1.14.3;Dana Bagi Hasil Pajak dan Sumber Daya Alam Antara lain : Koordinasi penyiapan data dasar perhitungan, dan rekonsiliasi dana bagi hasil pajak dan sumber daya alam, Sosialisasi dan supervisi dana bagi hasil pajak dan sumber daya alam, Penyiapan pelaksanaan monitoring dan evaluasi dana bagi hasil pajak dan sumber daya alam
+900.1.14.4;Dana Otonomi Khusus dan Dana Transfer Lainnya Antara lain : Sosialisasi dan supervisi dana otonomi khusus, Sosialisasi dan supervisi dan transfer lainnya, Pelaksanaan monitoring dan evaluasi dan otonomi khusus dan dana transfer lainnya
+900.1.14.5;Dukungan Teknis Fasilitasi Dana Perimbangan Antara lain : Penyiapan sinkronisasi kebijakan dan perimbangan, Penyiapan dukungan teknis dana perimbangan, Penyiapan data dan informasi untuk penyusunan laporan dana perimbangan
+900.1.15;Pelaksanaan Dan Pertanggungjawaban Keuangan Daerah
+900.1.15.1;Akuntansi Dan Pertanggungjawaban Keuangan Daerah Antara lain : Fasilitasi serta bimbingan teknis di bidang akuntansi dan pertangungjawaban keuangan daerah, Penyiapan evaluasi rancangan peraturan daerah pertanggungjawaban keuangan daerah
+900.1.15.2;Pembinaan Kinerja dan Kapasitas Pengelolaan Keuangan Daerah Antara lain : Fasilitasi serta bimbingan teknis di bidang pembinaan kinerja dan kapasitas pengelolaan keuangan daerah, Penyiapan evaluasi rancangan peraturan daerah pertangungjawaban keuangan daerah
+900.1.15.3;Pembinaan dan Evaluasi Pengelolaan Keuangan Daerah Antara lain : Fasilitasi serta bimbingan teknis di bidang pembinaan dan evaluasi pengelolaan keuangan daerah, Penyiapan evaluasi rancangan peraturan daerah pertangungjawaban keuangan daerah
+900.1.15.4;Kajian Kebijakan dan Bantuan Keterangan Ahli Antara lain : Penyiapan bahan bantuan keterangan ahli di bidang keuangan daerah, Penyiapan evaluasi rancangan peraturan daerah pertanggungjawaban keuangan daerah
+900.1.15.5;Data Informasi dan Pengelolaan Keuangan Daerah Antara lain : Penyiapan  sinkronisasi  kebijakan pelaksanaan pertangungjawaban pelaksanaan keuangan daerah, Penyiapan data dan informasi untuk penyusunan laporan pertangungjawaban pelaksanaan keuangan daerah, Pengelolaan sistem informasi pengelolaan keuangan daerah 
