@@ -100,6 +100,12 @@ class KegiatanForm
                                 if (! empty($perihal)) {
                                     $set('nama_kegiatan', $perihal);
                                 }
+
+                                // ===== TANGGAL SURAT =====
+                                $tanggalSurat = $extractor->extractTanggal($path);
+                                if (! empty($tanggalSurat)) {
+                                    $set('tanggal', $tanggalSurat);
+                                }
                             }),
 
                         TextInput::make('nomor')
@@ -148,6 +154,7 @@ class KegiatanForm
                         DatePicker::make('tanggal')
                             ->label('Hari / Tanggal')
                             ->required()
+                            ->helperText('Akan otomatis diisi dari PDF jika pola tanggal surat dikenali.')
                             ->displayFormat('d-m-Y'),
 
                         TextInput::make('waktu')

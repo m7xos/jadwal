@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\KodeSurat;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Spatie\PdfToText\Pdf;
 
@@ -185,6 +186,63 @@ class NomorSuratExtractor
         }
 
         return null;
+    }
+
+    /**
+     * Ambil tanggal surat yang ditulis dengan pola "Wonosobo, 20 November 2025".
+     */
+    public function extractTanggal(string $path): ?string
+    {
+        $fullPath = is_file($path) ? $path : Storage::disk('public')->path($path);
+
+        if (! is_file($fullPath) || ! is_readable($fullPath)) {
+            return null;
+        }
+
+        $text = Pdf::getText($fullPath);
+
+        if (! $text) {
+            return null;
+        }
+
+        // Cari pola "Wonosobo, 20 November 2025"
+        if (preg_match('/Wonosobo\s*,\s*([0-9]{1,2})\s+([A-Za-z]+)\s+([0-9]{4})/i', $text, $matches)) {
+            $day = (int) ($matches[1] ?? 0);
+            $monthName = strtolower(trim($matches[2] ?? ''));
+            $year = (int) ($matches[3] ?? 0);
+
+            $month = $this->parseIndonesianMonth($monthName);
+
+            if ($day > 0 && $month !== null && $year > 0) {
+                try {
+                    return Carbon::createFromDate($year, $month, $day)->toDateString();
+                } catch (\Throwable $e) {
+                    return null;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function parseIndonesianMonth(string $monthName): ?int
+    {
+        $map = [
+            'januari' => 1,
+            'februari' => 2,
+            'maret' => 3,
+            'april' => 4,
+            'mei' => 5,
+            'juni' => 6,
+            'juli' => 7,
+            'agustus' => 8,
+            'september' => 9,
+            'oktober' => 10,
+            'november' => 11,
+            'desember' => 12,
+        ];
+
+        return $map[$monthName] ?? null;
     }
 
     private function getKodeSuratPrefixes(): array
