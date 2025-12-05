@@ -60,12 +60,14 @@ class KegiatansTable
 
                 TextColumn::make('waktu')
                     ->label('Waktu')
-                    ->sortable(),
+                    ->sortable()
+                    ->visible(fn (?Kegiatan $record) => filled($record?->waktu)),
 
                 TextColumn::make('tempat')
                     ->label('Tempat')
                     ->searchable()
-                    ->wrap(),
+                    ->wrap()
+                    ->visible(fn (?Kegiatan $record) => filled($record?->tempat)),
 
                // TextColumn::make('personils_count')
                 //    ->label('Jml Personil')
