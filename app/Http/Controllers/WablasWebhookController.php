@@ -44,10 +44,13 @@ class WablasWebhookController extends Controller
             return response()->json(['ignored' => 'no pending TL found']);
         }
 
-        if (! $this->isAuthorizedSender($kegiatan, $senderDigits)) {
+        [$isAuthorized, $allowedNumbers] = $this->isAuthorizedSender($kegiatan, $senderDigits);
+
+        if (! $isAuthorized) {
             Log::warning('Unauthorized selesai tl command', [
                 'kegiatan_id' => $kegiatan->id,
                 'sender' => $senderDigits,
+                'allowed_numbers' => $allowedNumbers,
             ]);
 
             return response()->json(['ignored' => 'sender not authorized']);
@@ -84,39 +87,37 @@ class WablasWebhookController extends Controller
         return $log?->kegiatan;
     }
 
-    protected function isAuthorizedSender(Kegiatan $kegiatan, string $senderDigits): bool
+    /**
+     * @return array{0: bool, 1: array<int, string>} [authorized, allowed_numbers]
+     */
+    protected function isAuthorizedSender(Kegiatan $kegiatan, string $senderDigits): array
     {
-        $allowedJabatan = [
-            'Arsiparis Terampil',
-            'Pranata Komputer Terampil',
-        ];
+        $kegiatan->loadMissing('personils');
 
-        $personils = Personil::query()
-            ->where(function ($q) use ($kegiatan) {
-                $q->whereHas('kegiatans', fn ($qq) => $qq->where('kegiatans.id', $kegiatan->id))
-                    ->orWhereIn('jabatan', $this->allowedRoles());
-            })
-            ->get();
+        $allowedJabatan = $this->allowedRoles();
 
-        foreach ($personils as $personil) {
-            $digits = preg_replace('/[^0-9]/', '', (string) $personil->no_wa) ?? '';
+        $assignedNumbers = ($kegiatan->personils ?? collect())
+            ->map(fn (Personil $personil) => $this->normalizeNumberFromDb($personil->no_wa))
+            ->filter()
+            ->values();
 
-            if ($digits !== '' && $this->normalizeNumber($digits) === $this->normalizeNumber($senderDigits)) {
-                return true;
-            }
-        }
-
-        // Extra check: jabatan allowed regardless of assignment
-        $roleMatch = Personil::query()
+        $roleNumbers = Personil::query()
             ->whereIn('jabatan', $allowedJabatan)
             ->get()
-            ->first(function (Personil $personil) use ($senderDigits) {
-                $digits = preg_replace('/[^0-9]/', '', (string) $personil->no_wa) ?? '';
+            ->map(fn (Personil $personil) => $this->normalizeNumberFromDb($personil->no_wa))
+            ->filter()
+            ->values();
 
-                return $digits !== '' && $this->normalizeNumber($digits) === $this->normalizeNumber($senderDigits);
-            });
+        $allowedNumbers = $assignedNumbers
+            ->merge($roleNumbers)
+            ->unique()
+            ->values()
+            ->all();
 
-        return (bool) $roleMatch;
+        $senderNormalized = $this->normalizeNumber($senderDigits);
+        $authorized = in_array($senderNormalized, $allowedNumbers, true);
+
+        return [$authorized, $allowedNumbers];
     }
 
     protected function allowedRoles(): array
@@ -138,6 +139,17 @@ class WablasWebhookController extends Controller
         }
 
         return $digits;
+    }
+
+    protected function normalizeNumberFromDb(?string $raw): ?string
+    {
+        $digits = preg_replace('/[^0-9]/', '', (string) ($raw ?? '')) ?? '';
+
+        if ($digits === '') {
+            return null;
+        }
+
+        return $this->normalizeNumber($digits);
     }
 
     protected function markReminderLogCompleted(Kegiatan $kegiatan): void
