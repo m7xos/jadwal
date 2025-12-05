@@ -48,7 +48,7 @@ class WablasWebhookController extends Controller
             return response()->json(['ignored' => 'no pending TL found']);
         }
 
-        [$isAuthorized, $allowedNumbers] = $this->isAuthorizedSender($kegiatan, $senderDigits);
+        [$isAuthorized, $allowedNumbers] = $this->isAuthorizedSender($kegiatan, $senderDigits, $payload);
 
         if (! $isAuthorized) {
             Log::warning('Unauthorized selesai tl command', [
@@ -102,7 +102,7 @@ class WablasWebhookController extends Controller
     /**
      * @return array{0: bool, 1: array<int, string>} [authorized, allowed_numbers]
      */
-    protected function isAuthorizedSender(Kegiatan $kegiatan, string $senderDigits): array
+    protected function isAuthorizedSender(Kegiatan $kegiatan, string $senderDigits, array $payload = []): array
     {
         $kegiatan->loadMissing('personils');
 
@@ -137,6 +137,8 @@ class WablasWebhookController extends Controller
         $allowedNumbers = $assignedNumbers
             ->merge($assignedFromDb)
             ->merge($roleNumbers)
+            ->merge($this->allowedNumbersFromPayload($payload))
+            ->merge($this->allowedNumbersFromConfig())
             ->unique()
             ->values()
             ->all();
@@ -161,6 +163,39 @@ class WablasWebhookController extends Controller
             '%arsiparis%',
             '%pranata komputer%',
         ];
+    }
+
+    protected function allowedNumbersFromPayload(array $payload): array
+    {
+        $numbers = collect();
+
+        $groupSender = data_get($payload, 'group.sender');
+        $groupOwner = data_get($payload, 'group.owner');
+
+        foreach ([$groupSender, $groupOwner] as $raw) {
+            $normalized = $this->normalizeNumberFromDb($raw);
+            if ($normalized) {
+                $numbers->push($normalized);
+            }
+        }
+
+        return $numbers->unique()->values()->all();
+    }
+
+    protected function allowedNumbersFromConfig(): array
+    {
+        $raw = (string) config('wablas.finish_whitelist', '');
+
+        if ($raw === '') {
+            return [];
+        }
+
+        return collect(explode(',', $raw))
+            ->map(fn ($item) => $this->normalizeNumberFromDb(trim($item)))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     protected function extractKegiatanIdFromMessage(string $message): ?int
