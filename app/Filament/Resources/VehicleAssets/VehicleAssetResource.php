@@ -60,7 +60,7 @@ class VehicleAssetResource extends Resource
                         ->directory('import/kendaraan')
                         ->disk('public')
                         ->required()
-                        ->helperText('Gunakan header: IDPemda;Kode UPB;Nama UPB;Kode Aset;Nama Aset;Reg;Merk/ Type;Ukuran/ CC;Bahan;Tahun;Nomor Pabrik;Nomor Rangka;Nomor Mesin;Nomor Polisi;Nomor BPKB;Harga;keterangan. Pisahkan kolom dengan ;'),
+                        ->helperText('Gunakan contoh file Import di Public/Template;'),
                 ])
                 ->action(function (array $data): void {
                     $path = Storage::disk('public')->path($data['file']);
