@@ -33,5 +33,7 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
 - Pastikan path PHP sesuai (`which php`) dan folder proyek/log bisa ditulis user cron.
 
 ## Catatan operasional
-- Scheduler menjalankan pengingat TL (awal H-5 jam, akhir saat batas TL) dan webhook Wablas menangani balasan “TL-{id} selesai”.
-- Jika device Wablas atau config tidak lengkap, pengiriman gagal dan status log menjadi failed; kirim ulang via aksi “Kirim Ulang” di Log Pengingat TL.
+- Scheduler menjalankan pengingat TL (awal H-5 jam, akhir saat batas TL) dan webhook Wablas menangani balasan "TL-{id} selesai".
+- Jika device Wablas atau config tidak lengkap, pengiriman gagal dan status log menjadi failed; kirim ulang via aksi "Kirim Ulang" di Log Pengingat TL.
+- Pengingat pajak kendaraan: job `vehicle-taxes:send-reminders` jalan setiap 08:00 WIB untuk H-7/H-3/H0 (pajak tahunan & 5 tahunan) dan mencatat Log Pengingat Pajak. Gunakan `--force` dan `--date=YYYY-MM-DD` untuk uji manual.
+- Pembayaran pajak: balas pesan masuk ke webhook Wablas dengan pola `Pajak-{NOMOR_POLISI} terbayar` untuk menandai status pajak kendaraan menjadi LUNAS dan mengirim balasan terima kasih.

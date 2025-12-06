@@ -74,17 +74,13 @@ class WablasService
 
     protected function formatMention(?string $number): ?string
     {
-        $digits = preg_replace('/[^0-9]/', '', (string) ($number ?? '')) ?? '';
+        $normalized = $this->normalizePhone($number);
 
-        if ($digits === '') {
+        if (! $normalized) {
             return null;
         }
 
-        if (str_starts_with($digits, '0')) {
-            $digits = '62' . substr($digits, 1);
-        }
-
-        return '@' . $digits;
+        return '@' . $normalized;
     }
 
     /**
@@ -240,6 +236,83 @@ class WablasService
         ]);
 
         return (bool) data_get($json, 'status', false);
+    }
+
+    /**
+     * Kirim pesan teks ke nomor personal (bukan grup).
+     *
+     * @param  array<int, string|null>  $numbers
+     */
+    public function sendPersonalText(array $numbers, string $message): array
+    {
+        if (! $this->isConfigured()) {
+            return [
+                'success' => false,
+                'error' => 'Konfigurasi Wablas belum lengkap',
+                'response' => null,
+            ];
+        }
+
+        $data = [];
+
+        foreach ($numbers as $number) {
+            $normalized = $this->normalizePhone($number);
+
+            if (! $normalized) {
+                continue;
+            }
+
+            $data[] = [
+                'phone' => $normalized,
+                'message' => $message,
+                'isGroup' => 'false',
+            ];
+        }
+
+        if (empty($data)) {
+            return [
+                'success' => false,
+                'error' => 'Tidak ada nomor WA yang valid.',
+                'response' => null,
+            ];
+        }
+
+        try {
+            $response = $this->client()
+                ->post($this->baseUrl . '/api/v2/send-message', ['data' => $data]);
+        } catch (\Throwable $exception) {
+            Log::error('WablasService: HTTP error kirim personal text', [
+                'message' => $exception->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $exception->getMessage(),
+                'response' => null,
+            ];
+        }
+
+        if (! $response->successful()) {
+            Log::error('WablasService: HTTP error kirim personal text', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return [
+                'success' => false,
+                'error' => 'HTTP ' . $response->status(),
+                'response' => $response->json(),
+            ];
+        }
+
+        $json = $response->json();
+        $success = (bool) data_get($json, 'status', false);
+
+        return [
+            'success' => $success,
+            'error' => $success ? null : (data_get($json, 'message') ?: 'Pengiriman gagal'),
+            'response' => $json,
+        ];
     }
 
     /**
@@ -672,6 +745,29 @@ class WablasService
         ]);
 
         return (bool) data_get($json, 'status', false);
+    }
+
+    protected function normalizePhone(?string $number): ?string
+    {
+        $digits = preg_replace('/[^0-9]/', '', (string) ($number ?? '')) ?? '';
+
+        if ($digits === '') {
+            return null;
+        }
+
+        if (str_starts_with($digits, '0')) {
+            return '62' . substr($digits, 1);
+        }
+
+        if (str_starts_with($digits, '62')) {
+            return $digits;
+        }
+
+        if (str_starts_with($digits, '8')) {
+            return '62' . $digits;
+        }
+
+        return $digits;
     }
 
     public function sendToPersonils(Kegiatan $kegiatan): bool

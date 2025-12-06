@@ -23,8 +23,12 @@ class RoleAccess
             'filament.admin.resources.kegiatans' => 'Agenda Kegiatan',
             'filament.admin.resources.personils' => 'Personil',
             'filament.admin.resources.tindak-lanjut-reminder-logs' => 'Log Pengingat TL',
+            'filament.admin.resources.pajak-kendaraan' => 'Pajak Kendaraan Dinas',
+            'filament.admin.resources.vehicle-assets' => 'Data Kendaraan',
+            'filament.admin.resources.vehicle-tax-reminder-logs' => 'Log Pengingat Pajak',
             'filament.admin.pages.laporan-surat-masuk-bulanan' => 'Laporan Surat Masuk Bulanan',
             'filament.admin.pages.role-access-settings' => 'Pengaturan Hak Akses',
+            'filament.admin.pages.pengurus-barang' => 'Pengurus Barang',
         ];
     }
 
