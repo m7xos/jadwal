@@ -84,7 +84,13 @@ class KegiatanForm
                                 $set('surat_undangan', $storedPath);
 
                                 static::populateFieldsFromPdf($storedPath, $set);
-                            }),
+                            })
+                            ->openable(),
+                        Placeholder::make('preview_surat_button')
+                            ->label('')
+                            ->content(fn (Get $get) => static::renderPreviewButton($get('surat_undangan')))
+                            ->visible(fn (Get $get) => filled($get('surat_undangan')))
+                            ->columnSpanFull(),
 
                         TextInput::make('nomor')
                             ->label('Nomor Surat')
