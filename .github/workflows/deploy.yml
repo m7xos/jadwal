@@ -48,6 +48,6 @@ jobs:
             php artisan route:cache
             php artisan view:cache
 
-            # chown -R deploy:www-data storage bootstrap/cache
+             #chown -R deploy:www-data storage bootstrap/cache
              #chmod -R 775 storage bootstrap/cache
           EOF

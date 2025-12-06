@@ -2,11 +2,15 @@
 
 namespace App\Services;
 
+use App\Models\KodeSurat;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Spatie\PdfToText\Pdf;
 
 class NomorSuratExtractor
 {
+    private ?array $kodeSuratPrefixes = null;
+
     /**
      * Ambil NOMOR SURAT dari PDF.
      *
@@ -82,6 +86,22 @@ class NomorSuratExtractor
                     if (preg_match('/^[0-9A-Za-z.\/-]+$/', $candidate)) {
                         return $candidate;
                     }
+                }
+            }
+        }
+
+        // ========== POLA 3: gunakan kode surat yang tersimpan (prefix sebelum '/') ==========
+        $kodePrefixes = $this->getKodeSuratPrefixes();
+
+        if (! empty($kodePrefixes)) {
+            $escaped = array_map(fn (string $code) => preg_quote($code, '#'), $kodePrefixes);
+            $escaped = array_values(array_filter($escaped));
+
+            if (! empty($escaped)) {
+                $patternKode = '#(' . implode('|', $escaped) . ')\s*/\s*([0-9A-Za-z.\-]+)#';
+
+                if (preg_match($patternKode, $text, $matches)) {
+                    return trim(($matches[1] ?? '') . '/' . ($matches[2] ?? ''));
                 }
             }
         }
@@ -169,15 +189,11 @@ class NomorSuratExtractor
     }
 
     /**
-     * Ambil tanggal surat (misal "12 Januari 2025" atau "12/01/2025") dari PDF.
+     * Ambil tanggal surat yang ditulis dengan pola "Wonosobo, 20 November 2025".
      */
     public function extractTanggal(string $path): ?string
     {
-        if (is_file($path)) {
-            $fullPath = $path;
-        } else {
-            $fullPath = Storage::disk('public')->path($path);
-        }
+        $fullPath = is_file($path) ? $path : Storage::disk('public')->path($path);
 
         if (! is_file($fullPath) || ! is_readable($fullPath)) {
             return null;
@@ -189,31 +205,60 @@ class NomorSuratExtractor
             return null;
         }
 
-        $bulanRegex = implode('|', [
-            'januari',
-            'februari',
-            'maret',
-            'april',
-            'mei',
-            'juni',
-            'juli',
-            'agustus',
-            'september',
-            'oktober',
-            'november',
-            'desember',
-        ]);
+        // Cari pola "Wonosobo, 20 November 2025"
+        if (preg_match('/Wonosobo\s*,\s*([0-9]{1,2})\s+([A-Za-z]+)\s+([0-9]{4})/i', $text, $matches)) {
+            $day = (int) ($matches[1] ?? 0);
+            $monthName = strtolower(trim($matches[2] ?? ''));
+            $year = (int) ($matches[3] ?? 0);
 
-        // Pola "12 Januari 2025"
-        if (preg_match('/\b(\d{1,2})\s+(' . $bulanRegex . ')\s+(\d{2,4})\b/iu', $text, $matches)) {
-            return trim($matches[0]);
-        }
+            $month = $this->parseIndonesianMonth($monthName);
 
-        // Pola numerik "12-01-2025" atau "12/01/2025"
-        if (preg_match('/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})\b/', $text, $matches)) {
-            return trim($matches[0]);
+            if ($day > 0 && $month !== null && $year > 0) {
+                try {
+                    return Carbon::createFromDate($year, $month, $day)->toDateString();
+                } catch (\Throwable $e) {
+                    return null;
+                }
+            }
         }
 
         return null;
+    }
+
+    private function parseIndonesianMonth(string $monthName): ?int
+    {
+        $map = [
+            'januari' => 1,
+            'februari' => 2,
+            'maret' => 3,
+            'april' => 4,
+            'mei' => 5,
+            'juni' => 6,
+            'juli' => 7,
+            'agustus' => 8,
+            'september' => 9,
+            'oktober' => 10,
+            'november' => 11,
+            'desember' => 12,
+        ];
+
+        return $map[$monthName] ?? null;
+    }
+
+    private function getKodeSuratPrefixes(): array
+    {
+        if ($this->kodeSuratPrefixes !== null) {
+            return $this->kodeSuratPrefixes;
+        }
+
+        $this->kodeSuratPrefixes = KodeSurat::query()
+            ->pluck('kode')
+            ->filter()
+            ->map(fn ($kode) => trim((string) $kode))
+            ->filter()
+            ->values()
+            ->all();
+
+        return $this->kodeSuratPrefixes;
     }
 }
