@@ -6,6 +6,7 @@ use App\Models\Kegiatan;
 use App\Models\Personil;
 use App\Models\TindakLanjutReminderLog;
 use App\Services\WablasService;
+use App\Services\VehicleTaxPaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -18,6 +19,11 @@ class WablasWebhookController extends Controller
         $payload = $request->all();
 
         Log::info('Wablas webhook received', ['payload' => $payload]);
+
+        // ==== Handle laporan pajak terbayar ====
+        if ($this->handleVehicleTaxPaid($payload, $wablas)) {
+            return response()->json(['status' => 'ok']);
+        }
 
         $message = trim((string) ($payload['message'] ?? ''));
         if ($message === '') {
@@ -77,6 +83,39 @@ class WablasWebhookController extends Controller
         }
 
         return response()->json(['status' => 'ok']);
+    }
+
+    protected function handleVehicleTaxPaid(array $payload, WablasService $wablas): bool
+    {
+        $text = trim((string) ($payload['message'] ?? ''));
+
+        if ($text === '') {
+            return false;
+        }
+
+        if (! preg_match('/pajak-([a-z0-9 ]+)\s+terbayar/i', $text, $matches)) {
+            return false;
+        }
+
+        $plat = strtoupper(str_replace(' ', '', $matches[1] ?? ''));
+
+        /** @var VehicleTaxPaymentService $service */
+        $service = app(VehicleTaxPaymentService::class);
+        $vehicle = $service->markPaidByPlat($plat);
+
+        if (! $vehicle) {
+            return false;
+        }
+
+        $senderRaw = (string) ($payload['sender'] ?? '');
+        $senderDigits = preg_replace('/[^0-9]/', '', $senderRaw) ?? '';
+        $sender = $this->normalizeNumberFromDb($senderDigits) ?? $senderDigits;
+
+        $thanks = "*Terima kasih.*\nPembayaran pajak kendaraan {$vehicle->plat_nomor} tercatat *LUNAS*.\n";
+
+        $wablas->sendPersonalText([$sender], $thanks);
+
+        return true;
     }
 
     protected function resolveKegiatanForCompletion(?int $kegiatanId = null): ?Kegiatan
