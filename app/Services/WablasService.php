@@ -439,11 +439,11 @@ class WablasService
 
         $lines[] = '*AGENDA MENUNGGU DISPOSISI PIMPINAN*';
         $lines[] = '';
-        $dispositionTags = $this->getDispositionTags();
-        if (! empty($dispositionTags)) {
-            $lines[] = 'Arahan disposisi: ' . implode(' ', $dispositionTags) . '.';
-            $lines[] = '';
-        }
+       // $dispositionTags = $this->getDispositionTags();
+       // if (! empty($dispositionTags)) {
+       //     $lines[] = 'Arahan disposisi: ' . implode(' ', $dispositionTags) . '.';
+       //     $lines[] = '';
+        //}
         $lines[] = 'Berikut daftar kegiatan yang belum mendapatkan disposisi pimpinan:';
         $lines[] = '';
 
@@ -463,7 +463,7 @@ class WablasService
             $lines[] = '';
             $suratUrl = $this->getShortSuratUrl($kegiatan);
             if ($suratUrl) {
-                $lines[] = '📎 *Surat Undangan (PDF)*';
+                $lines[] = '📎 *Lihat Surat (PDF)*';
                 $lines[] = $suratUrl;
             }
 
@@ -559,7 +559,7 @@ class WablasService
 
         $suratUrl = $this->getShortSuratUrl($kegiatan);
         if ($suratUrl) {
-            $lines[] = '📎 *Surat Undangan (PDF)*';
+            $lines[] = '📎 *Lihat Surat (PDF)*';
             $lines[] = $suratUrl;
             $lines[] = '';
         }
