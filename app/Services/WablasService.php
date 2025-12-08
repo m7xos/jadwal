@@ -106,9 +106,9 @@ class WablasService
 
         $lines[] = '*Pengingat TL Surat Nomor: ' . $nomorSurat . '*';
         $lines[] = '';
-        $lines[] = 'Kode TL        : ' . $kodePengingat;
-        $lines[] = 'Perihal        : ' . $perihal;
-        $lines[] = 'Tanggal        : ' . ($kegiatan->tanggal_label ?? '-');
+        $lines[] = $this->formatLabelLine('Kode TL', $kodePengingat);
+        $lines[] = $this->formatLabelLine('Perihal', $perihal);
+        $lines[] = $this->formatLabelLine('Tanggal', $kegiatan->tanggal_label ?? '-');
 
         $deadline = $kegiatan->batas_tindak_lanjut ?? $kegiatan->tindak_lanjut_deadline;
         $deadlineLabel = '-';
@@ -121,7 +121,7 @@ class WablasService
             $deadlineLabel = $kegiatan->tindak_lanjut_deadline_label;
         }
 
-        $lines[] = 'Batas TL       : ' . $deadlineLabel;
+        $lines[] = $this->formatLabelLine('Batas TL', $deadlineLabel);
         $lines[] = '';
 
         $suratUrl = $this->getShortSuratUrl($kegiatan);
@@ -132,18 +132,21 @@ class WablasService
             $lines[] = '';
         }
 
-        $tags = array_values(array_unique([
-            ...$this->getDispositionTags(),
-            ...$this->getPersonilTagsForKegiatan($kegiatan),
-        ]));
-        if (! empty($tags)) {
-            $lines[] = '';
-            $lines[] = 'Mohon tindak lanjut:';
-            $lines[] = implode(' ', $tags);
+        $dispositionTags = $this->getDispositionTags();
+        $personilTags = $this->getPersonilTagsForKegiatan($kegiatan);
+
+        if (! empty($dispositionTags) || ! empty($personilTags)) {
+            $lines[] = 'Mohon arahan percepatan tindak lanjut:';
+            if (! empty($dispositionTags)) {
+                $lines[] = implode(' ', $dispositionTags);
+            }
+            if (! empty($personilTags)) {
+                $lines[] = 'kepada: ' . implode(' ', $personilTags);
+            }
             $lines[] = '';
         }
 
-        $lines[] = '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_*';
+        $lines[] = '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_';
         $lines[] = '';
         $lines[] = '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._';
         
@@ -160,18 +163,8 @@ class WablasService
 
         return Personil::query()
             ->whereIn('jabatan', $roles)
-            ->get(['no_wa', 'jabatan'])
-            ->map(function (Personil $personil) {
-                $mention = $this->formatMention($personil->no_wa);
-
-                if (! $mention) {
-                    return null;
-                }
-
-                $label = trim((string) $personil->jabatan);
-
-                return $label !== '' ? $mention . ' (' . $label . ')' : $mention;
-            })
+            ->get(['no_wa', 'jabatan', 'nama'])
+            ->map(fn (Personil $personil) => $this->formatPersonilTag($personil, true))
             ->filter()
             ->unique()
             ->values()
@@ -187,11 +180,44 @@ class WablasService
         }
 
         return $personils
-            ->map(fn ($personil) => $this->formatMention($personil->no_wa))
+            ->map(fn (Personil $personil) => $this->formatPersonilTag($personil, true))
             ->filter()
             ->unique()
             ->values()
             ->all();
+    }
+
+    protected function formatLabelLine(string $label, string $value): string
+    {
+        return sprintf('%-14s: %s', $label, $value);
+    }
+
+    protected function formatPersonilTag(Personil $personil, bool $withJabatan = false): ?string
+    {
+        $name = trim((string) $personil->nama);
+        $jabatan = trim((string) $personil->jabatan);
+
+        if ($name !== '') {
+            $tag = '@' . $name;
+
+            if ($withJabatan && $jabatan !== '') {
+                $tag .= ' (' . $jabatan . ')';
+            }
+
+            return $tag;
+        }
+
+        $mention = $this->formatMention($personil->no_wa);
+
+        if (! $mention) {
+            return null;
+        }
+
+        if ($withJabatan && $jabatan !== '') {
+            return $mention . ' (' . $jabatan . ')';
+        }
+
+        return $mention;
     }
 
     public function sendGroupText(string $message): bool
