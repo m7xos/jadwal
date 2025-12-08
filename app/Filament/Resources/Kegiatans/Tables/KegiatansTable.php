@@ -76,12 +76,32 @@ class KegiatansTable
                 TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->limit(40)
-                    ->tooltip(fn ($state) => $state),
+                    ->tooltip(fn ($state) => $state)
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('batas_tindak_lanjut')
                     ->label('Batas TL')
                     ->dateTime('d-m-Y H:i')
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('tindak_lanjut_selesai_at')
+                    ->label('Status TL')
+                    ->formatStateUsing(function ($state, Kegiatan $record): string {
+                        if ($record->jenis_surat !== 'tindak_lanjut') {
+                            return '-';
+                        }
+
+                        return $state ? 'Selesai TL' : 'Belum TL';
+                    })
+                    ->badge()
+                    ->colors([
+                        'success' => fn ($state, Kegiatan $record) => $record->jenis_surat === 'tindak_lanjut' && filled($state),
+                        'danger' => fn ($state, Kegiatan $record) => $record->jenis_surat === 'tindak_lanjut' && blank($state),
+                        'gray' => fn ($state, Kegiatan $record) => $record->jenis_surat !== 'tindak_lanjut',
+                    ])
+                    ->tooltip(fn ($state, Kegiatan $record) => $record->jenis_surat === 'tindak_lanjut'
+                        ? ($state ? 'Sudah selesai tindak lanjut' : 'Belum selesai tindak lanjut')
+                        : 'Bukan surat TL'),
             ])
             ->defaultSort('tanggal', 'asc')
 
