@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Kegiatans\Schemas;
 use App\Models\Kegiatan;
 use App\Models\Personil;
 use App\Services\NomorSuratExtractor;
+use App\Services\PdfCompressor;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -233,10 +234,85 @@ class KegiatanForm
 
             $filename = now()->format('Ymd_His') . '_' . $state->getClientOriginalName();
 
-            return $state->storeAs('surat-undangan', $filename, 'public');
+            $path = $state->storeAs('surat-undangan', $filename, 'public');
+
+            if ($path) {
+                static::compressUploadedPdf($path);
+            }
+
+            return $path;
         }
 
         return is_string($state) ? $state : null;
+    }
+
+    protected static function compressUploadedPdf(string $storedPath): void
+    {
+        $absolutePath = Storage::disk('public')->path($storedPath);
+
+        if (! is_file($absolutePath)) {
+            return;
+        }
+
+        $targetBytes = static::uploadLimitBytes();
+
+        if ($targetBytes !== null) {
+            // Sisakan sedikit ruang supaya tidak mentok limit PHP/Livewire.
+            $targetBytes = (int) floor($targetBytes * 0.95);
+        }
+
+        /** @var PdfCompressor $compressor */
+        $compressor = app(PdfCompressor::class);
+        $compressor->compress($absolutePath, $targetBytes);
+    }
+
+    protected static function uploadLimitBytes(): ?int
+    {
+        $limits = array_filter([
+            static::parseIniSize(ini_get('upload_max_filesize')),
+            static::parseIniSize(ini_get('post_max_size')),
+            static::livewireUploadLimitBytes(),
+        ]);
+
+        if (empty($limits)) {
+            return null;
+        }
+
+        return (int) min($limits);
+    }
+
+    protected static function livewireUploadLimitBytes(): ?int
+    {
+        $maxMb = config('livewire.temporary_file_upload.max_upload_size');
+
+        if ($maxMb === null) {
+            return null;
+        }
+
+        return (int) $maxMb * 1024 * 1024;
+    }
+
+    protected static function parseIniSize(string|false|null $value): ?int
+    {
+        if ($value === false || $value === null) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        $unit = strtolower(substr($value, -1));
+        $number = (float) $value;
+
+        return match ($unit) {
+            'g' => (int) ($number * 1024 * 1024 * 1024),
+            'm' => (int) ($number * 1024 * 1024),
+            'k' => (int) ($number * 1024),
+            default => (int) $number,
+        };
     }
 
     protected static function populateFieldsFromPdf(?string $storedPath, callable $set): void
