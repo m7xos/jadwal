@@ -240,7 +240,8 @@ class WablasWebhookController extends Controller
     protected function extractKegiatanIdFromMessage(string $message): ?int
     {
         $matches = [];
-        if (preg_match('/tl[-\\s]?(\d+)/i', $message, $matches)) {
+        // Terima berbagai format penulisan, misalnya "TL-123", "TL - 123", atau "TL: 123".
+        if (preg_match('/tl[^0-9]*(\d+)/i', $message, $matches)) {
             return (int) $matches[1];
         }
 
