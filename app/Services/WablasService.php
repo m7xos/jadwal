@@ -72,6 +72,17 @@ class WablasService
         return URL::route('kegiatan.surat.short', ['kegiatan' => $kegiatan->id]);
     }
 
+    protected function getLampiranUrl(?string $path): ?string
+    {
+        if (empty($path)) {
+            return null;
+        }
+
+        $relativeUrl = Storage::disk('public')->url($path);
+
+        return URL::to($relativeUrl);
+    }
+
     protected function formatMention(?string $number): ?string
     {
         $normalized = $this->normalizePhone($number);
@@ -129,6 +140,13 @@ class WablasService
             //$lines[] = '';
             $lines[] = '📎 Surat (PDF):';
             $lines[] = $suratUrl;
+            $lines[] = '';
+        }
+
+        $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+        if ($lampiranUrl) {
+            $lines[] = '📎 Lampiran:';
+            $lines[] = $lampiranUrl;
             $lines[] = '';
         }
 
@@ -587,6 +605,13 @@ class WablasService
         if ($suratUrl) {
             $lines[] = '📎 *Lihat Surat (PDF)*';
             $lines[] = $suratUrl;
+            $lines[] = '';
+        }
+
+        $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+        if ($lampiranUrl) {
+            $lines[] = '📎 *Lampiran*';
+            $lines[] = $lampiranUrl;
             $lines[] = '';
         }
 

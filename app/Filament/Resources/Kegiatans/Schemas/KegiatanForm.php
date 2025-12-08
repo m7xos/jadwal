@@ -87,6 +87,48 @@ class KegiatanForm
                                 static::populateFieldsFromPdf($storedPath, $set);
                             })
                             ->openable(),
+                        FileUpload::make('lampiran_surat')
+                            ->label('Lampiran Surat (opsional)')
+                            ->disk('public')
+                            ->directory('lampiran-surat')
+                            ->preserveFilenames()
+                            ->storeFiles(false)
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'image/jpeg',
+                                'image/png',
+                            ])
+                            ->helperText('Lampiran tambahan untuk surat (PDF/DOC/JPG/PNG).')
+                            ->deleteUploadedFileUsing(function ($file): void {
+                                if ($file instanceof TemporaryUploadedFile) {
+                                    $file->delete();
+                                }
+
+                                if (is_string($file)) {
+                                    Storage::disk('public')->delete($file);
+                                }
+                            })
+                            ->getUploadedFileNameForStorageUsing(
+                                fn (TemporaryUploadedFile $file): string =>
+                                    now()->format('Ymd_His') . '_' . $file->getClientOriginalName()
+                            )
+                            ->afterStateUpdated(function ($state, callable $set, Get $get) {
+                                if (! $state) {
+                                    return;
+                                }
+
+                                $storedPath = static::storeUploadedLampiran($state, $get('lampiran_surat'));
+
+                                if (! $storedPath) {
+                                    return;
+                                }
+
+                                $set('lampiran_surat', $storedPath);
+                            })
+                            ->openable()
+                            ->downloadable(),
                         Placeholder::make('preview_surat_button')
                             ->label('')
                             ->content(fn (Get $get) => static::renderPreviewButton($get('surat_undangan')))
@@ -241,6 +283,21 @@ class KegiatanForm
             }
 
             return $path;
+        }
+
+        return is_string($state) ? $state : null;
+    }
+
+    protected static function storeUploadedLampiran(string|TemporaryUploadedFile $state, ?string $currentPath = null): ?string
+    {
+        if ($state instanceof TemporaryUploadedFile) {
+            if ($currentPath) {
+                Storage::disk('public')->delete($currentPath);
+            }
+
+            $filename = now()->format('Ymd_His') . '_' . $state->getClientOriginalName();
+
+            return $state->storeAs('lampiran-surat', $filename, 'public');
         }
 
         return is_string($state) ? $state : null;
