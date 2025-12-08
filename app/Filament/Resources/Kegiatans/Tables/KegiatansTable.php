@@ -82,26 +82,29 @@ class KegiatansTable
                 TextColumn::make('batas_tindak_lanjut')
                     ->label('Batas TL')
                     ->dateTime('d-m-Y H:i')
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable()
+                    ->visible(fn (?Kegiatan $record) => $record?->jenis_surat === 'tindak_lanjut'),
 
                 TextColumn::make('tindak_lanjut_selesai_at')
                     ->label('Status TL')
-                    ->formatStateUsing(function ($state, Kegiatan $record): string {
+                    ->state(function (Kegiatan $record): ?string {
                         if ($record->jenis_surat !== 'tindak_lanjut') {
-                            return '-';
+                            return null;
                         }
 
-                        return $state ? 'Selesai TL' : 'Belum TL';
+                        return $record->tindak_lanjut_selesai_at ? 'Selesai TL' : 'Belum TL';
                     })
+                    ->formatStateUsing(fn (?string $state) => $state ?? '-')
                     ->badge()
                     ->colors([
-                        'success' => fn ($state, Kegiatan $record) => $record->jenis_surat === 'tindak_lanjut' && filled($state),
-                        'danger' => fn ($state, Kegiatan $record) => $record->jenis_surat === 'tindak_lanjut' && blank($state),
+                        'success' => fn (?string $state) => $state === 'Selesai TL',
+                        'danger' => fn (?string $state) => $state === 'Belum TL',
                     ])
-                    ->tooltip(fn ($state, Kegiatan $record) => $record->jenis_surat === 'tindak_lanjut'
-                        ? ($state ? 'Sudah selesai tindak lanjut' : 'Belum selesai tindak lanjut')
-                        : 'Bukan surat TL')
-                    ->visible(fn (?Kegiatan $record) => $record?->jenis_surat === 'tindak_lanjut'),
+                    ->tooltip(fn (?string $state) => $state === 'Selesai TL'
+                        ? 'Sudah selesai tindak lanjut'
+                        : ($state === 'Belum TL' ? 'Belum selesai tindak lanjut' : ''))
+                    // allow rendering header when $record null; hide for undangan rows
+                    ->visible(fn ($record) => $record === null || $record?->jenis_surat === 'tindak_lanjut'),
             ])
             ->defaultSort('tanggal', 'asc')
 

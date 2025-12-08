@@ -23,6 +23,7 @@ class Kegiatan extends Model
         'keterangan',
                 'surat_undangan',   // <--- TAMBAHKAN
                 'sudah_disposisi',   // <--- baru
+        'lampiran_surat',
         'tampilkan_di_public',
         'batas_tindak_lanjut',
         'tl_reminder_sent_at',

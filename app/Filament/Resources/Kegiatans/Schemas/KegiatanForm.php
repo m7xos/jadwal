@@ -85,8 +85,59 @@ class KegiatanForm
                                 $set('surat_undangan', $storedPath);
 
                                 static::populateFieldsFromPdf($storedPath, $set);
+
+                                $nomor = trim((string) $get('nomor'));
+                                /** @var ?Kegiatan $record */
+                                $record = $get('record');
+                                $existing = static::findDuplicateNomor($nomor, $record);
+
+                                if ($nomor !== '' && $existing) {
+                                    static::notifyDuplicateNomor($nomor, $existing);
+                                }
                             })
                             ->openable(),
+                        FileUpload::make('lampiran_surat')
+                            ->label('Lampiran Surat (opsional)')
+                            ->disk('public')
+                            ->directory('lampiran-surat')
+                            ->preserveFilenames()
+                            ->storeFiles(false)
+                            ->acceptedFileTypes([
+                                'application/pdf',
+                                'application/msword',
+                                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                'image/jpeg',
+                                'image/png',
+                            ])
+                            ->helperText('Lampiran tambahan untuk surat (PDF/DOC/JPG/PNG).')
+                            ->deleteUploadedFileUsing(function ($file): void {
+                                if ($file instanceof TemporaryUploadedFile) {
+                                    $file->delete();
+                                }
+
+                                if (is_string($file)) {
+                                    Storage::disk('public')->delete($file);
+                                }
+                            })
+                            ->getUploadedFileNameForStorageUsing(
+                                fn (TemporaryUploadedFile $file): string =>
+                                    now()->format('Ymd_His') . '_' . $file->getClientOriginalName()
+                            )
+                            ->afterStateUpdated(function ($state, callable $set, Get $get) {
+                                if (! $state) {
+                                    return;
+                                }
+
+                                $storedPath = static::storeUploadedLampiran($state, $get('lampiran_surat'));
+
+                                if (! $storedPath) {
+                                    return;
+                                }
+
+                                $set('lampiran_surat', $storedPath);
+                            })
+                            ->openable()
+                            ->downloadable(),
                         Placeholder::make('preview_surat_button')
                             ->label('')
                             ->content(fn (Get $get) => static::renderPreviewButton($get('surat_undangan')))
@@ -99,6 +150,28 @@ class KegiatanForm
                             ->maxLength(100)
                             ->helperText('Akan otomatis diisi dari PDF jika pola nomor surat dikenali.')
                             ->unique(table: Kegiatan::class, column: 'nomor', ignoreRecord: true)
+                            ->dehydrateStateUsing(fn ($state) => trim((string) $state))
+                            ->rule(function (?Kegiatan $record) {
+                                return function (string $attribute, $value, \Closure $fail) use ($record) {
+                                    $normalized = trim((string) $value);
+
+                                    if ($normalized === '') {
+                                        return;
+                                    }
+
+                                    $exists = Kegiatan::query()
+                                        ->whereRaw('LOWER(TRIM(nomor)) = ?', [strtolower($normalized)])
+                                        ->when(
+                                            $record,
+                                            fn ($query) => $query->where('id', '!=', $record->id)
+                                        )
+                                        ->exists();
+
+                                    if ($exists) {
+                                        $fail('Nomor surat sudah terdaftar.');
+                                    }
+                                };
+                            })
                             ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, callable $set, Get $get, ?Kegiatan $record) {
                                 $nomor = trim((string) $state);
@@ -107,27 +180,13 @@ class KegiatanForm
                                     return;
                                 }
 
-                                $existing = Kegiatan::query()
-                                    ->where('nomor', $nomor)
-                                    ->when(
-                                        $record,
-                                        fn ($query) => $query->where('id', '!=', $record->id)
-                                    )
-                                    ->first();
+                                $existing = static::findDuplicateNomor($nomor, $record);
 
                                 if (! $existing) {
                                     return;
                                 }
 
-                                Notification::make()
-                                    ->title('Nomor surat duplikat')
-                                    ->body(
-                                        "Nomor surat {$nomor} sudah terdaftar untuk surat "
-                                        . ($existing->nama_kegiatan ?? '-')
-                                    )
-                                    ->danger()
-                                    ->persistent()
-                                    ->send();
+                                static::notifyDuplicateNomor($nomor, $existing);
                             }),
 
                         TextInput::make('nama_kegiatan')
@@ -137,9 +196,8 @@ class KegiatanForm
                             ->helperText('Diambil otomatis dari HAL/PERIHAL surat (bisa diubah).'),
 
                         DatePicker::make('tanggal')
-                            ->label('Tanggal Surat')
+                            ->label('Tanggal Kegiatan')
                             ->required()
-                            ->helperText('Akan otomatis diisi dari PDF jika pola tanggal surat dikenali.')
                             ->displayFormat('d-m-Y'),
 
                         TextInput::make('waktu')
@@ -246,6 +304,21 @@ class KegiatanForm
         return is_string($state) ? $state : null;
     }
 
+    protected static function storeUploadedLampiran(string|TemporaryUploadedFile $state, ?string $currentPath = null): ?string
+    {
+        if ($state instanceof TemporaryUploadedFile) {
+            if ($currentPath) {
+                Storage::disk('public')->delete($currentPath);
+            }
+
+            $filename = now()->format('Ymd_His') . '_' . $state->getClientOriginalName();
+
+            return $state->storeAs('lampiran-surat', $filename, 'public');
+        }
+
+        return is_string($state) ? $state : null;
+    }
+
     protected static function compressUploadedPdf(string $storedPath): void
     {
         $absolutePath = Storage::disk('public')->path($storedPath);
@@ -315,6 +388,36 @@ class KegiatanForm
         };
     }
 
+    protected static function findDuplicateNomor(string $nomor, ?Kegiatan $record): ?Kegiatan
+    {
+        $normalized = trim($nomor);
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        return Kegiatan::query()
+            ->whereRaw('LOWER(TRIM(nomor)) = ?', [strtolower($normalized)])
+            ->when(
+                $record,
+                fn ($query) => $query->where('id', '!=', $record->id)
+            )
+            ->first();
+    }
+
+    protected static function notifyDuplicateNomor(string $nomor, Kegiatan $existing): void
+    {
+        Notification::make()
+            ->title('Nomor surat duplikat')
+            ->body(
+                "Nomor surat {$nomor} sudah terdaftar untuk surat "
+                . ($existing->nama_kegiatan ?? '-')
+            )
+            ->danger()
+            ->persistent()
+            ->send();
+    }
+
     protected static function populateFieldsFromPdf(?string $storedPath, callable $set): void
     {
         if (! $storedPath) {
@@ -338,15 +441,6 @@ class KegiatanForm
         $perihal = $extractor->extractPerihal($absolutePath);
         if (! empty($perihal)) {
             $set('nama_kegiatan', $perihal);
-        }
-
-        $tanggalString = $extractor->extractTanggal($absolutePath);
-        if (! empty($tanggalString)) {
-            $parsed = static::parseTanggalString($tanggalString);
-
-            if ($parsed) {
-                $set('tanggal', $parsed->toDateString());
-            }
         }
     }
 
