@@ -97,12 +97,11 @@ class KegiatansTable
                     ->colors([
                         'success' => fn ($state, Kegiatan $record) => $record->jenis_surat === 'tindak_lanjut' && filled($state),
                         'danger' => fn ($state, Kegiatan $record) => $record->jenis_surat === 'tindak_lanjut' && blank($state),
-                        'gray' => fn ($state, Kegiatan $record) => $record->jenis_surat !== 'tindak_lanjut',
                     ])
                     ->tooltip(fn ($state, Kegiatan $record) => $record->jenis_surat === 'tindak_lanjut'
                         ? ($state ? 'Sudah selesai tindak lanjut' : 'Belum selesai tindak lanjut')
                         : 'Bukan surat TL')
-                    ->visible(fn (?Kegiatan $record) => $record?->jenis_surat === 'tindak_lanjut'),
+                    ->hidden(fn (?Kegiatan $record) => $record?->jenis_surat !== 'tindak_lanjut'),
             ])
             ->defaultSort('tanggal', 'asc')
 
