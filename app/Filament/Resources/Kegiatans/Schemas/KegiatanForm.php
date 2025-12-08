@@ -179,7 +179,7 @@ class KegiatanForm
                             ->helperText('Diambil otomatis dari HAL/PERIHAL surat (bisa diubah).'),
 
                         DatePicker::make('tanggal')
-                            ->label('Tanggal Surat')
+                            ->label('Tanggal Kegiatan')
                             ->required()
                             ->displayFormat('d-m-Y'),
 
