@@ -277,6 +277,14 @@ class KegiatanForm
                                 }
                             })
                             ->helperText('Pilih personil yang akan menghadiri kegiatan ini.'),
+
+                        Select::make('groups')
+                            ->label('Grup WhatsApp Tujuan')
+                            ->relationship('groups', 'nama')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->helperText('Pilih grup WA mana yang menjadi target agenda ini.'),
                     ])
                     ->columns(1)
                     ->columnSpanFull(),

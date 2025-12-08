@@ -5,7 +5,9 @@ namespace App\Models;
 use App\Models\TindakLanjutReminderLog;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
 class Kegiatan extends Model
 {
@@ -47,6 +49,37 @@ class Kegiatan extends Model
     {
         return $this->belongsToMany(Personil::class, 'kegiatan_personil')
             ->withTimestamps();
+    }
+
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'group_kegiatan')->withTimestamps();
+    }
+
+    /**
+     * Ambil personil kegiatan yang termasuk ke salah satu grup target.
+     *
+     * @param  array<int, int|string>  $groupIds
+     */
+    public function getPersonilUntukGrup(array $groupIds): Collection
+    {
+        $filteredIds = collect($groupIds)
+            ->filter(fn ($id) => $id !== null && $id !== '')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($filteredIds->isEmpty()) {
+            return collect();
+        }
+
+        return $this->personils()
+            ->whereHas('groups', fn ($query) => $query->whereIn('groups.id', $filteredIds))
+            ->whereNotNull('personils.no_wa')
+            ->where('personils.no_wa', '!=', '')
+            ->get()
+            ->unique('id')
+            ->values();
     }
 
     public function tindakLanjutReminderLogs()

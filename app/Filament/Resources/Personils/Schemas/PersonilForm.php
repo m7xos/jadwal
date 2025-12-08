@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Personils\Schemas;
 
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -40,6 +41,14 @@ class PersonilForm
                         Textarea::make('keterangan')
                             ->label('Keterangan')
                             ->rows(3),
+
+                        Select::make('groups')
+                            ->label('Grup WhatsApp')
+                            ->relationship('groups', 'nama')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->helperText('Pilih grup WA tempat personil ini terdaftar.'),
                     ])
                     ->columns(2),
             ]);
