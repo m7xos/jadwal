@@ -199,5 +199,7 @@
     setInterval(checkSchedule, 5000);
 </script>
 
+<x-app-footer class="mt-6" text-class="text-slate-400" />
+
 </body>
 </html>

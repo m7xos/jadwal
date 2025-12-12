@@ -300,16 +300,7 @@
     </main>
 
     {{-- FOOTER --}}
-    <footer class="border-t border-slate-200 bg-white/90">
-        <div class="max-w-6xl mx-auto px-4 py-3 text-[11px] md:text-xs text-slate-500 flex flex-col md:flex-row md:items-center md:justify-between gap-1">
-            <div>
-                &copy; {{ date('Y') }} — Kecamatan Watumalang.
-            </div>
-            <div>
-                Data agenda bersumber dari sistem internal dan diperbarui secara berkala.
-            </div>
-        </div>
-    </footer>
+    <x-app-footer class="border-t border-slate-200 bg-white/90" text-class="text-slate-500" />
 </div>
 
 </body>
