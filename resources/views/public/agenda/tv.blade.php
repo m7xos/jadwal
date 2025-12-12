@@ -352,9 +352,7 @@
             @endif
         </main>
 
-        <footer class="text-[11px] text-slate-400 mt-2">
-            Halaman ini otomatis memuat agenda terbaru ketika petugas memperbarui data di sistem.
-        </footer>
+        <x-app-footer class="mt-4" text-class="text-slate-300" />
     </div>
 
 </body>
