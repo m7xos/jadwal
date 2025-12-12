@@ -35,6 +35,10 @@ class WablasWebhookController extends Controller
         $explicitId = $this->extractKegiatanIdFromMessage($message);
         $containsSelesai = str_contains($normalizedMessage, 'selesai');
 
+        if ($explicitId === null) {
+            return response()->json(['ignored' => 'no tl code provided']);
+        }
+
         if (! $containsSelesai && ! in_array($normalizedMessage, ['selesai tl', 'tl selesai'])) {
             return response()->json(['ignored' => 'not a selesai tl command']);
         }
