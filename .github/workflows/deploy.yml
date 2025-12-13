@@ -1,62 +1,88 @@
-- name: Deploy to VPS
-  env:
-    SSH_HOST: ${{ secrets.SSH_HOST }}
-    SSH_USER: ${{ secrets.SSH_USER }}
-    BRANCH: ${{ github.ref_name }}
-  run: |
-    ssh "$SSH_USER@$SSH_HOST" << EOF
-      set -e
+name: Deploy Laravel (1 VPS: Prod & Staging)
 
-      echo "Deploy branch: $BRANCH"
+on:
+  push:
+    branches:
+      - master
+      - multigroup
 
-      if [ "$BRANCH" = "master" ]; then
-        APP_DIR=/var/www/jadwal-prod
-      else
-        APP_DIR=/var/www/jadwal-staging
-      fi
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-      RELEASE_DIR=\$APP_DIR/releases/\$(date +%Y%m%d%H%M%S)
-      SHARED_DIR=\$APP_DIR/shared
-      PREV_RELEASE=\$(readlink -f \$APP_DIR/current || true)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      echo "➡️ New release: \$RELEASE_DIR"
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      mkdir -p "\$RELEASE_DIR"
+      - name: Add VPS to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "\$RELEASE_DIR"
+      - name: Deploy to VPS
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" << EOF
+            set -e
 
-      ln -sfn "\$SHARED_DIR/.env" "\$RELEASE_DIR/.env"
-      rm -rf "\$RELEASE_DIR/storage"
-      ln -sfn "\$SHARED_DIR/storage" "\$RELEASE_DIR/storage"
+            echo "Deploy branch: $BRANCH"
 
-      cd "\$RELEASE_DIR"
-      /usr/local/bin/composer install --no-dev --optimize-autoloader
+            if [ "$BRANCH" = "master" ]; then
+              APP_DIR=/var/www/jadwal-prod
+            else
+              APP_DIR=/var/www/jadwal-staging
+            fi
 
-      echo "🧪 Run migration"
-      if ! php artisan migrate --force; then
-        echo "❌ Migration failed, rollback"
-        rm -rf "\$RELEASE_DIR"
-        exit 1
-      fi
+            RELEASE_DIR=\$APP_DIR/releases/\$(date +%Y%m%d%H%M%S)
+            SHARED_DIR=\$APP_DIR/shared
+            PREV_RELEASE=\$(readlink -f \$APP_DIR/current || true)
 
-      php artisan optimize:clear
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
+            echo "➡️ New release: \$RELEASE_DIR"
 
-      echo "🔄 Switch symlink"
-      ln -sfn "\$RELEASE_DIR" "\$APP_DIR/current"
+            mkdir -p "\$RELEASE_DIR"
 
-      echo "❤️ Health check"
-      if ! curl -fs http://localhost/health; then
-        echo "❌ Health check failed, rollback"
-        ln -sfn "\$PREV_RELEASE" "\$APP_DIR/current"
-        exit 1
-      fi
+            git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "\$RELEASE_DIR"
 
-      echo "🧹 Cleanup old releases"
-      cd "\$APP_DIR/releases"
-      ls -dt */ | tail -n +6 | xargs rm -rf
+            ln -sfn "\$SHARED_DIR/.env" "\$RELEASE_DIR/.env"
+            rm -rf "\$RELEASE_DIR/storage"
+            ln -sfn "\$SHARED_DIR/storage" "\$RELEASE_DIR/storage"
 
-      echo "✅ Deploy success"
-    EOF
+            cd "\$RELEASE_DIR"
+            /usr/local/bin/composer install --no-dev --optimize-autoloader
+
+            echo "🧪 Run migration"
+            if ! php artisan migrate --force; then
+              echo "❌ Migration failed, rollback"
+              rm -rf "\$RELEASE_DIR"
+              exit 1
+            fi
+
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            echo "🔄 Switch symlink"
+            ln -sfn "\$RELEASE_DIR" "\$APP_DIR/current"
+
+            echo "❤️ Health check"
+            if ! curl -fs http://localhost/health; then
+              echo "❌ Health check failed, rollback"
+              ln -sfn "\$PREV_RELEASE" "\$APP_DIR/current"
+              exit 1
+            fi
+
+            echo "🧹 Cleanup old releases"
+            cd "\$APP_DIR/releases"
+            ls -dt */ | tail -n +6 | xargs rm -rf
+
+            echo "✅ Deploy success"
+          EOF
