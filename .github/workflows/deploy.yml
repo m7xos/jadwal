@@ -1,53 +1,60 @@
-name: Deploy to VPS watumalang.online
+- name: Deploy (1 VPS, master & multigroup)
+  env:
+    SSH_HOST: ${{ secrets.SSH_HOST }}
+    SSH_USER: ${{ secrets.SSH_USER }}
+    BRANCH: ${{ github.ref_name }}
+  run: |
+    ssh "$SSH_USER@$SSH_HOST" << 'EOF'
+      set -e
 
-on:
-  push:
-    branches:
-      - master   # ganti kalau pakai branch lain
+      if [ "$BRANCH" = "master" ]; then
+        APP_DIR=/var/www/jadwal-prod
+      else
+        APP_DIR=/var/www/jadwal-staging
+      fi
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+      RELEASE_DIR=$APP_DIR/releases/$(date +%Y%m%d%H%M%S)
+      SHARED_DIR=$APP_DIR/shared
+      PREV_RELEASE=$(readlink -f $APP_DIR/current || true)
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      echo "➡️ New release: $RELEASE_DIR"
 
-      - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      mkdir -p "$RELEASE_DIR"
 
-      - name: Add VPS to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan watumalang.online >> ~/.ssh/known_hosts
+      git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
 
-      - name: Deploy to watumalang.online
-        env:
-          SSH_HOST: watumalang.online
-          SSH_USER: ${{ secrets.SSH_USER }}
-        run: |
-          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
-            set -e
+      ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
+      rm -rf "$RELEASE_DIR/storage"
+      ln -sfn "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
 
-            cd /var/www/jadwal
+      cd "$RELEASE_DIR"
+      /usr/local/bin/composer install --no-dev --optimize-autoloader
 
-            git fetch origin
-            git reset --hard origin/master   # ganti kalau branch deploy-mu bukan main
+      echo "🧪 Run migration"
+      if ! php artisan migrate --force; then
+        echo "❌ Migration failed, rollback"
+        rm -rf "$RELEASE_DIR"
+        exit 1
+      fi
 
-            # sesuaikan path composer di server (cek dengan: which composer)
-            /usr/local/bin/composer install --no-dev --optimize-autoloader
+      php artisan optimize:clear
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
 
-            php artisan migrate --force
+      echo "🔄 Switch symlink"
+      ln -sfn "$RELEASE_DIR" "$APP_DIR/current"
 
-            php artisan migrate --seed
-            php artisan optimize:clear
-            php artisan storage:link
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
+      echo "❤️ Health check"
+      if ! curl -fs http://localhost/health; then
+        echo "❌ Health check failed, rollback"
+        ln -sfn "$PREV_RELEASE" "$APP_DIR/current"
+        exit 1
+      fi
 
-             #chown -R deploy:www-data storage bootstrap/cache
-             #chmod -R 775 storage bootstrap/cache
-          EOF
+      echo "🧹 Cleanup old releases"
+      cd "$APP_DIR/releases"
+      ls -dt */ | tail -n +6 | xargs rm -rf
+
+      echo "✅ Deploy success"
+    EOF
