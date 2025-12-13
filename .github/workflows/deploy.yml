@@ -1,4 +1,4 @@
-name: Deploy to VPS
+- name: Deploy to VPS
   env:
     SSH_HOST: ${{ secrets.SSH_HOST }}
     SSH_USER: ${{ secrets.SSH_USER }}
