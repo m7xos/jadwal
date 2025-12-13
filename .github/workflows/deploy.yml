@@ -1,53 +1,84 @@
-name: Deploy to VPS watumalang.online
+name: Deploy Multi VPS Laravel
 
 on:
   push:
     branches:
-      - master   # ganti kalau pakai branch lain
+      - master
+      - multigroup
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'master' && 'production' || 'staging' }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup SSH agent
+      - name: Setup SSH Agent
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: |
+            ${{ github.ref_name == 'master' && secrets.PROD_SSH_PRIVATE_KEY || secrets.STAGING_SSH_PRIVATE_KEY }}
 
       - name: Add VPS to known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan watumalang.online >> ~/.ssh/known_hosts
+          ssh-keyscan -H \
+            ${{ github.ref_name == 'master' && secrets.PROD_SSH_HOST || secrets.STAGING_SSH_HOST }} \
+            >> ~/.ssh/known_hosts
 
-      - name: Deploy to watumalang.online
+      - name: Deploy Zero Downtime + Health Check + Rollback
         env:
-          SSH_HOST: watumalang.online
-          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ github.ref_name == 'master' && secrets.PROD_SSH_HOST || secrets.STAGING_SSH_HOST }}
+          SSH_USER: ${{ github.ref_name == 'master' && secrets.PROD_SSH_USER || secrets.STAGING_SSH_USER }}
+          BRANCH: ${{ github.ref_name }}
         run: |
           ssh "$SSH_USER@$SSH_HOST" << 'EOF'
             set -e
 
-            cd /var/www/jadwal
+            APP_DIR=/var/www/jadwal
+            RELEASE_DIR=$APP_DIR/releases/$(date +%Y%m%d%H%M%S)
+            SHARED_DIR=$APP_DIR/shared
+            PREV_RELEASE=$(readlink -f $APP_DIR/current || true)
 
-            git fetch origin
-            git reset --hard origin/master   # ganti kalau branch deploy-mu bukan main
+            echo "➡️ New release: $RELEASE_DIR"
+            mkdir -p "$RELEASE_DIR"
 
-            # sesuaikan path composer di server (cek dengan: which composer)
+            git clone -b $BRANCH https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
+
+            ln -sfn $SHARED_DIR/.env $RELEASE_DIR/.env
+            rm -rf $RELEASE_DIR/storage
+            ln -sfn $SHARED_DIR/storage $RELEASE_DIR/storage
+
+            cd "$RELEASE_DIR"
             /usr/local/bin/composer install --no-dev --optimize-autoloader
 
-            php artisan migrate --force
+            echo "🧪 Running migrations"
+            if ! php artisan migrate --force; then
+              echo "❌ Migration failed – rollback"
+              rm -rf "$RELEASE_DIR"
+              exit 1
+            fi
 
-            php artisan migrate --seed
+            echo "⚡ Optimize"
             php artisan optimize:clear
-            php artisan storage:link
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
 
-             #chown -R deploy:www-data storage bootstrap/cache
-             #chmod -R 775 storage bootstrap/cache
+            echo "🔄 Switch symlink"
+            ln -sfn "$RELEASE_DIR" $APP_DIR/current
+
+            echo "❤️ Health check"
+            if ! curl -fs https://$SSH_HOST/health; then
+              echo "❌ Health check failed – rollback"
+              ln -sfn "$PREV_RELEASE" $APP_DIR/current
+              exit 1
+            fi
+
+            echo "🧹 Cleanup old releases"
+            cd $APP_DIR/releases
+            ls -dt */ | tail -n +6 | xargs rm -rf
+
+            echo "✅ Deployment success"
           EOF
