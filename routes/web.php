@@ -7,6 +7,9 @@ use App\Http\Controllers\PublicAgendaController;
 use App\Http\Controllers\WablasWebhookController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
+// routes/web.php
+Route::get('/health', fn () => response()->json(['status' => 'ok']));
+
 //Route::get('/', function () {
 //    return view('audio');
 //});
