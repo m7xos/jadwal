@@ -1,0 +1,53 @@
+name: Deploy to VPS watumalang.online
+
+on:
+  push:
+    branches:
+      - multigroup   # ganti kalau pakai branch lain
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add VPS to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan hardiagunadi.web.id >> ~/.ssh/known_hosts
+
+      - name: Deploy to hardiagunadi.web.id
+        env:
+          SSH_HOST: hardiagunadi.web.id
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
+            set -e
+
+            cd /var/www/jadwal
+
+            git fetch origin
+            git reset --hard origin/multigroup   # ganti kalau branch deploy-mu bukan main
+
+            # sesuaikan path composer di server (cek dengan: which composer)
+            /usr/local/bin/composer install --no-dev --optimize-autoloader
+
+            php artisan migrate --force
+
+            php artisan migrate --seed
+            php artisan optimize:clear
+            php artisan storage:link
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+             #chown -R deploy:www-data storage bootstrap/cache
+             #chmod -R 775 storage bootstrap/cache
+          EOF
