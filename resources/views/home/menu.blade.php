@@ -199,16 +199,7 @@
     </main>
 
     {{-- Footer --}}
-    <footer class="border-t border-slate-200 bg-white/80">
-        <div class="max-w-5xl mx-auto px-4 py-3 text-[11px] md:text-xs text-slate-500 flex flex-col md:flex-row md:items-center md:justify-between gap-1">
-            <div>
-                &copy; {{ date('Y') }} — Sistem Aplikasi Kantor.
-            </div>
-            <div class="text-slate-400">
-                Pilih aplikasi yang sesuai dengan kebutuhan penggunaan di kantor.
-            </div>
-        </div>
-    </footer>
+    <x-app-footer class="border-t border-slate-200 bg-white/80" text-class="text-slate-500" />
 </div>
 
 </body>

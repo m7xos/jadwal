@@ -280,8 +280,8 @@
     </div>
 
     {{-- Konten utama di atas background --}}
-    <div class="relative z-10 max-w-6xl mx-auto px-6 py-6 flex flex-col gap-4 text-slate-50">
-        {{-- Header --}}
+    <div class="relative z-10 max-w-6xl mx-auto px-4 md:px-6 py-6 flex flex-col gap-4 text-slate-50">
+        {{-- Header --}} 
         <header class="flex items-center justify-between">
             <div>
                 <div class="text-xs text-sky-300 uppercase tracking-[0.2em]">Agenda Kegiatan</div>
@@ -305,13 +305,13 @@
                 </div>
             @else
                 @foreach ($agendaToday as $kegiatan)
-                    <div class="rounded-2xl border border-sky-700/40 bg-sky-900/60 px-5 py-4 flex gap-4 items-start shadow-lg backdrop-blur-sm">
-                        {{-- waktu besar di kiri --}}
-                        <div class="w-40 text-right pr-4 border-r border-sky-700/60">
-                            <div class="text-lg font-semibold text-sky-200">
+                    <div class="rounded-2xl border border-sky-700/40 bg-sky-900/60 px-4 md:px-5 py-4 flex flex-col md:flex-row gap-4 items-start shadow-lg backdrop-blur-sm">
+                        {{-- waktu besar di kiri --}} 
+                        <div class="md:w-40 w-full md:text-right text-left md:pr-4 md:border-r border-b md:border-b-0 border-sky-700/60 md:pb-0 pb-3 shrink-0">
+                            <div class="text-lg md:text-xl font-semibold text-sky-200">
                                 {{ $kegiatan->waktu }}
                             </div>
-                            <div class="text-xs text-sky-300 mt-1">
+                            <div class="text-xs md:text-sm text-sky-300 mt-1">
                                 {{ optional($kegiatan->tanggal)->locale('id')->isoFormat('D MMM Y') }}
                             </div>
                             <div class="text-[11px] text-sky-400 mt-2">
@@ -319,12 +319,12 @@
                             </div>
                         </div>
 
-                        {{-- isi utama --}}
-                        <div class="flex-1">
-                            <div class="text-2xl font-bold mb-1">
+                        {{-- isi utama --}} 
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xl md:text-2xl font-bold mb-1 break-words">
                                 {{ $kegiatan->nama_kegiatan }}
                             </div>
-                            <div class="text-lg text-sky-100 mb-2">
+                            <div class="text-base md:text-lg text-sky-100 mb-2 break-words">
                                 📍 {{ $kegiatan->tempat }}
                             </div>
 
@@ -333,7 +333,7 @@
                             @endphp
 
                             @if ($personils->isNotEmpty())
-                                <div class="text-sm text-sky-100">
+                                <div class="text-sm md:text-base text-sky-100 break-words">
                                     👥
                                     @foreach ($personils as $idx => $p)
                                         {{ $idx ? ' • ' : '' }}{{ $p->nama }}@if($p->jabatan) ({{ $p->jabatan }})@endif
@@ -342,7 +342,7 @@
                             @endif
 
                             @if ($kegiatan->keterangan)
-                                <div class="text-sm text-slate-200 mt-2">
+                                <div class="text-sm md:text-base text-slate-200 mt-2 break-words">
                                     {{ $kegiatan->keterangan }}
                                 </div>
                             @endif
@@ -352,9 +352,7 @@
             @endif
         </main>
 
-        <footer class="text-[11px] text-slate-400 mt-2">
-            Halaman ini otomatis memuat agenda terbaru ketika petugas memperbarui data di sistem.
-        </footer>
+        <x-app-footer class="mt-4" text-class="text-slate-300" />
     </div>
 
 </body>

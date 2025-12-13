@@ -56,5 +56,7 @@
     </div>
 </main>
 
+<x-app-footer class="mt-auto" text-class="text-slate-400" />
+
 </body>
 </html>

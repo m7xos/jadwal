@@ -221,10 +221,15 @@ class WablasService
 
     protected function formatPersonilTag(Personil $personil, bool $withJabatan = false): ?string
     {
+        $mention = $this->formatMention($personil->no_wa);
         $name = trim((string) $personil->nama);
         $jabatan = trim((string) $personil->jabatan);
 
-        if ($name !== '') {
+        if (! $mention) {
+            if ($name === '') {
+                return null;
+            }
+
             $tag = '@' . $name;
 
             if ($withJabatan && $jabatan !== '') {
@@ -234,14 +239,16 @@ class WablasService
             return $tag;
         }
 
-        $mention = $this->formatMention($personil->no_wa);
+        if ($withJabatan && $jabatan !== '') {
+            if ($name !== '') {
+                return $mention . ' (' . $name . ' - ' . $jabatan . ')';
+            }
 
-        if (! $mention) {
-            return null;
+            return $mention . ' (' . $jabatan . ')';
         }
 
-        if ($withJabatan && $jabatan !== '') {
-            return $mention . ' (' . $jabatan . ')';
+        if ($name !== '') {
+            return $mention . ' (' . $name . ')';
         }
 
         return $mention;
