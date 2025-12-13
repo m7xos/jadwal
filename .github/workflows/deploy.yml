@@ -1,71 +1,91 @@
-name: Deploy to VPS
-  env:
-    SSH_HOST: ${{ secrets.SSH_HOST }}
-    SSH_USER: ${{ secrets.SSH_USER }}
-    BRANCH: ${{ github.ref_name }}
-  run: |
-    ssh "$SSH_USER@$SSH_HOST" << 'EOF'
-      set -e
+name: Deploy Laravel (1 VPS: Prod & Staging)
 
-      echo "Deploy branch: $BRANCH"
+on:
+  push:
+    branches:
+      - master
+      - multigroup
 
-      if [ "$BRANCH" = "master" ]; then
-        APP_DIR=/var/www/jadwal-prod
-      else
-        APP_DIR=/var/www/jadwal-staging
-      fi
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-      RELEASE_DIR=$APP_DIR/releases/$(date +%Y%m%d%H%M%S)
-      SHARED_DIR=$APP_DIR/shared
-      PREV_RELEASE=$(readlink -f $APP_DIR/current || true)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      echo "➡️ New release: $RELEASE_DIR"
-      mkdir -p "$RELEASE_DIR"
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
+      - name: Add VPS to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      # ===== ENV & STORAGE =====
-      ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
+      - name: Deploy to VPS
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
+            set -e
 
-      rm -rf "$RELEASE_DIR/storage"
-      ln -sfn "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
+            echo "Deploy branch: $BRANCH"
 
-      # ===== BOOTSTRAP CACHE (INI KUNCI FIX ERROR) =====
-      rm -rf "$RELEASE_DIR/bootstrap/cache"
-      ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
+            if [ "$BRANCH" = "master" ]; then
+              APP_DIR=/var/www/jadwal-prod
+            else
+              APP_DIR=/var/www/jadwal-staging
+            fi
 
-      cd "$RELEASE_DIR"
+            RELEASE_DIR=$APP_DIR/releases/$(date +%Y%m%d%H%M%S)
+            SHARED_DIR=$APP_DIR/shared
+            PREV_RELEASE=$(readlink -f $APP_DIR/current || true)
 
-      chmod -R 775 storage bootstrap/cache
+            echo "➡️ New release: $RELEASE_DIR"
+            mkdir -p "$RELEASE_DIR"
 
-      # ===== COMPOSER =====
-      /usr/local/bin/composer install --no-dev --optimize-autoloader
+            git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
 
-      echo "🧪 Run migration"
-      if ! php artisan migrate --force; then
-        echo "❌ Migration failed, rollback"
-        rm -rf "$RELEASE_DIR"
-        exit 1
-      fi
+            ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
 
-      php artisan optimize:clear
-      php artisan config:cache
-      php artisan route:cache
-      php artisan view:cache
+            rm -rf "$RELEASE_DIR/storage"
+            ln -sfn "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
 
-      echo "🔄 Switch symlink"
-      ln -sfn "$RELEASE_DIR" "$APP_DIR/current"
+            rm -rf "$RELEASE_DIR/bootstrap/cache"
+            ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
 
-      echo "❤️ Health check"
-      if ! curl -fs http://localhost/health; then
-        echo "❌ Health check failed, rollback"
-        ln -sfn "$PREV_RELEASE" "$APP_DIR/current"
-        exit 1
-      fi
+            cd "$RELEASE_DIR"
+            chmod -R 775 storage bootstrap/cache
 
-      echo "🧹 Cleanup old releases"
-      cd "$APP_DIR/releases"
-      ls -dt */ | tail -n +6 | xargs rm -rf
+            /usr/local/bin/composer install --no-dev --optimize-autoloader
 
-      echo "✅ Deploy success"
-    EOF
+            echo "🧪 Run migration"
+            if ! php artisan migrate --force; then
+              echo "❌ Migration failed, rollback"
+              rm -rf "$RELEASE_DIR"
+              exit 1
+            fi
+
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            ln -sfn "$RELEASE_DIR" "$APP_DIR/current"
+
+            echo "❤️ Health check"
+            if ! curl -fs http://localhost/health; then
+              echo "❌ Health check failed, rollback"
+              ln -sfn "$PREV_RELEASE" "$APP_DIR/current"
+              exit 1
+            fi
+
+            cd "$APP_DIR/releases"
+            ls -dt */ | tail -n +6 | xargs rm -rf
+
+            echo "✅ Deploy success"
+          EOF
