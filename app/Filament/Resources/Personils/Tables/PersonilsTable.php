@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class PersonilsTable
@@ -24,9 +25,21 @@ class PersonilsTable
                     ->label('NIP')
                     ->searchable(),
 					
-				TextColumn::make('jabatan')
+                TextColumn::make('jabatan')
                     ->label('Jabatan')
                     ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('kategori')
+                    ->label('Kategori')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'kecamatan' => 'Personil Kecamatan',
+                        'kelurahan' => 'Personil Kelurahan',
+                        'kades_lurah' => 'Personil Kades/Lurah',
+                        'sekdes_admin' => 'Personil Sekdes/Selur/Admin',
+                        default => $state,
+                    })
                     ->sortable(),
 
                 TextColumn::make('no_wa')
@@ -39,7 +52,14 @@ class PersonilsTable
                     ->tooltip(fn ($state) => $state),
             ])
             ->filters([
-                //
+                SelectFilter::make('kategori')
+                    ->label('Kategori')
+                    ->options([
+                        'kecamatan' => 'Personil Kecamatan',
+                        'kelurahan' => 'Personil Kelurahan',
+                        'kades_lurah' => 'Personil Kades/Lurah',
+                        'sekdes_admin' => 'Personil Sekdes/Selur/Admin',
+                    ]),
             ])
             // ==== AKSI PER BARIS (EDIT DLL) ====
             ->recordActions([
