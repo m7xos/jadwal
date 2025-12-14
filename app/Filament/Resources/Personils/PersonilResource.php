@@ -66,11 +66,24 @@ class PersonilResource extends Resource
                     // $data['file'] = path relatif di disk 'public', misal: "import/personil/xxx.xlsx"
                     $path = Storage::disk('public')->path($data['file']);
 
+                    if (! is_file($path)) {
+                        Notification::make()
+                            ->title('File tidak ditemukan')
+                            ->body('Pastikan Anda mengunggah file Excel yang valid.')
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
                     $import = new PersonilsImport();
 
                     Excel::import($import, $path);
 
                     $count = $import->getRowCount();
+
+                    // Hapus file upload setelah diproses supaya tidak menumpuk di storage
+                    Storage::disk('public')->delete($data['file']);
 
                     Notification::make()
                         ->title('Import personil berhasil')
