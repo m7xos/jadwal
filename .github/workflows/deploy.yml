@@ -30,7 +30,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           BRANCH: ${{ github.ref_name }}
         run: |
-          ssh "$SSH_USER@$SSH_HOST" "BRANCH='$BRANCH' bash -s" << 'EOF'
+          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
             set -e
 
             echo "🚀 Deploy branch: $BRANCH"
@@ -65,7 +65,7 @@ jobs:
             rm -rf "$RELEASE_DIR/bootstrap/cache"
             ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
 
-            # Permission (opsional: sesuaikan user webserver)
+            # Pastikan permission benar
             chmod -R 775 "$SHARED_DIR/storage"
             chmod -R 775 "$SHARED_DIR/bootstrap/cache"
 
@@ -97,3 +97,4 @@ jobs:
 
             echo "✅ Deploy SUCCESS ($BRANCH)"
           EOF
+          
