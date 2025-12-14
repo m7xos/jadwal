@@ -56,7 +56,7 @@ jobs:
             # Pastikan current tidak berupa directory (harus symlink)
             if [ -d "$APP_DIR/current" ] && [ ! -L "$APP_DIR/current" ]; then
               echo "⚠️ current terdeteksi sebagai directory, hapus agar bisa jadi symlink"
-              rm -rf "$APP_DIR/current"
+              sudo rm -rf "$APP_DIR/current"
             fi
 
             RELEASE_DIR="$APP_DIR/releases/$(date +%Y%m%d%H%M%S)"
@@ -93,12 +93,19 @@ jobs:
             rm -rf "$RELEASE_DIR/bootstrap/cache"
             ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
 
-            # Permission minimum
-            chmod -R 775 "$SHARED_DIR/storage" || true
-            chmod -R 775 "$SHARED_DIR/bootstrap/cache" || true
+            # ===== PERMISSIONS (deploy + www-data) =====
+            DEPLOY_USER="deploy"
 
-            # Opsional: kalau punya sudo tanpa password
-            sudo chown -R www-data:www-data "$SHARED_DIR/storage" "$SHARED_DIR/bootstrap/cache" || true
+            # Pastikan folder shared milik deploy dan group www-data
+            sudo chown -R "$DEPLOY_USER":www-data "$SHARED_DIR/storage" "$SHARED_DIR/bootstrap/cache"
+
+            # Folder: rwxrwxr-x + setgid (2775) supaya file/dir baru ikut group www-data
+            sudo find "$SHARED_DIR/storage" -type d -exec chmod 2775 {} \;
+            sudo find "$SHARED_DIR/bootstrap/cache" -type d -exec chmod 2775 {} \;
+
+            # File: rw-rw-r-- (664)
+            sudo find "$SHARED_DIR/storage" -type f -exec chmod 664 {} \;
+            sudo find "$SHARED_DIR/bootstrap/cache" -type f -exec chmod 664 {} \;
 
             # ===== COMPOSER =====
             cd "$RELEASE_DIR"
