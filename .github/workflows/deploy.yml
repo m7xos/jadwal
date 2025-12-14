@@ -28,43 +28,37 @@ jobs:
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
+          BRANCH: ${{ github.ref_name }}
         run: |
-          BRANCH=${GITHUB_HEAD_REF:-${GITHUB_REF_NAME:-}}
-
-          if [ -z "$BRANCH" ]; then
-            echo "Unable to determine branch name" >&2
-            exit 1
-          fi
-
-          ssh "$SSH_USER@$SSH_HOST" "BRANCH=$BRANCH" 'bash -s' << 'EOF'
+          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
             set -e
 
-            echo "Deploy branch: ${BRANCH}"
+            echo "Deploy branch: $BRANCH"
 
-            if [ "${BRANCH}" = "master" ]; then
+            if [ "$BRANCH" = "master" ]; then
               APP_DIR=/var/www/jadwal-prod
             else
               APP_DIR=/var/www/jadwal-staging
             fi
 
-            RELEASE_DIR=${APP_DIR}/releases/$(date +%Y%m%d%H%M%S)
-            SHARED_DIR=${APP_DIR}/shared
-            PREV_RELEASE=$(readlink -f ${APP_DIR}/current || true)
+            RELEASE_DIR=$APP_DIR/releases/$(date +%Y%m%d%H%M%S)
+            SHARED_DIR=$APP_DIR/shared
+            PREV_RELEASE=$(readlink -f $APP_DIR/current || true)
 
-            echo "➡️ New release: ${RELEASE_DIR}"
-            mkdir -p "${RELEASE_DIR}"
+            echo "➡️ New release: $RELEASE_DIR"
+            mkdir -p "$RELEASE_DIR"
 
-            git clone -b "${BRANCH}" https://github.com/hardiagunadi/jadwal.git "${RELEASE_DIR}"
+            git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
 
-            ln -sfn "${SHARED_DIR}/.env" "${RELEASE_DIR}/.env"
+            ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
 
-            rm -rf "${RELEASE_DIR}/storage"
-            ln -sfn "${SHARED_DIR}/storage" "${RELEASE_DIR}/storage"
+            rm -rf "$RELEASE_DIR/storage"
+            ln -sfn "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
 
-            rm -rf "${RELEASE_DIR}/bootstrap/cache"
-            ln -sfn "${SHARED_DIR}/bootstrap/cache" "${RELEASE_DIR}/bootstrap/cache"
+            rm -rf "$RELEASE_DIR/bootstrap/cache"
+            ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
 
-            cd "${RELEASE_DIR}"
+            cd "$RELEASE_DIR"
             chmod -R 775 storage bootstrap/cache
 
             /usr/local/bin/composer install --no-dev --optimize-autoloader
@@ -72,7 +66,7 @@ jobs:
             echo "🧪 Run migration"
             if ! php artisan migrate --force; then
               echo "❌ Migration failed, rollback"
-              rm -rf "${RELEASE_DIR}"
+              rm -rf "$RELEASE_DIR"
               exit 1
             fi
 
@@ -82,17 +76,17 @@ jobs:
             php artisan view:cache
 
             echo "🔄 Switch symlink"
-            ln -sfn "${RELEASE_DIR}" "${APP_DIR}/current"
+            ln -sfn "$RELEASE_DIR" "$APP_DIR/current"
 
             echo "❤️ Health check"
             if ! curl -fs http://localhost/health; then
               echo "❌ Health check failed, rollback"
-              ln -sfn "${PREV_RELEASE}" "${APP_DIR}/current"
+              ln -sfn "$PREV_RELEASE" "$APP_DIR/current"
               exit 1
             fi
 
             echo "🧹 Cleanup old releases"
-            cd "${APP_DIR}/releases"
+            cd "$APP_DIR/releases"
             ls -dt */ | tail -n +6 | xargs rm -rf
 
             echo "✅ Deploy success"
