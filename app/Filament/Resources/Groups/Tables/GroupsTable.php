@@ -30,7 +30,7 @@ class GroupsTable
                 TextColumn::make('wablas_group_id')
                     ->label('ID Grup Wablas')
                     ->searchable()
-                    ->copyable(),
+                    ->copyable(), //ok
 
                 TextColumn::make('keterangan')
                     ->label('Keterangan')
