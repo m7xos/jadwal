@@ -1,0 +1,129 @@
+name: Deploy Laravel (Prod & Staging)
+
+on:
+  push:
+    branches:
+      - master
+      - multigroup
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add VPS to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy to VPS
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" "BRANCH='$BRANCH' bash -s" << 'EOF'
+            set -e
+
+            echo "🚀 Deploy branch: $BRANCH"
+
+            # Hanya izinkan branch yang ditentukan
+            if [ "$BRANCH" != "master" ] && [ "$BRANCH" != "multigroup" ]; then
+              echo "❌ Branch tidak diizinkan untuk deploy: $BRANCH"
+              exit 1
+            fi
+
+            # Tentukan direktori berdasarkan branch
+            if [ "$BRANCH" = "master" ]; then
+              APP_DIR=/var/www/jadwal-prod
+            else
+              APP_DIR=/var/www/jadwal-staging
+            fi
+
+            # Pastikan struktur folder ada
+            mkdir -p "$APP_DIR"
+            mkdir -p "$APP_DIR/releases"
+            mkdir -p "$APP_DIR/shared"
+            mkdir -p "$APP_DIR/current" || true
+
+            RELEASE_DIR="$APP_DIR/releases/$(date +%Y%m%d%H%M%S)"
+            SHARED_DIR="$APP_DIR/shared"
+
+            # Simpan release sebelumnya (untuk rollback)
+            PREV_RELEASE="$(readlink -f "$APP_DIR/current" 2>/dev/null || true)"
+
+            echo "➡️ New release: $RELEASE_DIR"
+            mkdir -p "$RELEASE_DIR"
+
+            # Clone branch
+            git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
+
+            # ===== SHARED FILES =====
+            mkdir -p "$SHARED_DIR/storage"
+            mkdir -p "$SHARED_DIR/bootstrap/cache"
+
+            # Tambahan penting: struktur storage Laravel (biar package:discover tidak error cache path)
+            mkdir -p "$SHARED_DIR/storage/framework/cache"
+            mkdir -p "$SHARED_DIR/storage/framework/sessions"
+            mkdir -p "$SHARED_DIR/storage/framework/views"
+            mkdir -p "$SHARED_DIR/storage/logs"
+
+            # .env wajib sudah ada di shared
+            ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
+
+            rm -rf "$RELEASE_DIR/storage"
+            ln -sfn "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
+
+            rm -rf "$RELEASE_DIR/bootstrap/cache"
+            ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
+
+            # Permission minimum
+            chmod -R 775 "$SHARED_DIR/storage" || true
+            chmod -R 775 "$SHARED_DIR/bootstrap/cache" || true
+
+            # Opsional: kalau punya sudo tanpa password, ini paling “bersih” untuk Laravel/Nginx/Apache
+            sudo chown -R www-data:www-data "$SHARED_DIR/storage" "$SHARED_DIR/bootstrap/cache" || true
+
+            # ===== COMPOSER =====
+            cd "$RELEASE_DIR"
+            /usr/local/bin/composer install --no-dev --optimize-autoloader
+
+            # ===== ARTISAN MIGRATE & CACHES =====
+            php artisan migrate --force
+
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            # ===== SWITCH SYMLINK =====
+            ln -sfn "$RELEASE_DIR" "$APP_DIR/current"
+
+            # ===== HEALTH CHECK =====
+            if ! curl -fs http://localhost/health; then
+              echo "❌ Health check failed, rollback"
+
+              if [ -n "$PREV_RELEASE" ] && [ -e "$PREV_RELEASE" ]; then
+                ln -sfn "$PREV_RELEASE" "$APP_DIR/current"
+                echo "↩️ Rolled back to: $PREV_RELEASE"
+              else
+                echo "⚠️ Tidak ada PREV_RELEASE untuk rollback (deploy pertama / current kosong)."
+              fi
+
+              exit 1
+            fi
+
+            # ===== CLEANUP OLD RELEASES =====
+            cd "$APP_DIR/releases"
+            ls -dt */ | tail -n +6 | xargs rm -rf || true
+
+            echo "✅ Deploy SUCCESS ($BRANCH)"
+          EOF
