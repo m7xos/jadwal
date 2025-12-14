@@ -1,0 +1,57 @@
+name: Deploy Laravel (Prod & Staging)
+
+on:
+  push:
+    branches:
+      - master
+      - multigroup
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to VPS
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" << EOF
+            set -e
+
+            echo "Deploy branch: $BRANCH"
+
+            if [ "$BRANCH" = "master" ]; then
+              APP_DIR=/var/www/jadwal-prod
+            else
+              APP_DIR=/var/www/jadwal-staging
+            fi
+
+            RELEASE_DIR=\$APP_DIR/releases/\$(date +%Y%m%d%H%M%S)
+            SHARED_DIR=\$APP_DIR/shared
+            PREV_RELEASE=\$(readlink -f \$APP_DIR/current || true)
+
+            mkdir -p "\$RELEASE_DIR"
+            git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "\$RELEASE_DIR"
+
+            ln -sfn "\$SHARED_DIR/.env" "\$RELEASE_DIR/.env"
+            rm -rf "\$RELEASE_DIR/storage"
+            ln -sfn "\$SHARED_DIR/storage" "\$RELEASE_DIR/storage"
+
+            rm -rf "\$RELEASE_DIR/bootstrap/cache"
+            ln -sfn "\$SHARED_DIR/bootstrap/cache" "\$RELEASE_DIR/bootstrap/cache"
+
+            cd "\$RELEASE_DIR"
+            chmod -R 775 storage bootstrap/cache
+
+            /usr/local/bin/composer install --no-dev --optimize-autoloader
+
+            php artisan migrate --force
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            ln -sfn "\$RELEASE_DIR" "\$APP_DIR/current"
+          EOF
