@@ -1,36 +1,10 @@
-name: Deploy Laravel (Prod & Staging)
-
-on:
-  push:
-    branches:
-      - master
-      - multigroup
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup SSH Agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Add VPS to known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-
       - name: Deploy to VPS
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           BRANCH: ${{ github.ref_name }}
         run: |
-          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
+          ssh "$SSH_USER@$SSH_HOST" "BRANCH='$BRANCH' bash -s" << 'EOF'
             set -e
 
             echo "🚀 Deploy branch: $BRANCH"
@@ -38,8 +12,11 @@ jobs:
             # Tentukan direktori berdasarkan branch
             if [ "$BRANCH" = "master" ]; then
               APP_DIR=/var/www/jadwal-prod
-            else
+            elif [ "$BRANCH" = "multigroup" ]; then
               APP_DIR=/var/www/jadwal-staging
+            else
+              echo "❌ Branch tidak diizinkan untuk deploy: $BRANCH"
+              exit 1
             fi
 
             RELEASE_DIR=$APP_DIR/releases/$(date +%Y%m%d%H%M%S)
@@ -50,7 +27,7 @@ jobs:
             mkdir -p "$RELEASE_DIR"
 
             # Clone branch
-            git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
+            git clone --branch "$BRANCH" --single-branch https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
 
             # ===== SHARED FILES =====
             mkdir -p "$SHARED_DIR"
@@ -65,7 +42,6 @@ jobs:
             rm -rf "$RELEASE_DIR/bootstrap/cache"
             ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
 
-            # Pastikan permission benar
             chmod -R 775 "$SHARED_DIR/storage"
             chmod -R 775 "$SHARED_DIR/bootstrap/cache"
 
