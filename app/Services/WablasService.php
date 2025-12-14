@@ -842,33 +842,30 @@ class WablasService
             ->values();
 
         if ($rawIds->isEmpty()) {
-            return [
-                'success' => false,
-                'results' => [],
-            ];
+            $groups = $this->resolveDefaultGroups();
+        } else {
+            $numericIds = $rawIds
+                ->filter(fn ($id) => ctype_digit($id))
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values();
+
+            $groups = Group::query()
+                ->where(function ($query) use ($numericIds, $rawIds) {
+                    $hasCondition = false;
+
+                    if ($numericIds->isNotEmpty()) {
+                        $query->whereIn('id', $numericIds);
+                        $hasCondition = true;
+                    }
+
+                    if ($rawIds->isNotEmpty()) {
+                        $method = $hasCondition ? 'orWhereIn' : 'whereIn';
+                        $query->{$method}('wablas_group_id', $rawIds);
+                    }
+                })
+                ->get();
         }
-
-        $numericIds = $rawIds
-            ->filter(fn ($id) => ctype_digit($id))
-            ->map(fn ($id) => (int) $id)
-            ->unique()
-            ->values();
-
-        $groups = Group::query()
-            ->where(function ($query) use ($numericIds, $rawIds) {
-                $hasCondition = false;
-
-                if ($numericIds->isNotEmpty()) {
-                    $query->whereIn('id', $numericIds);
-                    $hasCondition = true;
-                }
-
-                if ($rawIds->isNotEmpty()) {
-                    $method = $hasCondition ? 'orWhereIn' : 'whereIn';
-                    $query->{$method}('wablas_group_id', $rawIds);
-                }
-            })
-            ->get();
 
         if ($groups->isEmpty()) {
             Log::warning('WablasService: sendAgendaToGroups tidak menemukan grup tujuan', [
@@ -916,6 +913,26 @@ class WablasService
             'success' => $success,
             'results' => $results,
         ];
+    }
+
+    protected function resolveDefaultGroups(): Collection
+    {
+        $defaults = Group::query()
+            ->where('is_default', true)
+            ->whereNotNull('wablas_group_id')
+            ->where('wablas_group_id', '!=', '')
+            ->get();
+
+        if ($defaults->isNotEmpty()) {
+            return $defaults;
+        }
+
+        return Group::query()
+            ->whereNotNull('wablas_group_id')
+            ->where('wablas_group_id', '!=', '')
+            ->orderBy('id')
+            ->limit(1)
+            ->get();
     }
 
     protected function resolveGroupPhone(Group $group): ?string
