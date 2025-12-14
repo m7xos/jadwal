@@ -16,9 +16,7 @@ class GroupsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->query(function (Builder $query) {
-                return $query->withCount('personils');
-            })
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount('personils'))
             ->columns([
                 TextColumn::make('nama')
                     ->label('Nama Grup')
