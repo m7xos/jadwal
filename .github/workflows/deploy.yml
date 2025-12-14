@@ -30,7 +30,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           BRANCH: ${{ github.ref_name }}
         run: |
-          ssh "$SSH_USER@$SSH_HOST" << EOF
+          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
             set -e
 
             echo "Deploy branch: $BRANCH"
