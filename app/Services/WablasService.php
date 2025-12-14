@@ -25,8 +25,8 @@ class WablasService
         $this->baseUrl   = rtrim(config('wablas.base_url', 'https://solo.wablas.com'), '/');
         $this->token     = (string) config('wablas.token', '');
         $this->secretKey = config('wablas.secret_key'); // boleh null / kosong
-        $this->groupId   = (string) config('wablas.group_id', '');
         $this->groupMappings = (array) config('wablas.group_ids', []);
+        $this->groupId   = $this->resolveDefaultGroupId();
     }
 
     public function isConfigured(): bool
@@ -70,6 +70,31 @@ class WablasService
     protected function hasClientCredentials(): bool
     {
         return $this->baseUrl !== '' && $this->token !== '';
+    }
+
+    protected function resolveDefaultGroupId(): string
+    {
+        $default = Group::query()
+            ->where('is_default', true)
+            ->whereNotNull('wablas_group_id')
+            ->where('wablas_group_id', '!=', '')
+            ->first();
+
+        if ($default) {
+            return trim((string) $default->wablas_group_id);
+        }
+
+        $fallback = Group::query()
+            ->whereNotNull('wablas_group_id')
+            ->where('wablas_group_id', '!=', '')
+            ->orderBy('id')
+            ->first();
+
+        if ($fallback) {
+            return trim((string) $fallback->wablas_group_id);
+        }
+
+        return '';
     }
 
     protected function getShortSuratUrl(?Kegiatan $kegiatan): ?string

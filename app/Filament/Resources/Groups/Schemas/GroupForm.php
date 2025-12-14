@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Groups\Schemas;
 
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -24,6 +25,11 @@ class GroupForm
                             ->label('ID Grup Wablas')
                             ->helperText('Isi dengan ID grup dari Wablas (1203xxxxxxxxxx).')
                             ->maxLength(255),
+
+                        Toggle::make('is_default')
+                            ->label('Jadikan grup default')
+                            ->helperText('Dipakai sebagai tujuan utama ketika mengirim pesan ke satu grup.')
+                            ->inline(false),
 
                         Textarea::make('keterangan')
                             ->label('Keterangan')

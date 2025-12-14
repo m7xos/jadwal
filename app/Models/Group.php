@@ -13,8 +13,32 @@ class Group extends Model
     protected $fillable = [
         'nama',
         'wablas_group_id',
+        'is_default',
         'keterangan',
     ];
+
+    protected $casts = [
+        'is_default' => 'boolean',
+    ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Group $group): void {
+            $group->is_default = (bool) $group->is_default;
+
+            if (! $group->is_default) {
+                return;
+            }
+
+            $query = static::query()->where('is_default', true);
+
+            if ($group->exists) {
+                $query->where('id', '!=', $group->id);
+            }
+
+            $query->update(['is_default' => false]);
+        });
+    }
 
     public function personils(): BelongsToMany
     {

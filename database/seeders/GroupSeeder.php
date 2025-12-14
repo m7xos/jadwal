@@ -16,7 +16,8 @@ class GroupSeeder extends Seeder
         $groups = [
             [
                 'nama'            => 'Grup 1',
-                'wablas_group_id' => env('WABLAS_GROUP_ID', ''), // ID grup dari Solo Wablas
+                'wablas_group_id' => env('WABLAS_GROUP_1_ID', ''), // ID grup dari Solo Wablas
+                'is_default'      => true,
                 'keterangan'      => 'Grup WhatsApp kantor 1',
             ],
             [
@@ -36,6 +37,7 @@ class GroupSeeder extends Seeder
                 ['nama' => $data['nama']], // kunci unik berdasarkan nama grup
                 [
                     'wablas_group_id' => $data['wablas_group_id'],
+                    'is_default'      => $data['is_default'] ?? false,
                     'keterangan'      => $data['keterangan'],
                 ]
             );

@@ -6,6 +6,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\DeleteAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -20,6 +21,11 @@ class GroupsTable
                     ->searchable()
                     ->sortable()
                     ->wrap(),
+
+                IconColumn::make('is_default')
+                    ->label('Default')
+                    ->boolean()
+                    ->tooltip('Grup default untuk pengiriman satu grup'),
 
                 TextColumn::make('wablas_group_id')
                     ->label('ID Grup Wablas')
