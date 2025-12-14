@@ -30,11 +30,12 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           BRANCH: ${{ github.ref_name }}
         run: |
-          ssh "$SSH_USER@$SSH_HOST" "BRANCH=$BRANCH bash -s" << 'EOF'
+          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
             set -e
 
             echo "🚀 Deploy branch: $BRANCH"
 
+            # Tentukan direktori berdasarkan branch
             if [ "$BRANCH" = "master" ]; then
               APP_DIR=/var/www/jadwal-prod
             else
@@ -48,9 +49,14 @@ jobs:
             echo "➡️ New release: $RELEASE_DIR"
             mkdir -p "$RELEASE_DIR"
 
+            # Clone branch
             git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
 
             # ===== SHARED FILES =====
+            mkdir -p "$SHARED_DIR"
+            mkdir -p "$SHARED_DIR/storage"
+            mkdir -p "$SHARED_DIR/bootstrap/cache"
+
             ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
 
             rm -rf "$RELEASE_DIR/storage"
@@ -59,13 +65,15 @@ jobs:
             rm -rf "$RELEASE_DIR/bootstrap/cache"
             ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
 
-            cd "$RELEASE_DIR"
-            chmod -R 775 storage bootstrap/cache
+            # Pastikan permission benar
+            chmod -R 775 "$SHARED_DIR/storage"
+            chmod -R 775 "$SHARED_DIR/bootstrap/cache"
 
-            # ===== DEPENDENCIES =====
+            # ===== COMPOSER =====
+            cd "$RELEASE_DIR"
             /usr/local/bin/composer install --no-dev --optimize-autoloader
 
-            # ===== DATABASE =====
+            # ===== ARTISAN MIGRATE & CACHES =====
             php artisan migrate --force
 
             php artisan optimize:clear
@@ -73,8 +81,15 @@ jobs:
             php artisan route:cache
             php artisan view:cache
 
-            # ===== SWITCH RELEASE =====
+            # ===== SWITCH SYMLINK =====
             ln -sfn "$RELEASE_DIR" "$APP_DIR/current"
+
+            # ===== HEALTH CHECK =====
+            if ! curl -fs http://localhost/health; then
+              echo "❌ Health check failed, rollback"
+              ln -sfn "$PREV_RELEASE" "$APP_DIR/current"
+              exit 1
+            fi
 
             # ===== CLEANUP OLD RELEASES =====
             cd "$APP_DIR/releases"
