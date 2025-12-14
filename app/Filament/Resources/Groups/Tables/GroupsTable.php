@@ -9,12 +9,16 @@ use Filament\Actions\DeleteAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class GroupsTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->query(function (Builder $query) {
+                return $query->withCount('personils');
+            })
             ->columns([
                 TextColumn::make('nama')
                     ->label('Nama Grup')
@@ -31,6 +35,11 @@ class GroupsTable
                     ->label('ID Grup Wablas')
                     ->searchable()
                     ->copyable(), 
+
+                TextColumn::make('personils_count')
+                    ->label('Jumlah Personil')
+                    ->badge()
+                    ->sortable(),
 
                 TextColumn::make('keterangan')
                     ->label('Keterangan')
