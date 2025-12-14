@@ -63,7 +63,7 @@
     @endif
 
     @php
-        $previewUrl = $kegiatan->surat_preview_url;
+        $previewUrl = $kegiatan->surat_view_url ?? $kegiatan->surat_preview_url;
     @endphp
 
     @if($previewUrl)

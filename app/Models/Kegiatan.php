@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
 class Kegiatan extends Model
@@ -64,9 +64,18 @@ class Kegiatan extends Model
             return null;
         }
 
-        return URL::signedRoute('kegiatan.surat.preview', [
-            'token' => Crypt::encryptString($this->surat_undangan),
-        ]);
+        $relativeUrl = Storage::disk('public')->url($this->surat_undangan);
+
+        return URL::to($relativeUrl);
+    }
+
+    public function getSuratViewUrlAttribute(): ?string
+    {
+        if (! $this->surat_undangan) {
+            return null;
+        }
+
+        return URL::route('kegiatan.surat.short', ['kegiatan' => $this->id]);
     }
 
     /**
