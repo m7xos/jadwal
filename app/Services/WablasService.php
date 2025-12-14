@@ -3,12 +3,14 @@
 namespace App\Services;
 
 use App\Models\Kegiatan;
+use App\Models\Group;
 use App\Models\Personil;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 
 class WablasService
 {
@@ -16,13 +18,15 @@ class WablasService
     protected string $token;
     protected ?string $secretKey;
     protected string $groupId;
+    protected array $groupMappings;
 
     public function __construct()
     {
         $this->baseUrl   = rtrim(config('wablas.base_url', 'https://solo.wablas.com'), '/');
         $this->token     = (string) config('wablas.token', '');
         $this->secretKey = config('wablas.secret_key'); // boleh null / kosong
-        $this->groupId   = (string) config('wablas.group_id', '');
+        $this->groupMappings = (array) config('wablas.group_ids', []);
+        $this->groupId   = $this->resolveDefaultGroupId();
     }
 
     public function isConfigured(): bool
@@ -61,6 +65,36 @@ class WablasService
         $relativeUrl = Storage::disk('public')->url($path);
 
         return URL::to($relativeUrl);
+    }
+
+    protected function hasClientCredentials(): bool
+    {
+        return $this->baseUrl !== '' && $this->token !== '';
+    }
+
+    protected function resolveDefaultGroupId(): string
+    {
+        $default = Group::query()
+            ->where('is_default', true)
+            ->whereNotNull('wablas_group_id')
+            ->where('wablas_group_id', '!=', '')
+            ->first();
+
+        if ($default) {
+            return trim((string) $default->wablas_group_id);
+        }
+
+        $fallback = Group::query()
+            ->whereNotNull('wablas_group_id')
+            ->where('wablas_group_id', '!=', '')
+            ->orderBy('id')
+            ->first();
+
+        if ($fallback) {
+            return trim((string) $fallback->wablas_group_id);
+        }
+
+        return '';
     }
 
     protected function getShortSuratUrl(?Kegiatan $kegiatan): ?string
@@ -245,16 +279,67 @@ class WablasService
         return $mention;
     }
 
+    protected function formatMentionWithName(Personil $personil): ?string
+    {
+        $mention = $this->formatMention($personil->no_wa);
+
+        $name = trim((string) $personil->nama);
+        $jabatan = trim((string) $personil->jabatan);
+        $label = '';
+
+        if ($name !== '') {
+            $label = $name;
+
+            if ($jabatan !== '') {
+                $label .= ' - ' . $jabatan;
+            }
+        } elseif ($jabatan !== '') {
+            $label = $jabatan;
+        }
+
+        // Jika nomor tidak ada / tidak valid, tetap tampilkan nama saja.
+        if (! $mention) {
+            return $label !== '' ? $label : null;
+        }
+
+        // Jika nomor ada, tampilkan mention + label (kalau tersedia).
+        if ($label !== '') {
+            return $mention . ' (' . $label . ')';
+        }
+
+        return $mention;
+    }
+
     public function sendGroupText(string $message): bool
     {
         if (! $this->isConfigured()) {
             return false;
         }
 
+        $result = $this->sendTextToGroup($this->groupId, $message);
+
+        return $result['success'];
+    }
+
+    /**
+     * @return array{success: bool, response: mixed, error: string|null}
+     */
+    protected function sendTextToGroup(string $groupId, string $message): array
+    {
+        $groupId = trim($groupId);
+
+        if (! $this->hasClientCredentials() || $groupId === '') {
+            return [
+                'success' => false,
+                'error' => 'Konfigurasi Wablas belum lengkap',
+                'response' => null,
+            ];
+        }
+
         $payload = [
             'data' => [
                 [
-                    'phone' => $this->groupId,
+                    'phone' => $groupId,
                     'message' => $message,
                     'isGroup' => true,
                 ],
@@ -266,27 +351,43 @@ class WablasService
         } catch (\Throwable $exception) {
             Log::error('WablasService: HTTP error kirim teks grup', [
                 'message' => $exception->getMessage(),
+                'group_id' => $groupId,
             ]);
 
-            return false;
+            return [
+                'success' => false,
+                'error' => $exception->getMessage(),
+                'response' => null,
+            ];
         }
 
         if (! $response->successful()) {
             Log::error('WablasService: HTTP error kirim teks grup', [
                 'status' => $response->status(),
                 'body' => $response->body(),
+                'group_id' => $groupId,
             ]);
 
-            return false;
+            return [
+                'success' => false,
+                'error' => 'HTTP ' . $response->status(),
+                'response' => $response->json(),
+            ];
         }
 
         $json = $response->json();
+        $success = (bool) data_get($json, 'status', false);
 
         Log::info('WablasService: response sendGroupText', [
             'response' => $json,
+            'group_id' => $groupId,
         ]);
 
-        return (bool) data_get($json, 'status', false);
+        return [
+            'success' => $success,
+            'error' => $success ? null : (data_get($json, 'message') ?: 'Pengiriman gagal'),
+            'response' => $json,
+        ];
     }
 
     /**
@@ -633,6 +734,228 @@ class WablasService
         $lines[] = '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._';
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * Bangun pesan agenda untuk dikirim ke beberapa grup WhatsApp.
+     *
+     * @param  array<int, int|string>  $groupIds
+     */
+    public function buildAgendaMessageForGroups(Kegiatan $kegiatan, array $groupIds): string
+    {
+        $personils = $kegiatan->getPersonilUntukGrup($groupIds);
+        $groups = Group::query()
+            ->whereIn('id', $groupIds)
+            ->get();
+
+        $lines = [];
+
+        $lines[] = '*UNDANGAN / INFORMASI KEGIATAN*';
+        $lines[] = '────────────────────────';
+        $lines[] = '';
+
+        if ($groups->isNotEmpty()) {
+            $lines[] = '*Grup Tujuan*';
+            $lines[] = $groups->pluck('nama')->filter()->implode(', ');
+            $lines[] = '';
+        }
+
+        $lines[] = '*Nama Kegiatan*';
+        $lines[] = '*' . ($kegiatan->nama_kegiatan ?? '-') . '*';
+        $lines[] = '';
+
+        $lines[] = '*Nomor Surat*';
+        $lines[] = '*' . ($kegiatan->nomor ?? '-') . '*';
+        $lines[] = '';
+
+        $lines[] = '*Hari / Tanggal*';
+        $lines[] = ($kegiatan->tanggal_label ?? '-');
+        $lines[] = '';
+
+        $lines[] = '*Waktu*';
+        $lines[] = ($kegiatan->waktu ?? '-');
+        $lines[] = '';
+
+        $lines[] = '*Tempat*';
+        $lines[] = ($kegiatan->tempat ?? '-');
+        $lines[] = '';
+
+        if ($personils->isNotEmpty()) {
+            $mentions = $personils
+                ->map(fn (Personil $personil) => $this->formatMentionWithName($personil))
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            if (! empty($mentions)) {
+                $lines[] = '*Peserta / Disposisi*';
+                $lines[] = implode(' ', $mentions);
+                $lines[] = '';
+            }
+        }
+
+        if (! empty($kegiatan->keterangan)) {
+            $lines[] = '*Keterangan*';
+            $lines[] = $kegiatan->keterangan;
+            $lines[] = '';
+        }
+
+        $suratUrl = $this->getShortSuratUrl($kegiatan);
+        if ($suratUrl) {
+            $lines[] = '📎 *Lihat Surat (PDF)*';
+            $lines[] = $suratUrl;
+            $lines[] = '';
+        }
+
+        $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+        if ($lampiranUrl) {
+            $lines[] = '📎 *Lampiran*';
+            $lines[] = $lampiranUrl;
+            $lines[] = '';
+        }
+
+        $lines[] = 'Mohon kehadiran Bapak/Ibu sesuai jadwal di atas.';
+        $lines[] = '';
+        $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
+
+        return implode("\n", $lines);
+    }
+
+    /**
+     * @param  array<int, int|string>  $groupIds
+     * @return array{success: bool, results: array<int, array{success: bool, response: mixed, error: string|null}>}
+     */
+    public function sendAgendaToGroups(Kegiatan $kegiatan, array $groupIds): array
+    {
+        if (! $this->hasClientCredentials()) {
+            return [
+                'success' => false,
+                'results' => [],
+            ];
+        }
+
+        $rawIds = collect($groupIds)
+            ->filter(fn ($id) => $id !== null && $id !== '')
+            ->map(fn ($id) => trim((string) $id))
+            ->filter()
+            ->values();
+
+        if ($rawIds->isEmpty()) {
+            return [
+                'success' => false,
+                'results' => [],
+            ];
+        }
+
+        $numericIds = $rawIds
+            ->filter(fn ($id) => ctype_digit($id))
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values();
+
+        $groups = Group::query()
+            ->where(function ($query) use ($numericIds, $rawIds) {
+                $hasCondition = false;
+
+                if ($numericIds->isNotEmpty()) {
+                    $query->whereIn('id', $numericIds);
+                    $hasCondition = true;
+                }
+
+                if ($rawIds->isNotEmpty()) {
+                    $method = $hasCondition ? 'orWhereIn' : 'whereIn';
+                    $query->{$method}('wablas_group_id', $rawIds);
+                }
+            })
+            ->get();
+
+        if ($groups->isEmpty()) {
+            Log::warning('WablasService: sendAgendaToGroups tidak menemukan grup tujuan', [
+                'input_ids' => $rawIds->all(),
+            ]);
+
+            return [
+                'success' => false,
+                'results' => [],
+            ];
+        }
+
+        $message = $this->buildAgendaMessageForGroups($kegiatan, $groups->pluck('id')->all());
+
+        $results = [];
+        $success = false;
+
+        foreach ($groups as $group) {
+            $phone = $this->resolveGroupPhone($group);
+
+            if (! $phone) {
+                Log::warning('WablasService: ID grup WA tidak tersedia', [
+                    'group_id' => $group->id,
+                    'group_name' => $group->nama,
+                ]);
+
+                $results[$group->id] = [
+                    'success' => false,
+                    'error' => 'ID grup WA tidak tersedia',
+                    'response' => null,
+                ];
+
+                continue;
+            }
+
+            $sendResult = $this->sendTextToGroup($phone, $message);
+            $results[$group->id] = $sendResult;
+
+            if ($sendResult['success']) {
+                $success = true;
+            }
+        }
+
+        return [
+            'success' => $success,
+            'results' => $results,
+        ];
+    }
+
+    protected function resolveGroupPhone(Group $group): ?string
+    {
+        $stored = trim((string) $group->wablas_group_id);
+
+        if ($stored !== '') {
+            return $stored;
+        }
+
+        $key = Str::slug((string) $group->nama, '_');
+        $candidates = [];
+
+        if ($key !== '') {
+            $candidates[] = $key;
+            $altKeys = [
+                str_replace('grup_', 'group_', $key),
+                str_replace('group_', 'grup_', $key),
+            ];
+
+            foreach ($altKeys as $altKey) {
+                if ($altKey !== $key) {
+                    $candidates[] = $altKey;
+                }
+            }
+        }
+
+        foreach (array_unique($candidates) as $candidate) {
+            $mapped = $this->groupMappings[$candidate] ?? null;
+
+            if (is_string($mapped)) {
+                $mapped = trim($mapped);
+
+                if ($mapped !== '') {
+                    return $mapped;
+                }
+            }
+        }
+
+        return null;
     }
 
     public function sendGroupTindakLanjutReminder(Kegiatan $kegiatan): array

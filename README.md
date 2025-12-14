@@ -15,7 +15,8 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
 ## Konfigurasi .env penting
 - Database: `DB_*`
 - App: `APP_URL`, `APP_TIMEZONE`
-- Wablas: `WABLAS_BASE_URL`, `WABLAS_TOKEN`, `WABLAS_SECRET_KEY` (opsional), `WABLAS_GROUP_ID`, `WABLAS_FINISH_WHITELIST` (comma separated, optional)
+- Wablas: `WABLAS_BASE_URL`, `WABLAS_TOKEN`, `WABLAS_SECRET_KEY` (opsional), `WABLAS_FINISH_WHITELIST` (comma separated, optional)
+  - Default grup Wablas kini diambil dari tabel Grup WA (centang "Jadikan grup default").
 - PDF to text: `PDFTOTEXT_PATH=/usr/bin/pdftotext` (untuk Ubuntu)
 
 ## Webhook Wablas (wajib)

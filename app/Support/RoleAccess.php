@@ -22,6 +22,7 @@ class RoleAccess
             'filament.admin.pages.profile' => 'Profil Akun',
             'filament.admin.resources.kegiatans' => 'Agenda Kegiatan',
             'filament.admin.resources.personils' => 'Personil',
+            'filament.admin.resources.groups' => 'Grup WA',
             'filament.admin.resources.tindak-lanjut-reminder-logs' => 'Log Pengingat TL',
             'filament.admin.resources.pajak-kendaraan' => 'Pajak Kendaraan Dinas',
             'filament.admin.resources.vehicle-assets' => 'Data Kendaraan',

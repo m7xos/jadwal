@@ -124,7 +124,7 @@ jobs:
             ln -sfn "$RELEASE_DIR" "$APP_DIR/current"
 
             # ===== HEALTH CHECK =====
-            if ! curl -fs http://localhost/health; then
+            if ! curl -fs https://staging.watumalang.online/health; then
               echo "❌ Health check failed, rollback"
 
               if [ -n "$PREV_RELEASE" ] && [ -e "$PREV_RELEASE" ]; then
