@@ -30,10 +30,16 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           BRANCH: ${{ github.ref_name }}
         run: |
-          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
+          ssh "$SSH_USER@$SSH_HOST" "BRANCH='$BRANCH' bash -s" << 'EOF'
             set -e
 
             echo "🚀 Deploy branch: $BRANCH"
+
+            # Hanya izinkan branch yang ditentukan
+            if [ "$BRANCH" != "master" ] && [ "$BRANCH" != "multigroup" ]; then
+              echo "❌ Branch tidak diizinkan untuk deploy: $BRANCH"
+              exit 1
+            fi
 
             # Tentukan direktori berdasarkan branch
             if [ "$BRANCH" = "master" ]; then
@@ -42,9 +48,17 @@ jobs:
               APP_DIR=/var/www/jadwal-staging
             fi
 
-            RELEASE_DIR=$APP_DIR/releases/$(date +%Y%m%d%H%M%S)
-            SHARED_DIR=$APP_DIR/shared
-            PREV_RELEASE=$(readlink -f $APP_DIR/current || true)
+            # Pastikan struktur folder ada
+            mkdir -p "$APP_DIR"
+            mkdir -p "$APP_DIR/releases"
+            mkdir -p "$APP_DIR/shared"
+            mkdir -p "$APP_DIR/current" || true
+
+            RELEASE_DIR="$APP_DIR/releases/$(date +%Y%m%d%H%M%S)"
+            SHARED_DIR="$APP_DIR/shared"
+
+            # Simpan release sebelumnya (untuk rollback)
+            PREV_RELEASE="$(readlink -f "$APP_DIR/current" 2>/dev/null || true)"
 
             echo "➡️ New release: $RELEASE_DIR"
             mkdir -p "$RELEASE_DIR"
@@ -53,10 +67,10 @@ jobs:
             git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
 
             # ===== SHARED FILES =====
-            mkdir -p "$SHARED_DIR"
             mkdir -p "$SHARED_DIR/storage"
             mkdir -p "$SHARED_DIR/bootstrap/cache"
 
+            # .env wajib sudah ada di shared
             ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
 
             rm -rf "$RELEASE_DIR/storage"
@@ -65,9 +79,8 @@ jobs:
             rm -rf "$RELEASE_DIR/bootstrap/cache"
             ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
 
-            # Pastikan permission benar
-            chmod -R 775 "$SHARED_DIR/storage"
-            chmod -R 775 "$SHARED_DIR/bootstrap/cache"
+            chmod -R 775 "$SHARED_DIR/storage" || true
+            chmod -R 775 "$SHARED_DIR/bootstrap/cache" || true
 
             # ===== COMPOSER =====
             cd "$RELEASE_DIR"
@@ -87,7 +100,14 @@ jobs:
             # ===== HEALTH CHECK =====
             if ! curl -fs http://localhost/health; then
               echo "❌ Health check failed, rollback"
-              ln -sfn "$PREV_RELEASE" "$APP_DIR/current"
+
+              if [ -n "$PREV_RELEASE" ] && [ -e "$PREV_RELEASE" ]; then
+                ln -sfn "$PREV_RELEASE" "$APP_DIR/current"
+                echo "↩️ Rolled back to: $PREV_RELEASE"
+              else
+                echo "⚠️ Tidak ada PREV_RELEASE untuk rollback (deploy pertama / current kosong)."
+              fi
+
               exit 1
             fi
 
@@ -97,4 +117,3 @@ jobs:
 
             echo "✅ Deploy SUCCESS ($BRANCH)"
           EOF
-          
