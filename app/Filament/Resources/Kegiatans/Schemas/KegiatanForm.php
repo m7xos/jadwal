@@ -57,6 +57,7 @@ class KegiatanForm
                             ->preserveFilenames()
                             ->storeFiles(false)
                             ->acceptedFileTypes(['application/pdf'])
+                            ->getUploadedFileUrlUsing(fn ($file) => static::resolvePublicUrl($file))
                             ->required(fn (Get $get) => $get('jenis_surat') === 'undangan')
                             ->deleteUploadedFileUsing(function ($file): void {
                                 if ($file instanceof TemporaryUploadedFile) {
@@ -109,6 +110,7 @@ class KegiatanForm
                                 'image/jpeg',
                                 'image/png',
                             ])
+                            ->getUploadedFileUrlUsing(fn ($file) => static::resolvePublicUrl($file))
                             ->helperText('Lampiran tambahan untuk surat (PDF/DOC/JPG/PNG).')
                             ->deleteUploadedFileUsing(function ($file): void {
                                 if ($file instanceof TemporaryUploadedFile) {
@@ -346,6 +348,11 @@ class KegiatanForm
         $normalizedSpaces = preg_replace('/\s+/', ' ', $trimmed) ?? $trimmed;
 
         return str_replace(' ', '-', $normalizedSpaces);
+    }
+
+    protected static function resolvePublicUrl(string $path): string
+    {
+        return Storage::disk('public')->url($path);
     }
 
     protected static function compressUploadedPdf(string $storedPath): void
