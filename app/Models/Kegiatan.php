@@ -64,7 +64,7 @@ class Kegiatan extends Model
             return null;
         }
 
-        $relativeUrl = Storage::disk('public')->url($this->surat_undangan);
+        $relativeUrl = Storage::disk('public')->url($this->encodePathForUrl($this->surat_undangan));
 
         return URL::to($relativeUrl);
     }
@@ -76,6 +76,13 @@ class Kegiatan extends Model
         }
 
         return URL::route('kegiatan.surat.short', ['kegiatan' => $this->id]);
+    }
+
+    protected function encodePathForUrl(string $path): string
+    {
+        $segments = array_map('rawurlencode', explode('/', $path));
+
+        return implode('/', $segments);
     }
 
     /**

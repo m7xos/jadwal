@@ -62,7 +62,7 @@ class WablasService
             return null;
         }
 
-        $relativeUrl = Storage::disk('public')->url($path);
+        $relativeUrl = Storage::disk('public')->url($this->encodePathForUrl($path));
 
         return URL::to($relativeUrl);
     }
@@ -112,7 +112,7 @@ class WablasService
             return null;
         }
 
-        $relativeUrl = Storage::disk('public')->url($path);
+        $relativeUrl = Storage::disk('public')->url($this->encodePathForUrl($path));
 
         return URL::to($relativeUrl);
     }
@@ -933,6 +933,13 @@ class WablasService
             ->orderBy('id')
             ->limit(1)
             ->get();
+    }
+
+    protected function encodePathForUrl(string $path): string
+    {
+        $segments = array_map('rawurlencode', explode('/', $path));
+
+        return implode('/', $segments);
     }
 
     protected function resolveGroupPhone(Group $group): ?string
