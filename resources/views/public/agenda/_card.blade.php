@@ -62,9 +62,13 @@
         </div>
     @endif
 
-    @if($kegiatan->surat_undangan)
+    @php
+        $previewUrl = $kegiatan->surat_view_url ?? $kegiatan->surat_preview_url;
+    @endphp
+
+    @if($previewUrl)
         <div class="mt-3 text-xs">
-            <a href="{{ \Illuminate\Support\Facades\URL::to(\Illuminate\Support\Facades\Storage::disk('public')->url($kegiatan->surat_undangan)) }}"
+            <a href="{{ $previewUrl }}"
                target="_blank"
                class="inline-flex items-center px-3 py-1.5 rounded-full bg-sky-600 hover:bg-sky-500 text-white">
                 📎 Lihat Surat Undangan (PDF)

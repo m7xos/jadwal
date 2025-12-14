@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Groups\Schemas;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -32,6 +33,14 @@ class GroupForm
                             ->label('Jadikan grup default')
                             ->helperText('Dipakai sebagai tujuan utama ketika mengirim pesan ke satu grup. Hanya satu grup bisa menjadi default.')
                             ->inline(false),
+
+                        Select::make('personils')
+                            ->label('Personil dalam grup ini')
+                            ->relationship('personils', 'nama')
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->helperText('Pilih personil yang masuk grup ini untuk memudahkan penandaan/pengiriman WA.'),
 
                         Textarea::make('keterangan')
                             ->label('Keterangan')

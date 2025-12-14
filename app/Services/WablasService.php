@@ -62,7 +62,7 @@ class WablasService
             return null;
         }
 
-        $relativeUrl = Storage::disk('public')->url($path);
+        $relativeUrl = Storage::disk('public')->url($this->encodePathForUrl($path));
 
         return URL::to($relativeUrl);
     }
@@ -112,7 +112,7 @@ class WablasService
             return null;
         }
 
-        $relativeUrl = Storage::disk('public')->url($path);
+        $relativeUrl = Storage::disk('public')->url($this->encodePathForUrl($path));
 
         return URL::to($relativeUrl);
     }
@@ -743,7 +743,10 @@ class WablasService
      */
     public function buildAgendaMessageForGroups(Kegiatan $kegiatan, array $groupIds): string
     {
-        $personils = $kegiatan->getPersonilUntukGrup($groupIds);
+        $kegiatan->loadMissing('personils');
+
+        $personilsDiGrup = $kegiatan->getPersonilUntukGrup($groupIds)->keyBy('id');
+        $allPersonils = ($kegiatan->personils ?? collect())->keyBy('id');
         $groups = Group::query()
             ->whereIn('id', $groupIds)
             ->get();
@@ -780,18 +783,56 @@ class WablasService
         $lines[] = ($kegiatan->tempat ?? '-');
         $lines[] = '';
 
-        if ($personils->isNotEmpty()) {
-            $mentions = $personils
-                ->map(fn (Personil $personil) => $this->formatMentionWithName($personil))
-                ->filter()
-                ->unique()
-                ->values()
-                ->all();
+        if ($allPersonils->isNotEmpty()) {
+            $lines[] = '*Peserta / Disposisi*';
+            $kategoriLabels = [
+                'kecamatan' => 'Kecamatan',
+                'kelurahan' => 'Kelurahan',
+                'kades_lurah' => 'Kades/Lurah',
+                'sekdes_admin' => 'Sekdes/Seklur/Admin',
+            ];
 
-            if (! empty($mentions)) {
-                $lines[] = '*Peserta / Disposisi*';
-                $lines[] = implode(' ', $mentions);
+            $grouped = $allPersonils
+                ->groupBy(fn (Personil $p) => $p->kategori ?? 'lainnya')
+                ->sortKeys();
+
+            $counter = 1;
+
+            foreach ($grouped as $kategori => $personilsKategori) {
+                $labelKategori = $kategoriLabels[$kategori] ?? ucfirst($kategori);
+                $lines[] = $counter . '. ' . $labelKategori;
+                $personIndex = 1;
+                $useNumbering = $personilsKategori->count() > 1;
+
+                foreach ($personilsKategori as $personil) {
+                    $inGroup = $personilsDiGrup->has($personil->id);
+                    $mention = $this->formatMention($personil->no_wa);
+                    $jabatan = trim((string) ($personil->jabatan ?? ''));
+                    $nama = trim((string) ($personil->nama ?? ''));
+                    $prefix = $useNumbering ? ($personIndex . '. ') : '- ';
+
+                    if ($inGroup && $mention) {
+                        $lines[] = '       ' . $prefix . $mention;
+                        if ($jabatan !== '') {
+                            $lines[] = '          ' . $jabatan;
+                        }
+                        $personIndex++;
+                        continue;
+                    }
+
+                    if ($nama === '') {
+                        continue;
+                    }
+
+                    $lines[] = '       ' . $prefix . $nama;
+                    if ($jabatan !== '') {
+                        $lines[] = '          ' . $jabatan;
+                    }
+                    $personIndex++;
+                }
+
                 $lines[] = '';
+                $counter++;
             }
         }
 
@@ -810,14 +851,14 @@ class WablasService
 
         $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
         if ($lampiranUrl) {
-            $lines[] = '📎 *Lampiran*';
-            $lines[] = $lampiranUrl;
-            $lines[] = '';
-        }
+        $lines[] = '📎 *Lampiran*';
+        $lines[] = $lampiranUrl;
+        $lines[] = '';
+    }
 
         $lines[] = 'Mohon kehadiran Bapak/Ibu sesuai jadwal di atas.';
         $lines[] = '';
-        $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
+        $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
 
         return implode("\n", $lines);
     }
@@ -842,33 +883,30 @@ class WablasService
             ->values();
 
         if ($rawIds->isEmpty()) {
-            return [
-                'success' => false,
-                'results' => [],
-            ];
+            $groups = $this->resolveDefaultGroups();
+        } else {
+            $numericIds = $rawIds
+                ->filter(fn ($id) => ctype_digit($id))
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values();
+
+            $groups = Group::query()
+                ->where(function ($query) use ($numericIds, $rawIds) {
+                    $hasCondition = false;
+
+                    if ($numericIds->isNotEmpty()) {
+                        $query->whereIn('id', $numericIds);
+                        $hasCondition = true;
+                    }
+
+                    if ($rawIds->isNotEmpty()) {
+                        $method = $hasCondition ? 'orWhereIn' : 'whereIn';
+                        $query->{$method}('wablas_group_id', $rawIds);
+                    }
+                })
+                ->get();
         }
-
-        $numericIds = $rawIds
-            ->filter(fn ($id) => ctype_digit($id))
-            ->map(fn ($id) => (int) $id)
-            ->unique()
-            ->values();
-
-        $groups = Group::query()
-            ->where(function ($query) use ($numericIds, $rawIds) {
-                $hasCondition = false;
-
-                if ($numericIds->isNotEmpty()) {
-                    $query->whereIn('id', $numericIds);
-                    $hasCondition = true;
-                }
-
-                if ($rawIds->isNotEmpty()) {
-                    $method = $hasCondition ? 'orWhereIn' : 'whereIn';
-                    $query->{$method}('wablas_group_id', $rawIds);
-                }
-            })
-            ->get();
 
         if ($groups->isEmpty()) {
             Log::warning('WablasService: sendAgendaToGroups tidak menemukan grup tujuan', [
@@ -881,12 +919,12 @@ class WablasService
             ];
         }
 
-        $message = $this->buildAgendaMessageForGroups($kegiatan, $groups->pluck('id')->all());
-
         $results = [];
         $success = false;
 
         foreach ($groups as $group) {
+            $message = $this->buildAgendaMessageForGroups($kegiatan, [$group->id]);
+
             $phone = $this->resolveGroupPhone($group);
 
             if (! $phone) {
@@ -916,6 +954,33 @@ class WablasService
             'success' => $success,
             'results' => $results,
         ];
+    }
+
+    protected function resolveDefaultGroups(): Collection
+    {
+        $defaults = Group::query()
+            ->where('is_default', true)
+            ->whereNotNull('wablas_group_id')
+            ->where('wablas_group_id', '!=', '')
+            ->get();
+
+        if ($defaults->isNotEmpty()) {
+            return $defaults;
+        }
+
+        return Group::query()
+            ->whereNotNull('wablas_group_id')
+            ->where('wablas_group_id', '!=', '')
+            ->orderBy('id')
+            ->limit(1)
+            ->get();
+    }
+
+    protected function encodePathForUrl(string $path): string
+    {
+        $segments = array_map('rawurlencode', explode('/', $path));
+
+        return implode('/', $segments);
     }
 
     protected function resolveGroupPhone(Group $group): ?string

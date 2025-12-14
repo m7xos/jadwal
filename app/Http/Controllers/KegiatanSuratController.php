@@ -19,8 +19,7 @@ class KegiatanSuratController extends Controller
             abort(404, 'Surat undangan tidak ditemukan.');
         }
 
-        // URL publik file PDF dari disk "public"
-        $fileUrl = Storage::disk('public')->url($kegiatan->surat_undangan);
+        $fileUrl = $kegiatan->surat_preview_url;
 
         return view('kegiatan.surat-view', [
             'kegiatan' => $kegiatan,

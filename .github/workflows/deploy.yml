@@ -118,6 +118,7 @@ jobs:
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+            php artisan storage:link 
 
             # ===== SWITCH SYMLINK =====
             # Pastikan current jadi symlink ke release terbaru
