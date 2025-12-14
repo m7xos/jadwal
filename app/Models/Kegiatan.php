@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\URL;
 
 class Kegiatan extends Model
 {
@@ -54,6 +56,17 @@ class Kegiatan extends Model
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class, 'group_kegiatan')->withTimestamps();
+    }
+
+    public function getSuratPreviewUrlAttribute(): ?string
+    {
+        if (! $this->surat_undangan) {
+            return null;
+        }
+
+        return URL::signedRoute('kegiatan.surat.preview', [
+            'token' => Crypt::encryptString($this->surat_undangan),
+        ]);
     }
 
     /**

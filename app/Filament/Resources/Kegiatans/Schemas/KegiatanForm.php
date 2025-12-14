@@ -69,7 +69,7 @@ class KegiatanForm
                             })
                             ->getUploadedFileNameForStorageUsing(
                                 fn (TemporaryUploadedFile $file): string =>
-                                    now()->format('Ymd_His') . '_' . $file->getClientOriginalName()
+                                    static::generateStoredFilename($file)
                             )
                             ->afterStateUpdated(function ($state, callable $set, Get $get) {
                                 if (! $state) {
@@ -121,7 +121,7 @@ class KegiatanForm
                             })
                             ->getUploadedFileNameForStorageUsing(
                                 fn (TemporaryUploadedFile $file): string =>
-                                    now()->format('Ymd_His') . '_' . $file->getClientOriginalName()
+                                    static::generateStoredFilename($file)
                             )
                             ->afterStateUpdated(function ($state, callable $set, Get $get) {
                                 if (! $state) {
@@ -298,7 +298,7 @@ class KegiatanForm
                 Storage::disk('public')->delete($currentPath);
             }
 
-            $filename = now()->format('Ymd_His') . '_' . $state->getClientOriginalName();
+            $filename = static::generateStoredFilename($state);
 
             $path = $state->storeAs('surat-undangan', $filename, 'public');
 
@@ -319,12 +319,33 @@ class KegiatanForm
                 Storage::disk('public')->delete($currentPath);
             }
 
-            $filename = now()->format('Ymd_His') . '_' . $state->getClientOriginalName();
+            $filename = static::generateStoredFilename($state);
 
             return $state->storeAs('lampiran-surat', $filename, 'public');
         }
 
         return is_string($state) ? $state : null;
+    }
+
+    protected static function generateStoredFilename(TemporaryUploadedFile $file): string
+    {
+        $original = $file->getClientOriginalName();
+        $sanitized = static::sanitizeFilename($original);
+
+        return now()->format('Ymd_His') . '_' . $sanitized;
+    }
+
+    protected static function sanitizeFilename(string $originalName): string
+    {
+        $trimmed = trim($originalName);
+
+        if ($trimmed === '') {
+            return 'file.pdf';
+        }
+
+        $normalizedSpaces = preg_replace('/\s+/', ' ', $trimmed) ?? $trimmed;
+
+        return str_replace(' ', '-', $normalizedSpaces);
     }
 
     protected static function compressUploadedPdf(string $storedPath): void
