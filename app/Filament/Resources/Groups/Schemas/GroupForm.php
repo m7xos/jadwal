@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Groups\Schemas;
 
-use Filament\Forms\Components\Get;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class GroupForm
