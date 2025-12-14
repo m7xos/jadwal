@@ -30,7 +30,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           BRANCH: ${{ github.ref_name }}
         run: |
-          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
+          ssh "$SSH_USER@$SSH_HOST" "BRANCH=$BRANCH bash -s" << 'EOF'
             set -e
 
             echo "🚀 Deploy branch: $BRANCH"
@@ -62,7 +62,7 @@ jobs:
             cd "$RELEASE_DIR"
             chmod -R 775 storage bootstrap/cache
 
-            # ===== INSTALL DEPENDENCIES =====
+            # ===== DEPENDENCIES =====
             /usr/local/bin/composer install --no-dev --optimize-autoloader
 
             # ===== DATABASE =====
@@ -76,7 +76,7 @@ jobs:
             # ===== SWITCH RELEASE =====
             ln -sfn "$RELEASE_DIR" "$APP_DIR/current"
 
-            # ===== CLEANUP =====
+            # ===== CLEANUP OLD RELEASES =====
             cd "$APP_DIR/releases"
             ls -dt */ | tail -n +6 | xargs rm -rf || true
 
