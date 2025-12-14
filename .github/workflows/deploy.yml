@@ -11,20 +11,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
       - name: Add VPS to known_hosts
-       run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
       - name: Deploy to VPS
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_USER: ${{ secrets.SSH_USER }}
           BRANCH: ${{ github.ref_name }}
         run: |
-          ssh "$SSH_USER@$SSH_HOST" << EOF
+          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
             set -e
 
-            echo "Deploy branch: $BRANCH"
+            echo "🚀 Deploy branch: $BRANCH"
 
             if [ "$BRANCH" = "master" ]; then
               APP_DIR=/var/www/jadwal-prod
@@ -32,30 +41,44 @@ jobs:
               APP_DIR=/var/www/jadwal-staging
             fi
 
-            RELEASE_DIR=\$APP_DIR/releases/\$(date +%Y%m%d%H%M%S)
-            SHARED_DIR=\$APP_DIR/shared
-            PREV_RELEASE=\$(readlink -f \$APP_DIR/current || true)
+            RELEASE_DIR=$APP_DIR/releases/$(date +%Y%m%d%H%M%S)
+            SHARED_DIR=$APP_DIR/shared
+            PREV_RELEASE=$(readlink -f $APP_DIR/current || true)
 
-            mkdir -p "\$RELEASE_DIR"
-            git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "\$RELEASE_DIR"
+            echo "➡️ New release: $RELEASE_DIR"
+            mkdir -p "$RELEASE_DIR"
 
-            ln -sfn "\$SHARED_DIR/.env" "\$RELEASE_DIR/.env"
-            rm -rf "\$RELEASE_DIR/storage"
-            ln -sfn "\$SHARED_DIR/storage" "\$RELEASE_DIR/storage"
+            git clone -b "$BRANCH" https://github.com/hardiagunadi/jadwal.git "$RELEASE_DIR"
 
-            rm -rf "\$RELEASE_DIR/bootstrap/cache"
-            ln -sfn "\$SHARED_DIR/bootstrap/cache" "\$RELEASE_DIR/bootstrap/cache"
+            # ===== SHARED FILES =====
+            ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
 
-            cd "\$RELEASE_DIR"
+            rm -rf "$RELEASE_DIR/storage"
+            ln -sfn "$SHARED_DIR/storage" "$RELEASE_DIR/storage"
+
+            rm -rf "$RELEASE_DIR/bootstrap/cache"
+            ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
+
+            cd "$RELEASE_DIR"
             chmod -R 775 storage bootstrap/cache
 
+            # ===== INSTALL DEPENDENCIES =====
             /usr/local/bin/composer install --no-dev --optimize-autoloader
 
+            # ===== DATABASE =====
             php artisan migrate --force
+
             php artisan optimize:clear
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
 
-            ln -sfn "\$RELEASE_DIR" "\$APP_DIR/current"
+            # ===== SWITCH RELEASE =====
+            ln -sfn "$RELEASE_DIR" "$APP_DIR/current"
+
+            # ===== CLEANUP =====
+            cd "$APP_DIR/releases"
+            ls -dt */ | tail -n +6 | xargs rm -rf || true
+
+            echo "✅ Deploy SUCCESS ($BRANCH)"
           EOF
