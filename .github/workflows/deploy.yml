@@ -1,4 +1,4 @@
-name: Deploy Laravel (1 VPS: Prod & Staging)
+name: "Deploy Laravel (1 VPS: Prod & Staging)"
 
 on:
   push:
