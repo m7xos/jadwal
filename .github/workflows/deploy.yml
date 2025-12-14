@@ -70,6 +70,12 @@ jobs:
             mkdir -p "$SHARED_DIR/storage"
             mkdir -p "$SHARED_DIR/bootstrap/cache"
 
+            # Tambahan penting: struktur storage Laravel (biar package:discover tidak error cache path)
+            mkdir -p "$SHARED_DIR/storage/framework/cache"
+            mkdir -p "$SHARED_DIR/storage/framework/sessions"
+            mkdir -p "$SHARED_DIR/storage/framework/views"
+            mkdir -p "$SHARED_DIR/storage/logs"
+
             # .env wajib sudah ada di shared
             ln -sfn "$SHARED_DIR/.env" "$RELEASE_DIR/.env"
 
@@ -79,8 +85,12 @@ jobs:
             rm -rf "$RELEASE_DIR/bootstrap/cache"
             ln -sfn "$SHARED_DIR/bootstrap/cache" "$RELEASE_DIR/bootstrap/cache"
 
+            # Permission minimum
             chmod -R 775 "$SHARED_DIR/storage" || true
             chmod -R 775 "$SHARED_DIR/bootstrap/cache" || true
+
+            # Opsional: kalau punya sudo tanpa password, ini paling “bersih” untuk Laravel/Nginx/Apache
+            sudo chown -R www-data:www-data "$SHARED_DIR/storage" "$SHARED_DIR/bootstrap/cache" || true
 
             # ===== COMPOSER =====
             cd "$RELEASE_DIR"
