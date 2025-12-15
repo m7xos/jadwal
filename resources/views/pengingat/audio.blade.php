@@ -28,6 +28,7 @@
 
         <ul class="text-sm text-slate-200 space-y-1 mb-4">
             <li>• <span class="font-semibold">Senin – Kamis, 07.30 WIB</span> → Pengingat Apel</li>
+            <li>• <span class="font-semibold">Senin – Kamis, 10.00 WIB</span> → Putar Lagu Indonesia Raya</li>
             <li>• <span class="font-semibold">Senin – Kamis, 16.00 WIB</span> → Pengingat Presensi</li>
             <li>• <span class="font-semibold">Jumat, 11.00 WIB</span> → Pengingat Presensi</li>
         </ul>
@@ -61,6 +62,13 @@
             >
                 Tes Suara Presensi
             </button>
+            <button
+                type="button"
+                onclick="playTest('indonesia')"
+                class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-medium"
+            >
+                Tes Lagu Indonesia Raya
+            </button>
         </div>
 
         <div id="last-play-info" class="mt-4 text-[11px] text-slate-400">
@@ -72,14 +80,16 @@
 {{-- Audio file --}}
 <audio id="audio-apel" src="{{ asset('audio/apel.mp3') }}"></audio>
 <audio id="audio-presensi" src="{{ asset('audio/presensi.mp3') }}"></audio>
+<audio id="audio-indonesia" src="{{ asset('audio/indonesia_raya.mp3') }}"></audio>
 
 <script>
     // Jadwal:
-    // Senin–Kamis (1–4): 07:30 apel, 16:00 presensi
+    // Senin–Kamis (1–4): 07:30 apel, 10:00 Indonesia Raya, 16:00 presensi
     // Jumat (5): 11:00 presensi
 
     const schedules = [
         { days: [1, 2, 3, 4], hour: 7,  minute: 30, type: 'apel' },
+        { days: [1, 2, 3, 4], hour: 10, minute: 0,  type: 'indonesia' },
         { days: [1, 2, 3, 4], hour: 16, minute: 0,  type: 'presensi' },
         { days: [5],          hour: 11, minute: 0,  type: 'presensi' },
     ];
@@ -142,6 +152,9 @@
         } else if (type === 'presensi') {
             audioEl = document.getElementById('audio-presensi');
             label = 'Pengingat Presensi';
+        } else if (type === 'indonesia') {
+            audioEl = document.getElementById('audio-indonesia');
+            label = 'Lagu Indonesia Raya';
         }
 
         if (!audioEl) {
