@@ -41,6 +41,10 @@
         }
 
         /* TABEL LAPORAN: garis hitam jelas & responsif */
+        .laporan-wrapper {
+            margin-bottom: 35mm; /* ruang ekstra untuk footer saat print */
+        }
+
         table.laporan {
             border-collapse: collapse;
             width: 100%;
@@ -87,20 +91,15 @@
             text-align: center;
         }
 
-        /* Footer (hanya muncul saat print) */
-        .print-footer {
-            display: none;
-        }
-
         @media print {
             @page {
-                size: A4 landscape;
-                margin: 10mm;
-                counter-increment: page;
+                /* Folio 8.5 x 13 inch, orientasi landscape: 330 x 215 mm */
+                size: 330mm 215mm;
+                margin: 12mm 12mm 25mm 12mm;
             }
 
             body {
-                counter-reset: page;
+                counter-reset: page 1;
             }
 
             /* SEMUA elemen disembunyikan dulu */
@@ -112,17 +111,26 @@
             .print-area,
             .print-area * {
                 visibility: visible;
+                color: #000000 !important;
             }
 
             /* Pastikan .print-area mengisi halaman cetak */
+            /* Reset padding/margin layout Filament agar konten naik ke atas */
+            .fi-main,
+            .fi-body,
+            .fi-page {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
             .print-area {
-                position: absolute;
-                inset: 0;       /* top:0; right:0; bottom:0; left:0; */
+                position: relative;
+                width: 100%;
                 margin: 0;
                 box-shadow: none !important;
                 border: none !important;
                 background: transparent !important; /* tanpa warna saat print */
-                padding-bottom: 25mm; /* ruang untuk footer */
+                padding: 0 0 60mm 0; /* ruang bawah untuk footer */
             }
 
             /* Elemen yang memang tidak perlu tercetak (filter, tombol, dsb) */
@@ -139,23 +147,6 @@
 
             .kop-garis {
                 border-bottom: 2px solid #000000 !important;
-            }
-
-            /* Footer tampil di setiap halaman, posisi bawah */
-            .print-footer {
-                display: flex;
-                position: fixed;
-                bottom: 8mm;
-                left: 10mm;
-                right: 10mm;
-                justify-content: space-between;
-                align-items: center;
-                font-size: 10px !important;
-            }
-
-            .print-footer .page-number::before {
-                /* browser modern: Halaman x dari y */
-                content: "Halaman " counter(page) " dari " counter(pages);
             }
 			
 			/* Bar filter bulan + tombol cetak */
@@ -257,7 +248,7 @@
         </div>
 
         {{-- TABEL LAPORAN --}}
-        <div class="overflow-x-auto mt-2">
+        <div class="overflow-x-auto mt-2 laporan-wrapper">
             <table class="laporan">
                 <thead>
                     <tr>
@@ -345,12 +336,5 @@
             </div>
         </div>
 
-        {{-- FOOTER CETAK --}}
-        <div class="print-footer">
-            <div>
-                Dicetak dari: {{ config('app.url') }}
-            </div>
-            <div class="page-number"></div>
-        </div>
     </div>
 </x-filament-panels::page>
