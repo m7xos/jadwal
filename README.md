@@ -18,6 +18,7 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
 - Wablas: `WABLAS_BASE_URL`, `WABLAS_TOKEN`, `WABLAS_SECRET_KEY` (opsional), `WABLAS_FINISH_WHITELIST` (comma separated, optional)
   - Default grup Wablas kini diambil dari tabel Grup WA (centang "Jadikan grup default").
 - PDF to text: `PDFTOTEXT_PATH=/usr/bin/pdftotext` (untuk Ubuntu)
+  - `WABLAS_FINISH_WHITELIST` berisi nomor WA (format 62xxxx) yang tetap boleh menandai TL selesai di webhook, selain personil yang ditugaskan. Pisahkan dengan koma, contoh: `WABLAS_FINISH_WHITELIST=6281234567890,6289876543210`. Biarkan kosong jika tidak ingin whitelist tambahan.
 
 ## Webhook Wablas (wajib)
 - Endpoint utama: `POST https://<APP_URL>/api/wablas/webhook`.

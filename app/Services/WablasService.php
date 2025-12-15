@@ -390,6 +390,11 @@ class WablasService
         ];
     }
 
+    public function sendTextToSpecificGroup(string $groupId, string $message): array
+    {
+        return $this->sendTextToGroup($groupId, $message);
+    }
+
     /**
      * Kirim pesan teks ke nomor personal (bukan grup).
      *
@@ -1023,6 +1028,36 @@ class WablasService
         return null;
     }
 
+    /**
+     * Ambil grup WA yang relevan untuk TL (grup kegiatan, jika kosong pakai grup personil).
+     *
+     * @return array<int,string> daftar ID/phone grup unik yang siap dikirimi pesan
+     */
+    public function getTlTargetGroupPhones(Kegiatan $kegiatan): array
+    {
+        $kegiatan->loadMissing('groups', 'personils.groups');
+
+        $groups = collect();
+
+        if ($kegiatan->groups && $kegiatan->groups->isNotEmpty()) {
+            $groups = $kegiatan->groups;
+        } else {
+            $groups = $kegiatan->personils
+                ? $kegiatan->personils
+                    ->flatMap(fn (Personil $p) => $p->groups)
+                    ->filter()
+                : collect();
+        }
+
+        return $groups
+            ->filter(fn ($g) => filled($g?->wablas_group_id))
+            ->map(fn ($g) => $this->resolveGroupPhone($g) ?? null)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
     public function sendGroupTindakLanjutReminder(Kegiatan $kegiatan): array
     {
         if (! $this->isConfigured()) {
@@ -1039,57 +1074,38 @@ class WablasService
             ];
         }
 
-        $message = $this->buildTindakLanjutReminderMessage($kegiatan);
+        $phones = $this->getTlTargetGroupPhones($kegiatan);
 
-        $payload = [
-            'data' => [
-                [
-                    'phone'   => $this->groupId,
-                    'message' => $message,
-                    'isGroup' => true,
-                ],
-            ],
-        ];
-
-        try {
-            $response = $this->client()->post($this->baseUrl . '/api/v2/send-message', $payload);
-        } catch (\Throwable $exception) {
-            Log::error('WablasService: HTTP error kirim pengingat TL', [
-                'message' => $exception->getMessage(),
+        if (empty($phones)) {
+            Log::warning('WablasService: tidak ada grup WA target untuk pengingat TL', [
                 'kegiatan_id' => $kegiatan->id,
             ]);
 
             return [
                 'success' => false,
-                'error' => $exception->getMessage(),
+                'error' => 'Tidak ada grup WA personil untuk kegiatan ini',
                 'response' => null,
             ];
         }
 
-        if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim pengingat TL', [
-                'status' => $response->status(),
-                'body'   => $response->body(),
-            ]);
+        $message = $this->buildTindakLanjutReminderMessage($kegiatan);
 
-            return [
-                'success' => false,
-                'error' => 'HTTP ' . $response->status(),
-                'response' => $response->json(),
-            ];
+        $results = [];
+        $success = false;
+
+        foreach ($phones as $phone) {
+            $sendResult = $this->sendTextToGroup($phone, $message);
+            $results[$phone] = $sendResult;
+
+            if ($sendResult['success']) {
+                $success = true;
+            }
         }
 
-        $json = $response->json();
-
-        Log::info('WablasService: response sendGroupTindakLanjutReminder', [
-            'response' => $json,
-            'kegiatan' => $kegiatan->id,
-        ]);
-
         return [
-            'success' => (bool) data_get($json, 'status', false),
-            'response' => $json,
-            'error' => null,
+            'success' => $success,
+            'response' => $results,
+            'error' => $success ? null : 'Gagal mengirim ke semua grup',
         ];
     }
 
