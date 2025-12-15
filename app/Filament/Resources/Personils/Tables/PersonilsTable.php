@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Personils\Tables;
 
+use App\Models\PersonilCategory;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -43,13 +44,7 @@ class PersonilsTable
                 TextColumn::make('kategori')
                     ->label('Kategori')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => match ($state) {
-                        'kecamatan' => 'Personil Kecamatan',
-                        'kelurahan' => 'Personil Kelurahan',
-                        'kades_lurah' => 'Personil Kades/Lurah',
-                        'sekdes_admin' => 'Personil Sekdes/Selur/Admin',
-                        default => $state,
-                    })
+                    ->formatStateUsing(fn ($state) => PersonilCategory::labelFor($state))
                     ->sortable(),
 
                 TextColumn::make('no_wa')
@@ -65,12 +60,7 @@ class PersonilsTable
             ->filters([
                 SelectFilter::make('kategori')
                     ->label('Kategori')
-                    ->options([
-                        'kecamatan' => 'Personil Kecamatan',
-                        'kelurahan' => 'Personil Kelurahan',
-                        'kades_lurah' => 'Personil Kades/Lurah',
-                        'sekdes_admin' => 'Personil Sekdes/Selur/Admin',
-                    ]),
+                    ->options(PersonilCategory::options()),
             ])
             // ==== AKSI PER BARIS (EDIT DLL) ====
             ->recordActions([

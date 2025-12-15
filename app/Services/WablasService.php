@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Kegiatan;
 use App\Models\Group;
 use App\Models\Personil;
+use App\Models\PersonilCategory;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -790,12 +791,7 @@ class WablasService
 
         if ($allPersonils->isNotEmpty()) {
             $lines[] = '*Peserta / Disposisi*';
-            $kategoriLabels = [
-                'kecamatan' => 'Kecamatan',
-                'kelurahan' => 'Kelurahan',
-                'kades_lurah' => 'Kades/Lurah',
-                'sekdes_admin' => 'Sekdes/Seklur/Admin',
-            ];
+            $kategoriLabels = PersonilCategory::options();
 
             $grouped = $allPersonils
                 ->groupBy(fn (Personil $p) => $p->kategori ?? 'lainnya')
@@ -804,7 +800,7 @@ class WablasService
             $counter = 1;
 
             foreach ($grouped as $kategori => $personilsKategori) {
-                $labelKategori = $kategoriLabels[$kategori] ?? ucfirst($kategori);
+                $labelKategori = $kategoriLabels[$kategori] ?? PersonilCategory::labelFor($kategori);
                 $lines[] = $counter . '. ' . $labelKategori;
                 $personIndex = 1;
                 $useNumbering = $personilsKategori->count() > 1;
