@@ -39,6 +39,14 @@ class PersonilForm
                             ->label('Jabatan')
                             ->maxLength(255),
 
+                        TextInput::make('pangkat')
+                            ->label('Pangkat')
+                            ->maxLength(100),
+
+                        TextInput::make('golongan')
+                            ->label('Golongan')
+                            ->maxLength(50),
+
                         Select::make('kategori')
                             ->label('Kategori')
                             ->options($kategoriOptions)

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Kegiatan;
+use App\Services\SppdGenerator;
+use App\Services\SuratTugasGenerator;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Crypt;
 
@@ -25,6 +27,36 @@ class KegiatanSuratController extends Controller
             'kegiatan' => $kegiatan,
             'fileUrl'  => $fileUrl,
         ]);
+    }
+
+    public function suratTugas(Kegiatan $kegiatan, SuratTugasGenerator $generator)
+    {
+        $result = $generator->generate($kegiatan);
+
+        return response()->download(
+            $result['path'],
+            basename($result['path']),
+            [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            ]
+        );
+    }
+
+    public function sppd(Kegiatan $kegiatan, SppdGenerator $generator)
+    {
+        $result = $generator->generate($kegiatan);
+
+        $headers = [
+            'Content-Type' => $result['is_zip']
+                ? 'application/zip'
+                : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ];
+
+        return response()->download(
+            $result['path'],
+            basename($result['path']),
+            $headers
+        );
     }
 
     public function preview(string $token)

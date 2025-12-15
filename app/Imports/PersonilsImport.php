@@ -27,6 +27,8 @@ class PersonilsImport implements ToModel, WithHeadingRow
             'nama'    => $row['nama'] ?? null,
 			'nip'    => $row['nip'] ?? null,
             'jabatan' => $row['jabatan'] ?? null,
+            'pangkat' => $row['pangkat'] ?? null,
+            'golongan' => $row['golongan'] ?? null,
             'kategori' => $this->mapKategori($row['kategori'] ?? null),
             'no_wa'   => $this->normalizePhone($row['no_wa'] ?? null),
         ]);

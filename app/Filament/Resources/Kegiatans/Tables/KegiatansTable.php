@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\Kegiatans\Tables;
 
 use App\Models\Kegiatan;
+use App\Services\SppdGenerator;
+use App\Services\SuratTugasGenerator;
 use App\Services\WablasService;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -156,74 +159,126 @@ class KegiatansTable
             ])
 
             // ================== AKSI PER RECORD ==================
-          
+           
             ->recordActions([
                 EditAction::make(),
 
-                DeleteAction::make(),
-                /**
-                // Kirim 1 kegiatan ke grup WA
-                Action::make('kirim_wa_grup')
-                    ->label('Kirim WA Grup')
-                    ->icon('heroicon-o-paper-airplane')
-                    ->requiresConfirmation()
-                    ->modalHeading('Kirim agenda ini ke grup WhatsApp?')
-                    ->action(function (Kegiatan $record) {
-                        
-                        $wablas = app(WablasService::class);
+                ActionGroup::make([
+                    Action::make('buat_surat_tugas')
+                        ->label('Buat Surat Tugas')
+                        ->icon('heroicon-o-document-text')
+                        ->color('success')
+                        ->url(fn (Kegiatan $record) => route('kegiatan.surat_tugas', $record))
+                        ->openUrlInNewTab()
+                        ->tooltip('Generate surat tugas dari template dan unduh.'),
 
-                        $record->loadMissing('personils');
-
-                        $success = $wablas->sendGroupRekap(collect([$record]));
-
-                        if ($success) {
-                            Notification::make()
-                                ->title('Berhasil')
-                                ->body('Agenda berhasil dikirim ke grup WhatsApp.')
-                                ->success()
-                                ->send();
-                        } else {
-                            Notification::make()
-                                ->title('Gagal')
-                                ->body('Gagal mengirim pesan ke Wablas. Cek konfigurasi dan status device.')
-                                ->danger()
-                                ->send();
-                        }
-                    }),
-                    **/
+                    Action::make('buat_sppd')
+                        ->label('Buat SPPD')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->color('primary')
+                        ->url(fn (Kegiatan $record) => route('kegiatan.sppd', $record))
+                        ->openUrlInNewTab()
+                        ->tooltip('Generate SPPD per personil; jika lebih dari 1 akan otomatis ZIP.'),
+                ])
+                    ->label('Surat Tugas')
+                    ->icon('heroicon-o-document-text'),
 
                 // Kirim ke WA semua personil 1 kegiatan
-                Action::make('kirim_wa_personil')
-                    ->label('Kirim WA Personil')
-                    ->icon('heroicon-o-chat-bubble-left-right')
-                    ->requiresConfirmation()
-                    ->modalHeading('Kirim agenda ini ke WA personil yang hadir?')
-                    ->action(function (Kegiatan $record) {
-                        /** @var WablasService $wablas */
-                        $wablas = app(WablasService::class);
+                ActionGroup::make([
+                    Action::make('kirim_wa_personil')
+                        ->label('Kirim WA Personil')
+                        ->icon('heroicon-o-chat-bubble-left-right')
+                        ->requiresConfirmation()
+                        ->modalHeading('Kirim agenda ini ke WA personil yang hadir?')
+                        ->action(function (Kegiatan $record) {
+                            /** @var WablasService $wablas */
+                            $wablas = app(WablasService::class);
 
-                        $record->loadMissing('personils');
+                            $record->loadMissing('personils');
 
-                        $success = $wablas->sendToPersonils($record);
+                            $success = $wablas->sendToPersonils($record);
 
-                        if ($success) {
-                            Notification::make()
-                                ->title('Berhasil')
-                                ->body('Agenda berhasil dikirim ke WA seluruh personil yang hadir.')
-                                ->success()
-                                ->send();
-                        } else {
-                            Notification::make()
-                                ->title('Gagal')
-                                ->body('Gagal mengirim ke WA personil. Pastikan nomor WA terisi dan konfigurasi Wablas benar.')
-                                ->danger()
-                                ->send();
-                        }
-                    }),
+                            if ($success) {
+                                Notification::make()
+                                    ->title('Berhasil')
+                                    ->body('Agenda berhasil dikirim ke WA seluruh personil yang hadir.')
+                                    ->success()
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('Gagal')
+                                    ->body('Gagal mengirim ke WA personil. Pastikan nomor WA terisi dan konfigurasi Wablas benar.')
+                                    ->danger()
+                                    ->send();
+                            }
+                        }),
+                ])
+                    ->label('Kirim WA')
+                    ->icon('heroicon-o-chat-bubble-left-right'),
+
+                DeleteAction::make(),
             ])
 
             // ================== BULK ACTION (SESUAI FILTER) ==================
             ->toolbarActions([
+                BulkActionGroup::make([
+                    BulkAction::make('buat_surat_tugas')
+                        ->label('Buat Surat Tugas')
+                        ->icon('heroicon-o-document-text')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            if ($records->count() !== 1) {
+                                Notification::make()
+                                    ->title('Pilih satu agenda')
+                                    ->body('Pilih tepat satu agenda untuk membuat surat tugas.')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $record = $records->first();
+
+                            /** @var SuratTugasGenerator $generator */
+                            $generator = app(SuratTugasGenerator::class);
+
+                            $generator->generate($record);
+
+                            return redirect()->route('kegiatan.surat_tugas', $record);
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->tooltip('Buat surat tugas untuk agenda terpilih. Pilih satu agenda saja.'),
+
+                    BulkAction::make('buat_sppd')
+                        ->label('Buat SPPD')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            if ($records->count() !== 1) {
+                                Notification::make()
+                                    ->title('Pilih satu agenda')
+                                    ->body('Pilih tepat satu agenda untuk membuat SPPD.')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $record = $records->first();
+
+                            /** @var SppdGenerator $generator */
+                            $generator = app(SppdGenerator::class);
+
+                            $generator->generate($record);
+
+                            return redirect()->route('kegiatan.sppd', $record);
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->tooltip('Buat SPPD untuk agenda terpilih (jika personil lebih dari 1, hasil ZIP).'),
+                ])
+                    ->label('Surat Tugas')
+                    ->icon('heroicon-o-document-text'),
+
                 BulkActionGroup::make([
                     // Bulk: kirim semua yang SEDANG tampil (sesuai filter/search/sort)
                     BulkAction::make('kirim_wa_rekap_terfilter')

@@ -37,12 +37,22 @@
         .kop-garis {
             width: 100%;
             border-bottom: 2px solid #000000;
-            margin-top: 4px;
+            margin-top: 2px;
         }
 
         /* TABEL LAPORAN: garis hitam jelas & responsif */
         .laporan-wrapper {
-            margin-bottom: 35mm; /* ruang ekstra untuk footer saat print */
+            margin-bottom: 8mm;
+        }
+
+        .kop-wrapper {
+            margin: 0 0 2mm 0 !important;
+            padding: 0 !important;
+        }
+
+        .judul-blok {
+            margin: 0 0 2mm 0 !important;
+            padding: 0 !important;
         }
 
         table.laporan {
@@ -95,11 +105,13 @@
             @page {
                 /* Folio 8.5 x 13 inch, orientasi landscape: 330 x 215 mm */
                 size: 330mm 215mm;
-                margin: 12mm 12mm 25mm 12mm;
+                margin: 3mm 10mm 12mm 10mm;
             }
 
             body {
                 counter-reset: page 1;
+                margin: 0 !important;
+                padding: 0 !important;
             }
 
             /* SEMUA elemen disembunyikan dulu */

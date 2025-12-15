@@ -23,6 +23,8 @@ class Personil extends Authenticatable implements FilamentUser, HasName
         'nama',
 		'nip', 
         'jabatan',
+        'pangkat',
+        'golongan',
         'kategori',
         'no_wa',
         'keterangan',
