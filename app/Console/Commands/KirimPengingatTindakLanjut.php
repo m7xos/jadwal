@@ -60,23 +60,24 @@ class KirimPengingatTindakLanjut extends Command
             }
         }
 
-        // Pengingat terakhir saat atau setelah batas TL jika belum selesai.
-        $finalBatch = Kegiatan::query()
+        // Overdue (melewati batas) - kirim pengingat akhir atau ulang + perpanjang 1 hari
+        $overdueBatch = Kegiatan::query()
             ->where('jenis_surat', 'tindak_lanjut')
             ->whereNotNull('batas_tindak_lanjut')
             ->whereNull('tindak_lanjut_selesai_at')
-            ->whereNull('tl_final_reminder_sent_at')
             ->where('batas_tindak_lanjut', '<=', $now)
-            ->whereNotIn('id', $processedIds)
             ->get();
 
-        foreach ($finalBatch as $kegiatan) {
+        foreach ($overdueBatch as $kegiatan) {
+            $type = $kegiatan->tl_final_reminder_sent_at ? 'ulang_perpanjang' : 'final';
+            $newDeadline = $now->copy()->addDay(); // perpanjangan otomatis 1 hari
+
             $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
             $success = (bool) ($result['success'] ?? false);
 
             $log = new TindakLanjutReminderLog([
                 'kegiatan_id' => $kegiatan->id,
-                'type' => 'final',
+                'type' => $type,
                 'status' => $success ? 'success' : 'failed',
                 'error_message' => $result['error'] ?? null,
                 'response' => $result['response'] ?? null,
@@ -88,50 +89,13 @@ class KirimPengingatTindakLanjut extends Command
                 $kegiatan->forceFill([
                     'tl_reminder_sent_at' => $kegiatan->tl_reminder_sent_at ?? $log->sent_at ?? now(),
                     'tl_final_reminder_sent_at' => $log->sent_at ?? now(),
-                ])->save();
-                $sent++;
-                $this->info("Pengingat terakhir terkirim untuk surat: {$kegiatan->nomor} ({$kegiatan->nama_kegiatan})");
-            } else {
-                $this->error("Gagal mengirim pengingat terakhir untuk surat: {$kegiatan->nomor}");
-            }
-        }
-
-        // Overdue & sudah pernah diingatkan, tapi masih "Belum TL":
-        // otomatis undur batas TL +1 hari dari sekarang dan kirim ulang pengingat.
-        $resendBatch = Kegiatan::query()
-            ->where('jenis_surat', 'tindak_lanjut')
-            ->whereNotNull('batas_tindak_lanjut')
-            ->whereNull('tindak_lanjut_selesai_at')
-            ->whereNotNull('tl_final_reminder_sent_at')
-            ->where('batas_tindak_lanjut', '<=', $now)
-            ->get();
-
-        foreach ($resendBatch as $kegiatan) {
-            $newDeadline = $now->copy()->addDay(); // perpanjangan otomatis 1 hari
-
-            $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
-            $success = (bool) ($result['success'] ?? false);
-
-            $log = new TindakLanjutReminderLog([
-                'kegiatan_id' => $kegiatan->id,
-                'type' => 'ulang_perpanjang',
-                'status' => $success ? 'success' : 'failed',
-                'error_message' => $result['error'] ?? null,
-                'response' => $result['response'] ?? null,
-                'sent_at' => $success ? now() : null,
-            ]);
-            $log->save();
-
-            if ($success) {
-                $kegiatan->forceFill([
                     'batas_tindak_lanjut' => $newDeadline,
-                    'tl_final_reminder_sent_at' => $log->sent_at ?? now(),
                 ])->save();
 
                 $sent++;
-                $this->info("Pengingat ulang & perpanjangan TL (+1 hari) untuk surat: {$kegiatan->nomor} ({$kegiatan->nama_kegiatan})");
+                $this->info("Pengingat {$type} terkirim & batas TL diperpanjang untuk surat: {$kegiatan->nomor} ({$kegiatan->nama_kegiatan})");
             } else {
-                $this->error("Gagal mengirim pengingat ulang untuk surat: {$kegiatan->nomor}");
+                $this->error("Gagal mengirim pengingat {$type} untuk surat: {$kegiatan->nomor}");
             }
         }
 
