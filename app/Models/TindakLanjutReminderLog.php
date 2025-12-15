@@ -11,6 +11,7 @@ class TindakLanjutReminderLog extends Model
 
     protected $fillable = [
         'kegiatan_id',
+        'type',
         'status',
         'error_message',
         'response',

@@ -41,14 +41,14 @@ class KirimPengingatTindakLanjut extends Command
             $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
             $success = (bool) ($result['success'] ?? false);
 
-            $log = TindakLanjutReminderLog::firstOrNew([
+            $log = new TindakLanjutReminderLog([
                 'kegiatan_id' => $kegiatan->id,
+                'type' => 'awal',
+                'status' => $success ? 'success' : 'failed',
+                'error_message' => $result['error'] ?? null,
+                'response' => $result['response'] ?? null,
+                'sent_at' => $success ? now() : null,
             ]);
-
-            $log->status = $success ? 'success' : 'failed';
-            $log->error_message = $result['error'] ?? null;
-            $log->response = $result['response'] ?? null;
-            $log->sent_at = $success ? now() : null;
             $log->save();
 
             if ($success) {
@@ -74,14 +74,14 @@ class KirimPengingatTindakLanjut extends Command
             $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
             $success = (bool) ($result['success'] ?? false);
 
-            $log = TindakLanjutReminderLog::firstOrNew([
+            $log = new TindakLanjutReminderLog([
                 'kegiatan_id' => $kegiatan->id,
+                'type' => 'final',
+                'status' => $success ? 'success' : 'failed',
+                'error_message' => $result['error'] ?? null,
+                'response' => $result['response'] ?? null,
+                'sent_at' => $success ? now() : null,
             ]);
-
-            $log->status = $success ? 'success' : 'failed';
-            $log->error_message = $result['error'] ?? null;
-            $log->response = $result['response'] ?? null;
-            $log->sent_at = $success ? now() : $log->sent_at;
             $log->save();
 
             if ($success) {
@@ -112,14 +112,14 @@ class KirimPengingatTindakLanjut extends Command
             $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
             $success = (bool) ($result['success'] ?? false);
 
-            $log = TindakLanjutReminderLog::firstOrNew([
+            $log = new TindakLanjutReminderLog([
                 'kegiatan_id' => $kegiatan->id,
+                'type' => 'ulang_perpanjang',
+                'status' => $success ? 'success' : 'failed',
+                'error_message' => $result['error'] ?? null,
+                'response' => $result['response'] ?? null,
+                'sent_at' => $success ? now() : null,
             ]);
-
-            $log->status = $success ? 'success' : 'failed';
-            $log->error_message = $result['error'] ?? null;
-            $log->response = $result['response'] ?? null;
-            $log->sent_at = $success ? now() : $log->sent_at;
             $log->save();
 
             if ($success) {

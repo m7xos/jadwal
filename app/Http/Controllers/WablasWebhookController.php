@@ -58,7 +58,14 @@ class WablasWebhookController extends Controller
             return response()->json(['ignored' => 'no pending TL found']);
         }
 
-        [$isAuthorized, $allowedNumbers] = $this->isAuthorizedSender($kegiatan, $senderDigits, $payload);
+        $incomingGroupId = $this->extractGroupId($payload);
+        $targetGroupPhones = $wablas->getTlTargetGroupPhones($kegiatan);
+
+        if (! empty($targetGroupPhones) && $incomingGroupId !== null && ! in_array($incomingGroupId, $targetGroupPhones, true)) {
+            return response()->json(['ignored' => 'message from unrelated group']);
+        }
+
+        [$isAuthorized, $allowedNumbers] = $this->isAuthorizedSender($kegiatan, $senderDigits);
 
         if (! $isAuthorized) {
             Log::warning('Unauthorized selesai tl command', [
@@ -76,9 +83,27 @@ class WablasWebhookController extends Controller
 
         $this->markReminderLogCompleted($kegiatan);
 
-        $sent = $wablas->sendGroupText(
-            '*TERIMA KASIH*\nSurat sudah ditindaklanjuti.\nKode Pengingat: *TL-' . $kegiatan->id . "*\nNomor: *" . ($kegiatan->nomor ?? '-') . "*\nPerihal: *" . ($kegiatan->nama_kegiatan ?? '-') . '*'
-        );
+        $thanksMessage = '*TERIMA KASIH*'
+            . "\nSurat sudah ditindaklanjuti."
+            . "\nKode Pengingat: *TL-" . $kegiatan->id . '*'
+            . "\nNomor: *" . ($kegiatan->nomor ?? '-') . '*'
+            . "\nPerihal: *" . ($kegiatan->nama_kegiatan ?? '-') . '*';
+
+        $sent = false;
+
+        if ($incomingGroupId && in_array($incomingGroupId, $targetGroupPhones, true)) {
+            $result = $wablas->sendTextToSpecificGroup($incomingGroupId, $thanksMessage);
+            $sent = (bool) ($result['success'] ?? false);
+        } elseif (! empty($targetGroupPhones)) {
+            foreach ($targetGroupPhones as $phone) {
+                $result = $wablas->sendTextToSpecificGroup($phone, $thanksMessage);
+                if ($result['success'] ?? false) {
+                    $sent = true;
+                }
+            }
+        } else {
+            $sent = $wablas->sendGroupText($thanksMessage);
+        }
 
         if (! $sent) {
             Log::error('Wablas webhook: gagal kirim balasan terima kasih', [
@@ -87,6 +112,30 @@ class WablasWebhookController extends Controller
         }
 
         return response()->json(['status' => 'ok']);
+    }
+
+    protected function extractGroupId(array $payload): ?string
+    {
+        $group = $payload['group'] ?? null;
+
+        if (! is_array($group)) {
+            return null;
+        }
+
+        $candidates = [
+            $group['id'] ?? null,
+            $group['number'] ?? null,
+            $group['group_id'] ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            $candidate = trim((string) $candidate);
+            if ($candidate !== '') {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     protected function handleVehicleTaxPaid(array $payload, WablasService $wablas): bool
@@ -145,12 +194,9 @@ class WablasWebhookController extends Controller
     /**
      * @return array{0: bool, 1: array<int, string>} [authorized, allowed_numbers]
      */
-    protected function isAuthorizedSender(Kegiatan $kegiatan, string $senderDigits, array $payload = []): array
+    protected function isAuthorizedSender(Kegiatan $kegiatan, string $senderDigits): array
     {
         $kegiatan->loadMissing('personils');
-
-        $allowedJabatan = $this->allowedRoles();
-        $rolePatterns = $this->allowedRolePatterns();
 
         $assignedNumbers = ($kegiatan->personils ?? collect())
             ->map(fn (Personil $personil) => $this->normalizeNumberFromDb($personil->no_wa))
@@ -164,23 +210,8 @@ class WablasWebhookController extends Controller
             ->filter()
             ->values();
 
-        $roleNumbers = Personil::query()
-            ->where(function ($q) use ($allowedJabatan, $rolePatterns) {
-                $q->whereIn('jabatan', $allowedJabatan);
-
-                foreach ($rolePatterns as $pattern) {
-                    $q->orWhere('jabatan', 'like', $pattern);
-                }
-            })
-            ->get()
-            ->map(fn (Personil $personil) => $this->normalizeNumberFromDb($personil->no_wa))
-            ->filter()
-            ->values();
-
         $allowedNumbers = $assignedNumbers
             ->merge($assignedFromDb)
-            ->merge($roleNumbers)
-            ->merge($this->allowedNumbersFromPayload($payload))
             ->merge($this->allowedNumbersFromConfig())
             ->unique()
             ->values()

@@ -50,6 +50,25 @@ class TindakLanjutReminderLogResource extends Resource
                     ->label('Batas TL')
                     ->dateTime('d M Y H:i')
                     ->sortable(),
+                BadgeColumn::make('type')
+                    ->label('Jenis Pengingat')
+                    ->formatStateUsing(fn (?string $state) => match ($state) {
+                        'awal' => 'Awal',
+                        'final' => 'Final',
+                        'ulang_perpanjang' => 'Ulang + Perpanjang',
+                        default => $state,
+                    })
+                    ->colors([
+                        'primary' => 'awal',
+                        'warning' => 'final',
+                        'success' => 'ulang_perpanjang',
+                    ])
+                    ->icons([
+                        'awal' => 'heroicon-m-bell',
+                        'final' => 'heroicon-m-bell-alert',
+                        'ulang_perpanjang' => 'heroicon-m-clock',
+                    ])
+                    ->sortable(),
                 BadgeColumn::make('status')
                     ->colors([
                         'success' => 'success',
@@ -84,6 +103,13 @@ class TindakLanjutReminderLogResource extends Resource
                         'success' => 'Berhasil',
                         'failed' => 'Gagal',
                         'pending' => 'Menunggu',
+                    ]),
+                SelectFilter::make('type')
+                    ->label('Jenis')
+                    ->options([
+                        'awal' => 'Awal',
+                        'final' => 'Final',
+                        'ulang_perpanjang' => 'Ulang + Perpanjang',
                     ]),
             ])
             ->actions([

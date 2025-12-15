@@ -12,4 +12,7 @@ return [
         'group_3' => env('WABLAS_GROUP_3_ID', ''),
     ],
 
+    // Nomor yang tetap boleh memicu selesai TL (dipisah koma), contoh: "6281234,6285678"
+    'finish_whitelist' => env('WABLAS_FINISH_WHITELIST', ''),
+
 ];
