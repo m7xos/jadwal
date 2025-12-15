@@ -65,7 +65,7 @@ class WablasWebhookController extends Controller
             return response()->json(['ignored' => 'message from unrelated group']);
         }
 
-        [$isAuthorized, $allowedNumbers] = $this->isAuthorizedSender($kegiatan, $senderDigits);
+        [$isAuthorized, $allowedNumbers] = $this->isAuthorizedSender($kegiatan, $senderDigits, $payload);
 
         if (! $isAuthorized) {
             Log::warning('Unauthorized selesai tl command', [
@@ -194,7 +194,7 @@ class WablasWebhookController extends Controller
     /**
      * @return array{0: bool, 1: array<int, string>} [authorized, allowed_numbers]
      */
-    protected function isAuthorizedSender(Kegiatan $kegiatan, string $senderDigits): array
+    protected function isAuthorizedSender(Kegiatan $kegiatan, string $senderDigits, array $payload = []): array
     {
         $kegiatan->loadMissing('personils');
 
@@ -212,6 +212,8 @@ class WablasWebhookController extends Controller
 
         $allowedNumbers = $assignedNumbers
             ->merge($assignedFromDb)
+            ->merge($this->allowedNumbersFromRoles())
+            ->merge($this->allowedNumbersFromPayload($payload))
             ->merge($this->allowedNumbersFromConfig())
             ->unique()
             ->values()
@@ -254,6 +256,40 @@ class WablasWebhookController extends Controller
         }
 
         return $numbers->unique()->values()->all();
+    }
+
+    protected function allowedNumbersFromRoles(): array
+    {
+        $roles = $this->allowedRoles();
+        $patterns = $this->allowedRolePatterns();
+
+        if (empty($roles) && empty($patterns)) {
+            return [];
+        }
+
+        $query = Personil::query()
+            ->whereNotNull('no_wa')
+            ->where('no_wa', '!=', '');
+
+        $query->where(function ($builder) use ($roles, $patterns) {
+            if (! empty($roles)) {
+                $builder->whereIn('jabatan', $roles);
+            }
+
+            if (! empty($patterns)) {
+                foreach ($patterns as $pattern) {
+                    $builder->orWhere('jabatan', 'like', $pattern);
+                }
+            }
+        });
+
+        return $query
+            ->pluck('no_wa')
+            ->map(fn ($noWa) => $this->normalizeNumberFromDb($noWa))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     protected function allowedNumbersFromConfig(): array
