@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Personil;
+use App\Models\PersonilCategory;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -57,18 +58,6 @@ class PersonilsImport implements ToModel, WithHeadingRow
 
     protected function mapKategori(?string $value): ?string
     {
-        if (! $value) {
-            return null;
-        }
-
-        $normalized = strtolower(trim($value));
-
-        return match ($normalized) {
-            'personil kecamatan', 'kecamatan' => 'kecamatan',
-            'personil kelurahan', 'kelurahan', 'kel' => 'kelurahan',
-            'kades', 'lurah', 'personil kades/lurah', 'kades/lurah' => 'kades_lurah',
-            'sekdes', 'selur', 'admin', 'personil sekdes/selur/admin', 'sekdes/selur/admin' => 'sekdes_admin',
-            default => null,
-        };
+        return PersonilCategory::slugFromInput($value);
     }
 }
