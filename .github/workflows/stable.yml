@@ -1,0 +1,53 @@
+name: Deploy Stable to watumalang.online
+
+on:
+  push:
+    branches:
+      - stable   # ganti kalau pakai branch lain
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add VPS to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan watumalang.online >> ~/.ssh/known_hosts
+
+      - name: Deploy to watumalang.online
+        env:
+          SSH_HOST: watumalang.online
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          ssh "$SSH_USER@$SSH_HOST" << 'EOF'
+            set -e
+
+            cd /var/www/jadwal-live
+
+            git fetch origin
+            git reset --hard origin/stable   # ganti kalau branch deploy-mu bukan main
+
+            # sesuaikan path composer di server (cek dengan: which composer)
+            /usr/local/bin/composer install --no-dev --optimize-autoloader
+
+            php artisan migrate --force
+
+            php artisan migrate --seed
+            php artisan optimize:clear
+            php artisan storage:link
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+             #chown -R deploy:www-data storage bootstrap/cache
+             #chmod -R 775 storage bootstrap/cache
+          EOF
