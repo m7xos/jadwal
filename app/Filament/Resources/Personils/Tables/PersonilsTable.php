@@ -20,16 +20,26 @@ class PersonilsTable
                     ->searchable()
                     ->sortable()
                     ->wrap(),
-
+                /**
                 TextColumn::make('nip')
                     ->label('NIP')
                     ->searchable(),
-					
+				*/	
                 TextColumn::make('jabatan')
                     ->label('Jabatan')
                     ->searchable()
                     ->sortable(),
 
+               /** TextColumn::make('pangkat')
+                    ->label('Pangkat')
+                    ->toggleable()
+                    ->wrap(),
+
+                TextColumn::make('golongan')
+                    ->label('Golongan')
+                    ->toggleable()
+                    ->wrap(),
+                */
                 TextColumn::make('kategori')
                     ->label('Kategori')
                     ->badge()
@@ -46,10 +56,11 @@ class PersonilsTable
                     ->label('Nomor WA')
                     ->searchable(),
 
-                TextColumn::make('keterangan')
+              /**  TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->limit(40)
                     ->tooltip(fn ($state) => $state),
+                */
             ])
             ->filters([
                 SelectFilter::make('kategori')

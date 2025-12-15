@@ -23,6 +23,7 @@ class VehicleTaxSettings extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static ?string $title = 'Pengaturaņ Pengurus Barang';
     protected static ?string $navigationLabel = 'Pengurus Barang';
     protected static string|UnitEnum|null $navigationGroup = 'Pengingat';
     protected static ?string $slug = 'pengurus-barang';

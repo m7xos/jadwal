@@ -2,9 +2,11 @@
 
 namespace App\Filament\Resources\VehicleTaxes\Tables;
 
+use App\Services\SuratKuasaPajakGenerator;
 use App\Models\VehicleTax;
 use App\Services\VehicleTaxReminderService;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -15,6 +17,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Log;
 
 class VehicleTaxesTable
 {
@@ -120,6 +124,54 @@ class VehicleTaxesTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('surat_kuasa')
+                        ->label('Kuasa Membayar Pajak')
+                        ->icon('heroicon-o-document-text')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            if ($records->isEmpty()) {
+                                Notification::make()
+                                    ->title('Tidak ada data yang dipilih')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            /** @var SuratKuasaPajakGenerator $generator */
+                            $generator = app(SuratKuasaPajakGenerator::class);
+
+                            try {
+                                $result = $generator->generate(
+                                    $records->pluck('plat_nomor')->filter()->all()
+                                );
+                            } catch (\Throwable $th) {
+                                Log::error('Gagal generate surat kuasa pajak', [
+                                    'error' => $th->getMessage(),
+                                ]);
+
+                                Notification::make()
+                                    ->title('Gagal membuat surat kuasa')
+                                    ->body($th->getMessage())
+                                    ->danger()
+                                    ->send();
+
+                                return;
+                            }
+
+                            Notification::make()
+                                ->title('Surat kuasa siap diunduh')
+                                ->body('File siap diunduh.')
+                                ->success()
+                                ->send();
+
+                            return response()
+                                ->download($result['path'])
+                                ->deleteFileAfterSend(true);
+                        })
+                        ->deselectRecordsAfterCompletion(),
+
                     DeleteBulkAction::make(),
                 ]),
             ]);

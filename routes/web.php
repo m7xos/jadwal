@@ -37,6 +37,14 @@ Route::get('/preview-surat/{token}', [KegiatanSuratController::class, 'preview']
     ->middleware('signed')
     ->name('kegiatan.surat.preview');
 
+Route::get('/kegiatan/{kegiatan}/surat-tugas', [KegiatanSuratController::class, 'suratTugas'])
+    ->middleware('auth:personil')
+    ->name('kegiatan.surat_tugas');
+
+Route::get('/kegiatan/{kegiatan}/sppd', [KegiatanSuratController::class, 'sppd'])
+    ->middleware('auth:personil')
+    ->name('kegiatan.sppd');
+
 Route::get('/login', function () {
     return redirect()->route('filament.admin.auth.login');
 })->name('login');
