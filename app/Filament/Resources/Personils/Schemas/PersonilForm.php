@@ -2,23 +2,18 @@
 
 namespace App\Filament\Resources\Personils\Schemas;
 
+use App\Models\PersonilCategory;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Support\Arr;
 
 class PersonilForm
 {
     public static function configure(Schema $schema): Schema
     {
-        $kategoriOptions = [
-            'kecamatan' => 'Personil Kecamatan',
-            'kelurahan' => 'Personil Kelurahan',
-            'kades_lurah' => 'Personil Kades/Lurah',
-            'sekdes_admin' => 'Personil Sekdes/Selur/Admin',
-        ];
+        $kategoriOptions = PersonilCategory::options();
 
         return $schema
             ->components([
