@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Widgets\AgendaPerHariChart;
 use App\Filament\Widgets\AgendaStatsOverview;
+use App\Filament\Widgets\VehicleStatsOverview;
 use App\Filament\Pages\LaporanSuratMasukBulanan;
 use App\Filament\Pages\RoleAccessSettings;
 use App\Filament\Auth\Login as PersonilLogin;
@@ -58,6 +59,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AgendaStatsOverview::class,
                 AgendaPerHariChart::class,
+                VehicleStatsOverview::class,
             ])
 
             // Link-link tambahan di sidebar
