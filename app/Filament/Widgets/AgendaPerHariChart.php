@@ -10,12 +10,19 @@ use Filament\Widgets\ChartWidget;
 class AgendaPerHariChart extends ChartWidget
 {
     // NON-static
-    protected ?string $heading = 'Jumlah Agenda per Hari (14 Hari Terakhir)';
+    protected ?string $heading = 'Jumlah Agenda per Hari (1 Bulan Terakhir)';
+
+    protected ?string $maxHeight = '350px';
+
+    protected int | string | array $columnSpan = [
+        'default' => 1,
+        'lg'      => 2, // full width on desktop/right side
+    ];
 
     protected function getData(): array
     {
         $today     = Carbon::today();
-        $startDate = $today->copy()->subDays(13); // total 14 hari
+        $startDate = $today->copy()->subDays(29); // kurang lebih 1 bulan (30 hari)
 
         $rows = Kegiatan::query()
             ->selectRaw('DATE(tanggal) as date, COUNT(*) as total')
