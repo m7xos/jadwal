@@ -35,7 +35,7 @@ class GroupsTable
                     ->copyable(), 
 
                 TextColumn::make('personils_count')
-                    ->label('Jumlah Personil')
+                    ->label('JML Personil')
                     ->badge()
                     ->sortable(),
 
