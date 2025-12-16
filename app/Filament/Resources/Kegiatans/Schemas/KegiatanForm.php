@@ -275,6 +275,32 @@ class KegiatanForm
 
                                 return "{$nama} - {$jabatan}";
                             })
+                            ->getSearchResultsUsing(function (string $search): array {
+                                $searchTerm = trim($search);
+
+                                return Personil::query()
+                                    ->when(
+                                        $searchTerm !== '',
+                                        fn ($query) => $query->where(function ($q) use ($searchTerm) {
+                                            $q->where('nama', 'like', "%{$searchTerm}%")
+                                                ->orWhere('jabatan', 'like', "%{$searchTerm}%");
+                                        })
+                                    )
+                                    ->orderBy('nama')
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(function (Personil $personil) {
+                                        $nama = trim((string) ($personil->nama ?? ''));
+                                        $jabatan = trim((string) ($personil->jabatan ?? ''));
+
+                                        if ($jabatan === '') {
+                                            return [$personil->getKey() => $nama];
+                                        }
+
+                                        return [$personil->getKey() => "{$nama} - {$jabatan}"];
+                                    })
+                                    ->all();
+                            })
                             ->multiple()
                             ->preload()
                             ->searchable()
