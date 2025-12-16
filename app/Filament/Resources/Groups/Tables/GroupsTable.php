@@ -39,10 +39,11 @@ class GroupsTable
                     ->badge()
                     ->sortable(),
 
-                TextColumn::make('keterangan')
+               /** TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->limit(50)
                     ->tooltip(fn ($state) => $state),
+                */
             ])
             ->recordActions([
                 EditAction::make(),
