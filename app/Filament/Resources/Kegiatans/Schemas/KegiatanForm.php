@@ -265,6 +265,16 @@ class KegiatanForm
                         Select::make('personils')
                             ->label('Pilih Personil')
                             ->relationship('personils', 'nama')
+                            ->getOptionLabelFromRecordUsing(function (Personil $record): string {
+                                $nama = trim((string) ($record->nama ?? ''));
+                                $jabatan = trim((string) ($record->jabatan ?? ''));
+
+                                if ($jabatan === '') {
+                                    return $nama;
+                                }
+
+                                return "{$nama} - {$jabatan}";
+                            })
                             ->multiple()
                             ->preload()
                             ->searchable()
