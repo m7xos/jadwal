@@ -15,14 +15,17 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
 ## Konfigurasi .env penting
 - Database: `DB_*`
 - App: `APP_URL`, `APP_TIMEZONE`
-- Wablas: `WABLAS_BASE_URL`, `WABLAS_TOKEN`, `WABLAS_SECRET_KEY` (opsional), `WABLAS_FINISH_WHITELIST` (comma separated, optional)
-  - Default grup Wablas kini diambil dari tabel Grup WA (centang "Jadikan grup default").
+- WhatsApp Gateway:
+  - wa-gateway (disarankan): `WA_GATEWAY_BASE_URL`, `WA_GATEWAY_KEY` (opsional), `WA_GATEWAY_TOKEN`, `WA_GATEWAY_FINISH_WHITELIST`
+  - Wablas (legacy): `WABLAS_BASE_URL`, `WABLAS_TOKEN`, `WABLAS_SECRET_KEY` (opsional), `WABLAS_FINISH_WHITELIST`
+  - Default grup WA diambil dari tabel Grup WA (centang "Jadikan grup default").
 - PDF to text: `PDFTOTEXT_PATH=/usr/bin/pdftotext` (untuk Ubuntu)
   - `WABLAS_FINISH_WHITELIST` berisi nomor WA (format 62xxxx) yang tetap boleh menandai TL selesai di webhook, selain personil yang ditugaskan. Pisahkan dengan koma, contoh: `WABLAS_FINISH_WHITELIST=6281234567890,6289876543210`. Biarkan kosong jika tidak ingin whitelist tambahan.
 
-## Webhook Wablas (wajib)
-- Endpoint utama: `POST https://<APP_URL>/api/wablas/webhook`.
-- Endpoint legacy (masih tersedia, tanpa prefix API): `POST https://<APP_URL>/wablas/webhook`. Pilih salah satu; disarankan memakai endpoint utama `/api/wablas/webhook`.
+## Webhook WhatsApp (wajib)
+- Untuk Wablas/kompat: `POST https://<APP_URL>/api/wablas/webhook` (atau legacy: `POST https://<APP_URL>/wablas/webhook`).
+- Untuk wa-gateway: set `webhookBaseUrl = ${APP_URL}/wa-gateway/webhook` di wa-gateway (ia akan POST ke `${webhookBaseUrl}/message`).
+  - Endpoint: `POST https://<APP_URL>/api/wa-gateway/webhook/message` (atau legacy tanpa prefix API: `POST https://<APP_URL>/wa-gateway/webhook/message`).
 - Pesan masuk grup dengan teks `TL-<id> selesai` (atau mengandung “selesai” + kode TL) akan menandai surat selesai TL bila nomor pengirim diizinkan (penerima TL atau jabatan Arsiparis/Pranata Komputer, atau nomor owner/sender grup).
 
 ## Cron scheduler

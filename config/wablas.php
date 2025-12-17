@@ -5,6 +5,11 @@ return [
     // Aplikasi ini awalnya memakai Wablas. Sekarang mendukung wa-gateway yang menyediakan
     // Wablas-compatible API. Agar migrasi mulus, env WA_GATEWAY_* diprioritaskan dan tetap
     // kompatibel dengan env lama WABLAS_*.
+    //
+    // Provider:
+    // - wa-gateway: menganggap group id perlu format JID (contoh: 1203...@g.us)
+    // - wablas: memakai format group id numerik ala Wablas
+    'provider'   => env('WA_PROVIDER', env('WA_GATEWAY_BASE_URL') ? 'wa-gateway' : 'wablas'),
     'base_url'   => env('WA_GATEWAY_BASE_URL', env('WABLAS_BASE_URL', 'https://solo.wablas.com')),
     'token'      => env('WA_GATEWAY_TOKEN', env('WABLAS_TOKEN', '')),
     'secret_key' => env('WA_GATEWAY_SECRET_KEY', env('WABLAS_SECRET_KEY', '')),

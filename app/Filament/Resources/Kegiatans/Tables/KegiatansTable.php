@@ -207,7 +207,7 @@ class KegiatansTable
                             } else {
                                 Notification::make()
                                     ->title('Gagal')
-                                    ->body('Gagal mengirim ke WA personil. Pastikan nomor WA terisi dan konfigurasi Wablas benar.')
+                                    ->body('Gagal mengirim ke WA personil. Pastikan nomor WA terisi dan konfigurasi WA Gateway benar.')
                                     ->danger()
                                     ->send();
                             }
@@ -317,9 +317,9 @@ class KegiatansTable
                             /** @var WablasService $wablas */
                             $wablas = app(WablasService::class);
 
-                            $success = $wablas->sendGroupRekap($records);
+                            $result = $wablas->sendGroupRekap($records);
 
-                            if ($success) {
+                            if ($result['success'] ?? false) {
                                 Notification::make()
                                     ->title('Berhasil')
                                     ->body('Rekap semua agenda yang terfilter berhasil dikirim ke grup WhatsApp.')
@@ -328,7 +328,7 @@ class KegiatansTable
                             } else {
                                 Notification::make()
                                     ->title('Gagal')
-                                    ->body('Gagal mengirim rekap ke Wablas. Cek konfigurasi dan koneksi device.')
+                                    ->body($result['error'] ?? 'Gagal mengirim rekap ke WA. Cek konfigurasi dan koneksi device.')
                                     ->danger()
                                     ->send();
                             }
@@ -387,7 +387,7 @@ class KegiatansTable
 						} else {
 							Notification::make()
 								->title('Gagal')
-								->body('Gagal mengirim pesan ke Wablas. Cek konfigurasi/token/ID grup.')
+								->body('Gagal mengirim pesan ke WA Gateway. Cek konfigurasi/token/ID grup.')
 								->danger()
 								->send();
 						}
