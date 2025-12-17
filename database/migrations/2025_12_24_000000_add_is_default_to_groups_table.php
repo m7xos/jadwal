@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('groups', function (Blueprint $table): void {
-            $table->boolean('is_default')->default(false)->after('wablas_group_id');
+            $table->boolean('is_default')->default(false)->after('wa_gateway_group_id');
         });
     }
 

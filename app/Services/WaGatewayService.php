@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
-class WablasService
+class WaGatewayService
 {
     protected string $baseUrl;
     protected string $token;
@@ -24,11 +24,11 @@ class WablasService
 
     public function __construct()
     {
-        $this->baseUrl   = rtrim(config('wablas.base_url', 'https://solo.wablas.com'), '/');
-        $this->token     = (string) config('wablas.token', '');
-        $this->secretKey = config('wablas.secret_key'); // boleh null / kosong
-        $this->provider  = (string) config('wablas.provider', 'wablas');
-        $this->groupMappings = (array) config('wablas.group_ids', []);
+        $this->baseUrl   = rtrim(config('wa_gateway.base_url', 'http://localhost:5001'), '/');
+        $this->token     = (string) config('wa_gateway.token', '');
+        $this->secretKey = config('wa_gateway.secret_key'); // boleh null / kosong
+        $this->provider  = (string) config('wa_gateway.provider', 'wa-gateway');
+        $this->groupMappings = (array) config('wa_gateway.group_ids', []);
         $this->groupId   = $this->resolveDefaultGroupId();
     }
 
@@ -53,10 +53,10 @@ class WablasService
         return $this->provider === 'wa-gateway';
     }
 
-    /**
-     * Normalisasi group id supaya kompatibel dengan provider.
-     *
-     * - Wablas: group id biasanya numerik (tanpa suffix).
+     /**
+      * Normalisasi group id supaya kompatibel dengan provider.
+      *
+     * - Legacy: group id biasanya numerik (tanpa suffix).
      * - wa-gateway: group id perlu format JID (contoh: 1203...@g.us).
      */
     protected function normalizeGroupId(string $groupId): string
@@ -81,7 +81,7 @@ class WablasService
             'Content-Type'  => 'application/json',
         ];
 
-        $masterKey = trim((string) config('wablas.key', ''));
+        $masterKey = trim((string) config('wa_gateway.key', ''));
         if ($masterKey !== '') {
             $headers['key'] = $masterKey;
         }
@@ -112,22 +112,22 @@ class WablasService
     {
         $default = Group::query()
             ->where('is_default', true)
-            ->whereNotNull('wablas_group_id')
-            ->where('wablas_group_id', '!=', '')
+            ->whereNotNull('wa_gateway_group_id')
+            ->where('wa_gateway_group_id', '!=', '')
             ->first();
 
         if ($default) {
-            return trim((string) $default->wablas_group_id);
+            return trim((string) $default->wa_gateway_group_id);
         }
 
         $fallback = Group::query()
-            ->whereNotNull('wablas_group_id')
-            ->where('wablas_group_id', '!=', '')
+            ->whereNotNull('wa_gateway_group_id')
+            ->where('wa_gateway_group_id', '!=', '')
             ->orderBy('id')
             ->first();
 
         if ($fallback) {
-            return trim((string) $fallback->wablas_group_id);
+            return trim((string) $fallback->wa_gateway_group_id);
         }
 
         return '';
@@ -367,7 +367,7 @@ class WablasService
         if (! $this->hasClientCredentials() || $groupId === '') {
             return [
                 'success' => false,
-                'error' => 'Konfigurasi Wablas belum lengkap',
+                'error' => 'Konfigurasi WA Gateway belum lengkap',
                 'response' => null,
             ];
         }
@@ -385,7 +385,7 @@ class WablasService
         try {
             $response = $this->client()->post($this->baseUrl . '/api/v2/send-message', $payload);
         } catch (\Throwable $exception) {
-            Log::error('WablasService: HTTP error kirim teks grup', [
+            Log::error('WA Gateway: HTTP error kirim teks grup', [
                 'message' => $exception->getMessage(),
                 'group_id' => $groupId,
             ]);
@@ -398,7 +398,7 @@ class WablasService
         }
 
         if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim teks grup', [
+            Log::error('WA Gateway: HTTP error kirim teks grup', [
                 'status' => $response->status(),
                 'body' => $response->body(),
                 'group_id' => $groupId,
@@ -414,7 +414,7 @@ class WablasService
         $json = $response->json();
         $success = (bool) data_get($json, 'status', false);
 
-        Log::info('WablasService: response sendGroupText', [
+        Log::info('WA Gateway: response sendGroupText', [
             'response' => $json,
             'group_id' => $groupId,
         ]);
@@ -441,7 +441,7 @@ class WablasService
         if (! $this->isConfigured()) {
             return [
                 'success' => false,
-                'error' => 'Konfigurasi Wablas belum lengkap',
+                'error' => 'Konfigurasi WA Gateway belum lengkap',
                 'response' => null,
             ];
         }
@@ -474,7 +474,7 @@ class WablasService
             $response = $this->client()
                 ->post($this->baseUrl . '/api/v2/send-message', ['data' => $data]);
         } catch (\Throwable $exception) {
-            Log::error('WablasService: HTTP error kirim personal text', [
+            Log::error('WA Gateway: HTTP error kirim personal text', [
                 'message' => $exception->getMessage(),
             ]);
 
@@ -486,7 +486,7 @@ class WablasService
         }
 
         if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim personal text', [
+            Log::error('WA Gateway: HTTP error kirim personal text', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
@@ -938,14 +938,14 @@ class WablasService
 
                     if ($rawIds->isNotEmpty()) {
                         $method = $hasCondition ? 'orWhereIn' : 'whereIn';
-                        $query->{$method}('wablas_group_id', $rawIds);
+                        $query->{$method}('wa_gateway_group_id', $rawIds);
                     }
                 })
                 ->get();
         }
 
         if ($groups->isEmpty()) {
-            Log::warning('WablasService: sendAgendaToGroups tidak menemukan grup tujuan', [
+            Log::warning('WA Gateway: sendAgendaToGroups tidak menemukan grup tujuan', [
                 'input_ids' => $rawIds->all(),
             ]);
 
@@ -964,7 +964,7 @@ class WablasService
             $phone = $this->resolveGroupPhone($group);
 
             if (! $phone) {
-                Log::warning('WablasService: ID grup WA tidak tersedia', [
+                Log::warning('WA Gateway: ID grup WA tidak tersedia', [
                     'group_id' => $group->id,
                     'group_name' => $group->nama,
                 ]);
@@ -996,8 +996,8 @@ class WablasService
     {
         $defaults = Group::query()
             ->where('is_default', true)
-            ->whereNotNull('wablas_group_id')
-            ->where('wablas_group_id', '!=', '')
+            ->whereNotNull('wa_gateway_group_id')
+            ->where('wa_gateway_group_id', '!=', '')
             ->get();
 
         if ($defaults->isNotEmpty()) {
@@ -1005,8 +1005,8 @@ class WablasService
         }
 
         return Group::query()
-            ->whereNotNull('wablas_group_id')
-            ->where('wablas_group_id', '!=', '')
+            ->whereNotNull('wa_gateway_group_id')
+            ->where('wa_gateway_group_id', '!=', '')
             ->orderBy('id')
             ->limit(1)
             ->get();
@@ -1021,7 +1021,7 @@ class WablasService
 
     protected function resolveGroupPhone(Group $group): ?string
     {
-        $stored = trim((string) $group->wablas_group_id);
+        $stored = trim((string) $group->wa_gateway_group_id);
 
         if ($stored !== '') {
             return $stored;
@@ -1081,7 +1081,7 @@ class WablasService
         }
 
         return $groups
-            ->filter(fn ($g) => filled($g?->wablas_group_id))
+            ->filter(fn ($g) => filled($g?->wa_gateway_group_id))
             ->map(fn ($g) => $this->resolveGroupPhone($g) ?? null)
             ->filter()
             ->unique()
@@ -1092,7 +1092,7 @@ class WablasService
     public function sendGroupTindakLanjutReminder(Kegiatan $kegiatan): array
     {
         if (! $this->isConfigured()) {
-            Log::error('WablasService: konfigurasi belum lengkap untuk pengingat TL', [
+            Log::error('WA Gateway: konfigurasi belum lengkap untuk pengingat TL', [
                 'base_url'  => $this->baseUrl,
                 'token_set' => $this->token !== '',
                 'group_id'  => $this->groupId,
@@ -1100,7 +1100,7 @@ class WablasService
 
             return [
                 'success' => false,
-                'error' => 'Konfigurasi Wablas tidak lengkap',
+                'error' => 'Konfigurasi WA Gateway tidak lengkap',
                 'response' => null,
             ];
         }
@@ -1108,7 +1108,7 @@ class WablasService
         $phones = $this->getTlTargetGroupPhones($kegiatan);
 
         if (empty($phones)) {
-            Log::warning('WablasService: tidak ada grup WA target untuk pengingat TL', [
+            Log::warning('WA Gateway: tidak ada grup WA target untuk pengingat TL', [
                 'kegiatan_id' => $kegiatan->id,
             ]);
 
@@ -1146,7 +1146,7 @@ class WablasService
     public function sendGroupRekap(iterable $kegiatans): array
     {
         if (! $this->isConfigured()) {
-            Log::error('WablasService: konfigurasi belum lengkap', [
+            Log::error('WA Gateway: konfigurasi belum lengkap', [
                 'base_url'  => $this->baseUrl,
                 'token_set' => $this->token !== '',
                 'group_id'  => $this->groupId,
@@ -1162,7 +1162,7 @@ class WablasService
         $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
 
         if ($items->isEmpty()) {
-            Log::warning('WablasService: sendGroupRekap dipanggil tanpa data kegiatan');
+            Log::warning('WA Gateway: sendGroupRekap dipanggil tanpa data kegiatan');
 
             return [
                 'success' => false,
@@ -1189,7 +1189,7 @@ class WablasService
             $response = $this->client()
                 ->post($this->baseUrl . '/api/v2/send-message', $payload);
         } catch (\Throwable $exception) {
-            Log::error('WablasService: HTTP error kirim group', [
+            Log::error('WA Gateway: HTTP error kirim group', [
                 'message' => $exception->getMessage(),
             ]);
 
@@ -1201,7 +1201,7 @@ class WablasService
         }
 
         if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim group', [
+            Log::error('WA Gateway: HTTP error kirim group', [
                 'status' => $response->status(),
                 'body'   => $response->body(),
             ]);
@@ -1217,7 +1217,7 @@ class WablasService
 
         $json = $response->json();
 
-        Log::info('WablasService: response sendGroupRekap', [
+        Log::info('WA Gateway: response sendGroupRekap', [
             'response' => $json,
         ]);
 
@@ -1233,7 +1233,7 @@ class WablasService
     public function sendGroupBelumDisposisi(iterable $kegiatans): bool
     {
         if (! $this->isConfigured()) {
-            Log::error('WablasService: konfigurasi belum lengkap untuk sendGroupBelumDisposisi', [
+            Log::error('WA Gateway: konfigurasi belum lengkap untuk sendGroupBelumDisposisi', [
                 'base_url'  => $this->baseUrl,
                 'token_set' => $this->token !== '',
                 'group_id'  => $this->groupId,
@@ -1245,7 +1245,7 @@ class WablasService
         $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
 
         if ($items->isEmpty()) {
-            Log::info('WablasService: sendGroupBelumDisposisi dipanggil tanpa data kegiatan');
+            Log::info('WA Gateway: sendGroupBelumDisposisi dipanggil tanpa data kegiatan');
 
             return false;
         }
@@ -1266,7 +1266,7 @@ class WablasService
             ->post($this->baseUrl . '/api/v2/send-message', $payload);
 
         if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim agenda belum disposisi', [
+            Log::error('WA Gateway: HTTP error kirim agenda belum disposisi', [
                 'status' => $response->status(),
                 'body'   => $response->body(),
             ]);
@@ -1276,7 +1276,7 @@ class WablasService
 
         $json = $response->json();
 
-        Log::info('WablasService: response sendGroupBelumDisposisi', [
+        Log::info('WA Gateway: response sendGroupBelumDisposisi', [
             'response' => $json,
         ]);
 
@@ -1348,7 +1348,7 @@ class WablasService
             ->post($this->baseUrl . '/api/v2/send-message', $payload);
 
         if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim ke personil', [
+            Log::error('WA Gateway: HTTP error kirim ke personil', [
                 'status' => $response->status(),
                 'body'   => $response->body(),
             ]);
@@ -1358,7 +1358,7 @@ class WablasService
 
         $json = $response->json();
 
-        Log::info('WablasService: response sendToPersonils', [
+        Log::info('WA Gateway: response sendToPersonils', [
             'response' => $json,
         ]);
 

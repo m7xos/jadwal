@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Kegiatan;
 use App\Models\TindakLanjutReminderLog;
-use App\Services\WablasService;
+use App\Services\WaGatewayService;
 use Illuminate\Console\Command;
 
 class KirimPengingatTindakLanjut extends Command
@@ -13,10 +13,10 @@ class KirimPengingatTindakLanjut extends Command
 
     protected $description = 'Kirim pesan WA pengingat batas tindak lanjut surat masuk yang berupa kegiatan.';
 
-    public function handle(WablasService $wablas): int
+    public function handle(WaGatewayService $waGateway): int
     {
-        if (! $wablas->isConfigured()) {
-            $this->error('Konfigurasi Wablas belum lengkap.');
+        if (! $waGateway->isConfigured()) {
+            $this->error('Konfigurasi WA Gateway belum lengkap.');
 
             return self::FAILURE;
         }
@@ -38,7 +38,7 @@ class KirimPengingatTindakLanjut extends Command
         foreach ($dueKegiatans as $kegiatan) {
             $processedIds[] = $kegiatan->id;
 
-            $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+            $result = $waGateway->sendGroupTindakLanjutReminder($kegiatan);
             $success = (bool) ($result['success'] ?? false);
 
             $log = new TindakLanjutReminderLog([
@@ -72,7 +72,7 @@ class KirimPengingatTindakLanjut extends Command
             $type = $kegiatan->tl_final_reminder_sent_at ? 'ulang_perpanjang' : 'final';
             $newDeadline = $now->copy()->addDay(); // perpanjangan otomatis 1 hari
 
-            $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+            $result = $waGateway->sendGroupTindakLanjutReminder($kegiatan);
             $success = (bool) ($result['success'] ?? false);
 
             $log = new TindakLanjutReminderLog([

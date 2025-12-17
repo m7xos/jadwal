@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 //use App\Http\Controllers\PublicKegiatanController;
 use App\Http\Controllers\KegiatanSuratController;
 use App\Http\Controllers\PublicAgendaController;
-use App\Http\Controllers\WablasWebhookController;
+use App\Http\Controllers\WaGatewayWebhookController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 // routes/web.php
@@ -49,12 +49,7 @@ Route::get('/login', function () {
     return redirect()->route('filament.admin.auth.login');
 })->name('login');
 
-// Webhook Wablas (tanpa CSRF) agar bisa dipanggil dari panel Wablas dengan URL /wablas/webhook
-Route::post('/wablas/webhook', WablasWebhookController::class)
-    ->withoutMiddleware([VerifyCsrfToken::class])
-    ->name('wablas.webhook.web');
-
 // Webhook wa-gateway: set webhookBaseUrl ke {APP_URL}/wa-gateway/webhook (gateway akan POST ke /message)
-Route::post('/wa-gateway/webhook/message', WablasWebhookController::class)
+Route::post('/wa-gateway/webhook/message', WaGatewayWebhookController::class)
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('wa-gateway.webhook.message.web');

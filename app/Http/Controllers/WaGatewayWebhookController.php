@@ -5,23 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\Kegiatan;
 use App\Models\Personil;
 use App\Models\TindakLanjutReminderLog;
-use App\Services\WablasService;
+use App\Services\WaGatewayService;
 use App\Services\VehicleTaxPaymentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 
-class WablasWebhookController extends Controller
+class WaGatewayWebhookController extends Controller
 {
-    public function __invoke(Request $request, WablasService $wablas): JsonResponse
+    public function __invoke(Request $request, WaGatewayService $waGateway): JsonResponse
     {
         $payload = $this->normalizeIncomingPayload($request->all());
 
-        Log::info('Wablas webhook received', ['payload' => $payload]);
+        Log::info('WA Gateway webhook received', ['payload' => $payload]);
 
         // ==== Handle laporan pajak terbayar ====
-        if ($this->handleVehicleTaxPaid($payload, $wablas)) {
+        if ($this->handleVehicleTaxPaid($payload, $waGateway)) {
             return response()->json(['status' => 'ok']);
         }
 
@@ -59,7 +59,7 @@ class WablasWebhookController extends Controller
         }
 
         $incomingGroupId = $this->extractGroupId($payload);
-        $targetGroupPhones = $wablas->getTlTargetGroupPhones($kegiatan);
+        $targetGroupPhones = $waGateway->getTlTargetGroupPhones($kegiatan);
 
         if (! empty($targetGroupPhones) && $incomingGroupId !== null && ! in_array($incomingGroupId, $targetGroupPhones, true)) {
             return response()->json(['ignored' => 'message from unrelated group']);
@@ -92,21 +92,21 @@ class WablasWebhookController extends Controller
         $sent = false;
 
         if ($incomingGroupId && in_array($incomingGroupId, $targetGroupPhones, true)) {
-            $result = $wablas->sendTextToSpecificGroup($incomingGroupId, $thanksMessage);
+            $result = $waGateway->sendTextToSpecificGroup($incomingGroupId, $thanksMessage);
             $sent = (bool) ($result['success'] ?? false);
         } elseif (! empty($targetGroupPhones)) {
             foreach ($targetGroupPhones as $phone) {
-                $result = $wablas->sendTextToSpecificGroup($phone, $thanksMessage);
+                $result = $waGateway->sendTextToSpecificGroup($phone, $thanksMessage);
                 if ($result['success'] ?? false) {
                     $sent = true;
                 }
             }
         } else {
-            $sent = $wablas->sendGroupText($thanksMessage);
+            $sent = $waGateway->sendGroupText($thanksMessage);
         }
 
         if (! $sent) {
-            Log::error('Wablas webhook: gagal kirim balasan terima kasih', [
+            Log::error('WA Gateway webhook: gagal kirim balasan terima kasih', [
                 'kegiatan_id' => $kegiatan->id,
             ]);
         }
@@ -141,7 +141,7 @@ class WablasWebhookController extends Controller
     /**
      * Normalisasi payload webhook agar kompatibel dengan beberapa sumber.
      *
-     * - Wablas: memakai field seperti `sender`, `message`, `isGroup`, `group`.
+     * - Legacy format: memakai field seperti `sender`, `message`, `isGroup`, `group`.
      * - wa-gateway: umumnya memakai `from`, `message` (+ optional `sender`, `participant`).
      *
      * @param  array<string, mixed>  $payload
@@ -176,7 +176,7 @@ class WablasWebhookController extends Controller
         return $payload;
     }
 
-    protected function handleVehicleTaxPaid(array $payload, WablasService $wablas): bool
+    protected function handleVehicleTaxPaid(array $payload, WaGatewayService $waGateway): bool
     {
         $text = trim((string) ($payload['message'] ?? ''));
 
@@ -204,7 +204,7 @@ class WablasWebhookController extends Controller
 
         $thanks = "*Terima kasih.*\nPembayaran pajak kendaraan {$vehicle->plat_nomor} tercatat *LUNAS*.\n";
 
-        $wablas->sendPersonalText([$sender], $thanks);
+        $waGateway->sendPersonalText([$sender], $thanks);
 
         return true;
     }
@@ -332,7 +332,7 @@ class WablasWebhookController extends Controller
 
     protected function allowedNumbersFromConfig(): array
     {
-        $raw = (string) config('wablas.finish_whitelist', '');
+        $raw = (string) config('wa_gateway.finish_whitelist', '');
 
         if ($raw === '') {
             return [];

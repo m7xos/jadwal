@@ -24,9 +24,9 @@ class GroupForm
                             ->required()
                             ->maxLength(255),
 
-                        TextInput::make('wablas_group_id')
-                            ->label('ID Grup Wablas')
-                            ->helperText('Isi dengan ID grup dari Wablas (1203xxxxxxxxxx).')
+                        TextInput::make('wa_gateway_group_id')
+                            ->label('ID Grup WA Gateway')
+                            ->helperText('Isi dengan WhatsApp Group ID/JID dari WA Gateway (contoh: 1203xxxxxxxxxx@g.us atau 1203xxxxxxxxxx).')
                             ->required(fn (Get $get) => (bool) $get('is_default'))
                             ->maxLength(255),
 

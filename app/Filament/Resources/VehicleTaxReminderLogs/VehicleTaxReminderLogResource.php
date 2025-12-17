@@ -89,7 +89,7 @@ class VehicleTaxReminderLogResource extends Resource
                 Action::make('lihat_response')
                     ->label('Detail Respons')
                     ->icon('heroicon-m-eye')
-                    ->modalHeading('Respons Wablas')
+                    ->modalHeading('Respons WA Gateway')
                     ->modalContent(fn (VehicleTaxReminderLog $record) => view('filament.reminder-log-response', [
                         'response' => $record->response,
                     ]))

@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Kegiatan;
 use App\Models\TindakLanjutReminderLog;
-use App\Services\WablasService;
+use App\Services\WaGatewayService;
 use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -28,11 +28,11 @@ class RemindTindakLanjutCommand extends Command
 
     public function handle(): int
     {
-        /** @var WablasService $wablas */
-        $wablas = app(WablasService::class);
+        /** @var WaGatewayService $waGateway */
+        $waGateway = app(WaGatewayService::class);
 
-        if (! $wablas->isConfigured()) {
-            $this->warn('Wablas belum dikonfigurasi.');
+        if (! $waGateway->isConfigured()) {
+            $this->warn('WA Gateway belum dikonfigurasi.');
 
             return self::FAILURE;
         }
@@ -53,7 +53,7 @@ class RemindTindakLanjutCommand extends Command
         foreach ($firstBatch as $kegiatan) {
             $processedIds[] = $kegiatan->id;
 
-            $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+            $result = $waGateway->sendGroupTindakLanjutReminder($kegiatan);
             $success = (bool) ($result['success'] ?? false);
 
             $log = TindakLanjutReminderLog::firstOrNew([
@@ -90,7 +90,7 @@ class RemindTindakLanjutCommand extends Command
             ->get();
 
         foreach ($finalBatch as $kegiatan) {
-            $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+            $result = $waGateway->sendGroupTindakLanjutReminder($kegiatan);
             $success = (bool) ($result['success'] ?? false);
 
             $log = TindakLanjutReminderLog::firstOrNew([

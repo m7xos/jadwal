@@ -5,7 +5,7 @@ namespace App\Filament\Resources\Kegiatans\Tables;
 use App\Models\Kegiatan;
 use App\Services\SppdGenerator;
 use App\Services\SuratTugasGenerator;
-use App\Services\WablasService;
+use App\Services\WaGatewayService;
 use Filament\Actions\Action;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkAction;
@@ -191,12 +191,12 @@ class KegiatansTable
                         ->requiresConfirmation()
                         ->modalHeading('Kirim agenda ini ke WA personil yang hadir?')
                         ->action(function (Kegiatan $record) {
-                            /** @var WablasService $wablas */
-                            $wablas = app(WablasService::class);
+                            /** @var WaGatewayService $waGateway */
+                            $waGateway = app(WaGatewayService::class);
 
                             $record->loadMissing('personils');
 
-                            $success = $wablas->sendToPersonils($record);
+                            $success = $waGateway->sendToPersonils($record);
 
                             if ($success) {
                                 Notification::make()
@@ -314,10 +314,10 @@ class KegiatansTable
 
                             $records->load('personils');
 
-                            /** @var WablasService $wablas */
-                            $wablas = app(WablasService::class);
+                            /** @var WaGatewayService $waGateway */
+                            $waGateway = app(WaGatewayService::class);
 
-                            $result = $wablas->sendGroupRekap($records);
+                            $result = $waGateway->sendGroupRekap($records);
 
                             if ($result['success'] ?? false) {
                                 Notification::make()
@@ -373,10 +373,10 @@ class KegiatansTable
 
 						$records->load('personils'); // tidak wajib, tapi kalau mau pakai nanti aman
 
-						/** @var WablasService $wablas */
-						$wablas = app(WablasService::class);
+						/** @var WaGatewayService $waGateway */
+						$waGateway = app(WaGatewayService::class);
 
-						$success = $wablas->sendGroupBelumDisposisi($records);
+						$success = $waGateway->sendGroupBelumDisposisi($records);
 
 						if ($success) {
 							Notification::make()
@@ -411,8 +411,8 @@ class KegiatansTable
                                 return;
                             }
 
-                            /** @var WablasService $wablas */
-                            $wablas = app(WablasService::class);
+                            /** @var WaGatewayService $waGateway */
+                            $waGateway = app(WaGatewayService::class);
 
                             $records->load('groups', 'personils');
 
@@ -431,7 +431,7 @@ class KegiatansTable
                                     continue;
                                 }
 
-                                $result = $wablas->sendAgendaToGroups($record, $groupIds);
+                                $result = $waGateway->sendAgendaToGroups($record, $groupIds);
 
                                 if ($result['success'] ?? false) {
                                     $success = true;

@@ -12,7 +12,7 @@ class Group extends Model
 
     protected $fillable = [
         'nama',
-        'wablas_group_id',
+        'wa_gateway_group_id',
         'is_default',
         'keterangan',
     ];

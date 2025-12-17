@@ -29,8 +29,8 @@ class GroupsTable
                     ->boolean()
                     ->tooltip('Grup default untuk pengiriman satu grup'),
 
-                TextColumn::make('wablas_group_id')
-                    ->label('ID Grup Wablas')
+                TextColumn::make('wa_gateway_group_id')
+                    ->label('ID Grup WA Gateway')
                     ->searchable()
                     ->copyable(), 
 
