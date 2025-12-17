@@ -16,7 +16,7 @@ class WablasWebhookController extends Controller
 {
     public function __invoke(Request $request, WablasService $wablas): JsonResponse
     {
-        $payload = $request->all();
+        $payload = $this->normalizeIncomingPayload($request->all());
 
         Log::info('Wablas webhook received', ['payload' => $payload]);
 
@@ -136,6 +136,44 @@ class WablasWebhookController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Normalisasi payload webhook agar kompatibel dengan beberapa sumber.
+     *
+     * - Wablas: memakai field seperti `sender`, `message`, `isGroup`, `group`.
+     * - wa-gateway: umumnya memakai `from`, `message` (+ optional `sender`, `participant`).
+     *
+     * @param  array<string, mixed>  $payload
+     * @return array<string, mixed>
+     */
+    protected function normalizeIncomingPayload(array $payload): array
+    {
+        if (! array_key_exists('message', $payload) && array_key_exists('text', $payload)) {
+            $payload['message'] = $payload['text'];
+        }
+
+        $from = trim((string) ($payload['from'] ?? ''));
+        $participant = trim((string) ($payload['participant'] ?? ''));
+
+        if (! array_key_exists('isGroup', $payload) && $from !== '') {
+            $payload['isGroup'] = str_contains($from, '@g.us');
+        }
+
+        if (! array_key_exists('sender', $payload) || trim((string) ($payload['sender'] ?? '')) === '') {
+            if ($participant !== '') {
+                $payload['sender'] = $participant;
+            } elseif ($from !== '' && ! (($payload['isGroup'] ?? false) === true)) {
+                // Pada chat personal, `from` merepresentasikan JID pengirim.
+                $payload['sender'] = $from;
+            }
+        }
+
+        if (($payload['isGroup'] ?? false) && ! array_key_exists('group', $payload) && $from !== '') {
+            $payload['group'] = ['id' => $from];
+        }
+
+        return $payload;
     }
 
     protected function handleVehicleTaxPaid(array $payload, WablasService $wablas): bool

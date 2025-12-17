@@ -48,10 +48,17 @@ class WablasService
 
     protected function client()
     {
-        return Http::withHeaders([
-                'Authorization' => $this->getAuthHeaderValue(),
-                'Content-Type'  => 'application/json',
-            ])
+        $headers = [
+            'Authorization' => $this->getAuthHeaderValue(),
+            'Content-Type'  => 'application/json',
+        ];
+
+        $masterKey = trim((string) config('wablas.key', ''));
+        if ($masterKey !== '') {
+            $headers['key'] = $masterKey;
+        }
+
+        return Http::withHeaders($headers)
             ->withOptions([
                 'verify' => false,
             ]);

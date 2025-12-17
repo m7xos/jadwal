@@ -53,3 +53,8 @@ Route::get('/login', function () {
 Route::post('/wablas/webhook', WablasWebhookController::class)
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('wablas.webhook.web');
+
+// Webhook wa-gateway: set webhookBaseUrl ke {APP_URL}/wa-gateway/webhook (gateway akan POST ke /message)
+Route::post('/wa-gateway/webhook/message', WablasWebhookController::class)
+    ->withoutMiddleware([VerifyCsrfToken::class])
+    ->name('wa-gateway.webhook.message.web');
