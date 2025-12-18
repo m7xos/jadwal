@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\Kegiatan;
 use App\Models\Personil;
+use App\Support\RoleAccess;
 use Carbon\Carbon;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
@@ -14,7 +15,7 @@ class LaporanSuratMasukBulanan extends Page
 {
     // ✅ Tipe property mengikuti Filament v4 yang kamu pakai
     protected static BackedEnum|string|null $navigationIcon  = 'heroicon-o-document-text';
-    protected static ?string $navigationLabel = 'Laporan Surat Masuk Bulanan';
+    protected static ?string $navigationLabel = 'Rekap Kegiatan';
     protected static UnitEnum|string|null $navigationGroup = 'Laporan';
     protected static ?int $navigationSort  = 10;
 
@@ -24,7 +25,7 @@ class LaporanSuratMasukBulanan extends Page
     // ⬇️ INI YANG MEMBUAT HALAMAN TIDAK MUNCUL DI MENU
     public static function shouldRegisterNavigation(): bool
     {
-        return false;
+        return RoleAccess::canSeeNav(auth()->user(), 'filament.admin.pages.laporan-surat-masuk-bulanan');
     }
 
     /**

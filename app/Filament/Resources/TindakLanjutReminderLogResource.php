@@ -7,6 +7,7 @@ use App\Models\TindakLanjutReminderLog;
 use App\Services\WaGatewayService;
 use App\Support\RoleAccess;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Actions\Action;
@@ -28,6 +29,7 @@ class TindakLanjutReminderLogResource extends Resource
     protected static ?string $slug = 'tindak-lanjut-reminder-logs';
 
     protected static ?int $navigationSort = 8;
+    protected static string|UnitEnum|null $navigationGroup = 'Log';
 
     public static function form(Schema $schema): Schema
     {

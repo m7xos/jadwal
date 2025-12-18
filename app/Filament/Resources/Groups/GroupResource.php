@@ -23,7 +23,7 @@ class GroupResource extends Resource
     protected static ?string $navigationLabel = 'Grup WA';
     protected static ?string $pluralModelLabel = 'Grup WA';
     protected static ?string $modelLabel = 'Grup WA';
-    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Kegiatan';
+    protected static string|UnitEnum|null $navigationGroup = 'Pengaturan';
 
     public static function form(Schema $schema): Schema
     {

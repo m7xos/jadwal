@@ -24,7 +24,7 @@ class VehicleTaxReminderLogResource extends Resource
     protected static ?string $modelLabel = 'Log Pengiriman Pengingat Pajak';
     protected static ?string $pluralModelLabel = 'Log Pengiriman Pengingat Pajak';
     protected static ?string $slug = 'vehicle-tax-reminder-logs';
-    protected static string|UnitEnum|null $navigationGroup = 'Pengingat';
+    protected static string|UnitEnum|null $navigationGroup = 'Log';
     protected static ?int $navigationSort = 40;
 
     public static function form(Schema $schema): Schema

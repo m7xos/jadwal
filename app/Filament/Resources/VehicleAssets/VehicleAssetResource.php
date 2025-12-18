@@ -32,7 +32,7 @@ class VehicleAssetResource extends Resource
     protected static ?string $modelLabel = 'Kendaraan';
     protected static ?string $slug = 'vehicle-assets';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Pengingat';
+    protected static string|UnitEnum|null $navigationGroup = 'Pengaturan';
     protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema

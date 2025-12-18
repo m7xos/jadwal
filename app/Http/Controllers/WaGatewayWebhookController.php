@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kegiatan;
 use App\Models\Personil;
 use App\Models\TindakLanjutReminderLog;
+use App\Services\FollowUpReminderService;
 use App\Services\WaGatewayService;
 use App\Services\VehicleTaxPaymentService;
 use Illuminate\Http\JsonResponse;
@@ -31,6 +32,13 @@ class WaGatewayWebhookController extends Controller
         }
 
         $normalizedMessage = strtolower(preg_replace('/\s+/', ' ', $message));
+
+        /** @var FollowUpReminderService $followUpReminder */
+        $followUpReminder = app(FollowUpReminderService::class);
+
+        if ($followUpReminder->handleThanksReply($payload)) {
+            return response()->json(['status' => 'ok']);
+        }
 
         $explicitId = $this->extractKegiatanIdFromMessage($message);
         $containsSelesai = str_contains($normalizedMessage, 'selesai');
