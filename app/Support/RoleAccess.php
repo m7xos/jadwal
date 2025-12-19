@@ -28,6 +28,7 @@ class RoleAccess
             'filament.admin.resources.vehicle-assets' => 'Data Kendaraan',
             'filament.admin.pages.pengurus-barang' => 'Pengurus Barang',
             'filament.admin.pages.role-access-settings' => 'Pengaturan Hak Akses',
+            'filament.admin.pages.panduan-aplikasi' => 'Panduan Aplikasi',
             'filament.admin.resources.tindak-lanjut-reminder-logs' => 'Log Pengingat TL',
             'filament.admin.resources.vehicle-tax-reminder-logs' => 'Log Pengiriman Pengingat Pajak',
             'filament.admin.resources.follow-up-reminder-logs' => 'Log Pengingat Kegiatan Lainnya',
