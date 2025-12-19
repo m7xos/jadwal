@@ -10,12 +10,14 @@ use App\Filament\Pages\RoleAccessSettings;
 use App\Filament\Auth\Login as PersonilLogin;
 use App\Http\Middleware\EnsureRoleHasPageAccess;
 use App\Support\RoleAccess;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
+use YieldStudio\FilamentPanel\Plugins\YieldPanel;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -31,6 +33,16 @@ class AdminPanelProvider extends PanelProvider
         // URL laporan bulanan yang sudah kamu tes: http://127.0.0.1/admin/laporan-surat-masuk-bulanan
         $laporanUrl = url('/admin/laporan-surat-masuk-bulanan');
 
+        $yieldPanelPref = array_merge([
+            'colors' => false,
+            'font' => false,
+            'icons' => true,
+        ], (array) session('yieldpanel', []));
+
+        $primaryPalette = $yieldPanelPref['colors']
+            ? Color::generatePalette('#ff7f11') // lebih kontras agar perubahan terlihat
+            : Color::Sky;
+
         return $panel
             ->default()
             ->id('admin')
@@ -38,7 +50,42 @@ class AdminPanelProvider extends PanelProvider
             ->login(PersonilLogin::class)
             ->authGuard('personil')
             ->colors([
-                'primary' => Color::Sky,
+                'primary' => $primaryPalette,
+            ])
+            ->font($yieldPanelPref['font'] ? 'Inter' : null)
+            ->plugin(
+                YieldPanel::make()
+                    ->withSuggestedColors(false)
+                    ->withSuggestedFont(false)
+                    ->withSuggestedIcons((bool) $yieldPanelPref['icons'])
+            )
+            ->userMenuItems([
+                'yieldpanel' => Action::make('yieldpanel')
+                    ->label('Tema Yield Panel')
+                    ->icon('heroicon-o-swatch')
+                    ->modalHeading('Tema Yield Panel')
+                    ->modalSubmitActionLabel('Terapkan')
+                    ->fillForm(fn () => $yieldPanelPref)
+                    ->form([
+                        \Filament\Forms\Components\Toggle::make('colors')
+                            ->label('Warna disarankan'),
+                        \Filament\Forms\Components\Toggle::make('font')
+                            ->label('Gunakan font Inter (tema)'),
+                        \Filament\Forms\Components\Toggle::make('icons')
+                            ->label('Ikon Phosphor')
+                            ->default(true),
+                    ])
+                    ->action(function (array $data) {
+                        session([
+                            'yieldpanel' => [
+                                'colors' => (bool) ($data['colors'] ?? false),
+                                'font' => (bool) ($data['font'] ?? false),
+                                'icons' => (bool) ($data['icons'] ?? false),
+                            ],
+                        ]);
+                    })
+                    ->successNotificationTitle('Tema diterapkan')
+                    ->closeModalByClickingAway(false),
             ])
             ->discoverResources(
                 in: app_path('Filament/Resources'),

@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KegiatanSuratController;
 use App\Http\Controllers\PublicAgendaController;
 use App\Http\Controllers\WaGatewayWebhookController;
+use App\Http\Controllers\FilamentThemeController;
+use App\Http\Controllers\YieldPanelPreferenceController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 // routes/web.php
@@ -53,3 +55,11 @@ Route::get('/login', function () {
 Route::post('/wa-gateway/webhook/message', WaGatewayWebhookController::class)
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('wa-gateway.webhook.message.web');
+
+Route::post('/admin/theme', [FilamentThemeController::class, 'update'])
+    ->middleware('auth:personil')
+    ->name('filament.theme');
+
+Route::post('/admin/yield-panel', [YieldPanelPreferenceController::class, 'update'])
+    ->middleware('auth:personil')
+    ->name('yieldpanel.pref');

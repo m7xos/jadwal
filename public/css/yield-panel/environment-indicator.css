@@ -1,0 +1,13 @@
+.environment-indicator, .debug-mode-indicator {
+    display: none;
+
+    @media (width > 40rem) {
+        display: flex;
+    }
+
+    code {
+        margin-block-start: 1px;
+        margin-inline-start: 0.25rem;
+        font-size: var(--text-xs);
+    }
+}
