@@ -6,6 +6,7 @@ use App\Models\Kegiatan;
 use App\Models\Personil;
 use App\Models\TindakLanjutReminderLog;
 use App\Services\FollowUpReminderService;
+use App\Services\ScheduleResponder;
 use App\Services\WaGatewayService;
 use App\Services\VehicleTaxPaymentService;
 use Illuminate\Http\JsonResponse;
@@ -35,6 +36,11 @@ class WaGatewayWebhookController extends Controller
 
         /** @var FollowUpReminderService $followUpReminder */
         $followUpReminder = app(FollowUpReminderService::class);
+
+        // Balasan jadwal kegiatan (hari ini/besok + pending disposisi)
+        if (app(ScheduleResponder::class)->handle($payload, $waGateway)) {
+            return response()->json(['status' => 'ok']);
+        }
 
         if ($followUpReminder->handleThanksReply($payload)) {
             return response()->json(['status' => 'ok']);

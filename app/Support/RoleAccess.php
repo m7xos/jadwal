@@ -34,6 +34,7 @@ class RoleAccess
             'filament.admin.resources.follow-up-reminder-logs' => 'Log Pengingat Kegiatan Lainnya',
             'filament.admin.pages.laporan-surat-masuk-bulanan' => 'Rekap Kegiatan',
             'filament.admin.pages.laporan-pembayaran-pajak' => 'Laporan Pembayaran Pajak',
+            'filament.admin.resources.personil-categories' => 'Kategori Personil',
         ];
     }
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\PublicAgendaController;
 use App\Http\Controllers\WaGatewayWebhookController;
 use App\Http\Controllers\FilamentThemeController;
 use App\Http\Controllers\YieldPanelPreferenceController;
+use App\Http\Controllers\ScheduleController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 // routes/web.php
@@ -55,6 +56,12 @@ Route::get('/login', function () {
 Route::post('/wa-gateway/webhook/message', WaGatewayWebhookController::class)
     ->withoutMiddleware([VerifyCsrfToken::class])
     ->name('wa-gateway.webhook.message.web');
+
+// Form sederhana untuk input jadwal (dev/internal)
+Route::get('/webhook/schedules/new', [ScheduleController::class, 'create'])
+    ->name('webhook.schedules.create');
+Route::post('/webhook/schedules', [ScheduleController::class, 'store'])
+    ->name('webhook.schedules.store');
 
 Route::post('/admin/theme', [FilamentThemeController::class, 'update'])
     ->middleware('auth:personil')
