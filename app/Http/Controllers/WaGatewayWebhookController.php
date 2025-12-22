@@ -55,8 +55,13 @@ class WaGatewayWebhookController extends Controller
             return response()->json(['ignored' => 'not a group message']);
         }
 
+        $participantRaw = (string) ($payload['participant'] ?? '');
         $senderRaw = (string) ($payload['sender'] ?? '');
-        $senderDigits = preg_replace('/[^0-9]/', '', $senderRaw) ?? '';
+
+        $senderDigits = collect([$participantRaw, $senderRaw])
+            ->map(fn ($raw) => preg_replace('/[^0-9]/', '', (string) $raw) ?? '')
+            ->first(fn ($digits) => $digits !== '') ?? '';
+
         if ($senderDigits === '') {
             return response()->json(['ignored' => 'no sender number']);
         }
@@ -66,10 +71,21 @@ class WaGatewayWebhookController extends Controller
             return response()->json(['ignored' => 'no pending TL found']);
         }
 
-        $incomingGroupId = $this->extractGroupId($payload);
-        $targetGroupPhones = $waGateway->getTlTargetGroupPhones($kegiatan);
+        $incomingGroupIdRaw = $this->extractGroupId($payload);
+        $incomingGroupId = $this->normalizeGroupId($incomingGroupIdRaw);
 
-        if (! empty($targetGroupPhones) && $incomingGroupId !== null && ! in_array($incomingGroupId, $targetGroupPhones, true)) {
+        $targetGroupPhones = $waGateway->getTlTargetGroupPhones($kegiatan);
+        $targetGroupPhonesNormalized = collect($targetGroupPhones)
+            ->map(fn ($id) => $this->normalizeGroupId($id))
+            ->filter()
+            ->values()
+            ->all();
+
+        if (
+            ! empty($targetGroupPhonesNormalized)
+            && $incomingGroupId !== null
+            && ! in_array($incomingGroupId, $targetGroupPhonesNormalized, true)
+        ) {
             return response()->json(['ignored' => 'message from unrelated group']);
         }
 
@@ -81,6 +97,17 @@ class WaGatewayWebhookController extends Controller
                 'sender' => $senderDigits,
                 'allowed_numbers' => $allowedNumbers,
             ]);
+
+            $unauthMessage = 'Mohon maaf anda bukan penerima disposisi, mohon koordinasi dengan personil terkait untuk penyelesaian TL';
+
+            if ($incomingGroupIdRaw ?? $incomingGroupId) {
+                $waGateway->sendTextToSpecificGroup($incomingGroupIdRaw ?? $incomingGroupId, $unauthMessage);
+            } else {
+                $waGateway->sendPersonalText(
+                    [$this->normalizeNumber($senderDigits)],
+                    $unauthMessage
+                );
+            }
 
             return response()->json(['ignored' => 'sender not authorized']);
         }
@@ -99,8 +126,8 @@ class WaGatewayWebhookController extends Controller
 
         $sent = false;
 
-        if ($incomingGroupId && in_array($incomingGroupId, $targetGroupPhones, true)) {
-            $result = $waGateway->sendTextToSpecificGroup($incomingGroupId, $thanksMessage);
+        if ($incomingGroupId && in_array($incomingGroupId, $targetGroupPhonesNormalized, true)) {
+            $result = $waGateway->sendTextToSpecificGroup($incomingGroupIdRaw ?? $incomingGroupId, $thanksMessage);
             $sent = (bool) ($result['success'] ?? false);
         } elseif (! empty($targetGroupPhones)) {
             foreach ($targetGroupPhones as $phone) {
@@ -258,8 +285,6 @@ class WaGatewayWebhookController extends Controller
 
         $allowedNumbers = $assignedNumbers
             ->merge($assignedFromDb)
-            ->merge($this->allowedNumbersFromRoles())
-            ->merge($this->allowedNumbersFromPayload($payload))
             ->merge($this->allowedNumbersFromConfig())
             ->unique()
             ->values()
@@ -387,6 +412,18 @@ class WaGatewayWebhookController extends Controller
         }
 
         return $this->normalizeNumber($digits);
+    }
+
+    protected function normalizeGroupId(?string $groupId): ?string
+    {
+        $id = trim((string) ($groupId ?? ''));
+        if ($id === '') {
+            return null;
+        }
+
+        $normalized = preg_replace('/@.*/', '', $id) ?? '';
+
+        return $normalized !== '' ? $normalized : null;
     }
 
     protected function markReminderLogCompleted(Kegiatan $kegiatan): void
