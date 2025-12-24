@@ -786,117 +786,154 @@ class WaGatewayService
     {
         $kegiatan->loadMissing('personils');
 
-        $personilsDiGrup = $kegiatan->getPersonilUntukGrup($groupIds)->keyBy('id');
-        $allPersonils = ($kegiatan->personils ?? collect())->keyBy('id');
-        $groups = Group::query()
-            ->whereIn('id', $groupIds)
-            ->get();
-
         $lines = [];
 
-        $lines[] = '*UNDANGAN / INFORMASI KEGIATAN*';
-        $lines[] = '────────────────────────';
+        $headerDate = $this->formatAgendaHeaderDate($kegiatan);
+        $lines[] = '📌 REKAP AGENDA — ' . $headerDate;
         $lines[] = '';
 
-        if ($groups->isNotEmpty()) {
-            $lines[] = '*Grup Tujuan*';
-            $lines[] = $groups->pluck('nama')->filter()->implode(', ');
-            $lines[] = '';
-        }
-
-        $lines[] = '*Nama Kegiatan*';
-        $lines[] = '*' . ($kegiatan->nama_kegiatan ?? '-') . '*';
-        $lines[] = '';
-
-        $lines[] = '*Nomor Surat*';
-        $lines[] = '*' . ($kegiatan->nomor ?? '-') . '*';
-        $lines[] = '';
-
-        $lines[] = '*Hari / Tanggal*';
-        $lines[] = ($kegiatan->tanggal_label ?? '-');
-        $lines[] = '';
-
-        $lines[] = '*Waktu*';
-        $lines[] = ($kegiatan->waktu ?? '-');
-        $lines[] = '';
-
-        $lines[] = '*Tempat*';
-        $lines[] = ($kegiatan->tempat ?? '-');
-        $lines[] = '';
-
-        if ($allPersonils->isNotEmpty()) {
-            $lines[] = '*Peserta / Disposisi*';
-            $kategoriLabels = PersonilCategory::options();
-
-            $grouped = $allPersonils
-                ->groupBy(fn (Personil $p) => $p->kategori ?? 'lainnya')
-                ->sortKeys();
-
-            $counter = 1;
-
-            foreach ($grouped as $kategori => $personilsKategori) {
-                $labelKategori = $kategoriLabels[$kategori] ?? PersonilCategory::labelFor($kategori);
-                $lines[] = $counter . '. ' . $labelKategori;
-                $personIndex = 1;
-                $useNumbering = $personilsKategori->count() > 1;
-
-                foreach ($personilsKategori as $personil) {
-                    $inGroup = $personilsDiGrup->has($personil->id);
-                    $mention = $this->formatMention($personil->no_wa);
-                    $jabatan = trim((string) ($personil->jabatan ?? ''));
-                    $nama = trim((string) ($personil->nama ?? ''));
-                    $prefix = $useNumbering ? ($personIndex . '. ') : '- ';
-
-                    if ($inGroup && $mention) {
-                        $lines[] = '       ' . $prefix . $mention;
-                        if ($jabatan !== '') {
-                            $lines[] = '          ' . $jabatan;
-                        }
-                        $personIndex++;
-                        continue;
-                    }
-
-                    if ($nama === '') {
-                        continue;
-                    }
-
-                    $lines[] = '       ' . $prefix . $nama;
-                    if ($jabatan !== '') {
-                        $lines[] = '          ' . $jabatan;
-                    }
-                    $personIndex++;
-                }
-
-                $lines[] = '';
-                $counter++;
-            }
-        }
-
-        if (! empty($kegiatan->keterangan)) {
-            $lines[] = '*Keterangan*';
-            $lines[] = $kegiatan->keterangan;
-            $lines[] = '';
-        }
-
+        $title = trim((string) ($kegiatan->nama_kegiatan ?? '-'));
+        $time = trim((string) ($kegiatan->waktu ?? '-'));
+        $place = trim((string) ($kegiatan->tempat ?? '-'));
+        $participants = $this->formatParticipantsShort($kegiatan);
+        $notes = trim((string) ($kegiatan->keterangan ?? ''));
         $suratUrl = $this->getShortSuratUrl($kegiatan);
-        if ($suratUrl) {
-            $lines[] = '📎 *Lihat Surat (PDF)*';
-            $lines[] = $suratUrl;
-            $lines[] = '';
+        $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+
+        $lines[] = '#1 ' . ($title !== '' ? $title : '-');
+        $lines[] = '   ⏰ ' . ($time !== '' ? $time : '-') . ' | 📍 ' . ($place !== '' ? $place : '-');
+
+        if ($participants !== '') {
+            $lines[] = '   👥 ' . $participants;
         }
 
-        $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
-        if ($lampiranUrl) {
-        $lines[] = '📎 *Lampiran*';
-        $lines[] = $lampiranUrl;
-        $lines[] = '';
-    }
+        if ($notes !== '') {
+            $lines[] = '   📝 ' . $notes;
+        }
 
-        $lines[] = 'Mohon kehadiran Bapak/Ibu sesuai jadwal di atas.';
+        if ($suratUrl) {
+            $lines[] = '   📎 Surat: ' . $suratUrl;
+        }
+
+        if ($lampiranUrl) {
+            $lines[] = '   📎 Lampiran: ' . $lampiranUrl;
+        }
+
         $lines[] = '';
         $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * Ambil status device dari wa-gateway (realtime).
+     *
+     * @return array{success: bool, status?: string, device?: string, phone?: string|null, webhook_url?: string|null, error?: string|null}
+     */
+    public function getDeviceStatus(): array
+    {
+        if (! $this->hasClientCredentials()) {
+            return [
+                'success' => false,
+                'error' => 'Konfigurasi WA Gateway belum lengkap',
+            ];
+        }
+
+        try {
+            $response = $this->client()->get($this->baseUrl . '/api/device/info');
+        } catch (\Throwable $e) {
+            Log::error('WA Gateway: HTTP error get device status', ['message' => $e->getMessage()]);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+
+        if (! $response->successful()) {
+            Log::error('WA Gateway: HTTP error get device status', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return [
+                'success' => false,
+                'error' => 'HTTP ' . $response->status(),
+            ];
+        }
+
+        $json = $response->json();
+        $first = is_array($json) ? data_get($json, 'data.0') : null;
+
+        return [
+            'success' => true,
+            'status' => strtolower((string) ($first['status'] ?? 'unknown')),
+            'device' => (string) ($first['device'] ?? ''),
+            'phone' => $first['phone'] ?? null,
+            'webhook_url' => $first['webhook_url'] ?? null,
+        ];
+    }
+
+    /**
+     * Header tanggal untuk rekap agenda.
+     */
+    protected function formatAgendaHeaderDate(Kegiatan $kegiatan): string
+    {
+        try {
+            if ($kegiatan->tanggal) {
+                return $kegiatan->tanggal
+                    ->locale('id')
+                    ->isoFormat('dddd, D MMMM Y');
+            }
+        } catch (\Throwable $e) {
+            // Abaikan dan fallback ke tanggal hari ini.
+        }
+
+        return now()->locale('id')->isoFormat('dddd, D MMMM Y');
+    }
+
+    /**
+     * Format peserta/mention singkat untuk satu agenda (gabungan kategori/jabatan dan mention).
+     */
+    protected function formatParticipantsShort(Kegiatan $kegiatan): string
+    {
+        $personils = $kegiatan->personils ?? collect();
+        if ($personils->isEmpty()) {
+            return '';
+        }
+
+        $categoryLabels = $personils
+            ->pluck('kategori')
+            ->filter()
+            ->unique()
+            ->map(function ($kategori) {
+                return PersonilCategory::labelFor($kategori) ?? (string) $kategori;
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        $tags = [];
+
+        foreach ($personils as $personil) {
+            $jabatan = trim((string) ($personil->jabatan ?? ''));
+            $mention = $this->formatMention($personil->no_wa);
+            $nama = trim((string) ($personil->nama ?? ''));
+
+            if ($jabatan !== '') {
+                $tags[] = $jabatan;
+            }
+
+            if ($mention) {
+                $tags[] = $mention;
+            } elseif ($nama !== '') {
+                $tags[] = $nama;
+            }
+        }
+
+        $parts = array_unique(array_filter(array_merge($categoryLabels, $tags)));
+
+        return implode(', ', $parts);
     }
 
     /**

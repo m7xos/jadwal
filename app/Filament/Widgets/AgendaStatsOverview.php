@@ -7,6 +7,7 @@ use App\Models\Personil;
 use Carbon\Carbon;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use App\Services\WaGatewayService;
 
 class AgendaStatsOverview extends BaseWidget
 {
@@ -29,6 +30,8 @@ class AgendaStatsOverview extends BaseWidget
         $agenda7HariKeDepan   = Kegiatan::whereBetween('tanggal', [$today, $in7Days])->count();
         $agendaBelumDisposisi = Kegiatan::where('sudah_disposisi', false)->count();
         $totalPersonil        = Personil::count();
+
+        $gatewayStat = $this->buildGatewayStat();
 
         return [
             Stat::make('Agenda Hari Ini', $agendaHariIni)
@@ -55,6 +58,8 @@ class AgendaStatsOverview extends BaseWidget
                 ->description('Personil yang terdaftar')
                 ->descriptionIcon('heroicon-o-user-group')
                 ->color('gray'),
+
+            $gatewayStat,
         ];
     }
 
@@ -64,5 +69,38 @@ class AgendaStatsOverview extends BaseWidget
     protected function getPollingInterval(): ?string
     {
         return '30s'; // refresh tiap 30 detik
+    }
+
+    protected function buildGatewayStat(): Stat
+    {
+        try {
+            /** @var WaGatewayService $service */
+            $service = app(WaGatewayService::class);
+            $status = $service->getDeviceStatus();
+        } catch (\Throwable $e) {
+            $status = ['success' => false, 'error' => $e->getMessage()];
+        }
+
+        $ok = $status['success'] ?? false;
+        $state = strtolower($status['status'] ?? 'unknown');
+        $label = $ok ? ucfirst($state) : 'Tidak tersedia';
+
+        $color = match ($state) {
+            'online', 'connected' => 'success',
+            'connecting' => 'warning',
+            'offline', 'disconnected' => 'danger',
+            default => $ok ? 'gray' : 'danger',
+        };
+
+        $value = match ($state) {
+            'online', 'connected' => '🟢 Online',
+            'offline', 'disconnected' => '🔴 Offline',
+            'connecting' => '🟡 Connecting',
+            default => '⚪ ' . $label,
+        };
+
+        return Stat::make('WA Gateway', $value)
+            ->description(null)
+            ->color($color);
     }
 }
