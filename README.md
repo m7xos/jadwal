@@ -2,7 +2,27 @@
 
 Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
 
-## Instalasi server baru
+## Instalasi cepat (production, Apache + PHP-FPM 8.4 + MariaDB)
+- Jalankan sebagai user deploy (script akan meminta sudo saat perlu):
+  ```
+  DEPLOY_USER=deploy \
+  APP_USER=www-data \
+  APP_DIR=/var/www/jadwal \
+  DOMAIN=example.com \
+  DB_NAME=jadwal \
+  DB_USER=jadwal \
+  DB_PASS=supersecret \
+  scripts/install-production.sh
+  ```
+- Script akan:
+  - Tambah repo Sury (jika belum ada), install Apache, MariaDB, PHP-FPM 8.4 + ekstensi, ACL.
+  - Buat vhost Apache ke `${APP_DIR}/public` via socket `php8.4-fpm`.
+  - Buat database & user MariaDB (idempotent).
+  - Set izin `storage/` & `bootstrap/cache` rwx untuk `www-data` dan `deploy`, serta `.env` rw.
+  - `composer install --no-dev` dan artisan cache (key:generate, migrate, config/route/view cache).
+- Setelah selesai: sesuaikan `.env` (APP_URL/DB) lalu `sudo systemctl reload apache2 php8.4-fpm` jika perlu.
+
+## Instalasi server baru (manual)
 - Prasyarat: PHP 8.3+ (CLI), Composer, Node (untuk build front-end jika diperlukan), Git, dan `pdftotext`.
 - Clone repo, lalu:
   - `composer install`
