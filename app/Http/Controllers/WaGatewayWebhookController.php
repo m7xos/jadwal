@@ -9,6 +9,7 @@ use App\Services\FollowUpReminderService;
 use App\Services\ScheduleResponder;
 use App\Services\WaGatewayService;
 use App\Services\VehicleTaxPaymentService;
+use App\Models\WaGatewaySetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -371,7 +372,8 @@ class WaGatewayWebhookController extends Controller
 
     protected function allowedNumbersFromConfig(): array
     {
-        $raw = (string) config('wa_gateway.finish_whitelist', '');
+        $setting = WaGatewaySetting::current();
+        $raw = (string) ($setting->finish_whitelist ?? config('wa_gateway.finish_whitelist', ''));
 
         if ($raw === '') {
             return [];

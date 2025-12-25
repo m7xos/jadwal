@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\WaGatewayTokenSyncService;
+use App\Models\WaGatewaySetting;
 use Illuminate\Console\Command;
 
 class SyncWaGatewayToken extends Command
@@ -17,19 +18,31 @@ class SyncWaGatewayToken extends Command
 
     public function handle(WaGatewayTokenSyncService $service): int
     {
-        $sessionId = $this->option('session') ?: config('wa_gateway.session_id');
+        $settings = WaGatewaySetting::current();
+        $sessionId = $this->option('session') ?: ($settings->session_id ?? config('wa_gateway.session_id'));
         $path = $this->option('path');
         $url = $this->option('url');
 
-        $token = $service->fetchToken($sessionId, $path, $url);
+        $record = $service->fetchDeviceRecord($sessionId, $path, $url);
 
+        if (! $record) {
+            if ($sessionId) {
+                $this->error('Session ID tidak ditemukan di registry. Pastikan session ID cocok.');
+            } else {
+                $this->error('Device tidak ditemukan dari registry. Isi Session ID jika ada lebih dari satu device.');
+            }
+
+            return self::FAILURE;
+        }
+
+        $token = $service->fetchToken($sessionId, $path, $url);
         if (! $token) {
             $this->error('Token tidak ditemukan dari registry.');
 
             return self::FAILURE;
         }
 
-        $current = (string) config('wa_gateway.token');
+        $current = (string) ($settings->token ?? config('wa_gateway.token'));
 
         $this->info('Token registry: ' . $token);
         $this->info('Token aplikasi: ' . ($current !== '' ? $current : '-'));
@@ -46,10 +59,8 @@ class SyncWaGatewayToken extends Command
             return self::SUCCESS;
         }
 
-        $envOk = $service->updateEnvToken($token);
-        $dbOk = $service->updateDatabaseToken($token);
+        $dbOk = $service->updateDatabaseFromRecord($record);
 
-        $this->info($envOk ? 'WA_GATEWAY_TOKEN di .env diperbarui.' : 'Gagal memperbarui .env.');
         $this->info($dbOk ? 'Token database diperbarui.' : 'Tidak ada tabel DB yang cocok.');
 
         return self::SUCCESS;

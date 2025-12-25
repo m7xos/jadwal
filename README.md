@@ -36,7 +36,8 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
 - Database: `DB_*`
 - App: `APP_URL`, `APP_TIMEZONE`
 - WhatsApp Gateway:
-  - wa-gateway (disarankan): `WA_GATEWAY_BASE_URL`, `WA_GATEWAY_KEY` (opsional), `WA_GATEWAY_TOKEN`, `WA_GATEWAY_FINISH_WHITELIST`
+  - Pengaturan kini dikelola di menu **Pengaturan -> WA Gateway** (database).
+  - Nilai di `.env` tetap menjadi fallback awal saat tabel belum terisi.
   - Default grup WA diambil dari tabel Grup WA (centang "Jadikan grup default").
 - PDF to text: `PDFTOTEXT_PATH=/usr/bin/pdftotext` (untuk Ubuntu)
   - `WA_GATEWAY_FINISH_WHITELIST` berisi nomor WA (format 62xxxx) yang tetap boleh menandai TL selesai di webhook, selain personil yang ditugaskan. Pisahkan dengan koma, contoh: `WA_GATEWAY_FINISH_WHITELIST=6281234567890,6289876543210`. Biarkan kosong jika tidak ingin whitelist tambahan.

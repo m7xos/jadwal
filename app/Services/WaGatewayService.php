@@ -6,6 +6,7 @@ use App\Models\Kegiatan;
 use App\Models\Group;
 use App\Models\Personil;
 use App\Models\PersonilCategory;
+use App\Models\WaGatewaySetting;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -21,14 +22,21 @@ class WaGatewayService
     protected string $provider;
     protected string $groupId;
     protected array $groupMappings;
+    protected string $masterKey;
 
     public function __construct()
     {
-        $this->baseUrl   = rtrim(config('wa_gateway.base_url', 'http://localhost:5001'), '/');
-        $this->token     = (string) config('wa_gateway.token', '');
-        $this->secretKey = config('wa_gateway.secret_key'); // boleh null / kosong
-        $this->provider  = (string) config('wa_gateway.provider', 'wa-gateway');
-        $this->groupMappings = (array) config('wa_gateway.group_ids', []);
+        $settings = WaGatewaySetting::current();
+
+        $this->baseUrl = rtrim(
+            (string) ($settings->base_url ?: config('wa_gateway.base_url', 'http://localhost:5001')),
+            '/'
+        );
+        $this->token = (string) ($settings->token ?: config('wa_gateway.token', ''));
+        $this->secretKey = $settings->secret_key ?: config('wa_gateway.secret_key');
+        $this->provider = (string) ($settings->provider ?: config('wa_gateway.provider', 'wa-gateway'));
+        $this->groupMappings = $settings->groupMappings();
+        $this->masterKey = (string) ($settings->key ?: config('wa_gateway.key', ''));
         $this->groupId   = $this->resolveDefaultGroupId();
     }
 
@@ -81,7 +89,7 @@ class WaGatewayService
             'Content-Type'  => 'application/json',
         ];
 
-        $masterKey = trim((string) config('wa_gateway.key', ''));
+        $masterKey = trim($this->masterKey);
         if ($masterKey !== '') {
             $headers['key'] = $masterKey;
         }

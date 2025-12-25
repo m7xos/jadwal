@@ -5,10 +5,14 @@ namespace App\Services;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
+use App\Models\WaGatewaySetting;
 
 class WaGatewayTokenSyncService
 {
-    public function fetchToken(?string $sessionId = null, ?string $path = null, ?string $url = null): ?string
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function fetchDeviceRecord(?string $sessionId = null, ?string $path = null, ?string $url = null): ?array
     {
         $records = $this->loadRegistry($path, $url);
 
@@ -21,16 +25,28 @@ class WaGatewayTokenSyncService
         if ($sessionId !== '') {
             foreach ($records as $record) {
                 if (($record['sessionId'] ?? null) === $sessionId) {
-                    return $this->extractToken($record);
+                    return $record;
                 }
             }
+            return null;
         }
 
         if (count($records) === 1) {
-            return $this->extractToken($records[0]);
+            return $records[0];
         }
 
-        return $this->extractToken($records[0]);
+        return null;
+    }
+
+    public function fetchToken(?string $sessionId = null, ?string $path = null, ?string $url = null): ?string
+    {
+        $record = $this->fetchDeviceRecord($sessionId, $path, $url);
+
+        if (! $record) {
+            return null;
+        }
+
+        return $this->extractToken($record);
     }
 
     public function updateEnvToken(string $token): bool
@@ -92,18 +108,59 @@ class WaGatewayTokenSyncService
     }
 
     /**
+     * Update token (apiKey) + optional master key from registry record.
+     *
+     * @param array<string, mixed> $record
+     */
+    public function updateDatabaseFromRecord(array $record): bool
+    {
+        if (! Schema::hasTable('wa_gateway_settings')) {
+            return false;
+        }
+
+        $token = $this->extractToken($record);
+        if (! $token) {
+            return false;
+        }
+
+        $updates = ['token' => $token];
+
+        $sessionId = trim((string) ($record['sessionId'] ?? ''));
+        if ($sessionId !== '' && Schema::hasColumn('wa_gateway_settings', 'session_id')) {
+            $updates['session_id'] = $sessionId;
+        }
+
+        $masterKey = trim((string) ($record['key'] ?? $record['masterKey'] ?? $record['master_key'] ?? $record['masterkey'] ?? ''));
+        if ($masterKey !== '' && Schema::hasColumn('wa_gateway_settings', 'key')) {
+            $updates['key'] = $masterKey;
+        }
+
+        $secretKey = trim((string) ($record['secretKey'] ?? $record['secret_key'] ?? $record['secretkey'] ?? ''));
+        if ($secretKey !== '' && Schema::hasColumn('wa_gateway_settings', 'secret_key')) {
+            $updates['secret_key'] = $secretKey;
+        }
+
+        if (Schema::hasColumn('wa_gateway_settings', 'api_key')) {
+            $updates['api_key'] = $token;
+        }
+
+        return (bool) \DB::table('wa_gateway_settings')->updateOrInsert(['id' => 1], $updates);
+    }
+
+    /**
      * @return array<int, array<string, mixed>>
      */
     protected function loadRegistry(?string $path = null, ?string $url = null): array
     {
-        $path = $path ?: config('wa_gateway.registry_path');
-        $url = $url ?: config('wa_gateway.registry_url');
+        $settings = WaGatewaySetting::current();
+        $path = $path ?: ($settings->registry_path ?? config('wa_gateway.registry_path'));
+        $url = $url ?: ($settings->registry_url ?? config('wa_gateway.registry_url'));
 
         if ($url) {
             $headers = [];
-            $token = trim((string) config('wa_gateway.registry_token', ''));
-            $user = trim((string) config('wa_gateway.registry_user', ''));
-            $pass = (string) config('wa_gateway.registry_pass', '');
+            $token = trim((string) ($settings->registry_token ?? config('wa_gateway.registry_token', '')));
+            $user = trim((string) ($settings->registry_user ?? config('wa_gateway.registry_user', '')));
+            $pass = (string) ($settings->registry_pass ?? config('wa_gateway.registry_pass', ''));
 
             if ($token !== '') {
                 $headers['Authorization'] = 'Bearer ' . $token;
@@ -128,7 +185,28 @@ class WaGatewayTokenSyncService
         $raw = File::get($path);
         $data = json_decode($raw, true);
 
-        return is_array($data) ? $data : [];
+        if (! is_array($data)) {
+            return [];
+        }
+
+        if (array_is_list($data)) {
+            return $data;
+        }
+
+        $records = [];
+        foreach ($data as $key => $value) {
+            if (! is_array($value)) {
+                continue;
+            }
+
+            if (! isset($value['sessionId']) && (is_string($key) || is_int($key))) {
+                $value['sessionId'] = (string) $key;
+            }
+
+            $records[] = $value;
+        }
+
+        return $records;
     }
 
     /**

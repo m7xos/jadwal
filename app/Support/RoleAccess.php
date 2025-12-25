@@ -27,6 +27,7 @@ class RoleAccess
             'filament.admin.resources.personils' => 'Personil',
             'filament.admin.resources.vehicle-assets' => 'Data Kendaraan',
             'filament.admin.pages.pengurus-barang' => 'Pengurus Barang',
+            'filament.admin.pages.wa-gateway' => 'Pengaturan WA Gateway',
             'filament.admin.pages.role-access-settings' => 'Pengaturan Hak Akses',
             'filament.admin.pages.panduan-aplikasi' => 'Panduan Aplikasi',
             'filament.admin.resources.tindak-lanjut-reminder-logs' => 'Log Pengingat TL',
