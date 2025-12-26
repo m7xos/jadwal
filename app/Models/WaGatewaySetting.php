@@ -14,9 +14,6 @@ class WaGatewaySetting extends Model
         'secret_key',
         'provider',
         'finish_whitelist',
-        'registry_path',
-        'registry_url',
-        'session_id',
     ];
 
     public static function current(): self
@@ -37,9 +34,6 @@ class WaGatewaySetting extends Model
             'secret_key' => config('wa_gateway.secret_key'),
             'provider' => config('wa_gateway.provider', 'wa-gateway'),
             'finish_whitelist' => config('wa_gateway.finish_whitelist'),
-            'registry_path' => config('wa_gateway.registry_path'),
-            'registry_url' => config('wa_gateway.registry_url'),
-            'session_id' => config('wa_gateway.session_id'),
         ];
     }
 

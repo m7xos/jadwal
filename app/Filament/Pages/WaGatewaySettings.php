@@ -3,11 +3,9 @@
 namespace App\Filament\Pages;
 
 use App\Models\WaGatewaySetting;
-use App\Support\PhoneNumber;
 use App\Support\RoleAccess;
 use BackedEnum;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -46,9 +44,6 @@ class WaGatewaySettings extends Page implements HasForms
             'secret_key' => $setting->secret_key,
             'provider' => $setting->provider ?? 'wa-gateway',
             'finish_whitelist' => $setting->finish_whitelist,
-            'registry_path' => $setting->registry_path,
-            'registry_url' => $setting->registry_url,
-            'session_id' => $setting->session_id,
         ]);
     }
 
@@ -101,36 +96,6 @@ class WaGatewaySettings extends Page implements HasForms
                             ->rows(3)
                             ->placeholder('Contoh: 6281234567890,6289876543210'),
                     ]),
-
-                Section::make('Sync Token (opsional)')
-                    ->description('Ambil token dari device registry wa-gateway dengan session ID.')
-                    ->schema([
-                        TextInput::make('registry_path')
-                            ->label('Registry Path (local)')
-                            ->placeholder('/home/wa-gateway/wa_credentials/device-registry.json')
-                            ->maxLength(255),
-                        TextInput::make('registry_url')
-                            ->label('Registry URL (remote)')
-                            ->placeholder('https://gateway.example.com/device-registry.json')
-                            ->maxLength(255),
-                        TextInput::make('session_id')
-                            ->label('Nomor Sender / Session ID (opsional)')
-                            ->helperText('Masukkan nomor (08xxx akan otomatis menjadi 62xxx) atau sessionId dari device-registry.json.')
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                $raw = trim((string) ($state ?? ''));
-                                if ($raw === '' || ! preg_match('/^[0-9+]+$/', $raw)) {
-                                    return;
-                                }
-
-                                $normalized = PhoneNumber::normalize($raw);
-                                if ($normalized && $normalized !== $raw) {
-                                    $set('session_id', $normalized);
-                                }
-                            })
-                            ->maxLength(255),
-                    ])
-                    ->columns(2)
-                    ->collapsible(),
             ])
             ->statePath('data');
     }
@@ -140,8 +105,6 @@ class WaGatewaySettings extends Page implements HasForms
         $state = $this->form->getState();
         $setting = WaGatewaySetting::current();
 
-        $state['session_id'] = $this->normalizeSessionId($state['session_id'] ?? null);
-
         $setting->fill($state);
         $setting->save();
 
@@ -149,40 +112,6 @@ class WaGatewaySettings extends Page implements HasForms
             ->title('Pengaturan WA Gateway disimpan')
             ->success()
             ->send();
-    }
-
-    public function syncToken(): void
-    {
-        $state = $this->form->getState();
-        $sessionId = $this->normalizeSessionId($state['session_id'] ?? null);
-
-        $exitCode = Artisan::call('wa-gateway:sync-token', array_filter([
-            '--session' => $sessionId,
-        ], fn ($value) => $value !== null && $value !== ''));
-
-        $output = trim(Artisan::output());
-
-        if ($exitCode === 0) {
-            $setting = WaGatewaySetting::current()->refresh();
-            $this->form->fill([
-                'token' => $setting->token,
-                'key' => $setting->key,
-                'secret_key' => $setting->secret_key,
-                'session_id' => $setting->session_id,
-            ]);
-
-            Notification::make()
-                ->title('Token berhasil disinkronkan')
-                ->body($output ?: null)
-                ->success()
-                ->send();
-        } else {
-            Notification::make()
-                ->title('Gagal sinkron token')
-                ->body($output ?: 'Periksa registry path/URL dan session ID.')
-                ->danger()
-                ->send();
-        }
     }
 
     public function testConnection(): void
@@ -245,20 +174,6 @@ class WaGatewaySettings extends Page implements HasForms
                 ->danger()
                 ->send();
         }
-    }
-
-    protected function normalizeSessionId(?string $value): ?string
-    {
-        $raw = trim((string) ($value ?? ''));
-        if ($raw === '') {
-            return null;
-        }
-
-        if (preg_match('/^[0-9+]+$/', $raw)) {
-            return PhoneNumber::normalize($raw) ?? $raw;
-        }
-
-        return $raw;
     }
 
     public static function canAccess(): bool
