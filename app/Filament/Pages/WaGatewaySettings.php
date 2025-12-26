@@ -49,9 +49,6 @@ class WaGatewaySettings extends Page implements HasForms
             'registry_path' => $setting->registry_path,
             'registry_url' => $setting->registry_url,
             'session_id' => $setting->session_id,
-            'registry_token' => $setting->registry_token,
-            'registry_user' => $setting->registry_user,
-            'registry_pass' => $setting->registry_pass,
         ]);
     }
 
@@ -105,8 +102,8 @@ class WaGatewaySettings extends Page implements HasForms
                             ->placeholder('Contoh: 6281234567890,6289876543210'),
                     ]),
 
-                Section::make('Registry Token (opsional)')
-                    ->description('Dipakai jika ingin sync token dari device registry wa-gateway.')
+                Section::make('Sync Token (opsional)')
+                    ->description('Ambil token dari device registry wa-gateway dengan session ID.')
                     ->schema([
                         TextInput::make('registry_path')
                             ->label('Registry Path (local)')
@@ -130,15 +127,6 @@ class WaGatewaySettings extends Page implements HasForms
                                     $set('session_id', $normalized);
                                 }
                             })
-                            ->maxLength(255),
-                        TextInput::make('registry_token')
-                            ->label('Registry Token (Bearer)')
-                            ->maxLength(255),
-                        TextInput::make('registry_user')
-                            ->label('Registry User')
-                            ->maxLength(255),
-                        TextInput::make('registry_pass')
-                            ->label('Registry Password')
                             ->maxLength(255),
                     ])
                     ->columns(2)

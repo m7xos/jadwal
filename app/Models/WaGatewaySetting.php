@@ -17,9 +17,6 @@ class WaGatewaySetting extends Model
         'registry_path',
         'registry_url',
         'session_id',
-        'registry_token',
-        'registry_user',
-        'registry_pass',
     ];
 
     public static function current(): self
@@ -43,9 +40,6 @@ class WaGatewaySetting extends Model
             'registry_path' => config('wa_gateway.registry_path'),
             'registry_url' => config('wa_gateway.registry_url'),
             'session_id' => config('wa_gateway.session_id'),
-            'registry_token' => config('wa_gateway.registry_token'),
-            'registry_user' => config('wa_gateway.registry_user'),
-            'registry_pass' => config('wa_gateway.registry_pass'),
         ];
     }
 

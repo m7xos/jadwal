@@ -157,20 +157,8 @@ class WaGatewayTokenSyncService
         $url = $url ?: ($settings->registry_url ?? config('wa_gateway.registry_url'));
 
         if ($url) {
-            $headers = [];
-            $token = trim((string) ($settings->registry_token ?? config('wa_gateway.registry_token', '')));
-            $user = trim((string) ($settings->registry_user ?? config('wa_gateway.registry_user', '')));
-            $pass = (string) ($settings->registry_pass ?? config('wa_gateway.registry_pass', ''));
-
-            if ($token !== '') {
-                $headers['Authorization'] = 'Bearer ' . $token;
-            } elseif ($user !== '' || $pass !== '') {
-                $headers['Authorization'] = 'Basic ' . base64_encode($user . ':' . $pass);
-            }
-
             $response = Http::timeout(5)
                 ->retry(3, 300)
-                ->withHeaders($headers)
                 ->get($url);
             if ($response->successful()) {
                 $data = $response->json();
