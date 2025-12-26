@@ -12,8 +12,8 @@ class SuratKeluarRequestService
 {
     public function handleIncoming(array $payload, WaGatewayService $waGateway): bool
     {
-        $message = trim((string) ($payload['message'] ?? ''));
-        if ($message === '') {
+        $message = $this->extractText($payload);
+        if ($message === null) {
             return false;
         }
 
@@ -165,8 +165,49 @@ class SuratKeluarRequestService
 
     protected function isStartCommand(string $message): bool
     {
-        return $message === 'minta nomor surat keluar'
-            || str_contains($message, 'minta nomor surat keluar');
+        if ($message === '') {
+            return false;
+        }
+
+        if (str_contains($message, 'minta nomor surat keluar')) {
+            return true;
+        }
+
+        return str_contains($message, 'minta nomor surat');
+    }
+
+    protected function extractText(array $payload): ?string
+    {
+        $message = $payload['message'] ?? null;
+        if (is_string($message) && trim($message) !== '') {
+            return trim($message);
+        }
+
+        if (is_array($message)) {
+            foreach (['text', 'conversation', 'caption', 'body'] as $key) {
+                $value = $message[$key] ?? null;
+                if (is_string($value) && trim($value) !== '') {
+                    return trim($value);
+                }
+            }
+        }
+
+        $candidates = [
+            $payload['text'] ?? null,
+            $payload['body'] ?? null,
+            data_get($payload, 'message.text'),
+            data_get($payload, 'message.conversation'),
+            data_get($payload, 'message.caption'),
+            data_get($payload, 'message.body'),
+        ];
+
+        foreach ($candidates as $text) {
+            if (is_string($text) && trim($text) !== '') {
+                return trim($text);
+            }
+        }
+
+        return null;
     }
 
     protected function extractSenderNumber(array $payload): ?string
