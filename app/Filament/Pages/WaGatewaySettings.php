@@ -6,6 +6,7 @@ use App\Models\WaGatewaySetting;
 use App\Support\PhoneNumber;
 use App\Support\RoleAccess;
 use BackedEnum;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Artisan;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -190,6 +191,62 @@ class WaGatewaySettings extends Page implements HasForms
             Notification::make()
                 ->title('Gagal sinkron token')
                 ->body($output ?: 'Periksa registry path/URL dan session ID.')
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function testConnection(): void
+    {
+        $state = $this->form->getState();
+
+        $baseUrl = rtrim(trim((string) ($state['base_url'] ?? '')), '/');
+        $token = trim((string) ($state['token'] ?? ''));
+        $secret = trim((string) ($state['secret_key'] ?? ''));
+        $masterKey = trim((string) ($state['key'] ?? ''));
+
+        if ($baseUrl === '' || $token === '') {
+            Notification::make()
+                ->title('Data koneksi belum lengkap')
+                ->body('Isi Base URL dan Token Device sebelum tes koneksi.')
+                ->danger()
+                ->send();
+            return;
+        }
+
+        $authHeader = $secret !== '' ? $token . '.' . $secret : $token;
+        $headers = ['Authorization' => $authHeader];
+        if ($masterKey !== '') {
+            $headers['key'] = $masterKey;
+        }
+
+        try {
+            $response = Http::withHeaders($headers)
+                ->withOptions(['verify' => false])
+                ->timeout(8)
+                ->get($baseUrl . '/api/device/info');
+
+            if (! $response->successful()) {
+                Notification::make()
+                    ->title('Tes koneksi gagal')
+                    ->body('HTTP ' . $response->status())
+                    ->danger()
+                    ->send();
+                return;
+            }
+
+            $status = data_get($response->json(), 'data.0.status') ?? 'unknown';
+            $label = is_string($status) ? strtolower($status) : 'unknown';
+
+            Notification::make()
+                ->title('Koneksi berhasil')
+                ->body('Status device: ' . $label)
+                ->success()
+                ->send();
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title('Tes koneksi gagal')
+                ->body($e->getMessage())
                 ->danger()
                 ->send();
         }
