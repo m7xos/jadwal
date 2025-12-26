@@ -8,6 +8,7 @@ use App\Support\RoleAccess;
 use BackedEnum;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Str;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -227,9 +228,15 @@ class WaGatewaySettings extends Page implements HasForms
                 ->get($baseUrl . '/api/device/info');
 
             if (! $response->successful()) {
+                $body = trim((string) $response->body());
+                $detail = 'HTTP ' . $response->status() . ' · URL: ' . $baseUrl . '/api/device/info';
+                if ($body !== '') {
+                    $detail .= ' · Response: ' . Str::limit($body, 300);
+                }
+
                 Notification::make()
                     ->title('Tes koneksi gagal')
-                    ->body('HTTP ' . $response->status())
+                    ->body($detail)
                     ->danger()
                     ->send();
                 return;
