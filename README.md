@@ -62,3 +62,10 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
 - Jika device wa-gateway atau konfigurasi tidak lengkap, pengiriman gagal dan status log menjadi failed; kirim ulang via aksi "Kirim Ulang" di Log Pengingat TL.
 - Pengingat pajak kendaraan: job `vehicle-taxes:send-reminders` jalan setiap 08:00 WIB untuk H-7/H-3/H0 (pajak tahunan & 5 tahunan) dan mencatat Log Pengingat Pajak. Gunakan `--force` dan `--date=YYYY-MM-DD` untuk uji manual.
 - Pembayaran pajak: balas pesan masuk ke webhook wa-gateway dengan pola `Pajak-{NOMOR_POLISI} terbayar` untuk menandai status pajak kendaraan menjadi LUNAS dan mengirim balasan terima kasih.
+
+## Nomor Surat Keluar via WhatsApp
+- Ketik di grup: **minta nomor surat keluar** → sistem akan membalas ke chat pribadi untuk input kode klasifikasi dan hal surat.
+- Data kode klasifikasi diambil dari tabel `kode_surats`. Untuk impor dari Excel:
+  - Simpan file `kode_klasifikasi.xlsx` ke `storage/app/`.
+  - Jalankan: `php artisan kode-surat:import`
+- Nomor surat susulan (sisipan) bisa dibuat lewat menu **Surat Keluar** di dashboard.

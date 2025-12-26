@@ -29,6 +29,8 @@ class RoleAccess
             'filament.admin.pages.pengurus-barang' => 'Pengurus Barang',
             'filament.admin.pages.wa-gateway' => 'Pengaturan WA Gateway',
             'filament.admin.pages.wa-message-templates' => 'Template Pesan WA',
+            'filament.admin.resources.surat-keluar' => 'Surat Keluar',
+            'filament.admin.pages.surat-keluar-status' => 'Status Nomor Surat Keluar',
             'filament.admin.pages.role-access-settings' => 'Pengaturan Hak Akses',
             'filament.admin.pages.panduan-aplikasi' => 'Panduan Aplikasi',
             'filament.admin.resources.tindak-lanjut-reminder-logs' => 'Log Pengingat TL',
