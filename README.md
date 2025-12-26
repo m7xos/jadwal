@@ -39,8 +39,9 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
   - Pengaturan kini dikelola di menu **Pengaturan -> WA Gateway** (database).
   - Nilai di `.env` tetap menjadi fallback awal saat tabel belum terisi.
   - Default grup WA diambil dari tabel Grup WA (centang "Jadikan grup default").
+  - Template pesan WhatsApp bisa diubah di menu **Pengaturan -> Template Pesan WA** (kosongkan untuk kembali ke default).
 - PDF to text: `PDFTOTEXT_PATH=/usr/bin/pdftotext` (untuk Ubuntu)
-  - `WA_GATEWAY_FINISH_WHITELIST` berisi nomor WA (format 62xxxx) yang tetap boleh menandai TL selesai di webhook, selain personil yang ditugaskan. Pisahkan dengan koma, contoh: `WA_GATEWAY_FINISH_WHITELIST=6281234567890,6289876543210`. Biarkan kosong jika tidak ingin whitelist tambahan.
+  - Whitelist penyelesaian TL di menu **Pengaturan -> WA Gateway** berisi nomor WA (format 62xxxx) yang tetap boleh menandai TL selesai di webhook, selain personil yang ditugaskan. Pisahkan dengan koma, contoh: `6281234567890,6289876543210`. Biarkan kosong jika tidak ingin whitelist tambahan.
 
 ## Webhook WhatsApp (wajib)
 - Untuk wa-gateway: set `webhookBaseUrl = ${APP_URL}/wa-gateway/webhook` di wa-gateway (ia akan POST ke `${webhookBaseUrl}/message`).

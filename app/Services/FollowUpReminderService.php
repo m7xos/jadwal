@@ -83,7 +83,39 @@ class FollowUpReminderService
         $lines[] = 'Balas pesan ini dengan kata kunci *terima kasih* untuk menghentikan pengingat.';
         $lines[] = 'Jika ada banyak, bisa balas: *terima kasih 12* (kode) atau *terima kasih semua*.';
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $tempatLine = $tempat !== ''
+            ? $this->formatLabel('Tempat', $tempat) . "\n"
+            : '';
+        $penerimaLine = $mention
+            ? $this->formatLabel('Untuk', $mention) . "\n"
+            : '';
+        $keteranganBlock = $keterangan !== ''
+            ? "\n*Keterangan:*\n{$keterangan}\n"
+            : '';
+
+        $footer = implode("\n", [
+            'Mohon tindak lanjuti kegiatan di atas.',
+            'Balas pesan ini dengan kata kunci *terima kasih* untuk menghentikan pengingat.',
+            'Jika ada banyak, bisa balas: *terima kasih 12* (kode) atau *terima kasih semua*.',
+        ]);
+
+        $data = [
+            'kegiatan_line' => $this->formatLabel('Kegiatan', $reminder->nama_kegiatan ?? '-'),
+            'tanggal_line' => $this->formatLabel('Tanggal', $tanggalLabel),
+            'jam_line' => $this->formatLabel('Jam', $jamLabel),
+            'tempat_line' => $tempatLine,
+            'penerima_line' => $penerimaLine,
+            'keterangan_block' => $keteranganBlock,
+            'kode_line' => $this->formatLabel('Kode', $reminder->reminder_code),
+            'footer' => $footer,
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('follow_up_reminder', $data, $fallback);
     }
 
     public function handleThanksReply(array $payload): bool

@@ -245,9 +245,48 @@ class WaGatewayService
         $lines[] = '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_';
         $lines[] = '';
         $lines[] = '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._';
-        
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $labelLines = [
+            $this->formatLabelLine('Kode TL', $kodePengingat),
+            $this->formatLabelLine('Perihal', $perihal),
+            $this->formatLabelLine('Tanggal', $kegiatan->tanggal_label ?? '-'),
+            $this->formatLabelLine('Batas TL', $deadlineLabel),
+        ];
+
+        $disposisiLines = [];
+        if (! empty($dispositionTags) || ! empty($personilTags)) {
+            $disposisiLines[] = 'Mohon arahan percepatan tindak lanjut:';
+            if (! empty($dispositionTags)) {
+                $disposisiLines[] = implode(' ', $dispositionTags);
+            }
+            if (! empty($personilTags)) {
+                $disposisiLines[] = 'kepada: ' . implode(' ', $personilTags);
+            }
+        }
+
+        $data = [
+            'nomor_surat' => $nomorSurat,
+            'kode_tl' => $kodePengingat,
+            'label_lines' => implode("\n", $labelLines),
+            'surat_block' => $suratUrl
+                ? $this->formatTemplateBlock(['📎 Surat (PDF):', $suratUrl])
+                : '',
+            'lampiran_block' => $lampiranUrl
+                ? $this->formatTemplateBlock(['📎 Lampiran Surat:', $lampiranUrl])
+                : '',
+            'disposisi_block' => $this->formatTemplateBlock($disposisiLines),
+            'balasan_line' => $this->formatTemplateLine(
+                '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_'
+            ),
+            'footer' => '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._',
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('tindak_lanjut_reminder', $data, $fallback);
     }
 
     protected function getDispositionTags(): array
@@ -286,6 +325,43 @@ class WaGatewayService
     protected function formatLabelLine(string $label, string $value): string
     {
         return sprintf('%-14s: %s', $label, $value);
+    }
+
+    protected function formatTemplateLine(string $line): string
+    {
+        if ($line === '') {
+            return '';
+        }
+
+        return $line . "\n";
+    }
+
+    /**
+     * @param array<int, string> $lines
+     */
+    protected function formatTemplateBlock(array $lines): string
+    {
+        $filtered = array_values(array_filter($lines, fn ($line) => $line !== ''));
+
+        if (empty($filtered)) {
+            return '';
+        }
+
+        return implode("\n", $filtered) . "\n\n";
+    }
+
+    /**
+     * @param array<int, string> $lines
+     */
+    protected function formatTemplateInlineBlock(array $lines): string
+    {
+        $filtered = array_values(array_filter($lines, fn ($line) => $line !== ''));
+
+        if (empty($filtered)) {
+            return '';
+        }
+
+        return implode("\n", $filtered) . "\n";
     }
 
     protected function formatPersonilTag(Personil $personil, bool $withJabatan = false): ?string
@@ -634,7 +710,40 @@ class WaGatewayService
         $lines[] = '';
         $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $tanggalLabel = '';
+        if ($items->isNotEmpty()) {
+            /** @var \App\Models\Kegiatan|null $first */
+            $first = $items->first();
+
+            if ($first && $first->tanggal) {
+                try {
+                    $tanggalLabel = $first->tanggal
+                        ->locale('id')
+                        ->isoFormat('dddd, D MMMM Y');
+                } catch (\Throwable $e) {
+                    $tanggalLabel = '';
+                }
+            }
+        }
+
+        if ($tanggalLabel === '') {
+            $tanggalLabel = now()->locale('id')->isoFormat('dddd, D MMMM Y');
+        }
+
+        $data = [
+            'judul' => 'REKAP AGENDA KEGIATAN KANTOR',
+            'tanggal_label' => $tanggalLabel,
+            'agenda_list' => $this->buildGroupAgendaList($items),
+            'generated_at' => now()->locale('id')->translatedFormat('d F Y H:i') . ' WIB',
+            'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('group_rekap', $data, $fallback);
     }
 
     protected function buildGroupMessageBelumDisposisi(iterable $kegiatans): string
@@ -698,7 +807,26 @@ class WaGatewayService
         $lines[] = '';
         $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $leadershipBlock = '';
+        if (! empty($leadershipTags)) {
+            $leadershipBlock = $this->formatTemplateBlock([
+                '*Mohon petunjuk/arahan disposisi:*',
+                implode(' ', $leadershipTags),
+            ]);
+        }
+
+        $data = [
+            'agenda_list' => $this->buildBelumDisposisiAgendaList($items),
+            'leadership_block' => $leadershipBlock,
+            'footer' => '_Pesan ini dikirim otomatis dari sistem agenda kantor._',
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('group_belum_disposisi', $data, $fallback);
     }
 
     protected function getPersonilTagsByJabatan(array $jabatanList): array
@@ -782,7 +910,35 @@ class WaGatewayService
         $lines[] = '';
         $lines[] = '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._';
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+        $keteranganBlock = $keterangan !== ''
+            ? $this->formatTemplateBlock(['*Keterangan*', $keterangan])
+            : '';
+        $suratBlock = $suratUrl
+            ? $this->formatTemplateBlock(['📎 *Lihat Surat (PDF)*', $suratUrl])
+            : '';
+        $lampiranBlock = $lampiranUrl
+            ? $this->formatTemplateBlock(['📎 *Lampiran*', $lampiranUrl])
+            : '';
+
+        $data = [
+            'nama_kegiatan' => (string) ($kegiatan->nama_kegiatan ?? '-'),
+            'nomor_surat' => (string) ($kegiatan->nomor ?? '-'),
+            'tanggal' => (string) ($kegiatan->tanggal_label ?? '-'),
+            'waktu' => (string) ($kegiatan->waktu ?? '-'),
+            'tempat' => (string) ($kegiatan->tempat ?? '-'),
+            'keterangan_block' => $keteranganBlock,
+            'surat_block' => $suratBlock,
+            'lampiran_block' => $lampiranBlock,
+            'footer' => '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._',
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('agenda_personil', $data, $fallback);
     }
 
     /**
@@ -830,7 +986,24 @@ class WaGatewayService
         $lines[] = '';
         $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $data = [
+            'tanggal_header' => $headerDate,
+            'judul' => $title !== '' ? $title : '-',
+            'waktu' => $time !== '' ? $time : '-',
+            'tempat' => $place !== '' ? $place : '-',
+            'peserta_line' => $this->formatTemplateLine($participants !== '' ? '   👥 ' . $participants : ''),
+            'keterangan_line' => $this->formatTemplateLine($notes !== '' ? '   📝 ' . $notes : ''),
+            'surat_line' => $this->formatTemplateLine($suratUrl ? '   📎 Surat: ' . $suratUrl : ''),
+            'lampiran_line' => $this->formatTemplateLine($lampiranUrl ? '   📎 Lampiran: ' . $lampiranUrl : ''),
+            'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('agenda_group', $data, $fallback);
     }
 
     /**
@@ -942,6 +1115,233 @@ class WaGatewayService
         $parts = array_unique(array_filter(array_merge($categoryLabels, $tags)));
 
         return implode(', ', $parts);
+    }
+
+    protected function buildGroupAgendaList(Collection $items): string
+    {
+        if ($items->isEmpty()) {
+            return '(Tidak ada agenda pada hari ini.)';
+        }
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+        $meta = $templateService->metaFor('group_rekap');
+        $itemTemplate = trim((string) ($meta['item_template'] ?? ''));
+        $separator = (string) ($meta['item_separator'] ?? "\n\n");
+
+        if ($itemTemplate !== '') {
+            $rendered = [];
+            $no = 1;
+
+            /** @var \App\Models\Kegiatan $kegiatan */
+            foreach ($items as $kegiatan) {
+                $personilLines = [];
+                $personils = $kegiatan->personils ?? collect();
+
+                if ($personils->isNotEmpty()) {
+                    $personilLines[] = '   👥 Penerima Disposisi:';
+
+                    $i = 1;
+                    foreach ($personils as $p) {
+                        $nama = trim((string) ($p->nama ?? ''));
+
+                        if ($nama === '') {
+                            continue;
+                        }
+
+                        $rawNo  = trim((string) ($p->no_wa ?? ''));
+                        $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
+
+                        if ($digits !== '') {
+                            if (substr($digits, 0, 1) === '0') {
+                                $digits = '62' . substr($digits, 1);
+                            }
+
+                            $tag = ' @' . $digits;
+                        } else {
+                            $tag = '';
+                        }
+
+                        $personilLines[] = '      ' . $i . '. ' . $nama . $tag;
+                        $i++;
+                    }
+                }
+
+                $keteranganLines = [];
+                $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+                if ($keterangan !== '') {
+                    $keteranganLines[] = '   📝 Keterangan:';
+                    $keteranganLines[] = '      ' . $keterangan;
+                }
+
+                $suratUrl = $this->getShortSuratUrl($kegiatan);
+                $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+
+                $data = [
+                    'no' => (string) $no,
+                    'judul' => (string) ($kegiatan->nama_kegiatan ?? '-'),
+                    'waktu' => (string) ($kegiatan->waktu ?? '-'),
+                    'tempat' => (string) ($kegiatan->tempat ?? '-'),
+                    'personil_block' => $this->formatTemplateInlineBlock($personilLines),
+                    'keterangan_block' => $this->formatTemplateInlineBlock($keteranganLines),
+                    'surat_line' => $this->formatTemplateLine(
+                        $suratUrl ? '   📎 Link Surat: ' . $suratUrl : ''
+                    ),
+                    'lampiran_line' => $this->formatTemplateLine(
+                        $lampiranUrl ? '   📎 Lampiran: ' . $lampiranUrl : ''
+                    ),
+                ];
+
+                $rendered[] = $templateService->renderString($itemTemplate, $data);
+                $no++;
+            }
+
+            return implode($separator, $rendered);
+        }
+
+        $lines = [];
+        $no = 1;
+
+        /** @var \App\Models\Kegiatan $kegiatan */
+        foreach ($items as $kegiatan) {
+            $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
+            $lines[] = '   ⏰ ' . ($kegiatan->waktu ?? '-');
+            $lines[] = '   📍 ' . ($kegiatan->tempat ?? '-');
+            $lines[] = '';
+
+            $personils = $kegiatan->personils ?? collect();
+
+            if ($personils->isNotEmpty()) {
+                $lines[] = '   👥 Penerima Disposisi:';
+
+                $i = 1;
+                foreach ($personils as $p) {
+                    $nama = trim((string) ($p->nama ?? ''));
+
+                    if ($nama === '') {
+                        continue;
+                    }
+
+                    $rawNo  = trim((string) ($p->no_wa ?? ''));
+                    $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
+
+                    if ($digits !== '') {
+                        if (substr($digits, 0, 1) === '0') {
+                            $digits = '62' . substr($digits, 1);
+                        }
+
+                        $tag = ' @' . $digits;
+                    } else {
+                        $tag = '';
+                    }
+
+                    $lines[] = '      ' . $i . '. ' . $nama . $tag;
+                    $i++;
+                }
+
+                $lines[] = '';
+            }
+
+            $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+            if ($keterangan !== '') {
+                $lines[] = '   📝 Keterangan:';
+                $lines[] = '      ' . $keterangan;
+                $lines[] = '';
+            }
+
+            $suratUrl = $this->getShortSuratUrl($kegiatan);
+            if ($suratUrl) {
+                $lines[] = '   📎 Link Surat: ' . $suratUrl;
+                $lines[] = '';
+            }
+
+            $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+            if ($lampiranUrl) {
+                $lines[] = '   📎 Lampiran: ' . $lampiranUrl;
+                $lines[] = '';
+            }
+
+            $no++;
+        }
+
+        return implode("\n", $lines);
+    }
+
+    protected function buildBelumDisposisiAgendaList(Collection $items): string
+    {
+        if ($items->isEmpty()) {
+            return '_Tidak ada agenda yang berstatus menunggu disposisi._';
+        }
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+        $meta = $templateService->metaFor('group_belum_disposisi');
+        $itemTemplate = trim((string) ($meta['item_template'] ?? ''));
+        $separator = (string) ($meta['item_separator'] ?? "\n\n");
+
+        if ($itemTemplate !== '') {
+            $rendered = [];
+            $no = 1;
+
+            /** @var \App\Models\Kegiatan $kegiatan */
+            foreach ($items as $kegiatan) {
+                $suratUrl = $this->getShortSuratUrl($kegiatan);
+                $suratBlock = '';
+
+                if ($suratUrl) {
+                    $suratBlock = $this->formatTemplateInlineBlock([
+                        '📎 *Lihat Surat (PDF)*',
+                        $suratUrl,
+                    ]);
+                }
+
+                $data = [
+                    'no' => (string) $no,
+                    'judul' => (string) ($kegiatan->nama_kegiatan ?? '-'),
+                    'tanggal' => (string) ($kegiatan->tanggal_label ?? '-'),
+                    'waktu' => (string) ($kegiatan->waktu ?? '-'),
+                    'tempat' => (string) ($kegiatan->tempat ?? '-'),
+                    'surat_block' => $suratBlock,
+                ];
+
+                $rendered[] = $templateService->renderString($itemTemplate, $data);
+                $no++;
+            }
+
+            $rendered[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
+
+            return implode($separator, $rendered);
+        }
+
+        $lines = [];
+        $no = 1;
+
+        /** @var \App\Models\Kegiatan $kegiatan */
+        foreach ($items as $kegiatan) {
+            if ($no > 1) {
+                $lines[] = '────────────────────────';
+            }
+
+            $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
+            $lines[] = ' *Tanggal*     : ' . ($kegiatan->tanggal_label ?? '-');
+            $lines[] = ' *Waktu*       : ' . ($kegiatan->waktu ?? '-');
+            $lines[] = ' *Tempat*      : ' . ($kegiatan->tempat ?? '-');
+            $lines[] = '';
+            $lines[] = '';
+
+            $suratUrl = $this->getShortSuratUrl($kegiatan);
+            if ($suratUrl) {
+                $lines[] = '📎 *Lihat Surat (PDF)*';
+                $lines[] = $suratUrl;
+            }
+
+            $lines[] = '';
+            $no++;
+        }
+
+        $lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
+
+        return implode("\n", $lines);
     }
 
     /**

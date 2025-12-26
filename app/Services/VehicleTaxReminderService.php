@@ -163,6 +163,20 @@ class VehicleTaxReminderService
         $lines[] = '';
         $lines[] = 'Terima Kasih';
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $data = [
+            'type_label' => $typeLabel,
+            'pemegang' => $pemegang,
+            'jenis' => $jenis,
+            'plat' => $plat,
+            'pengurus_label' => $pengurusLabel,
+            'due_date' => $dueDate->locale('id')->isoFormat('D MMMM Y'),
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('vehicle_tax_reminder', $data, $fallback);
     }
 }
