@@ -4,7 +4,7 @@
     </form>
 
     <div class="grid gap-6 lg:grid-cols-2">
-        <x-filament::section heading="Nomor Surat Tersedia">
+        <x-filament::section heading="Nomor Surat Tersedia (Global)">
             <textarea
                 class="w-full rounded-lg border-none bg-gray-100/70 p-3 text-sm text-gray-900 dark:bg-white/5 dark:text-white"
                 rows="12"
@@ -12,7 +12,7 @@
             >{{ $availableList }}</textarea>
         </x-filament::section>
 
-        <x-filament::section heading="Nomor Surat Dibooking">
+        <x-filament::section heading="Nomor Surat Dibooking (Global)">
             <textarea
                 class="w-full rounded-lg border-none bg-gray-100/70 p-3 text-sm text-gray-900 dark:bg-white/5 dark:text-white"
                 rows="12"

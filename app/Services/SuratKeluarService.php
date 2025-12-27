@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\KodeSurat;
 use App\Models\SuratKeluar;
 use App\Models\SuratKeluarCounter;
+use App\Models\SuratKeluarGlobalCounter;
 use Illuminate\Support\Facades\DB;
 
 class SuratKeluarService
@@ -18,24 +19,20 @@ class SuratKeluarService
         $tanggalSurat = $context['tanggal_surat'] ?? now();
 
         return DB::transaction(function () use ($kodeSurat, $perihal, $context, $tahun, $tanggalSurat) {
-            $counter = SuratKeluarCounter::query()
-                ->where('kode_surat_id', $kodeSurat->id)
+            $counter = SuratKeluarGlobalCounter::query()
                 ->where('tahun', $tahun)
                 ->lockForUpdate()
                 ->first();
 
             if (! $counter) {
-                $counter = SuratKeluarCounter::create([
-                    'kode_surat_id' => $kodeSurat->id,
+                $counter = SuratKeluarGlobalCounter::create([
                     'tahun' => $tahun,
                     'last_number' => 0,
                 ]);
             }
 
-            $base = (int) ($counter->last_number ?? 0);
-            $nextNumber = $this->nextAvailableMasterNumber($kodeSurat->id, $tahun, $base + 1);
-
-            $counter->last_number = $nextNumber;
+            $nextNumber = $this->nextAvailableGlobalNumber($tahun);
+            $counter->last_number = max((int) ($counter->last_number ?? 0), $nextNumber);
             $counter->save();
 
             return SuratKeluar::create([
@@ -103,7 +100,6 @@ class SuratKeluarService
 
         return DB::transaction(function () use ($kodeSurat, $tahun, $nomor, $context, $tanggalBooking) {
             $exists = SuratKeluar::query()
-                ->where('kode_surat_id', $kodeSurat->id)
                 ->where('tahun', $tahun)
                 ->where('nomor_urut', $nomor)
                 ->where('nomor_sisipan', 0)
@@ -133,14 +129,7 @@ class SuratKeluarService
 
     public function previewNextMasterNumber(KodeSurat $kodeSurat, int $tahun): int
     {
-        $counter = SuratKeluarCounter::query()
-            ->where('kode_surat_id', $kodeSurat->id)
-            ->where('tahun', $tahun)
-            ->first();
-
-        $base = (int) ($counter?->last_number ?? 0);
-
-        return $this->nextAvailableMasterNumber($kodeSurat->id, $tahun, $base + 1);
+        return $this->nextAvailableGlobalNumber($tahun);
     }
 
     public function previewNextSisipanNumber(SuratKeluar $master): int
@@ -228,19 +217,76 @@ class SuratKeluarService
         ];
     }
 
-    protected function nextAvailableMasterNumber(int $kodeSuratId, int $tahun, int $start): int
+    /**
+     * @return array{available: array<int, int>, booked: array<int, array{nomor: int, booked_at: string|null, kode: string|null}>}
+     */
+    public function getGlobalNumberingStatus(int $tahun): array
     {
-        $candidate = $start;
-
-        while (SuratKeluar::query()
-            ->where('kode_surat_id', $kodeSuratId)
+        $masters = SuratKeluar::query()
             ->where('tahun', $tahun)
-            ->where('nomor_urut', $candidate)
             ->where('nomor_sisipan', 0)
-            ->exists()) {
-            $candidate++;
+            ->with('kodeSurat:id,kode')
+            ->get(['nomor_urut', 'status', 'booked_at', 'kode_surat_id']);
+
+        $used = $masters->pluck('nomor_urut')->map(fn ($value) => (int) $value)->unique()->values();
+
+        $maxExisting = $used->max() ?? 0;
+        $counter = SuratKeluarGlobalCounter::query()
+            ->where('tahun', $tahun)
+            ->first();
+
+        $maxNumber = max((int) ($counter?->last_number ?? 0), (int) $maxExisting);
+
+        $available = [];
+        if ($maxNumber > 0) {
+            for ($i = 1; $i <= $maxNumber; $i++) {
+                if (! $used->contains($i)) {
+                    $available[] = $i;
+                }
+            }
         }
 
-        return $candidate;
+        $booked = $masters
+            ->where('status', SuratKeluar::STATUS_BOOKED)
+            ->sortBy('nomor_urut')
+            ->map(fn (SuratKeluar $surat) => [
+                'nomor' => (int) $surat->nomor_urut,
+                'booked_at' => $surat->booked_at?->format('d/m/Y'),
+                'kode' => $surat->kodeSurat?->kode,
+            ])
+            ->values()
+            ->all();
+
+        return [
+            'available' => $available,
+            'booked' => $booked,
+        ];
+    }
+
+    protected function nextAvailableGlobalNumber(int $tahun): int
+    {
+        $numbers = SuratKeluar::query()
+            ->where('tahun', $tahun)
+            ->where('nomor_sisipan', 0)
+            ->orderBy('nomor_urut')
+            ->pluck('nomor_urut')
+            ->map(fn ($value) => (int) $value);
+
+        $expected = 1;
+
+        foreach ($numbers as $number) {
+            if ($number < $expected) {
+                continue;
+            }
+
+            if ($number === $expected) {
+                $expected++;
+                continue;
+            }
+
+            break;
+        }
+
+        return $expected;
     }
 }
