@@ -100,8 +100,9 @@ class LayananPublikRequestService
     protected function notifyStatusChange(LayananPublikRequest $request): void
     {
         if (! in_array($request->status, [
-            LayananPublikRequest::STATUS_COMPLETED,
+            LayananPublikRequest::STATUS_READY,
             LayananPublikRequest::STATUS_PICKED_BY_VILLAGE,
+            LayananPublikRequest::STATUS_COMPLETED,
         ], true)) {
             return;
         }
@@ -111,22 +112,33 @@ class LayananPublikRequestService
             return;
         }
 
-        $layanan = $request->layanan?->nama ?? 'Layanan Publik';
-        $statusLabel = $request->status_label;
-        $url = url('/layanan/status/' . $request->kode_register);
+        $message = null;
 
-        $message = "*Informasi Layanan Publik*\n"
-            . "Kode: *{$request->kode_register}*\n"
-            . "Layanan: *{$layanan}*\n"
-            . "Status: *{$statusLabel}*\n";
-
-        if ($request->status === LayananPublikRequest::STATUS_PICKED_BY_VILLAGE) {
-            $nama = $request->perangkat_desa_nama ?: '-';
-            $wa = $request->perangkat_desa_wa ?: '-';
-            $message .= "Diambil oleh: {$nama} ({$wa})\n";
+        if ($request->status === LayananPublikRequest::STATUS_READY) {
+            $layanan = $request->layanan?->nama ?? 'Layanan Publik';
+            $message = "*Informasi Layanan Publik*\n"
+                . "Kode: *{$request->kode_register}*\n"
+                . "Layanan: *{$layanan}*\n"
+                . "Status: *Siap Diambil*\n"
+                . "Berkas/dokumen yang diminta sudah bisa diambil di kantor kecamatan.";
         }
 
-        $message .= "Cek status: {$url}";
+        if (in_array($request->status, [
+            LayananPublikRequest::STATUS_PICKED_BY_VILLAGE,
+            LayananPublikRequest::STATUS_COMPLETED,
+        ], true)) {
+            $message = 'Terima Kasih, Kami terus berupaya memberikan pelayanan yang terbaik, mohon memberikan penilaian atas pelayanan yang sudah diterima, Mohon tunggu kami akan mengirimkan link Survey Pelayanan Masyarakat';
+
+            if ($request->status === LayananPublikRequest::STATUS_PICKED_BY_VILLAGE) {
+                $nama = $request->perangkat_desa_nama ?: '-';
+                $wa = $request->perangkat_desa_wa ?: '-';
+                $message .= "\nBerkas diambil oleh perangkat desa: {$nama} ({$wa})";
+            }
+        }
+
+        if (! $message) {
+            return;
+        }
 
         try {
             app(WaGatewayService::class)->sendPersonalText([$recipient], $message);
