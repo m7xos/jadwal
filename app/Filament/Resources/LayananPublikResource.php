@@ -41,6 +41,21 @@ class LayananPublikResource extends Resource
                     TextInput::make('nama')
                         ->label('Nama Layanan')
                         ->required(),
+                    Select::make('kategori')
+                        ->label('Kategori')
+                        ->options([
+                            'Adminduk - Offline (Kantor Kecamatan)' => 'Adminduk - Offline (Kantor Kecamatan)',
+                            'Adminduk - Online (Pandawa)' => 'Adminduk - Online (Pandawa)',
+                        ])
+                        ->searchable()
+                        ->placeholder('Pilih atau ketik kategori')
+                        ->createOptionForm([
+                            TextInput::make('kategori')
+                                ->label('Kategori')
+                                ->required(),
+                        ])
+                        ->createOptionUsing(fn (array $data) => $data['kategori'])
+                        ->dehydrateStateUsing(fn ($state) => is_string($state) ? $state : null),
                     Textarea::make('deskripsi')
                         ->label('Deskripsi')
                         ->rows(3),
@@ -60,6 +75,10 @@ class LayananPublikResource extends Resource
                     ->label('Nama Layanan')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('kategori')
+                    ->label('Kategori')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\IconColumn::make('aktif')
                     ->label('Aktif')
                     ->boolean()

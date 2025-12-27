@@ -16,6 +16,7 @@ class LayananPublikRequest extends Model
     protected $fillable = [
         'layanan_publik_id',
         'kode_register',
+        'queue_number',
         'nama_pemohon',
         'no_wa_pemohon',
         'status',
@@ -28,6 +29,7 @@ class LayananPublikRequest extends Model
     ];
 
     protected $casts = [
+        'queue_number' => 'int',
         'tanggal_masuk' => 'date',
         'tanggal_selesai' => 'date',
     ];

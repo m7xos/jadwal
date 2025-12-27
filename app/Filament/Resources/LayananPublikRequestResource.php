@@ -51,7 +51,7 @@ class LayananPublikRequestResource extends Resource
                             ->orderBy('nama')
                             ->get()
                             ->mapWithKeys(fn (LayananPublik $layanan) => [
-                                $layanan->id => $layanan->nama,
+                                $layanan->id => self::formatLayananLabel($layanan),
                             ])
                             ->all())
                         ->getSearchResultsUsing(function (string $search): array {
@@ -59,12 +59,18 @@ class LayananPublikRequestResource extends Resource
 
                             return LayananPublik::query()
                                 ->where('aktif', true)
-                                ->when($search !== '', fn ($query) => $query->where('nama', 'like', '%' . $search . '%'))
+                                ->when($search !== '', function ($query) use ($search) {
+                                    $query->where(function ($builder) use ($search) {
+                                        $builder
+                                            ->where('nama', 'like', '%' . $search . '%')
+                                            ->orWhere('kategori', 'like', '%' . $search . '%');
+                                    });
+                                })
                                 ->orderBy('nama')
                                 ->limit(50)
                                 ->get()
                                 ->mapWithKeys(fn (LayananPublik $layanan) => [
-                                    $layanan->id => $layanan->nama,
+                                    $layanan->id => self::formatLayananLabel($layanan),
                                 ])
                                 ->all();
                         })
@@ -75,7 +81,7 @@ class LayananPublikRequestResource extends Resource
 
                             $layanan = LayananPublik::find($value);
 
-                            return $layanan?->nama;
+                            return $layanan ? self::formatLayananLabel($layanan) : null;
                         })
                         ->createOptionForm([
                             TextInput::make('nama')
@@ -110,6 +116,10 @@ class LayananPublikRequestResource extends Resource
                     Placeholder::make('kode_register')
                         ->label('Kode Register')
                         ->content(fn (?LayananPublikRequest $record) => $record?->kode_register ?? '-')
+                        ->visible(fn (?LayananPublikRequest $record) => (bool) $record),
+                    Placeholder::make('queue_number')
+                        ->label('No Antrian')
+                        ->content(fn (?LayananPublikRequest $record) => $record?->queue_number ?? '-')
                         ->visible(fn (?LayananPublikRequest $record) => (bool) $record),
                 ])
                 ->columns(2),
@@ -157,10 +167,16 @@ class LayananPublikRequestResource extends Resource
                     ->label('Kode Register')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('queue_number')
+                    ->label('No Antrian')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('layanan.nama')
                     ->label('Layanan')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('layanan.kategori')
+                    ->label('Kategori')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('nama_pemohon')
                     ->label('Pemohon')
                     ->searchable(),
@@ -228,5 +244,14 @@ class LayananPublikRequestResource extends Resource
             'create' => CreateLayananPublikRequest::route('/create'),
             'edit' => EditLayananPublikRequest::route('/{record}/edit'),
         ];
+    }
+
+    protected static function formatLayananLabel(LayananPublik $layanan): string
+    {
+        if ($layanan->kategori) {
+            return $layanan->nama . ' (' . $layanan->kategori . ')';
+        }
+
+        return $layanan->nama;
     }
 }

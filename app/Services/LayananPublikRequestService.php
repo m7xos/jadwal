@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\LayananPublikRequest;
 use App\Models\LayananPublikStatusLog;
 use App\Support\PhoneNumber;
+use App\Support\RoleAccess;
+use Filament\Notifications\Notification;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 
@@ -15,9 +18,9 @@ class LayananPublikRequestService
      */
     public function createRequest(array $data, ?int $personilId = null): LayananPublikRequest
     {
-        $kodeRegister = $this->generateRegisterCode();
         $status = $data['status'] ?? LayananPublikRequest::STATUS_REGISTERED;
         $tanggalSelesai = $data['tanggal_selesai'] ?? null;
+        $tanggalMasuk = $data['tanggal_masuk'] ?? now();
 
         if (! $tanggalSelesai && in_array($status, [
             LayananPublikRequest::STATUS_COMPLETED,
@@ -26,23 +29,30 @@ class LayananPublikRequestService
             $tanggalSelesai = now();
         }
 
-        $request = LayananPublikRequest::create([
-            'layanan_publik_id' => $data['layanan_publik_id'],
-            'kode_register' => $kodeRegister,
-            'nama_pemohon' => $data['nama_pemohon'],
-            'no_wa_pemohon' => $data['no_wa_pemohon'] ?? null,
-            'status' => $status,
-            'tanggal_masuk' => $data['tanggal_masuk'] ?? now(),
-            'tanggal_selesai' => $tanggalSelesai,
-            'perangkat_desa_nama' => $data['perangkat_desa_nama'] ?? null,
-            'perangkat_desa_wa' => $data['perangkat_desa_wa'] ?? null,
-            'catatan' => $data['catatan'] ?? null,
-            'source' => $data['source'] ?? 'manual',
-        ]);
+        $request = DB::transaction(function () use ($data, $status, $tanggalSelesai, $tanggalMasuk) {
+            $kodeRegister = $this->generateRegisterCode();
+            $queueNumber = $this->nextQueueNumber($tanggalMasuk);
+
+            return LayananPublikRequest::create([
+                'layanan_publik_id' => $data['layanan_publik_id'],
+                'kode_register' => $kodeRegister,
+                'queue_number' => $queueNumber,
+                'nama_pemohon' => $data['nama_pemohon'],
+                'no_wa_pemohon' => $data['no_wa_pemohon'] ?? null,
+                'status' => $status,
+                'tanggal_masuk' => $tanggalMasuk,
+                'tanggal_selesai' => $tanggalSelesai,
+                'perangkat_desa_nama' => $data['perangkat_desa_nama'] ?? null,
+                'perangkat_desa_wa' => $data['perangkat_desa_wa'] ?? null,
+                'catatan' => $data['catatan'] ?? null,
+                'source' => $data['source'] ?? 'manual',
+            ]);
+        });
 
         $catatan = $data['catatan_progres'] ?? null;
         $this->logStatus($request, $status, $catatan, $personilId);
         $this->notifyStatusChange($request);
+        $this->notifyNewRequest($request);
 
         return $request;
     }
@@ -145,5 +155,47 @@ class LayananPublikRequestService
         } while (LayananPublikRequest::query()->where('kode_register', $candidate)->exists());
 
         return $candidate;
+    }
+
+    protected function nextQueueNumber($tanggalMasuk): int
+    {
+        $tanggal = $tanggalMasuk instanceof \DateTimeInterface ? $tanggalMasuk : now();
+
+        $last = LayananPublikRequest::query()
+            ->whereDate('tanggal_masuk', $tanggal)
+            ->orderByDesc('queue_number')
+            ->lockForUpdate()
+            ->value('queue_number');
+
+        return ((int) $last) + 1;
+    }
+
+    protected function notifyNewRequest(LayananPublikRequest $request): void
+    {
+        if (! $request->relationLoaded('layanan')) {
+            $request->load('layanan');
+        }
+
+        $layanan = $request->layanan?->nama ?? 'Layanan Publik';
+        $title = 'Permohonan layanan baru';
+        $body = 'Kode: ' . $request->kode_register
+            . ' · Antrian: ' . ($request->queue_number ?? '-')
+            . ' · Layanan: ' . $layanan
+            . ' · Pemohon: ' . $request->nama_pemohon;
+
+        $personils = \App\Models\Personil::query()
+            ->whereNotNull('role')
+            ->get();
+
+        foreach ($personils as $personil) {
+            if (! RoleAccess::canSeeNav($personil, 'filament.admin.resources.layanan-publik-register')) {
+                continue;
+            }
+
+            Notification::make()
+                ->title($title)
+                ->body($body)
+                ->sendToDatabase($personil);
+        }
     }
 }

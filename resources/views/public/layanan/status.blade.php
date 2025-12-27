@@ -37,6 +37,7 @@
                         <div>
                             <p class="text-xs uppercase tracking-wide text-slate-500">Kode Register</p>
                             <p class="text-xl font-bold text-slate-800">{{ $layanan->kode_register }}</p>
+                            <p class="text-sm text-slate-500 mt-1">No Antrian: <span class="font-semibold text-slate-700">{{ $layanan->queue_number ?? '-' }}</span></p>
                         </div>
                         <div class="px-3 py-2 rounded-xl bg-sky-50 border border-sky-200">
                             <p class="text-xs uppercase tracking-wide text-sky-600">Status</p>
@@ -49,6 +50,12 @@
                             <p class="text-xs uppercase tracking-wide text-slate-500">Layanan</p>
                             <p class="text-base font-semibold text-slate-800">
                                 {{ $layanan->layanan?->nama ?? '-' }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs uppercase tracking-wide text-slate-500">Kategori</p>
+                            <p class="text-base font-semibold text-slate-800">
+                                {{ $layanan->layanan?->kategori ?? '-' }}
                             </p>
                         </div>
                         <div>

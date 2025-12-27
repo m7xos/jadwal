@@ -35,6 +35,10 @@ Route::get('/layanan/status/{kode}', [PublicLayananController::class, 'show'])
 Route::get('/layanan/register/{kode}/print', [PublicLayananController::class, 'print'])
     ->middleware('signed')
     ->name('public.layanan.register.print');
+Route::get('/layanan/daftar', [PublicLayananController::class, 'create'])
+    ->name('public.layanan.register');
+Route::post('/layanan/daftar', [PublicLayananController::class, 'store'])
+    ->name('public.layanan.register.store');
 	
 
 Route::view('/pengingat-audio', 'pengingat.audio')

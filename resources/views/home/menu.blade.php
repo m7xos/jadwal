@@ -131,6 +131,36 @@
                     </div>
                 </a>
 
+                {{-- Kartu: Pendaftaran Layanan Publik --}}
+                <a href="{{ route('public.layanan.register') }}"
+                   class="group bg-white/90 border border-slate-200 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition p-5 flex flex-col">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="h-10 w-10 rounded-xl bg-rose-100 flex items-center justify-center">
+                            <span class="text-rose-600 text-xl">📝</span>
+                        </div>
+                        <span class="text-[11px] px-2 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-100">
+                            Publik
+                        </span>
+                    </div>
+                    <h2 class="text-lg font-semibold mb-1 text-slate-900 group-hover:text-rose-700">
+                        Pendaftaran Layanan Publik
+                    </h2>
+                    <p class="text-sm text-slate-600 flex-1">
+                        Daftar layanan publik dan dapatkan kode register serta nomor antrian untuk cek status.
+                    </p>
+                    <div class="mt-4 text-xs text-slate-500 flex items-center justify-between">
+                        <span>Isi nama, nomor WA, dan layanan</span>
+                        <span class="inline-flex items-center gap-1 text-rose-600">
+                            Buka
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 17L17 7"/>
+                                <path d="M7 7h10v10"/>
+                            </svg>
+                        </span>
+                    </div>
+                </a>
+
                 @if (config('app.show_admin_panel_menu'))
                     {{-- Kartu: Pengingat Pajak Kendaraan --}}
                     <a href="{{ url('/admin/pajak-kendaraan') }}"

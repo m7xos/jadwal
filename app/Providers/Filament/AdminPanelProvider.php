@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Widgets\AgendaPerHariChart;
 use App\Filament\Widgets\AgendaStatsOverview;
+use App\Filament\Widgets\LayananPublikRequestsWidget;
 use App\Filament\Widgets\VehicleStatsOverview;
 use App\Filament\Pages\LaporanSuratMasukBulanan;
 use App\Filament\Pages\RoleAccessSettings;
@@ -106,6 +107,7 @@ class AdminPanelProvider extends PanelProvider
             )
             ->widgets([
                 AgendaStatsOverview::class,
+                LayananPublikRequestsWidget::class,
                 AgendaPerHariChart::class,
                 VehicleStatsOverview::class,
             ])

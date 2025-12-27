@@ -8,6 +8,7 @@ class LayananPublik extends Model
 {
     protected $fillable = [
         'nama',
+        'kategori',
         'deskripsi',
         'aktif',
     ];

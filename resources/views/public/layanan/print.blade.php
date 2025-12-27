@@ -67,6 +67,17 @@
 
         <div class="row">
             <div>
+                <div class="label">No Antrian</div>
+                <div class="value">{{ $layanan->queue_number ?? '-' }}</div>
+            </div>
+            <div>
+                <div class="label">Status</div>
+                <div class="value">{{ $layanan->status_label }}</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div>
                 <div class="label">Nama Pemohon</div>
                 <div class="value">{{ $layanan->nama_pemohon }}</div>
             </div>
@@ -78,9 +89,12 @@
 
         <div class="row">
             <div>
-                <div class="label">Status</div>
-                <div class="value">{{ $layanan->status_label }}</div>
+                <div class="label">Kategori</div>
+                <div class="value">{{ $layanan->layanan?->kategori ?? '-' }}</div>
             </div>
+        </div>
+
+        <div class="row">
             <div>
                 <div class="label">Nomor WA Pemohon</div>
                 <div class="value">{{ $layanan->no_wa_pemohon ?? '-' }}</div>

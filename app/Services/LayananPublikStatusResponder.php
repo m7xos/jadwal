@@ -37,6 +37,7 @@ class LayananPublikStatusResponder
         $message = "*Status Layanan Publik*\n"
             . "Kode: *{$request->kode_register}*\n"
             . "Layanan: *{$layanan}*\n"
+            . "No Antrian: *" . ($request->queue_number ?? '-') . "*\n"
             . "Status: *{$status}*\n";
 
         if ($lastUpdate) {
