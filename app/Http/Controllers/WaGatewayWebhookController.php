@@ -339,7 +339,7 @@ class WaGatewayWebhookController extends Controller
         return implode("\n", [
             '*Topik Surat Keluar*',
             '1) Ketik di grup: minta nomor surat keluar',
-            '2) Bot balas via chat pribadi: minta kode klasifikasi (contoh 000.1)',
+            '2) Aku balas via chat pribadi: minta kode klasifikasi (contoh 000.1)',
             '3) Balas dengan Hal Surat, lalu nomor dikirim kembali',
         ]);
     }
