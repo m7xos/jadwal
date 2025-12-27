@@ -29,6 +29,10 @@ class WaGatewayWebhookController extends Controller
             return response()->json(['status' => 'ok']);
         }
 
+        if ($this->handleHelpCommand($payload, $waGateway)) {
+            return response()->json(['status' => 'ok']);
+        }
+
         if (app(SuratKeluarRequestService::class)->handleIncoming($payload, $waGateway)) {
             return response()->json(['status' => 'ok']);
         }
@@ -254,6 +258,178 @@ class WaGatewayWebhookController extends Controller
         $waGateway->sendPersonalText([$sender], $thanks);
 
         return true;
+    }
+
+    protected function handleHelpCommand(array $payload, WaGatewayService $waGateway): bool
+    {
+        $text = $this->extractIncomingText($payload);
+        if ($text === null) {
+            return false;
+        }
+
+        if (! preg_match('/^help(\\s|$)/i', $text)) {
+            return false;
+        }
+
+        $topic = strtolower(trim(preg_replace('/^help\\s*/i', '', $text)));
+        $message = $this->helpMessageFor($topic);
+
+        return $this->sendHelpReply($payload, $waGateway, $message);
+    }
+
+    protected function helpMessageFor(string $topic): string
+    {
+        if ($topic === '') {
+            return $this->helpOverviewMessage();
+        }
+
+        if (str_contains($topic, 'jadwal') || str_contains($topic, 'agenda') || str_contains($topic, 'kegiatan')) {
+            return $this->helpAgendaMessage();
+        }
+
+        if (str_contains($topic, 'tl') || str_contains($topic, 'disposisi') || str_contains($topic, 'tindak lanjut')) {
+            return $this->helpTlMessage();
+        }
+
+        if (str_contains($topic, 'surat')) {
+            return $this->helpSuratMessage();
+        }
+
+        if (str_contains($topic, 'pajak') || str_contains($topic, 'kendaraan')) {
+            return $this->helpPajakMessage();
+        }
+
+        return $this->helpOverviewMessage();
+    }
+
+    protected function helpOverviewMessage(): string
+    {
+        return implode("\n", [
+            '*Bantuan Singkat*',
+            'Pilih topik yang ingin kamu ketahui:',
+            '1) Jadwal/Agenda → ketik: help jadwal',
+            '2) Disposisi/TL → ketik: help tl',
+            '3) Surat Keluar → ketik: help surat',
+            '4) Pajak Kendaraan → ketik: help pajak',
+        ]);
+    }
+
+    protected function helpAgendaMessage(): string
+    {
+        return implode("\n", [
+            '*Topik Jadwal/Agenda*',
+            '- jadwal hari ini',
+            '- jadwal besok',
+            '- jadwal belum disposisi hari ini',
+            '- jadwal belum disposisi besok',
+        ]);
+    }
+
+    protected function helpTlMessage(): string
+    {
+        return implode("\n", [
+            '*Topik Disposisi/TL*',
+            '- Format: TL-<kode> selesai',
+            '- Contoh: TL-123 selesai',
+        ]);
+    }
+
+    protected function helpSuratMessage(): string
+    {
+        return implode("\n", [
+            '*Topik Surat Keluar*',
+            '1) Ketik di grup: minta nomor surat keluar',
+            '2) Bot balas via chat pribadi: minta kode klasifikasi (contoh 000.1)',
+            '3) Balas dengan Hal Surat, lalu nomor dikirim kembali',
+        ]);
+    }
+
+    protected function helpPajakMessage(): string
+    {
+        return implode("\n", [
+            '*Topik Pajak Kendaraan*',
+            '- Format: pajak-<plat> terbayar',
+            '- Contoh: pajak-N1234AB terbayar',
+        ]);
+    }
+
+    protected function sendHelpReply(array $payload, WaGatewayService $waGateway, string $message): bool
+    {
+        if (($payload['isGroup'] ?? false) === true) {
+            $groupId = $this->extractGroupId($payload) ?? trim((string) ($payload['from'] ?? ''));
+            if ($groupId !== '') {
+                $result = $waGateway->sendTextToSpecificGroup($groupId, $message);
+
+                return (bool) ($result['success'] ?? false);
+            }
+        }
+
+        $sender = $this->extractSenderNumberForHelp($payload);
+        if (! $sender) {
+            return false;
+        }
+
+        $result = $waGateway->sendPersonalText([$sender], $message);
+
+        return (bool) ($result['success'] ?? false);
+    }
+
+    protected function extractIncomingText(array $payload): ?string
+    {
+        $message = $payload['message'] ?? null;
+        if (is_string($message) && trim($message) !== '') {
+            return trim($message);
+        }
+
+        if (is_array($message)) {
+            foreach (['text', 'conversation', 'caption', 'body'] as $key) {
+                $value = $message[$key] ?? null;
+                if (is_string($value) && trim($value) !== '') {
+                    return trim($value);
+                }
+            }
+        }
+
+        $candidates = [
+            $payload['text'] ?? null,
+            $payload['body'] ?? null,
+            data_get($payload, 'message.text'),
+            data_get($payload, 'message.conversation'),
+            data_get($payload, 'message.caption'),
+            data_get($payload, 'message.body'),
+        ];
+
+        foreach ($candidates as $text) {
+            if (is_string($text) && trim($text) !== '') {
+                return trim($text);
+            }
+        }
+
+        return null;
+    }
+
+    protected function extractSenderNumberForHelp(array $payload): ?string
+    {
+        $candidates = [
+            (string) ($payload['participant'] ?? ''),
+            (string) ($payload['sender'] ?? ''),
+            (string) ($payload['from'] ?? ''),
+        ];
+
+        foreach ($candidates as $raw) {
+            if ($raw === '' || str_contains($raw, '@g.us') || str_contains($raw, '@lid')) {
+                continue;
+            }
+
+            $digits = preg_replace('/[^0-9]/', '', $raw) ?? '';
+            if ($digits === '') {
+                continue;
+            }
+
+            return $this->normalizeNumber($digits);
+        }
+
+        return null;
     }
 
     protected function resolveKegiatanForCompletion(?int $kegiatanId = null): ?Kegiatan

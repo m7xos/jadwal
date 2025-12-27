@@ -18,19 +18,22 @@ class SuratKeluarRequestService
         }
 
         $sender = $this->extractSenderNumber($payload);
-        if (! $sender) {
-            return false;
-        }
-
         $normalizedMessage = strtolower(preg_replace('/\s+/', ' ', $message));
         $groupId = $this->extractGroupId($payload);
 
         if ($this->isStartCommand($normalizedMessage)) {
+            if (! $sender) {
+                return false;
+            }
+
             $this->startRequest($sender, $groupId, $waGateway);
             return true;
         }
 
-        $request = SuratKeluarRequest::activeFor($sender)->first();
+        $request = $sender ? SuratKeluarRequest::activeFor($sender)->first() : null;
+        if (! $request && ! $sender) {
+            $request = $this->resolveFallbackRequest($message);
+        }
         if (! $request) {
             return false;
         }
@@ -176,6 +179,31 @@ class SuratKeluarRequestService
         return str_contains($message, 'minta nomor surat');
     }
 
+    protected function resolveFallbackRequest(string $message): ?SuratKeluarRequest
+    {
+        $candidates = SuratKeluarRequest::query()
+            ->whereIn('status', [
+                SuratKeluarRequest::STATUS_WAITING_KLASIFIKASI,
+                SuratKeluarRequest::STATUS_WAITING_HAL,
+            ])
+            ->orderByDesc('updated_at')
+            ->limit(2)
+            ->get();
+
+        if ($candidates->count() !== 1) {
+            return null;
+        }
+
+        $request = $candidates->first();
+
+        Log::warning('Surat keluar request fallback dipakai (sender tidak terbaca)', [
+            'request_id' => $request?->id,
+            'message' => $message,
+        ]);
+
+        return $request;
+    }
+
     protected function extractText(array $payload): ?string
     {
         $message = $payload['message'] ?? null;
@@ -212,13 +240,22 @@ class SuratKeluarRequestService
 
     protected function extractSenderNumber(array $payload): ?string
     {
+        $isGroup = (bool) ($payload['isGroup'] ?? false);
         $candidates = [
             (string) ($payload['participant'] ?? ''),
             (string) ($payload['sender'] ?? ''),
-            (string) ($payload['from'] ?? ''),
+            $isGroup ? '' : (string) ($payload['from'] ?? ''),
         ];
 
         foreach ($candidates as $raw) {
+            if ($raw === '') {
+                continue;
+            }
+
+            if (str_contains($raw, '@g.us') || str_contains($raw, '@lid')) {
+                continue;
+            }
+
             $digits = preg_replace('/[^0-9]/', '', $raw) ?? '';
             if ($digits === '') {
                 continue;
