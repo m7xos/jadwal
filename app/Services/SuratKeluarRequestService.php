@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 
 class SuratKeluarRequestService
 {
+    private const REQUEST_TIMEOUT_MINUTES = 60;
+
     public function handleIncoming(array $payload, WaGatewayService $waGateway): bool
     {
         $message = $this->extractText($payload);
@@ -38,6 +40,16 @@ class SuratKeluarRequestService
             return false;
         }
 
+        if ($this->isExpired($request)) {
+            $this->cancelRequest($request, $waGateway, 'Permintaan nomor surat sudah kadaluarsa. Silakan ketik ulang.');
+            return true;
+        }
+
+        if ($this->isCancelCommand($normalizedMessage)) {
+            $this->cancelRequest($request, $waGateway, 'Permintaan nomor surat dibatalkan.');
+            return true;
+        }
+
         if ($request->status === SuratKeluarRequest::STATUS_WAITING_KLASIFIKASI) {
             $this->handleKlasifikasi($request, $message, $waGateway);
             return true;
@@ -56,12 +68,16 @@ class SuratKeluarRequestService
         $existing = SuratKeluarRequest::activeFor($sender)->first();
 
         if ($existing) {
-            $message = $existing->status === SuratKeluarRequest::STATUS_WAITING_HAL
-                ? 'Permintaan nomor surat masih aktif. Silakan kirim Hal Surat untuk melanjutkan.'
-                : 'Permintaan nomor surat masih aktif. Silakan kirim kode klasifikasi surat.';
+            if ($this->isExpired($existing)) {
+                $this->markCancelled($existing);
+            } else {
+                $message = $existing->status === SuratKeluarRequest::STATUS_WAITING_HAL
+                    ? 'Permintaan nomor surat masih aktif. Silakan kirim Hal Surat untuk melanjutkan.'
+                    : 'Permintaan nomor surat masih aktif. Silakan kirim kode klasifikasi surat.';
 
-            $waGateway->sendPersonalText([$sender], $message);
-            return;
+                $waGateway->sendPersonalText([$sender], $message);
+                return;
+            }
         }
 
         $requesterPersonilId = $this->resolvePersonilId($sender);
@@ -177,6 +193,36 @@ class SuratKeluarRequestService
         }
 
         return str_contains($message, 'minta nomor surat');
+    }
+
+    protected function isCancelCommand(string $message): bool
+    {
+        return $message === 'batal' || $message === 'batalkan';
+    }
+
+    protected function cancelRequest(SuratKeluarRequest $request, WaGatewayService $waGateway, string $message): void
+    {
+        $this->markCancelled($request);
+
+        $target = $request->requester_number ?: null;
+        if ($target) {
+            $waGateway->sendPersonalText([$target], $message);
+        }
+    }
+
+    protected function markCancelled(SuratKeluarRequest $request): void
+    {
+        $request->status = SuratKeluarRequest::STATUS_CANCELLED;
+        $request->save();
+    }
+
+    protected function isExpired(SuratKeluarRequest $request): bool
+    {
+        if (! $request->updated_at) {
+            return false;
+        }
+
+        return $request->updated_at->lt(now()->subMinutes(self::REQUEST_TIMEOUT_MINUTES));
     }
 
     protected function resolveFallbackRequest(string $message): ?SuratKeluarRequest

@@ -10,6 +10,7 @@ class SuratKeluarRequest extends Model
     public const STATUS_WAITING_KLASIFIKASI = 'waiting_klasifikasi';
     public const STATUS_WAITING_HAL = 'waiting_hal';
     public const STATUS_COMPLETED = 'completed';
+    public const STATUS_CANCELLED = 'cancelled';
 
     protected $fillable = [
         'requester_number',

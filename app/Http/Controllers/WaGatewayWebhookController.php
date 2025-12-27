@@ -283,6 +283,16 @@ class WaGatewayWebhookController extends Controller
             return $this->helpOverviewMessage();
         }
 
+        if (preg_match('/^([0-9]+)/', $topic, $matches)) {
+            return match ($matches[1]) {
+                '1' => $this->helpAgendaMessage(),
+                '2' => $this->helpTlMessage(),
+                '3' => $this->helpSuratMessage(),
+                '4' => $this->helpPajakMessage(),
+                default => $this->helpOverviewMessage(),
+            };
+        }
+
         if (str_contains($topic, 'jadwal') || str_contains($topic, 'agenda') || str_contains($topic, 'kegiatan')) {
             return $this->helpAgendaMessage();
         }
@@ -307,10 +317,11 @@ class WaGatewayWebhookController extends Controller
         return implode("\n", [
             '*Bantuan Singkat*',
             'Pilih topik yang ingin kamu ketahui:',
-            '1) Jadwal/Agenda → ketik: help jadwal',
-            '2) Disposisi/TL → ketik: help tl',
-            '3) Surat Keluar → ketik: help surat',
-            '4) Pajak Kendaraan → ketik: help pajak',
+            '1) Jadwal/Agenda',
+            '2) Disposisi/TL',
+            '3) Surat Keluar',
+            '4) Pajak Kendaraan',
+            'Balas: help 1 / help 2 / help 3 / help 4',
         ]);
     }
 
@@ -341,6 +352,8 @@ class WaGatewayWebhookController extends Controller
             '1) Ketik di grup: minta nomor surat keluar',
             '2) Aku balas via chat pribadi: minta kode klasifikasi (contoh 000.1)',
             '3) Balas dengan Hal Surat, lalu nomor dikirim kembali',
+            'Ketik "batal" untuk membatalkan permintaan',
+            'Jika 1 jam tidak ada respon, permintaan otomatis batal',
         ]);
     }
 
