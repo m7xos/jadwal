@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Enums\UserRole;
+use App\Support\PhoneNumber;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -25,6 +26,7 @@ class User extends Authenticatable implements FilamentUser
         'email',
         'password',
         'role',
+        'no_wa',
     ];
 
     /**
@@ -73,5 +75,10 @@ class User extends Authenticatable implements FilamentUser
     public function isPengguna(): bool
     {
         return $this->role === UserRole::Pengguna;
+    }
+
+    public function setNoWaAttribute($value): void
+    {
+        $this->attributes['no_wa'] = PhoneNumber::normalize($value);
     }
 }

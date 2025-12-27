@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Filament\Resources\SuratKeluarResource\Pages;
+
+use App\Filament\Resources\SuratKeluarResource;
+use App\Models\SuratKeluar;
+use Filament\Resources\Pages\EditRecord;
+
+class EditSuratKeluar extends EditRecord
+{
+    protected static string $resource = SuratKeluarResource::class;
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (($this->record->status ?? SuratKeluar::STATUS_ISSUED) === SuratKeluar::STATUS_BOOKED) {
+            $perihal = trim((string) ($data['perihal'] ?? ''));
+            $tanggalSurat = $data['tanggal_surat'] ?? null;
+
+            if ($perihal !== '' && $perihal !== SuratKeluar::BOOKED_PLACEHOLDER && ! empty($tanggalSurat)) {
+                $data['status'] = SuratKeluar::STATUS_ISSUED;
+            }
+        }
+
+        return $data;
+    }
+}

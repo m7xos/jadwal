@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use App\Models\PersonilCategory;
 
 class Kegiatan extends Model
 {
@@ -50,6 +51,12 @@ class Kegiatan extends Model
     public function personils()
     {
         return $this->belongsToMany(Personil::class, 'kegiatan_personil')
+            ->withTimestamps();
+    }
+
+    public function personilCategories(): BelongsToMany
+    {
+        return $this->belongsToMany(PersonilCategory::class, 'kegiatan_personil_category')
             ->withTimestamps();
     }
 

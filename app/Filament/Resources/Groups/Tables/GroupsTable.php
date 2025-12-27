@@ -29,20 +29,21 @@ class GroupsTable
                     ->boolean()
                     ->tooltip('Grup default untuk pengiriman satu grup'),
 
-                TextColumn::make('wablas_group_id')
-                    ->label('ID Grup Wablas')
+                TextColumn::make('wa_gateway_group_id')
+                    ->label('ID Grup WA Gateway')
                     ->searchable()
                     ->copyable(), 
 
                 TextColumn::make('personils_count')
-                    ->label('Jumlah Personil')
+                    ->label('JML Personil')
                     ->badge()
                     ->sortable(),
 
-                TextColumn::make('keterangan')
+               /** TextColumn::make('keterangan')
                     ->label('Keterangan')
                     ->limit(50)
                     ->tooltip(fn ($state) => $state),
+                */
             ])
             ->recordActions([
                 EditAction::make(),

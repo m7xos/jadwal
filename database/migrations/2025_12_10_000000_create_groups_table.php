@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('groups', function (Blueprint $table): void {
             $table->id();
             $table->string('nama');
-            $table->string('wablas_group_id')->nullable();
+            $table->string('wa_gateway_group_id')->nullable();
             $table->text('keterangan')->nullable();
             $table->timestamps();
         });

@@ -18,7 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PersonilCategorySeeder::class,
             PersonilAdminSeeder::class,
-			GroupSeeder::class,
         ]);
     }
 }

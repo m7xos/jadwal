@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class VehicleTaxReminderService
 {
-    public function __construct(protected WablasService $wablas)
+    public function __construct(protected WaGatewayService $waGateway)
     {
     }
 
@@ -25,10 +25,10 @@ class VehicleTaxReminderService
     {
         $type = $type === 'lima_tahunan' ? 'lima_tahunan' : 'tahunan';
 
-        if (! $this->wablas->isConfigured()) {
+        if (! $this->waGateway->isConfigured()) {
             return [
                 'success' => false,
-                'error' => 'Konfigurasi Wablas belum lengkap',
+                'error' => 'Konfigurasi WA Gateway belum lengkap',
                 'response' => null,
                 'type' => $type,
                 'targets' => [],
@@ -95,7 +95,7 @@ class VehicleTaxReminderService
             $setting->resolved_pengurus_barang_nama,
         );
 
-        $result = $this->wablas->sendPersonalText($targets, $message);
+        $result = $this->waGateway->sendPersonalText($targets, $message);
         $result['type'] = $type;
         $result['targets'] = $targets;
 
@@ -163,6 +163,20 @@ class VehicleTaxReminderService
         $lines[] = '';
         $lines[] = 'Terima Kasih';
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $data = [
+            'type_label' => $typeLabel,
+            'pemegang' => $pemegang,
+            'jenis' => $jenis,
+            'plat' => $plat,
+            'pengurus_label' => $pengurusLabel,
+            'due_date' => $dueDate->locale('id')->isoFormat('D MMMM Y'),
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('vehicle_tax_reminder', $data, $fallback);
     }
 }

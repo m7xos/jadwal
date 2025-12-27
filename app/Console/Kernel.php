@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Console\Commands\KirimPengingatTindakLanjut;
 use App\Console\Commands\RemindTindakLanjutCommand;
+use App\Console\Commands\SendFollowUpReminders;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -18,6 +19,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\KirimPengingatTindakLanjut::class,
         RemindTindakLanjutCommand::class,
         \App\Console\Commands\SendVehicleTaxReminders::class,
+        SendFollowUpReminders::class,
     ];
 
     /**
@@ -28,6 +30,7 @@ class Kernel extends ConsoleKernel
         // Jalankan lebih sering agar pengiriman H-1 menit tidak terlewat.
         $schedule->command('surat:ingatkan-tl')->everyMinute();
         $schedule->command('vehicle-taxes:send-reminders')->dailyAt('08:00');
+        $schedule->command('reminders:send-follow-up')->everyFiveMinutes();
     }
 
     /**

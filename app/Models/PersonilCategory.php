@@ -19,6 +19,7 @@ class PersonilCategory extends Model
         'keterangan',
         'urutan',
         'is_active',
+        'label_broadcast',
     ];
 
     protected $casts = [

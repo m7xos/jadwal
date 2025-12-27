@@ -6,6 +6,7 @@ use App\Models\Kegiatan;
 use App\Models\Group;
 use App\Models\Personil;
 use App\Models\PersonilCategory;
+use App\Models\WaGatewaySetting;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -13,20 +14,29 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
-class WablasService
+class WaGatewayService
 {
     protected string $baseUrl;
     protected string $token;
     protected ?string $secretKey;
+    protected string $provider;
     protected string $groupId;
     protected array $groupMappings;
+    protected string $masterKey;
 
     public function __construct()
     {
-        $this->baseUrl   = rtrim(config('wablas.base_url', 'https://solo.wablas.com'), '/');
-        $this->token     = (string) config('wablas.token', '');
-        $this->secretKey = config('wablas.secret_key'); // boleh null / kosong
-        $this->groupMappings = (array) config('wablas.group_ids', []);
+        $settings = WaGatewaySetting::current();
+
+        $this->baseUrl = rtrim(
+            (string) ($settings->base_url ?: config('wa_gateway.base_url', 'http://localhost:5001')),
+            '/'
+        );
+        $this->token = (string) ($settings->token ?: config('wa_gateway.token', ''));
+        $this->secretKey = $settings->secret_key ?: config('wa_gateway.secret_key');
+        $this->provider = (string) ($settings->provider ?: config('wa_gateway.provider', 'wa-gateway'));
+        $this->groupMappings = $settings->groupMappings();
+        $this->masterKey = (string) ($settings->key ?: config('wa_gateway.key', ''));
         $this->groupId   = $this->resolveDefaultGroupId();
     }
 
@@ -46,12 +56,45 @@ class WablasService
         return $this->token;
     }
 
+    protected function isWaGateway(): bool
+    {
+        return $this->provider === 'wa-gateway';
+    }
+
+     /**
+      * Normalisasi group id supaya kompatibel dengan provider.
+      *
+     * - Legacy: group id biasanya numerik (tanpa suffix).
+     * - wa-gateway: group id perlu format JID (contoh: 1203...@g.us).
+     */
+    protected function normalizeGroupId(string $groupId): string
+    {
+        $groupId = trim($groupId);
+
+        if ($groupId === '' || ! $this->isWaGateway()) {
+            return $groupId;
+        }
+
+        if (str_contains($groupId, '@')) {
+            return $groupId;
+        }
+
+        return $groupId . '@g.us';
+    }
+
     protected function client()
     {
-        return Http::withHeaders([
-                'Authorization' => $this->getAuthHeaderValue(),
-                'Content-Type'  => 'application/json',
-            ])
+        $headers = [
+            'Authorization' => $this->getAuthHeaderValue(),
+            'Content-Type'  => 'application/json',
+        ];
+
+        $masterKey = trim($this->masterKey);
+        if ($masterKey !== '') {
+            $headers['key'] = $masterKey;
+        }
+
+        return Http::withHeaders($headers)
             ->withOptions([
                 'verify' => false,
             ]);
@@ -77,22 +120,22 @@ class WablasService
     {
         $default = Group::query()
             ->where('is_default', true)
-            ->whereNotNull('wablas_group_id')
-            ->where('wablas_group_id', '!=', '')
+            ->whereNotNull('wa_gateway_group_id')
+            ->where('wa_gateway_group_id', '!=', '')
             ->first();
 
         if ($default) {
-            return trim((string) $default->wablas_group_id);
+            return trim((string) $default->wa_gateway_group_id);
         }
 
         $fallback = Group::query()
-            ->whereNotNull('wablas_group_id')
-            ->where('wablas_group_id', '!=', '')
+            ->whereNotNull('wa_gateway_group_id')
+            ->where('wa_gateway_group_id', '!=', '')
             ->orderBy('id')
             ->first();
 
         if ($fallback) {
-            return trim((string) $fallback->wablas_group_id);
+            return trim((string) $fallback->wa_gateway_group_id);
         }
 
         return '';
@@ -202,9 +245,48 @@ class WablasService
         $lines[] = '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_';
         $lines[] = '';
         $lines[] = '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._';
-        
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $labelLines = [
+            $this->formatLabelLine('Kode TL', $kodePengingat),
+            $this->formatLabelLine('Perihal', $perihal),
+            $this->formatLabelLine('Tanggal', $kegiatan->tanggal_label ?? '-'),
+            $this->formatLabelLine('Batas TL', $deadlineLabel),
+        ];
+
+        $disposisiLines = [];
+        if (! empty($dispositionTags) || ! empty($personilTags)) {
+            $disposisiLines[] = 'Mohon arahan percepatan tindak lanjut:';
+            if (! empty($dispositionTags)) {
+                $disposisiLines[] = implode(' ', $dispositionTags);
+            }
+            if (! empty($personilTags)) {
+                $disposisiLines[] = 'kepada: ' . implode(' ', $personilTags);
+            }
+        }
+
+        $data = [
+            'nomor_surat' => $nomorSurat,
+            'kode_tl' => $kodePengingat,
+            'label_lines' => implode("\n", $labelLines),
+            'surat_block' => $suratUrl
+                ? $this->formatTemplateBlock(['📎 Surat (PDF):', $suratUrl])
+                : '',
+            'lampiran_block' => $lampiranUrl
+                ? $this->formatTemplateBlock(['📎 Lampiran Surat:', $lampiranUrl])
+                : '',
+            'disposisi_block' => $this->formatTemplateBlock($disposisiLines),
+            'balasan_line' => $this->formatTemplateLine(
+                '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_'
+            ),
+            'footer' => '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._',
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('tindak_lanjut_reminder', $data, $fallback);
     }
 
     protected function getDispositionTags(): array
@@ -243,6 +325,43 @@ class WablasService
     protected function formatLabelLine(string $label, string $value): string
     {
         return sprintf('%-14s: %s', $label, $value);
+    }
+
+    protected function formatTemplateLine(string $line): string
+    {
+        if ($line === '') {
+            return '';
+        }
+
+        return $line . "\n";
+    }
+
+    /**
+     * @param array<int, string> $lines
+     */
+    protected function formatTemplateBlock(array $lines): string
+    {
+        $filtered = array_values(array_filter($lines, fn ($line) => $line !== ''));
+
+        if (empty($filtered)) {
+            return '';
+        }
+
+        return implode("\n", $filtered) . "\n\n";
+    }
+
+    /**
+     * @param array<int, string> $lines
+     */
+    protected function formatTemplateInlineBlock(array $lines): string
+    {
+        $filtered = array_values(array_filter($lines, fn ($line) => $line !== ''));
+
+        if (empty($filtered)) {
+            return '';
+        }
+
+        return implode("\n", $filtered) . "\n";
     }
 
     protected function formatPersonilTag(Personil $personil, bool $withJabatan = false): ?string
@@ -327,12 +446,12 @@ class WablasService
      */
     protected function sendTextToGroup(string $groupId, string $message): array
     {
-        $groupId = trim($groupId);
+        $groupId = $this->normalizeGroupId($groupId);
 
         if (! $this->hasClientCredentials() || $groupId === '') {
             return [
                 'success' => false,
-                'error' => 'Konfigurasi Wablas belum lengkap',
+                'error' => 'Konfigurasi WA Gateway belum lengkap',
                 'response' => null,
             ];
         }
@@ -350,7 +469,7 @@ class WablasService
         try {
             $response = $this->client()->post($this->baseUrl . '/api/v2/send-message', $payload);
         } catch (\Throwable $exception) {
-            Log::error('WablasService: HTTP error kirim teks grup', [
+            Log::error('WA Gateway: HTTP error kirim teks grup', [
                 'message' => $exception->getMessage(),
                 'group_id' => $groupId,
             ]);
@@ -363,7 +482,7 @@ class WablasService
         }
 
         if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim teks grup', [
+            Log::error('WA Gateway: HTTP error kirim teks grup', [
                 'status' => $response->status(),
                 'body' => $response->body(),
                 'group_id' => $groupId,
@@ -379,7 +498,7 @@ class WablasService
         $json = $response->json();
         $success = (bool) data_get($json, 'status', false);
 
-        Log::info('WablasService: response sendGroupText', [
+        Log::info('WA Gateway: response sendGroupText', [
             'response' => $json,
             'group_id' => $groupId,
         ]);
@@ -406,7 +525,7 @@ class WablasService
         if (! $this->isConfigured()) {
             return [
                 'success' => false,
-                'error' => 'Konfigurasi Wablas belum lengkap',
+                'error' => 'Konfigurasi WA Gateway belum lengkap',
                 'response' => null,
             ];
         }
@@ -439,7 +558,7 @@ class WablasService
             $response = $this->client()
                 ->post($this->baseUrl . '/api/v2/send-message', ['data' => $data]);
         } catch (\Throwable $exception) {
-            Log::error('WablasService: HTTP error kirim personal text', [
+            Log::error('WA Gateway: HTTP error kirim personal text', [
                 'message' => $exception->getMessage(),
             ]);
 
@@ -451,7 +570,7 @@ class WablasService
         }
 
         if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim personal text', [
+            Log::error('WA Gateway: HTTP error kirim personal text', [
                 'status' => $response->status(),
                 'body' => $response->body(),
             ]);
@@ -591,7 +710,40 @@ class WablasService
         $lines[] = '';
         $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $tanggalLabel = '';
+        if ($items->isNotEmpty()) {
+            /** @var \App\Models\Kegiatan|null $first */
+            $first = $items->first();
+
+            if ($first && $first->tanggal) {
+                try {
+                    $tanggalLabel = $first->tanggal
+                        ->locale('id')
+                        ->isoFormat('dddd, D MMMM Y');
+                } catch (\Throwable $e) {
+                    $tanggalLabel = '';
+                }
+            }
+        }
+
+        if ($tanggalLabel === '') {
+            $tanggalLabel = now()->locale('id')->isoFormat('dddd, D MMMM Y');
+        }
+
+        $data = [
+            'judul' => 'REKAP AGENDA KEGIATAN KANTOR',
+            'tanggal_label' => $tanggalLabel,
+            'agenda_list' => $this->buildGroupAgendaList($items),
+            'generated_at' => now()->locale('id')->translatedFormat('d F Y H:i') . ' WIB',
+            'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('group_rekap', $data, $fallback);
     }
 
     protected function buildGroupMessageBelumDisposisi(iterable $kegiatans): string
@@ -655,7 +807,26 @@ class WablasService
         $lines[] = '';
         $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $leadershipBlock = '';
+        if (! empty($leadershipTags)) {
+            $leadershipBlock = $this->formatTemplateBlock([
+                '*Mohon petunjuk/arahan disposisi:*',
+                implode(' ', $leadershipTags),
+            ]);
+        }
+
+        $data = [
+            'agenda_list' => $this->buildBelumDisposisiAgendaList($items),
+            'leadership_block' => $leadershipBlock,
+            'footer' => '_Pesan ini dikirim otomatis dari sistem agenda kantor._',
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('group_belum_disposisi', $data, $fallback);
     }
 
     protected function getPersonilTagsByJabatan(array $jabatanList): array
@@ -739,7 +910,35 @@ class WablasService
         $lines[] = '';
         $lines[] = '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._';
 
-        return implode("\n", $lines);
+        $fallback = implode("\n", $lines);
+
+        $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+        $keteranganBlock = $keterangan !== ''
+            ? $this->formatTemplateBlock(['*Keterangan*', $keterangan])
+            : '';
+        $suratBlock = $suratUrl
+            ? $this->formatTemplateBlock(['📎 *Lihat Surat (PDF)*', $suratUrl])
+            : '';
+        $lampiranBlock = $lampiranUrl
+            ? $this->formatTemplateBlock(['📎 *Lampiran*', $lampiranUrl])
+            : '';
+
+        $data = [
+            'nama_kegiatan' => (string) ($kegiatan->nama_kegiatan ?? '-'),
+            'nomor_surat' => (string) ($kegiatan->nomor ?? '-'),
+            'tanggal' => (string) ($kegiatan->tanggal_label ?? '-'),
+            'waktu' => (string) ($kegiatan->waktu ?? '-'),
+            'tempat' => (string) ($kegiatan->tempat ?? '-'),
+            'keterangan_block' => $keteranganBlock,
+            'surat_block' => $suratBlock,
+            'lampiran_block' => $lampiranBlock,
+            'footer' => '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._',
+        ];
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('agenda_personil', $data, $fallback);
     }
 
     /**
@@ -751,115 +950,396 @@ class WablasService
     {
         $kegiatan->loadMissing('personils');
 
-        $personilsDiGrup = $kegiatan->getPersonilUntukGrup($groupIds)->keyBy('id');
-        $allPersonils = ($kegiatan->personils ?? collect())->keyBy('id');
-        $groups = Group::query()
-            ->whereIn('id', $groupIds)
-            ->get();
-
         $lines = [];
 
-        $lines[] = '*UNDANGAN / INFORMASI KEGIATAN*';
-        $lines[] = '────────────────────────';
+        $headerDate = $this->formatAgendaHeaderDate($kegiatan);
+        $lines[] = '📌 REKAP AGENDA — ' . $headerDate;
         $lines[] = '';
 
-        if ($groups->isNotEmpty()) {
-            $lines[] = '*Grup Tujuan*';
-            $lines[] = $groups->pluck('nama')->filter()->implode(', ');
-            $lines[] = '';
+        $title = trim((string) ($kegiatan->nama_kegiatan ?? '-'));
+        $time = trim((string) ($kegiatan->waktu ?? '-'));
+        $place = trim((string) ($kegiatan->tempat ?? '-'));
+        $participants = $this->formatParticipantsShort($kegiatan);
+        $notes = trim((string) ($kegiatan->keterangan ?? ''));
+        $suratUrl = $this->getShortSuratUrl($kegiatan);
+        $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+
+        $lines[] = '#1 ' . ($title !== '' ? $title : '-');
+        $lines[] = '   ⏰ ' . ($time !== '' ? $time : '-') . ' | 📍 ' . ($place !== '' ? $place : '-');
+
+        if ($participants !== '') {
+            $lines[] = '   👥 ' . $participants;
         }
 
-        $lines[] = '*Nama Kegiatan*';
-        $lines[] = '*' . ($kegiatan->nama_kegiatan ?? '-') . '*';
+        if ($notes !== '') {
+            $lines[] = '   📝 ' . $notes;
+        }
+
+        if ($suratUrl) {
+            $lines[] = '   📎 Surat: ' . $suratUrl;
+        }
+
+        if ($lampiranUrl) {
+            $lines[] = '   📎 Lampiran: ' . $lampiranUrl;
+        }
+
         $lines[] = '';
+        $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
 
-        $lines[] = '*Nomor Surat*';
-        $lines[] = '*' . ($kegiatan->nomor ?? '-') . '*';
-        $lines[] = '';
+        $fallback = implode("\n", $lines);
 
-        $lines[] = '*Hari / Tanggal*';
-        $lines[] = ($kegiatan->tanggal_label ?? '-');
-        $lines[] = '';
+        $data = [
+            'tanggal_header' => $headerDate,
+            'judul' => $title !== '' ? $title : '-',
+            'waktu' => $time !== '' ? $time : '-',
+            'tempat' => $place !== '' ? $place : '-',
+            'peserta_line' => $this->formatTemplateLine($participants !== '' ? '   👥 ' . $participants : ''),
+            'keterangan_line' => $this->formatTemplateLine($notes !== '' ? '   📝 ' . $notes : ''),
+            'surat_line' => $this->formatTemplateLine($suratUrl ? '   📎 Surat: ' . $suratUrl : ''),
+            'lampiran_line' => $this->formatTemplateLine($lampiranUrl ? '   📎 Lampiran: ' . $lampiranUrl : ''),
+            'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+        ];
 
-        $lines[] = '*Waktu*';
-        $lines[] = ($kegiatan->waktu ?? '-');
-        $lines[] = '';
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
 
-        $lines[] = '*Tempat*';
-        $lines[] = ($kegiatan->tempat ?? '-');
-        $lines[] = '';
+        return $templateService->render('agenda_group', $data, $fallback);
+    }
 
-        if ($allPersonils->isNotEmpty()) {
-            $lines[] = '*Peserta / Disposisi*';
-            $kategoriLabels = PersonilCategory::options();
+    /**
+     * Ambil status device dari wa-gateway (realtime).
+     *
+     * @return array{success: bool, status?: string, device?: string, phone?: string|null, webhook_url?: string|null, error?: string|null}
+     */
+    public function getDeviceStatus(): array
+    {
+        if (! $this->hasClientCredentials()) {
+            return [
+                'success' => false,
+                'error' => 'Konfigurasi WA Gateway belum lengkap',
+            ];
+        }
 
-            $grouped = $allPersonils
-                ->groupBy(fn (Personil $p) => $p->kategori ?? 'lainnya')
-                ->sortKeys();
+        try {
+            $response = $this->client()->get($this->baseUrl . '/api/device/info');
+        } catch (\Throwable $e) {
+            Log::error('WA Gateway: HTTP error get device status', ['message' => $e->getMessage()]);
 
-            $counter = 1;
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
 
-            foreach ($grouped as $kategori => $personilsKategori) {
-                $labelKategori = $kategoriLabels[$kategori] ?? PersonilCategory::labelFor($kategori);
-                $lines[] = $counter . '. ' . $labelKategori;
-                $personIndex = 1;
-                $useNumbering = $personilsKategori->count() > 1;
+        if (! $response->successful()) {
+            Log::error('WA Gateway: HTTP error get device status', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
 
-                foreach ($personilsKategori as $personil) {
-                    $inGroup = $personilsDiGrup->has($personil->id);
-                    $mention = $this->formatMention($personil->no_wa);
-                    $jabatan = trim((string) ($personil->jabatan ?? ''));
-                    $nama = trim((string) ($personil->nama ?? ''));
-                    $prefix = $useNumbering ? ($personIndex . '. ') : '- ';
+            return [
+                'success' => false,
+                'error' => 'HTTP ' . $response->status(),
+            ];
+        }
 
-                    if ($inGroup && $mention) {
-                        $lines[] = '       ' . $prefix . $mention;
-                        if ($jabatan !== '') {
-                            $lines[] = '          ' . $jabatan;
+        $json = $response->json();
+        $first = is_array($json) ? data_get($json, 'data.0') : null;
+
+        return [
+            'success' => true,
+            'status' => strtolower((string) ($first['status'] ?? 'unknown')),
+            'device' => (string) ($first['device'] ?? ''),
+            'phone' => $first['phone'] ?? null,
+            'webhook_url' => $first['webhook_url'] ?? null,
+        ];
+    }
+
+    /**
+     * Header tanggal untuk rekap agenda.
+     */
+    protected function formatAgendaHeaderDate(Kegiatan $kegiatan): string
+    {
+        try {
+            if ($kegiatan->tanggal) {
+                return $kegiatan->tanggal
+                    ->locale('id')
+                    ->isoFormat('dddd, D MMMM Y');
+            }
+        } catch (\Throwable $e) {
+            // Abaikan dan fallback ke tanggal hari ini.
+        }
+
+        return now()->locale('id')->isoFormat('dddd, D MMMM Y');
+    }
+
+    /**
+     * Format peserta/mention singkat untuk satu agenda (gabungan kategori/jabatan dan mention).
+     */
+    protected function formatParticipantsShort(Kegiatan $kegiatan): string
+    {
+        $personils = $kegiatan->personils ?? collect();
+        if ($personils->isEmpty()) {
+            return '';
+        }
+
+        $categoryLabels = $personils
+            ->pluck('kategori')
+            ->filter()
+            ->unique()
+            ->map(function ($kategori) {
+                return PersonilCategory::labelFor($kategori) ?? (string) $kategori;
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        $tags = [];
+
+        foreach ($personils as $personil) {
+            $jabatan = trim((string) ($personil->jabatan ?? ''));
+            $mention = $this->formatMention($personil->no_wa);
+            $nama = trim((string) ($personil->nama ?? ''));
+
+            if ($jabatan !== '') {
+                $tags[] = $jabatan;
+            }
+
+            if ($mention) {
+                $tags[] = $mention;
+            } elseif ($nama !== '') {
+                $tags[] = $nama;
+            }
+        }
+
+        $parts = array_unique(array_filter(array_merge($categoryLabels, $tags)));
+
+        return implode(', ', $parts);
+    }
+
+    protected function buildGroupAgendaList(Collection $items): string
+    {
+        if ($items->isEmpty()) {
+            return '(Tidak ada agenda pada hari ini.)';
+        }
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+        $meta = $templateService->metaFor('group_rekap');
+        $itemTemplate = trim((string) ($meta['item_template'] ?? ''));
+        $separator = (string) ($meta['item_separator'] ?? "\n\n");
+
+        if ($itemTemplate !== '') {
+            $rendered = [];
+            $no = 1;
+
+            /** @var \App\Models\Kegiatan $kegiatan */
+            foreach ($items as $kegiatan) {
+                $personilLines = [];
+                $personils = $kegiatan->personils ?? collect();
+
+                if ($personils->isNotEmpty()) {
+                    $personilLines[] = '   👥 Penerima Disposisi:';
+
+                    $i = 1;
+                    foreach ($personils as $p) {
+                        $nama = trim((string) ($p->nama ?? ''));
+
+                        if ($nama === '') {
+                            continue;
                         }
-                        $personIndex++;
-                        continue;
+
+                        $rawNo  = trim((string) ($p->no_wa ?? ''));
+                        $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
+
+                        if ($digits !== '') {
+                            if (substr($digits, 0, 1) === '0') {
+                                $digits = '62' . substr($digits, 1);
+                            }
+
+                            $tag = ' @' . $digits;
+                        } else {
+                            $tag = '';
+                        }
+
+                        $personilLines[] = '      ' . $i . '. ' . $nama . $tag;
+                        $i++;
                     }
+                }
+
+                $keteranganLines = [];
+                $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+                if ($keterangan !== '') {
+                    $keteranganLines[] = '   📝 Keterangan:';
+                    $keteranganLines[] = '      ' . $keterangan;
+                }
+
+                $suratUrl = $this->getShortSuratUrl($kegiatan);
+                $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+
+                $data = [
+                    'no' => (string) $no,
+                    'judul' => (string) ($kegiatan->nama_kegiatan ?? '-'),
+                    'waktu' => (string) ($kegiatan->waktu ?? '-'),
+                    'tempat' => (string) ($kegiatan->tempat ?? '-'),
+                    'personil_block' => $this->formatTemplateInlineBlock($personilLines),
+                    'keterangan_block' => $this->formatTemplateInlineBlock($keteranganLines),
+                    'surat_line' => $this->formatTemplateLine(
+                        $suratUrl ? '   📎 Link Surat: ' . $suratUrl : ''
+                    ),
+                    'lampiran_line' => $this->formatTemplateLine(
+                        $lampiranUrl ? '   📎 Lampiran: ' . $lampiranUrl : ''
+                    ),
+                ];
+
+                $rendered[] = $templateService->renderString($itemTemplate, $data);
+                $no++;
+            }
+
+            return implode($separator, $rendered);
+        }
+
+        $lines = [];
+        $no = 1;
+
+        /** @var \App\Models\Kegiatan $kegiatan */
+        foreach ($items as $kegiatan) {
+            $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
+            $lines[] = '   ⏰ ' . ($kegiatan->waktu ?? '-');
+            $lines[] = '   📍 ' . ($kegiatan->tempat ?? '-');
+            $lines[] = '';
+
+            $personils = $kegiatan->personils ?? collect();
+
+            if ($personils->isNotEmpty()) {
+                $lines[] = '   👥 Penerima Disposisi:';
+
+                $i = 1;
+                foreach ($personils as $p) {
+                    $nama = trim((string) ($p->nama ?? ''));
 
                     if ($nama === '') {
                         continue;
                     }
 
-                    $lines[] = '       ' . $prefix . $nama;
-                    if ($jabatan !== '') {
-                        $lines[] = '          ' . $jabatan;
+                    $rawNo  = trim((string) ($p->no_wa ?? ''));
+                    $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
+
+                    if ($digits !== '') {
+                        if (substr($digits, 0, 1) === '0') {
+                            $digits = '62' . substr($digits, 1);
+                        }
+
+                        $tag = ' @' . $digits;
+                    } else {
+                        $tag = '';
                     }
-                    $personIndex++;
+
+                    $lines[] = '      ' . $i . '. ' . $nama . $tag;
+                    $i++;
                 }
 
                 $lines[] = '';
-                $counter++;
             }
+
+            $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+            if ($keterangan !== '') {
+                $lines[] = '   📝 Keterangan:';
+                $lines[] = '      ' . $keterangan;
+                $lines[] = '';
+            }
+
+            $suratUrl = $this->getShortSuratUrl($kegiatan);
+            if ($suratUrl) {
+                $lines[] = '   📎 Link Surat: ' . $suratUrl;
+                $lines[] = '';
+            }
+
+            $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+            if ($lampiranUrl) {
+                $lines[] = '   📎 Lampiran: ' . $lampiranUrl;
+                $lines[] = '';
+            }
+
+            $no++;
         }
 
-        if (! empty($kegiatan->keterangan)) {
-            $lines[] = '*Keterangan*';
-            $lines[] = $kegiatan->keterangan;
-            $lines[] = '';
-        }
-
-        $suratUrl = $this->getShortSuratUrl($kegiatan);
-        if ($suratUrl) {
-            $lines[] = '📎 *Lihat Surat (PDF)*';
-            $lines[] = $suratUrl;
-            $lines[] = '';
-        }
-
-        $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
-        if ($lampiranUrl) {
-        $lines[] = '📎 *Lampiran*';
-        $lines[] = $lampiranUrl;
-        $lines[] = '';
+        return implode("\n", $lines);
     }
 
-        $lines[] = 'Mohon kehadiran Bapak/Ibu sesuai jadwal di atas.';
-        $lines[] = '';
-        $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
+    protected function buildBelumDisposisiAgendaList(Collection $items): string
+    {
+        if ($items->isEmpty()) {
+            return '_Tidak ada agenda yang berstatus menunggu disposisi._';
+        }
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+        $meta = $templateService->metaFor('group_belum_disposisi');
+        $itemTemplate = trim((string) ($meta['item_template'] ?? ''));
+        $separator = (string) ($meta['item_separator'] ?? "\n\n");
+
+        if ($itemTemplate !== '') {
+            $rendered = [];
+            $no = 1;
+
+            /** @var \App\Models\Kegiatan $kegiatan */
+            foreach ($items as $kegiatan) {
+                $suratUrl = $this->getShortSuratUrl($kegiatan);
+                $suratBlock = '';
+
+                if ($suratUrl) {
+                    $suratBlock = $this->formatTemplateInlineBlock([
+                        '📎 *Lihat Surat (PDF)*',
+                        $suratUrl,
+                    ]);
+                }
+
+                $data = [
+                    'no' => (string) $no,
+                    'judul' => (string) ($kegiatan->nama_kegiatan ?? '-'),
+                    'tanggal' => (string) ($kegiatan->tanggal_label ?? '-'),
+                    'waktu' => (string) ($kegiatan->waktu ?? '-'),
+                    'tempat' => (string) ($kegiatan->tempat ?? '-'),
+                    'surat_block' => $suratBlock,
+                ];
+
+                $rendered[] = $templateService->renderString($itemTemplate, $data);
+                $no++;
+            }
+
+            $rendered[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
+
+            return implode($separator, $rendered);
+        }
+
+        $lines = [];
+        $no = 1;
+
+        /** @var \App\Models\Kegiatan $kegiatan */
+        foreach ($items as $kegiatan) {
+            if ($no > 1) {
+                $lines[] = '────────────────────────';
+            }
+
+            $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
+            $lines[] = ' *Tanggal*     : ' . ($kegiatan->tanggal_label ?? '-');
+            $lines[] = ' *Waktu*       : ' . ($kegiatan->waktu ?? '-');
+            $lines[] = ' *Tempat*      : ' . ($kegiatan->tempat ?? '-');
+            $lines[] = '';
+            $lines[] = '';
+
+            $suratUrl = $this->getShortSuratUrl($kegiatan);
+            if ($suratUrl) {
+                $lines[] = '📎 *Lihat Surat (PDF)*';
+                $lines[] = $suratUrl;
+            }
+
+            $lines[] = '';
+            $no++;
+        }
+
+        $lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
 
         return implode("\n", $lines);
     }
@@ -903,14 +1383,14 @@ class WablasService
 
                     if ($rawIds->isNotEmpty()) {
                         $method = $hasCondition ? 'orWhereIn' : 'whereIn';
-                        $query->{$method}('wablas_group_id', $rawIds);
+                        $query->{$method}('wa_gateway_group_id', $rawIds);
                     }
                 })
                 ->get();
         }
 
         if ($groups->isEmpty()) {
-            Log::warning('WablasService: sendAgendaToGroups tidak menemukan grup tujuan', [
+            Log::warning('WA Gateway: sendAgendaToGroups tidak menemukan grup tujuan', [
                 'input_ids' => $rawIds->all(),
             ]);
 
@@ -929,7 +1409,7 @@ class WablasService
             $phone = $this->resolveGroupPhone($group);
 
             if (! $phone) {
-                Log::warning('WablasService: ID grup WA tidak tersedia', [
+                Log::warning('WA Gateway: ID grup WA tidak tersedia', [
                     'group_id' => $group->id,
                     'group_name' => $group->nama,
                 ]);
@@ -961,8 +1441,8 @@ class WablasService
     {
         $defaults = Group::query()
             ->where('is_default', true)
-            ->whereNotNull('wablas_group_id')
-            ->where('wablas_group_id', '!=', '')
+            ->whereNotNull('wa_gateway_group_id')
+            ->where('wa_gateway_group_id', '!=', '')
             ->get();
 
         if ($defaults->isNotEmpty()) {
@@ -970,8 +1450,8 @@ class WablasService
         }
 
         return Group::query()
-            ->whereNotNull('wablas_group_id')
-            ->where('wablas_group_id', '!=', '')
+            ->whereNotNull('wa_gateway_group_id')
+            ->where('wa_gateway_group_id', '!=', '')
             ->orderBy('id')
             ->limit(1)
             ->get();
@@ -986,7 +1466,7 @@ class WablasService
 
     protected function resolveGroupPhone(Group $group): ?string
     {
-        $stored = trim((string) $group->wablas_group_id);
+        $stored = trim((string) $group->wa_gateway_group_id);
 
         if ($stored !== '') {
             return $stored;
@@ -1046,7 +1526,7 @@ class WablasService
         }
 
         return $groups
-            ->filter(fn ($g) => filled($g?->wablas_group_id))
+            ->filter(fn ($g) => filled($g?->wa_gateway_group_id))
             ->map(fn ($g) => $this->resolveGroupPhone($g) ?? null)
             ->filter()
             ->unique()
@@ -1057,7 +1537,7 @@ class WablasService
     public function sendGroupTindakLanjutReminder(Kegiatan $kegiatan): array
     {
         if (! $this->isConfigured()) {
-            Log::error('WablasService: konfigurasi belum lengkap untuk pengingat TL', [
+            Log::error('WA Gateway: konfigurasi belum lengkap untuk pengingat TL', [
                 'base_url'  => $this->baseUrl,
                 'token_set' => $this->token !== '',
                 'group_id'  => $this->groupId,
@@ -1065,7 +1545,7 @@ class WablasService
 
             return [
                 'success' => false,
-                'error' => 'Konfigurasi Wablas tidak lengkap',
+                'error' => 'Konfigurasi WA Gateway tidak lengkap',
                 'response' => null,
             ];
         }
@@ -1073,7 +1553,7 @@ class WablasService
         $phones = $this->getTlTargetGroupPhones($kegiatan);
 
         if (empty($phones)) {
-            Log::warning('WablasService: tidak ada grup WA target untuk pengingat TL', [
+            Log::warning('WA Gateway: tidak ada grup WA target untuk pengingat TL', [
                 'kegiatan_id' => $kegiatan->id,
             ]);
 
@@ -1105,63 +1585,100 @@ class WablasService
         ];
     }
 
-    public function sendGroupRekap(iterable $kegiatans): bool
+    /**
+     * @return array{success: bool, error: string|null, response: mixed}
+     */
+    public function sendGroupRekap(iterable $kegiatans): array
     {
         if (! $this->isConfigured()) {
-            Log::error('WablasService: konfigurasi belum lengkap', [
+            Log::error('WA Gateway: konfigurasi belum lengkap', [
                 'base_url'  => $this->baseUrl,
                 'token_set' => $this->token !== '',
                 'group_id'  => $this->groupId,
             ]);
 
-            return false;
+            return [
+                'success' => false,
+                'error' => 'Konfigurasi WA belum lengkap (base_url/token/default group).',
+                'response' => null,
+            ];
         }
 
         $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
 
         if ($items->isEmpty()) {
-            Log::warning('WablasService: sendGroupRekap dipanggil tanpa data kegiatan');
+            Log::warning('WA Gateway: sendGroupRekap dipanggil tanpa data kegiatan');
 
-            return false;
+            return [
+                'success' => false,
+                'error' => 'Tidak ada data agenda untuk direkap.',
+                'response' => null,
+            ];
         }
 
         $message = $this->buildGroupMessage($items);
 
+        $targetGroupId = $this->normalizeGroupId($this->groupId);
+
         $payload = [
             'data' => [
                 [
-                    'phone'   => $this->groupId,
+                    'phone'   => $targetGroupId,
                     'message' => $message,
                     'isGroup' => 'true',
                 ],
             ],
         ];
 
-        $response = $this->client()
-            ->post($this->baseUrl . '/api/v2/send-message', $payload);
+        try {
+            $response = $this->client()
+                ->post($this->baseUrl . '/api/v2/send-message', $payload);
+        } catch (\Throwable $exception) {
+            Log::error('WA Gateway: HTTP error kirim group', [
+                'message' => $exception->getMessage(),
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $exception->getMessage(),
+                'response' => null,
+            ];
+        }
 
         if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim group', [
+            Log::error('WA Gateway: HTTP error kirim group', [
                 'status' => $response->status(),
                 'body'   => $response->body(),
             ]);
 
-            return false;
+            $detail = data_get($response->json(), 'message') ?: $response->body();
+
+            return [
+                'success' => false,
+                'error' => 'HTTP ' . $response->status() . ($detail ? (': ' . $detail) : ''),
+                'response' => $response->json(),
+            ];
         }
 
         $json = $response->json();
 
-        Log::info('WablasService: response sendGroupRekap', [
+        Log::info('WA Gateway: response sendGroupRekap', [
             'response' => $json,
         ]);
 
-        return (bool) data_get($json, 'status', false);
+        $success = (bool) data_get($json, 'status', false);
+
+        return [
+            'success' => $success,
+            'error' => $success ? null : (data_get($json, 'message') ?: 'Pengiriman gagal'),
+            'response' => $json,
+        ];
     }
 
     public function sendGroupBelumDisposisi(iterable $kegiatans): bool
     {
         if (! $this->isConfigured()) {
-            Log::error('WablasService: konfigurasi belum lengkap untuk sendGroupBelumDisposisi', [
+            Log::error('WA Gateway: konfigurasi belum lengkap untuk sendGroupBelumDisposisi', [
                 'base_url'  => $this->baseUrl,
                 'token_set' => $this->token !== '',
                 'group_id'  => $this->groupId,
@@ -1173,7 +1690,7 @@ class WablasService
         $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
 
         if ($items->isEmpty()) {
-            Log::info('WablasService: sendGroupBelumDisposisi dipanggil tanpa data kegiatan');
+            Log::info('WA Gateway: sendGroupBelumDisposisi dipanggil tanpa data kegiatan');
 
             return false;
         }
@@ -1183,7 +1700,7 @@ class WablasService
         $payload = [
             'data' => [
                 [
-                    'phone'   => $this->groupId,
+                    'phone'   => $this->normalizeGroupId($this->groupId),
                     'message' => $message,
                     'isGroup' => 'true',
                 ],
@@ -1194,7 +1711,7 @@ class WablasService
             ->post($this->baseUrl . '/api/v2/send-message', $payload);
 
         if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim agenda belum disposisi', [
+            Log::error('WA Gateway: HTTP error kirim agenda belum disposisi', [
                 'status' => $response->status(),
                 'body'   => $response->body(),
             ]);
@@ -1204,7 +1721,7 @@ class WablasService
 
         $json = $response->json();
 
-        Log::info('WablasService: response sendGroupBelumDisposisi', [
+        Log::info('WA Gateway: response sendGroupBelumDisposisi', [
             'response' => $json,
         ]);
 
@@ -1276,7 +1793,7 @@ class WablasService
             ->post($this->baseUrl . '/api/v2/send-message', $payload);
 
         if (! $response->successful()) {
-            Log::error('WablasService: HTTP error kirim ke personil', [
+            Log::error('WA Gateway: HTTP error kirim ke personil', [
                 'status' => $response->status(),
                 'body'   => $response->body(),
             ]);
@@ -1286,7 +1803,7 @@ class WablasService
 
         $json = $response->json();
 
-        Log::info('WablasService: response sendToPersonils', [
+        Log::info('WA Gateway: response sendToPersonils', [
             'response' => $json,
         ]);
 

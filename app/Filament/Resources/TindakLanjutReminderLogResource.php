@@ -4,9 +4,10 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TindakLanjutReminderLogResource\Pages;
 use App\Models\TindakLanjutReminderLog;
-use App\Services\WablasService;
+use App\Services\WaGatewayService;
 use App\Support\RoleAccess;
 use BackedEnum;
+use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Actions\Action;
@@ -28,6 +29,7 @@ class TindakLanjutReminderLogResource extends Resource
     protected static ?string $slug = 'tindak-lanjut-reminder-logs';
 
     protected static ?int $navigationSort = 8;
+    protected static string|UnitEnum|null $navigationGroup = 'Log';
 
     public static function form(Schema $schema): Schema
     {
@@ -116,8 +118,8 @@ class TindakLanjutReminderLogResource extends Resource
                 Action::make('lihat_response')
                     ->label('Detail Respons')
                     ->icon('heroicon-m-eye')
-                    ->modalHeading('Respons Wablas')
-                    ->modalSubheading('Jawaban lengkap dari API Wablas saat pengiriman pengingat.')
+                    ->modalHeading('Respons WA Gateway')
+                    ->modalSubheading('Jawaban lengkap dari API WA Gateway saat pengiriman pengingat.')
                     ->modalContent(fn (TindakLanjutReminderLog $record) => view('filament.reminder-log-response', [
                         'response' => $record->response,
                     ]))
@@ -139,19 +141,19 @@ class TindakLanjutReminderLogResource extends Resource
                             return;
                         }
 
-                        /** @var WablasService $wablas */
-                        $wablas = app(WablasService::class);
+                        /** @var WaGatewayService $waGateway */
+                        $waGateway = app(WaGatewayService::class);
 
-                        if (! $wablas->isConfigured()) {
+                        if (! $waGateway->isConfigured()) {
                             Notification::make()
-                                ->title('Konfigurasi Wablas belum lengkap')
+                                ->title('Konfigurasi WA Gateway belum lengkap')
                                 ->danger()
                                 ->send();
 
                             return;
                         }
 
-                        $result = $wablas->sendGroupTindakLanjutReminder($kegiatan);
+                        $result = $waGateway->sendGroupTindakLanjutReminder($kegiatan);
                         $success = (bool) ($result['success'] ?? false);
 
                         $record->status = $success ? 'success' : 'failed';

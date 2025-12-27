@@ -26,7 +26,7 @@ class VehicleTaxResource extends Resource
     protected static ?string $modelLabel = 'Pajak Kendaraan';
     protected static ?string $slug = 'pajak-kendaraan';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Pengingat';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Kegiatan';
     protected static ?int $navigationSort = 20;
 
     public static function form(Schema $schema): Schema

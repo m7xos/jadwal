@@ -4,7 +4,10 @@ use Illuminate\Support\Facades\Route;
 //use App\Http\Controllers\PublicKegiatanController;
 use App\Http\Controllers\KegiatanSuratController;
 use App\Http\Controllers\PublicAgendaController;
-use App\Http\Controllers\WablasWebhookController;
+use App\Http\Controllers\WaGatewayWebhookController;
+use App\Http\Controllers\FilamentThemeController;
+use App\Http\Controllers\YieldPanelPreferenceController;
+use App\Http\Controllers\ScheduleController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 // routes/web.php
@@ -49,7 +52,21 @@ Route::get('/login', function () {
     return redirect()->route('filament.admin.auth.login');
 })->name('login');
 
-// Webhook Wablas (tanpa CSRF) agar bisa dipanggil dari panel Wablas dengan URL /wablas/webhook
-Route::post('/wablas/webhook', WablasWebhookController::class)
+// Webhook wa-gateway: set webhookBaseUrl ke {APP_URL}/wa-gateway/webhook (gateway akan POST ke /message)
+Route::post('/wa-gateway/webhook/message', WaGatewayWebhookController::class)
     ->withoutMiddleware([VerifyCsrfToken::class])
-    ->name('wablas.webhook.web');
+    ->name('wa-gateway.webhook.message.web');
+
+// Form sederhana untuk input jadwal (dev/internal)
+Route::get('/webhook/schedules/new', [ScheduleController::class, 'create'])
+    ->name('webhook.schedules.create');
+Route::post('/webhook/schedules', [ScheduleController::class, 'store'])
+    ->name('webhook.schedules.store');
+
+Route::post('/admin/theme', [FilamentThemeController::class, 'update'])
+    ->middleware('auth:personil')
+    ->name('filament.theme');
+
+Route::post('/admin/yield-panel', [YieldPanelPreferenceController::class, 'update'])
+    ->middleware('auth:personil')
+    ->name('yieldpanel.pref');

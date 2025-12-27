@@ -33,7 +33,7 @@ class PersonilResource extends Resource
     protected static ?string $pluralModelLabel = 'Personil';
     protected static ?string $modelLabel = 'Personil';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Kegiatan';
+    protected static string|UnitEnum|null $navigationGroup = 'Pengaturan';
 
     public static function form(Schema $schema): Schema
     {

@@ -19,12 +19,10 @@ class KegiatanResource extends Resource
 {
     protected static ?string $model = Kegiatan::class;
 
-     // Sesuaikan type dengan Filament v4:
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar-days';
-    protected static ?string $navigationLabel = 'Agenda Kegiatan';
+    protected static ?string $navigationLabel = 'Agenda Kegiatan Kantor';
     protected static ?string $pluralModelLabel = 'Agenda Kegiatan';
     protected static ?string $modelLabel = 'Kegiatan';
-	  // INI YANG BIKIN ERROR → sekarang dibetulkan:
     protected static string|UnitEnum|null $navigationGroup = 'Manajemen Kegiatan';
   
     public static function form(Schema $schema): Schema
