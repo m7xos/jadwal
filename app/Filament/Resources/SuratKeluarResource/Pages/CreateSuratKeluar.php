@@ -7,11 +7,13 @@ use App\Models\KodeSurat;
 use App\Models\SuratKeluar;
 use App\Services\SuratKeluarService;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Support\Enums\Width;
 use Illuminate\Database\Eloquent\Model;
 
 class CreateSuratKeluar extends CreateRecord
 {
     protected static string $resource = SuratKeluarResource::class;
+    protected Width|string|null $maxContentWidth = Width::Full;
 
     protected function handleRecordCreation(array $data): Model
     {

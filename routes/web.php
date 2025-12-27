@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 //use App\Http\Controllers\PublicKegiatanController;
 use App\Http\Controllers\KegiatanSuratController;
 use App\Http\Controllers\PublicAgendaController;
+use App\Http\Controllers\PublicLayananController;
 use App\Http\Controllers\WaGatewayWebhookController;
 use App\Http\Controllers\FilamentThemeController;
 use App\Http\Controllers\YieldPanelPreferenceController;
@@ -28,6 +29,16 @@ Route::get('/agenda-kegiatan', [PublicAgendaController::class, 'index'])
 // Halaman tampilan TV (yang full-screen tadi)
 Route::get('/agenda-kegiatan-tv', [PublicAgendaController::class, 'tv'])
     ->name('public.agenda.tv');
+
+Route::get('/layanan/status/{kode}', [PublicLayananController::class, 'show'])
+    ->name('public.layanan.status');
+Route::get('/layanan/register/{kode}/print', [PublicLayananController::class, 'print'])
+    ->middleware('signed')
+    ->name('public.layanan.register.print');
+Route::get('/layanan/daftar', [PublicLayananController::class, 'create'])
+    ->name('public.layanan.register');
+Route::post('/layanan/daftar', [PublicLayananController::class, 'store'])
+    ->name('public.layanan.register.store');
 	
 
 Route::view('/pengingat-audio', 'pengingat.audio')
