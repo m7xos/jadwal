@@ -30,6 +30,7 @@ class RoleAccess
             'filament.admin.pages.wa-gateway' => 'Pengaturan WA Gateway',
             'filament.admin.pages.wa-message-templates' => 'Template Pesan WA',
             'filament.admin.resources.surat-keluar' => 'Surat Keluar',
+            'filament.admin.resources.surat-keputusan' => 'Surat Keputusan',
             'filament.admin.pages.surat-keluar-status' => 'Status Nomor Surat Keluar',
             'filament.admin.pages.role-access-settings' => 'Pengaturan Hak Akses',
             'filament.admin.pages.panduan-aplikasi' => 'Panduan Aplikasi',
