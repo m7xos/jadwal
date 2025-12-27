@@ -271,6 +271,12 @@ class WaGatewayWebhookController extends Controller
             return false;
         }
 
+        $sender = $this->extractSenderNumberForHelp($payload);
+        if (! $sender || ! $this->isHelpAuthorized($sender)) {
+            $this->sendHelpReply($payload, $waGateway, 'Maaf kamu belum bisa menggunakan fitur ini');
+            return true;
+        }
+
         $topic = strtolower(trim(preg_replace('/^help\\s*/i', '', $text)));
         $message = $this->helpMessageFor($topic);
 
@@ -432,6 +438,22 @@ class WaGatewayWebhookController extends Controller
         }
 
         return null;
+    }
+
+    protected function isHelpAuthorized(string $sender): bool
+    {
+        $personils = Personil::query()
+            ->whereNotNull('no_wa')
+            ->where('no_wa', '!=', '')
+            ->get(['no_wa']);
+
+        foreach ($personils as $personil) {
+            if ($this->normalizeNumberFromDb($personil->no_wa) === $sender) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function resolveKegiatanForCompletion(?int $kegiatanId = null): ?Kegiatan

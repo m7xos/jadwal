@@ -76,6 +76,7 @@ class SuratKeluarRequestService
                     : 'Permintaan nomor surat masih aktif. Silakan kirim kode klasifikasi surat.';
 
                 $waGateway->sendPersonalText([$sender], $message);
+                $this->notifyGroupCheckPersonal($groupId, $waGateway);
                 return;
             }
         }
@@ -91,6 +92,16 @@ class SuratKeluarRequestService
         ]);
 
         $waGateway->sendPersonalText([$sender], 'Mohon ketik kode klasifikasi Surat');
+        $this->notifyGroupCheckPersonal($groupId, $waGateway);
+    }
+
+    protected function notifyGroupCheckPersonal(?string $groupId, WaGatewayService $waGateway): void
+    {
+        if (! $groupId) {
+            return;
+        }
+
+        $waGateway->sendTextToSpecificGroup($groupId, 'Silakan cek pesan pribadi untuk melanjutkan permintaan nomor surat.');
     }
 
     protected function handleKlasifikasi(SuratKeluarRequest $request, string $message, WaGatewayService $waGateway): void
