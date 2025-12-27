@@ -133,7 +133,8 @@ class SuratKeluarResource extends Resource
                         ->label('Tanggal Surat')
                         ->required()
                         ->default(now())
-                        ->native(false),
+                        ->native(false)
+                        ->displayFormat('d/m/Y'),
 
                     Placeholder::make('nomor_preview')
                         ->label('Preview Nomor Surat')
