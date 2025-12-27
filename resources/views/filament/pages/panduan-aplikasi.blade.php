@@ -141,10 +141,10 @@ npm run dev</code></pre>
                 <section class="space-y-6">
                     <h3 class="text-xl font-semibold text-gray-900">
                         <span class="text-gray-500">6.</span>
-                        Agenda Kegiatan Kantor
+                        Agenda Surat Masuk/Kegiatan
                     </h3>
                     <div class="space-y-2 text-sm text-gray-700">
-                        <p><strong>Menu:</strong> Manajemen Kegiatan &rarr; Agenda Kegiatan Kantor</p>
+                        <p><strong>Menu:</strong> Manajemen Kegiatan &rarr; Agenda Surat Masuk/Kegiatan</p>
                         <ul class="list-disc space-y-1 pl-5">
                             <li>Tambah kegiatan baru, atur tanggal, waktu, tempat, dan penanggung jawab.</li>
                             <li>Unggah PDF surat undangan agar nomor/perihal terisi otomatis.</li>

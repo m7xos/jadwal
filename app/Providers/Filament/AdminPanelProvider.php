@@ -12,6 +12,7 @@ use App\Http\Middleware\EnsureRoleHasPageAccess;
 use App\Support\RoleAccess;
 use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
+use Filament\Navigation\NavigationGroup;
 use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -107,6 +108,15 @@ class AdminPanelProvider extends PanelProvider
                 AgendaStatsOverview::class,
                 AgendaPerHariChart::class,
                 VehicleStatsOverview::class,
+            ])
+            ->navigationGroups([
+                NavigationGroup::make()->label('Manajemen Kegiatan'),
+                NavigationGroup::make()->label('Administrasi Surat'),
+                NavigationGroup::make()->label('Layanan Publik'),
+                NavigationGroup::make()->label('Pengaturan'),
+                NavigationGroup::make()->label('Log'),
+                NavigationGroup::make()->label('Laporan'),
+                NavigationGroup::make()->label('Halaman Publik'),
             ])
 
             // Link-link tambahan di sidebar

@@ -5,10 +5,12 @@ namespace App\Filament\Resources\SuratKeputusanResource\Pages;
 use App\Filament\Resources\SuratKeputusanResource;
 use App\Models\SuratKeputusan;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Enums\Width;
 
 class EditSuratKeputusan extends EditRecord
 {
     protected static string $resource = SuratKeputusanResource::class;
+    protected Width|string|null $maxContentWidth = Width::Full;
 
     protected function mutateFormDataBeforeSave(array $data): array
     {

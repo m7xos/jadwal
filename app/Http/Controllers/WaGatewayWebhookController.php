@@ -9,6 +9,7 @@ use App\Services\FollowUpReminderService;
 use App\Services\ScheduleResponder;
 use App\Services\SuratKeluarRequestService;
 use App\Services\WaGatewayService;
+use App\Services\LayananPublikStatusResponder;
 use App\Services\VehicleTaxPaymentService;
 use App\Models\WaGatewaySetting;
 use Illuminate\Http\JsonResponse;
@@ -26,6 +27,10 @@ class WaGatewayWebhookController extends Controller
 
         // ==== Handle laporan pajak terbayar ====
         if ($this->handleVehicleTaxPaid($payload, $waGateway)) {
+            return response()->json(['status' => 'ok']);
+        }
+
+        if (app(LayananPublikStatusResponder::class)->handle($payload, $waGateway)) {
             return response()->json(['status' => 'ok']);
         }
 

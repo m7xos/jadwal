@@ -81,7 +81,7 @@
                         </span>
                     </div>
                     <h2 class="text-lg font-semibold mb-1 text-slate-900 group-hover:text-emerald-700">
-                        Agenda Kegiatan Kantor
+                        Agenda Surat Masuk/Kegiatan
                     </h2>
                     <p class="text-sm text-slate-600 flex-1">
                         Menampilkan daftar agenda kegiatan kantor yang dapat diakses oleh masyarakat,
