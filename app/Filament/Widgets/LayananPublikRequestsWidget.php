@@ -4,7 +4,9 @@ namespace App\Filament\Widgets;
 
 use App\Models\LayananPublikRequest;
 use App\Support\RoleAccess;
+use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
+use Illuminate\Support\Facades\Cache;
 
 class LayananPublikRequestsWidget extends Widget
 {
@@ -12,31 +14,82 @@ class LayananPublikRequestsWidget extends Widget
 
     protected int | string | array $columnSpan = 'full';
 
-    public array $requests = [];
-
     public function mount(): void
     {
-        $this->requests = LayananPublikRequest::query()
+        $this->initializeLastSeen();
+    }
+
+    public function refreshNotifications(): void
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return;
+        }
+
+        $cacheKey = $this->cacheKey($user->id);
+        $lastSeen = Cache::get($cacheKey);
+
+        $latest = LayananPublikRequest::query()
             ->with('layanan')
-            ->orderByDesc('created_at')
-            ->limit(8)
-            ->get()
-            ->map(function (LayananPublikRequest $request) {
-                return [
-                    'kode' => $request->kode_register,
-                    'queue' => $request->queue_number,
-                    'layanan' => $request->layanan?->nama ?? '-',
-                    'kategori' => $request->layanan?->kategori,
-                    'pemohon' => $request->nama_pemohon,
-                    'status' => $request->status_label,
-                    'created_at' => $request->created_at?->format('d/m/Y H:i'),
-                ];
-            })
-            ->all();
+            ->latest('id')
+            ->first();
+
+        if (! $latest) {
+            return;
+        }
+
+        if ($lastSeen === null) {
+            Cache::put($cacheKey, $latest->id, now()->addDays(2));
+            return;
+        }
+
+        if ($latest->id <= $lastSeen) {
+            return;
+        }
+
+        $newCount = LayananPublikRequest::query()
+            ->where('id', '>', $lastSeen)
+            ->count();
+
+        $layanan = $latest->layanan?->nama ?? 'Layanan Publik';
+        $body = $newCount > 1
+            ? "{$newCount} permohonan baru masuk. Terakhir: {$latest->kode_register} · {$layanan}"
+            : "Kode: {$latest->kode_register} · Antrian: " . ($latest->queue_number ?? '-') . " · {$layanan}";
+
+        Notification::make()
+            ->title('Permohonan layanan baru')
+            ->body($body)
+            ->success()
+            ->send();
+
+        Cache::put($cacheKey, $latest->id, now()->addDays(2));
     }
 
     public static function canView(): bool
     {
         return RoleAccess::canSeeNav(auth()->user(), 'filament.admin.resources.layanan-publik-register');
+    }
+
+    protected function initializeLastSeen(): void
+    {
+        $user = auth()->user();
+        if (! $user) {
+            return;
+        }
+
+        $cacheKey = $this->cacheKey($user->id);
+        if (Cache::has($cacheKey)) {
+            return;
+        }
+
+        $latestId = LayananPublikRequest::query()->latest('id')->value('id');
+        if ($latestId) {
+            Cache::put($cacheKey, $latestId, now()->addDays(2));
+        }
+    }
+
+    protected function cacheKey(int $userId): string
+    {
+        return 'layanan_publik_last_seen_' . $userId;
     }
 }
