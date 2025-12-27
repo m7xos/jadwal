@@ -8,7 +8,7 @@ use Filament\Widgets\Widget;
 
 class LayananPublikRequestsWidget extends Widget
 {
-    protected static string $view = 'filament.widgets.layanan-publik-requests';
+    protected string $view = 'filament.widgets.layanan-publik-requests';
 
     protected int | string | array $columnSpan = 'full';
 
