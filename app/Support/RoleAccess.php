@@ -29,6 +29,7 @@ class RoleAccess
             'filament.admin.pages.pengurus-barang' => 'Pengurus Barang',
             'filament.admin.pages.wa-gateway' => 'Pengaturan WA Gateway',
             'filament.admin.pages.wa-message-templates' => 'Template Pesan WA',
+            'filament.admin.resources.wa-inbox-messages' => 'Chat Masuk WA',
             'filament.admin.resources.surat-keluar' => 'Surat Keluar',
             'filament.admin.resources.surat-keputusan' => 'Surat Keputusan',
             'filament.admin.resources.layanan-publik' => 'Layanan Publik',

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kegiatan;
 use App\Models\Personil;
 use App\Models\TindakLanjutReminderLog;
+use App\Models\WaInboxMessage;
 use App\Services\FollowUpReminderService;
 use App\Services\ScheduleResponder;
 use App\Services\SuratKeluarRequestService;
@@ -12,6 +13,7 @@ use App\Services\WaGatewayService;
 use App\Services\LayananPublikStatusResponder;
 use App\Services\VehicleTaxPaymentService;
 use App\Models\WaGatewaySetting;
+use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -39,6 +41,10 @@ class WaGatewayWebhookController extends Controller
         }
 
         if (app(SuratKeluarRequestService::class)->handleIncoming($payload, $waGateway)) {
+            return response()->json(['status' => 'ok']);
+        }
+
+        if ($this->handleIncomingChat($payload)) {
             return response()->json(['status' => 'ok']);
         }
 
@@ -288,6 +294,56 @@ class WaGatewayWebhookController extends Controller
         return $this->sendHelpReply($payload, $waGateway, $message);
     }
 
+    protected function handleIncomingChat(array $payload): bool
+    {
+        if (($payload['isGroup'] ?? false) === true) {
+            return false;
+        }
+
+        if ($this->isFromSelf($payload)) {
+            return false;
+        }
+
+        $message = $this->extractIncomingText($payload);
+        if ($message === null) {
+            return false;
+        }
+
+        $normalized = strtolower(preg_replace('/\\s+/', ' ', $message));
+        if ($this->isBotCommandMessage($normalized)) {
+            return false;
+        }
+
+        $sender = $this->extractSenderNumberForChat($payload);
+        if (! $sender) {
+            return false;
+        }
+
+        $exists = WaInboxMessage::query()
+            ->where('sender_number', $sender)
+            ->where('message', $message)
+            ->where('received_at', '>=', now()->subMinutes(2))
+            ->exists();
+
+        if ($exists) {
+            return true;
+        }
+
+        WaInboxMessage::create([
+            'sender_number' => $sender,
+            'sender_name' => $this->extractSenderName($payload),
+            'message' => $message,
+            'received_at' => now(),
+            'status' => WaInboxMessage::STATUS_NEW,
+            'meta' => [
+                'from' => $payload['from'] ?? null,
+                'sender_raw' => $payload['sender'] ?? null,
+            ],
+        ]);
+
+        return true;
+    }
+
     protected function helpMessageFor(string $topic): string
     {
         if ($topic === '') {
@@ -419,6 +475,98 @@ class WaGatewayWebhookController extends Controller
         }
 
         return null;
+    }
+
+    protected function extractSenderNumberForChat(array $payload): ?string
+    {
+        $candidates = [
+            (string) ($payload['participant'] ?? ''),
+            (string) ($payload['sender'] ?? ''),
+            (string) ($payload['from'] ?? ''),
+        ];
+
+        foreach ($candidates as $raw) {
+            if ($raw === '' || str_contains($raw, '@g.us') || str_contains($raw, '@lid')) {
+                continue;
+            }
+
+            $normalized = PhoneNumber::normalize($raw);
+            if ($normalized) {
+                return $normalized;
+            }
+        }
+
+        return null;
+    }
+
+    protected function extractSenderName(array $payload): ?string
+    {
+        $candidates = [
+            $payload['senderName'] ?? null,
+            $payload['pushName'] ?? null,
+            $payload['name'] ?? null,
+            data_get($payload, 'sender.name'),
+            data_get($payload, 'contact.name'),
+            data_get($payload, 'contact.notify'),
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_string($candidate) && trim($candidate) !== '') {
+                return trim($candidate);
+            }
+        }
+
+        return null;
+    }
+
+    protected function isBotCommandMessage(string $message): bool
+    {
+        if ($message === '') {
+            return false;
+        }
+
+        if (preg_match('/^help(\\s|$)/i', $message)) {
+            return true;
+        }
+
+        if (str_contains($message, 'minta nomor surat')) {
+            return true;
+        }
+
+        if (preg_match('/\\btl\\W*\\d+\\W*selesai\\b/i', $message)) {
+            return true;
+        }
+
+        if (preg_match('/pajak-[a-z0-9 ]+\\s+terbayar/i', $message)) {
+            return true;
+        }
+
+        if (preg_match('/\\b(cek|status)\\s+layanan/i', $message)) {
+            return true;
+        }
+
+        if (preg_match('/\\bLP\\-[A-Za-z0-9\\-]+\\b/', $message)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function isFromSelf(array $payload): bool
+    {
+        $flags = [
+            $payload['fromMe'] ?? null,
+            $payload['isFromMe'] ?? null,
+            data_get($payload, 'message.fromMe'),
+        ];
+
+        foreach ($flags as $flag) {
+            if ($flag === true || $flag === 1 || $flag === 'true') {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function extractSenderNumberForHelp(array $payload): ?string
