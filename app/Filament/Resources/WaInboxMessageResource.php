@@ -8,6 +8,8 @@ use App\Models\Personil;
 use App\Models\WaInboxMessage;
 use App\Support\RoleAccess;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -154,7 +156,7 @@ class WaInboxMessageResource extends Resource
                     ->options(WaInboxMessage::statusOptions()),
             ])
             ->actions([
-                Tables\Actions\Action::make('ambil')
+                Action::make('ambil')
                     ->label('Ambil')
                     ->icon('heroicon-m-hand-raised')
                     ->visible(fn (WaInboxMessage $record) => $record->assigned_to === null && ! $record->replied_at)
@@ -177,7 +179,7 @@ class WaInboxMessageResource extends Resource
                             $record->refresh();
                         }
                     }),
-                Tables\Actions\EditAction::make()
+                EditAction::make()
                     ->label('Balas')
                     ->visible(function (WaInboxMessage $record) {
                         $userId = auth()->user()?->id;
