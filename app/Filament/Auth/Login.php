@@ -25,7 +25,7 @@ class Login extends BaseLogin
     protected function getPasswordFormComponent(): Component
     {
         return TextInput::make('password')
-            ->label('Password (No. WA)')
+            ->label('Password')
             ->password()
             ->revealable(filament()->arePasswordsRevealable())
             ->autocomplete('current-password')
