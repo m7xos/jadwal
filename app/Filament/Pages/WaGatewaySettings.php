@@ -68,8 +68,9 @@ class WaGatewaySettings extends Page implements HasForms
                             ->maxLength(255),
 
                         TextInput::make('key')
-                            ->label('Master Key (opsional)')
-                            ->helperText('Jika wa-gateway mengaktifkan master key, isi di sini.')
+                            ->label('Master Key')
+                            ->helperText('Wajib diisi sesuai konfigurasi wa-gateway.')
+                            ->required()
                             ->maxLength(255),
 
                         TextInput::make('secret_key')
@@ -123,10 +124,10 @@ class WaGatewaySettings extends Page implements HasForms
         $secret = trim((string) ($state['secret_key'] ?? ''));
         $masterKey = trim((string) ($state['key'] ?? ''));
 
-        if ($baseUrl === '' || $token === '') {
+        if ($baseUrl === '' || $token === '' || $masterKey === '') {
             Notification::make()
                 ->title('Data koneksi belum lengkap')
-                ->body('Isi Base URL dan Token Device sebelum tes koneksi.')
+                ->body('Isi Base URL, Token Device, dan Master Key sebelum tes koneksi.')
                 ->danger()
                 ->send();
             return;

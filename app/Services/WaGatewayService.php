@@ -44,7 +44,8 @@ class WaGatewayService
     {
         return $this->baseUrl !== ''
             && $this->token !== ''
-            && $this->groupId !== '';
+            && $this->groupId !== ''
+            && trim($this->masterKey) !== '';
     }
 
     protected function getAuthHeaderValue(): string
