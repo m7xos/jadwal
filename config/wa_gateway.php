@@ -11,13 +11,6 @@ return [
     'base_url'   => env('WA_GATEWAY_BASE_URL', 'http://localhost:5001'),
     'token'      => env('WA_GATEWAY_TOKEN', ''),
     'secret_key' => env('WA_GATEWAY_SECRET_KEY', ''),
-    // Optional: path/URL to wa-gateway device registry (for token sync)
-    'registry_path' => env('WA_GATEWAY_REGISTRY_PATH', '/home/wa-gateway/wa_credentials/device-registry.json'),
-    'registry_url' => env('WA_GATEWAY_REGISTRY_URL', ''),
-    'session_id' => env('WA_GATEWAY_SESSION_ID', ''),
-    'registry_token' => env('WA_GATEWAY_REGISTRY_TOKEN', ''),
-    'registry_user' => env('WA_GATEWAY_REGISTRY_USER', ''),
-    'registry_pass' => env('WA_GATEWAY_REGISTRY_PASS', ''),
 
     // Master key wa-gateway (header/query `key`) jika di-set pada service wa-gateway.
     'key'        => env('WA_GATEWAY_KEY', ''),

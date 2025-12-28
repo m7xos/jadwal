@@ -38,6 +38,8 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
 - WhatsApp Gateway:
   - Pengaturan kini dikelola di menu **Pengaturan -> WA Gateway** (database).
   - Nilai di `.env` tetap menjadi fallback awal saat tabel belum terisi.
+  - Jika wa-gateway mengaktifkan `KEY` (production), isi `WA_GATEWAY_KEY` agar request tidak 401.
+  - Token device diisi manual dari wa-gateway (tidak ada registry sync).
   - Default grup WA diambil dari tabel Grup WA (centang "Jadikan grup default").
   - Template pesan WhatsApp bisa diubah di menu **Pengaturan -> Template Pesan WA** (kosongkan untuk kembali ke default).
 - PDF to text: `PDFTOTEXT_PATH=/usr/bin/pdftotext` (untuk Ubuntu)
