@@ -117,6 +117,82 @@ class WaGatewayService
         return $this->baseUrl !== '' && $this->token !== '';
     }
 
+    public function getContactName(string $phone): ?string
+    {
+        if (! $this->hasClientCredentials()) {
+            return null;
+        }
+
+        $digits = preg_replace('/\D+/', '', $phone) ?? '';
+        if ($digits === '') {
+            return null;
+        }
+
+        try {
+            $response = $this->client()
+                ->get($this->baseUrl . '/api/v2/contact', ['phone' => $digits]);
+        } catch (\Throwable $e) {
+            Log::error('WA Gateway: HTTP error get contact', ['message' => $e->getMessage()]);
+
+            return null;
+        }
+
+        if (! $response->successful()) {
+            Log::warning('WA Gateway: HTTP error get contact', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return null;
+        }
+
+        $name = trim((string) data_get($response->json(), 'data.0.name', ''));
+
+        return $name !== '' ? $name : null;
+    }
+
+    public function resolveLidNumber(string $lid): ?string
+    {
+        if (! $this->hasClientCredentials()) {
+            return null;
+        }
+
+        $lid = trim($lid);
+        if ($lid === '' || ! str_contains($lid, '@lid')) {
+            return null;
+        }
+
+        try {
+            $response = $this->client()
+                ->get($this->baseUrl . '/api/v2/resolve-lid', ['lid' => $lid]);
+        } catch (\Throwable $e) {
+            Log::error('WA Gateway: HTTP error resolve lid', ['message' => $e->getMessage()]);
+
+            return null;
+        }
+
+        if (! $response->successful()) {
+            Log::warning('WA Gateway: HTTP error resolve lid', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return null;
+        }
+
+        $phone = (string) data_get($response->json(), 'data.phone', '');
+        if ($phone === '') {
+            $jid = (string) data_get($response->json(), 'data.jid', '');
+            if ($jid !== '') {
+                $phone = preg_replace('/@.*/', '', $jid) ?? '';
+            }
+        }
+
+        $normalized = $this->normalizePhone($phone);
+
+        return $normalized !== '' ? $normalized : null;
+    }
+
     protected function resolveDefaultGroupId(): string
     {
         $default = Group::query()
@@ -534,7 +610,16 @@ class WaGatewayService
         $data = [];
 
         foreach ($numbers as $number) {
-            $normalized = $this->normalizePhone($number);
+            $raw = trim((string) ($number ?? ''));
+            if ($raw === '') {
+                continue;
+            }
+
+            if (str_contains($raw, '@lid')) {
+                $normalized = $this->resolveLidNumber($raw);
+            } else {
+                $normalized = $this->normalizePhone($raw);
+            }
 
             if (! $normalized) {
                 continue;

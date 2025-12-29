@@ -44,7 +44,7 @@ class WaGatewayWebhookController extends Controller
             return response()->json(['status' => 'ok']);
         }
 
-        if ($this->handleIncomingChat($payload)) {
+        if ($this->handleIncomingChat($payload, $waGateway)) {
             return response()->json(['status' => 'ok']);
         }
 
@@ -294,7 +294,7 @@ class WaGatewayWebhookController extends Controller
         return $this->sendHelpReply($payload, $waGateway, $message);
     }
 
-    protected function handleIncomingChat(array $payload): bool
+    protected function handleIncomingChat(array $payload, WaGatewayService $waGateway): bool
     {
         if (($payload['isGroup'] ?? false) === true) {
             return false;
@@ -329,9 +329,14 @@ class WaGatewayWebhookController extends Controller
             return true;
         }
 
+        $senderName = $this->extractSenderName($payload);
+        if (! $senderName && ! str_contains($sender, '@lid')) {
+            $senderName = $waGateway->getContactName($sender);
+        }
+
         WaInboxMessage::create([
             'sender_number' => $sender,
-            'sender_name' => $this->extractSenderName($payload),
+            'sender_name' => $senderName,
             'message' => $message,
             'received_at' => now(),
             'status' => WaInboxMessage::STATUS_NEW,
@@ -480,13 +485,35 @@ class WaGatewayWebhookController extends Controller
     protected function extractSenderNumberForChat(array $payload): ?string
     {
         $candidates = [
+            $payload['senderNumber'] ?? null,
+            data_get($payload, 'sender.number'),
+            data_get($payload, 'sender.phone'),
+            data_get($payload, 'sender.user'),
+            data_get($payload, 'sender.id'),
+            data_get($payload, 'sender.id._serialized'),
+            data_get($payload, 'sender.id.user'),
+            data_get($payload, 'sender.jid'),
+            data_get($payload, 'sender.remoteJid'),
             (string) ($payload['participant'] ?? ''),
             (string) ($payload['sender'] ?? ''),
             (string) ($payload['from'] ?? ''),
         ];
 
+        $lidRaw = null;
+
         foreach ($candidates as $raw) {
-            if ($raw === '' || str_contains($raw, '@g.us') || str_contains($raw, '@lid')) {
+            if (! is_string($raw) && ! is_numeric($raw)) {
+                continue;
+            }
+
+            $raw = trim((string) $raw);
+
+            if ($raw === '' || str_contains($raw, '@g.us')) {
+                continue;
+            }
+
+            if (str_contains($raw, '@lid')) {
+                $lidRaw = $raw;
                 continue;
             }
 
@@ -494,6 +521,10 @@ class WaGatewayWebhookController extends Controller
             if ($normalized) {
                 return $normalized;
             }
+        }
+
+        if ($lidRaw) {
+            return $lidRaw;
         }
 
         return null;
@@ -506,7 +537,13 @@ class WaGatewayWebhookController extends Controller
             $payload['pushName'] ?? null,
             $payload['name'] ?? null,
             data_get($payload, 'sender.name'),
+            data_get($payload, 'sender.pushName'),
+            data_get($payload, 'sender.pushname'),
+            data_get($payload, 'sender.verifiedName'),
+            data_get($payload, 'sender.notify'),
             data_get($payload, 'contact.name'),
+            data_get($payload, 'contact.pushName'),
+            data_get($payload, 'contact.pushname'),
             data_get($payload, 'contact.notify'),
         ];
 
@@ -578,7 +615,7 @@ class WaGatewayWebhookController extends Controller
         ];
 
         foreach ($candidates as $raw) {
-            if ($raw === '' || str_contains($raw, '@g.us') || str_contains($raw, '@lid')) {
+            if ($raw === '' || str_contains($raw, '@g.us')) {
                 continue;
             }
 
