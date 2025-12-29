@@ -319,6 +319,15 @@ class WaGatewayWebhookController extends Controller
             return false;
         }
 
+        $senderLid = null;
+        if (str_contains($sender, '@lid')) {
+            $senderLid = $sender;
+            $resolved = $waGateway->resolveLidNumber($sender);
+            if ($resolved) {
+                $sender = $resolved;
+            }
+        }
+
         $exists = WaInboxMessage::query()
             ->where('sender_number', $sender)
             ->where('message', $message)
@@ -334,16 +343,25 @@ class WaGatewayWebhookController extends Controller
             $senderName = $waGateway->getContactName($sender);
         }
 
+        $meta = [
+            'from' => $payload['from'] ?? null,
+            'sender_raw' => $payload['sender'] ?? null,
+        ];
+
+        if ($senderLid) {
+            $meta['sender_lid'] = $senderLid;
+            if ($sender !== $senderLid) {
+                $meta['sender_resolved'] = $sender;
+            }
+        }
+
         WaInboxMessage::create([
             'sender_number' => $sender,
             'sender_name' => $senderName,
             'message' => $message,
             'received_at' => now(),
             'status' => WaInboxMessage::STATUS_NEW,
-            'meta' => [
-                'from' => $payload['from'] ?? null,
-                'sender_raw' => $payload['sender'] ?? null,
-            ],
+            'meta' => $meta,
         ]);
 
         return true;
