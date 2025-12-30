@@ -4,7 +4,7 @@
 @endphp
 
 @if ($showWaToast || $showLayananToast)
-    <div class="fixed bottom-4 right-4 z-50 space-y-2">
+    <div class="fixed bottom-4 right-4 z-50 space-y-2 pointer-events-none" style="left:auto;">
         @if ($showWaToast)
             @livewire(\App\Filament\Widgets\WaInboxNotificationsWidget::class, [], key('wa-inbox-toast'))
         @endif
