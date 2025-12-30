@@ -11,11 +11,30 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('personils', function (Blueprint $table) {
-            $table->unique('nip');
-            $table->string('password')->nullable()->after('no_wa');
-            $table->string('role')->default(UserRole::Pengguna->value)->after('password');
-            $table->rememberToken();
+        if (! Schema::hasTable('personils')) {
+            return;
+        }
+
+        $shouldAddUnique = ! Schema::hasColumn('personils', 'password')
+            && ! Schema::hasColumn('personils', 'role')
+            && ! Schema::hasColumn('personils', 'remember_token');
+
+        Schema::table('personils', function (Blueprint $table) use ($shouldAddUnique) {
+            if ($shouldAddUnique) {
+                $table->unique('nip');
+            }
+
+            if (! Schema::hasColumn('personils', 'password')) {
+                $table->string('password')->nullable()->after('no_wa');
+            }
+
+            if (! Schema::hasColumn('personils', 'role')) {
+                $table->string('role')->default(UserRole::Pengguna->value)->after('password');
+            }
+
+            if (! Schema::hasColumn('personils', 'remember_token')) {
+                $table->rememberToken();
+            }
         });
 
         DB::table('personils')

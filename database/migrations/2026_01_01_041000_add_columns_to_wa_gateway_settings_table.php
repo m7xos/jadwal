@@ -9,21 +9,66 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('wa_gateway_settings')) {
+            return;
+        }
+
         Schema::table('wa_gateway_settings', function (Blueprint $table) {
-            $table->string('base_url')->nullable()->after('api_key');
-            $table->string('key')->nullable()->after('base_url');
-            $table->string('secret_key')->nullable()->after('key');
-            $table->string('provider')->default('wa-gateway')->after('secret_key');
-            $table->text('finish_whitelist')->nullable()->after('provider');
-            $table->string('group_1_id')->nullable()->after('finish_whitelist');
-            $table->string('group_2_id')->nullable()->after('group_1_id');
-            $table->string('group_3_id')->nullable()->after('group_2_id');
-            $table->string('registry_path')->nullable()->after('group_3_id');
-            $table->string('registry_url')->nullable()->after('registry_path');
-            $table->string('session_id')->nullable()->after('registry_url');
-            $table->string('registry_token')->nullable()->after('session_id');
-            $table->string('registry_user')->nullable()->after('registry_token');
-            $table->string('registry_pass')->nullable()->after('registry_user');
+            if (! Schema::hasColumn('wa_gateway_settings', 'base_url')) {
+                $table->string('base_url')->nullable()->after('api_key');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'key')) {
+                $table->string('key')->nullable()->after('base_url');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'secret_key')) {
+                $table->string('secret_key')->nullable()->after('key');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'provider')) {
+                $table->string('provider')->default('wa-gateway')->after('secret_key');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'finish_whitelist')) {
+                $table->text('finish_whitelist')->nullable()->after('provider');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'group_1_id')) {
+                $table->string('group_1_id')->nullable()->after('finish_whitelist');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'group_2_id')) {
+                $table->string('group_2_id')->nullable()->after('group_1_id');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'group_3_id')) {
+                $table->string('group_3_id')->nullable()->after('group_2_id');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'registry_path')) {
+                $table->string('registry_path')->nullable()->after('group_3_id');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'registry_url')) {
+                $table->string('registry_url')->nullable()->after('registry_path');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'session_id')) {
+                $table->string('session_id')->nullable()->after('registry_url');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'registry_token')) {
+                $table->string('registry_token')->nullable()->after('session_id');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'registry_user')) {
+                $table->string('registry_user')->nullable()->after('registry_token');
+            }
+
+            if (! Schema::hasColumn('wa_gateway_settings', 'registry_pass')) {
+                $table->string('registry_pass')->nullable()->after('registry_user');
+            }
         });
 
         $groupIds = (array) config('wa_gateway.group_ids', []);
