@@ -14,6 +14,10 @@ class WaInboxNotificationsWidget extends Widget
 
     protected int | string | array $columnSpan = 'full';
 
+    protected $listeners = [
+        'echo-private:wa-inbox,WaInboxMessageReceived' => 'refreshNotifications',
+    ];
+
     public function mount(): void
     {
         $this->initializeLastSeen();

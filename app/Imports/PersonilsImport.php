@@ -15,7 +15,7 @@ class PersonilsImport implements ToModel, WithHeadingRow
     {
         // Sesuaikan nama kolom dengan header di file Excel
         // Contoh header:
-        // nama | jabatan | no_wa
+        // nama | jabatan | jabatan_akronim | no_wa
 
         // Abaikan baris kalau 'nama' kosong
         if (empty($row['nama'])) {
@@ -28,6 +28,7 @@ class PersonilsImport implements ToModel, WithHeadingRow
             'nama'    => $row['nama'] ?? null,
 			'nip'    => $row['nip'] ?? null,
             'jabatan' => $row['jabatan'] ?? null,
+            'jabatan_akronim' => $row['jabatan_akronim'] ?? null,
             'pangkat' => $row['pangkat'] ?? null,
             'golongan' => $row['golongan'] ?? null,
             'kategori' => $this->mapKategori($row['kategori'] ?? null),

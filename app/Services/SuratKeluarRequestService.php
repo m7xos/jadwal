@@ -177,9 +177,17 @@ class SuratKeluarRequestService
         $request->status = SuratKeluarRequest::STATUS_COMPLETED;
         $request->save();
 
-        $message = 'Terima Kasih berikut nomor surat yang anda minta, *Nomor: '
-            . $surat->nomor_label . '*'
-            . "\nHal: " . $perihal;
+        $requester = $this->resolveRequesterPersonil($request);
+        $akronim = $this->resolveJabatanAcronym($requester?->jabatan_akronim);
+        $nomorLabel = $surat->nomor_label . ($akronim ? '/' . $akronim : '');
+        $tanggalSurat = $surat->tanggal_surat?->format('d/m/Y') ?? now()->format('d/m/Y');
+
+        $message = implode("\n", [
+            'Terima Kasih berikut nomor surat yang anda minta:',
+            '1. Nomor : ' . $nomorLabel,
+            '2. Hal : ' . $perihal,
+            '3. Tanggal Surat : ' . $tanggalSurat,
+        ]);
 
         $waGateway->sendPersonalText([$request->requester_number], $message);
     }
@@ -351,6 +359,29 @@ class SuratKeluarRequestService
         }
 
         return null;
+    }
+
+    protected function resolveRequesterPersonil(SuratKeluarRequest $request): ?Personil
+    {
+        if ($request->requester_personil_id) {
+            return Personil::find($request->requester_personil_id);
+        }
+
+        $number = $request->requester_number;
+        if (! $number) {
+            return null;
+        }
+
+        return Personil::query()
+            ->where('no_wa', $number)
+            ->first();
+    }
+
+    protected function resolveJabatanAcronym(?string $akronim): ?string
+    {
+        $akronim = trim((string) $akronim);
+
+        return $akronim !== '' ? $akronim : null;
     }
 
     protected function extractGroupId(array $payload): ?string

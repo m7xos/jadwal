@@ -34,6 +34,11 @@ class PersonilForm
                             ->label('Jabatan')
                             ->maxLength(255),
 
+                        TextInput::make('jabatan_akronim')
+                            ->label('Akronim Jabatan')
+                            ->maxLength(50)
+                            ->helperText('Isi akronim jabatan untuk nomor surat keluar (contoh: Sekre, Ekbang).'),
+
                         TextInput::make('pangkat')
                             ->label('Pangkat')
                             ->maxLength(100),

@@ -31,6 +31,11 @@ class PersonilsTable
                     ->searchable()
                     ->sortable(),
 
+                TextColumn::make('jabatan_akronim')
+                    ->label('Akronim Jabatan')
+                    ->toggleable()
+                    ->searchable(),
+
                /** TextColumn::make('pangkat')
                     ->label('Pangkat')
                     ->toggleable()

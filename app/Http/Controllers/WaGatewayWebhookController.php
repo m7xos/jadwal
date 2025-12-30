@@ -6,6 +6,7 @@ use App\Models\Kegiatan;
 use App\Models\Personil;
 use App\Models\TindakLanjutReminderLog;
 use App\Models\WaInboxMessage;
+use App\Events\WaInboxMessageReceived;
 use App\Services\FollowUpReminderService;
 use App\Services\ScheduleResponder;
 use App\Services\SuratKeluarRequestService;
@@ -355,7 +356,7 @@ class WaGatewayWebhookController extends Controller
             }
         }
 
-        WaInboxMessage::create([
+        $inboxMessage = WaInboxMessage::create([
             'sender_number' => $sender,
             'sender_name' => $senderName,
             'message' => $message,
@@ -363,6 +364,8 @@ class WaGatewayWebhookController extends Controller
             'status' => WaInboxMessage::STATUS_NEW,
             'meta' => $meta,
         ]);
+
+        WaInboxMessageReceived::dispatch($inboxMessage->id);
 
         return true;
     }
