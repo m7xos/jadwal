@@ -46,6 +46,8 @@ class Kegiatan extends Model
         'tindak_lanjut_deadline' => 'datetime',
         'tindak_lanjut_reminder_sent_at' => 'datetime',
         'tindak_lanjut_selesai_at' => 'datetime',
+        'disposisi_notified_at' => 'datetime',
+        'disposisi_escalated_at' => 'datetime',
     ];
 
     public function personils()
@@ -125,6 +127,14 @@ class Kegiatan extends Model
 
     protected static function booted(): void
     {
+        static::created(function (Kegiatan $kegiatan) {
+            if ($kegiatan->jenis_surat !== 'tindak_lanjut' && ! $kegiatan->surat_undangan) {
+                return;
+            }
+
+            app(\App\Services\MobileNotificationService::class)->notifySuratMasukBaru($kegiatan);
+        });
+
         static::saved(function (Kegiatan $kegiatan) {
             if ($kegiatan->jenis_surat !== 'tindak_lanjut') {
                 return;

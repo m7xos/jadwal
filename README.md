@@ -44,6 +44,11 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
   - Template pesan WhatsApp bisa diubah di menu **Pengaturan -> Template Pesan WA** (kosongkan untuk kembali ke default).
 - PDF to text: `PDFTOTEXT_PATH=/usr/bin/pdftotext` (untuk Ubuntu)
   - Whitelist penyelesaian TL di menu **Pengaturan -> WA Gateway** berisi nomor WA (format 62xxxx) yang tetap boleh menandai TL selesai di webhook, selain personil yang ditugaskan. Pisahkan dengan koma, contoh: `6281234567890,6289876543210`. Biarkan kosong jika tidak ingin whitelist tambahan.
+- Notifikasi mobile (Android):
+  - `FCM_SERVER_KEY` (legacy server key Firebase).
+  - `FCM_SENDER_ID` (opsional, untuk header Sender).
+  - `JADWAL_JABATAN_CAMAT` (default `Camat Watumalang`, bisa daftar dipisah koma).
+  - `JADWAL_JABATAN_SEKCAM` (default `Sekretaris Kecamatan Watumalang`, bisa daftar dipisah koma).
 
 ## Webhook WhatsApp (wajib)
 - Untuk wa-gateway: set `webhookBaseUrl = ${APP_URL}/wa-gateway/webhook` di wa-gateway (ia akan POST ke `${webhookBaseUrl}/message`).

@@ -8,6 +8,7 @@ use App\Models\TindakLanjutReminderLog;
 use App\Models\WaInboxMessage;
 use App\Events\WaInboxMessageReceived;
 use App\Services\FollowUpReminderService;
+use App\Services\MobileNotificationService;
 use App\Services\ScheduleResponder;
 use App\Services\SuratKeluarRequestService;
 use App\Services\WaGatewayService;
@@ -366,6 +367,7 @@ class WaGatewayWebhookController extends Controller
         ]);
 
         WaInboxMessageReceived::dispatch($inboxMessage->id);
+        app(MobileNotificationService::class)->notifyWaInbox($inboxMessage);
 
         return true;
     }
