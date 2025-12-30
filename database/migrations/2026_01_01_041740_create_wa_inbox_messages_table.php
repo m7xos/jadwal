@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('wa_inbox_messages')) {
+            return;
+        }
+
         Schema::create('wa_inbox_messages', function (Blueprint $table) {
             $table->id();
             $table->string('sender_number', 32);

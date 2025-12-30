@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('follow_up_reminders')) {
+            return;
+        }
+
         Schema::create('follow_up_reminders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')

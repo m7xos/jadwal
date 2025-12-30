@@ -10,6 +10,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('role_access_settings')) {
+            return;
+        }
+
         Schema::create('role_access_settings', function (Blueprint $table) {
             $table->id();
             $table->string('role')->unique();

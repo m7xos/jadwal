@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('wa_gateway_settings')) {
+            return;
+        }
+
         Schema::create('wa_gateway_settings', function (Blueprint $table) {
             $table->id();
             $table->string('token')->nullable();

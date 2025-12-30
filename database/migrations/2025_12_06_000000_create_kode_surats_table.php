@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
+        if (Schema::hasTable('kode_surats')) {
+            return;
+        }
+
         Schema::create('kode_surats', function (Blueprint $table) {
             $table->id();
             $table->string('kode')->unique();

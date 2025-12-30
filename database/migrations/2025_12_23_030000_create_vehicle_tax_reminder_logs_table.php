@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('vehicle_tax_reminder_logs')) {
+            return;
+        }
+
         Schema::create('vehicle_tax_reminder_logs', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('vehicle_tax_id')
