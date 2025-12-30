@@ -9,7 +9,11 @@ class WaMessageTemplateDefaults
      */
     public static function definitions(): array
     {
-        return [
+        $commonPlaceholders = [
+            'personil_block',
+        ];
+
+        $definitions = [
             'agenda_group' => [
                 'label' => 'Agenda ke Grup',
                 'description' => 'Pesan agenda untuk grup WhatsApp (single agenda).',
@@ -412,5 +416,23 @@ class WaMessageTemplateDefaults
                 ]),
             ],
         ];
+
+        foreach ($definitions as $key => $definition) {
+            $placeholders = $definition['placeholders'] ?? [];
+            $definitions[$key]['placeholders'] = array_values(array_unique(array_merge(
+                $placeholders,
+                $commonPlaceholders,
+            )));
+
+            if (array_key_exists('list_item_placeholders', $definition)) {
+                $itemPlaceholders = $definition['list_item_placeholders'] ?? [];
+                $definitions[$key]['list_item_placeholders'] = array_values(array_unique(array_merge(
+                    $itemPlaceholders,
+                    $commonPlaceholders,
+                )));
+            }
+        }
+
+        return $definitions;
     }
 }

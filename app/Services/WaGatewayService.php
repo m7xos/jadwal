@@ -1116,6 +1116,7 @@ class WaGatewayService
             'waktu' => $time !== '' ? $time : '-',
             'tempat' => $place !== '' ? $place : '-',
             'peserta_line' => $this->formatTemplateLine($participants !== '' ? '   👥 ' . $participants : ''),
+            'personil_block' => $this->buildPersonilBlock($kegiatan, $includeTag),
             'keterangan_line' => $this->formatTemplateLine($notes !== '' ? '   📝 ' . $notes : ''),
             'surat_line' => $this->formatTemplateLine($suratUrl ? '   📎 Surat: ' . $suratUrl : ''),
             'lampiran_line' => $this->formatTemplateLine($lampiranUrl ? '   📎 Lampiran: ' . $lampiranUrl : ''),
@@ -1239,6 +1240,39 @@ class WaGatewayService
         return implode(', ', $parts);
     }
 
+    protected function buildPersonilBlock(Kegiatan $kegiatan, bool $includeTag = true): string
+    {
+        $personils = $kegiatan->personils ?? collect();
+        if ($personils->isEmpty()) {
+            return '';
+        }
+
+        $lines = ['   👥 Penerima Disposisi:'];
+        $i = 1;
+
+        foreach ($personils as $personil) {
+            $nama = trim((string) ($personil->nama ?? ''));
+
+            if ($nama === '') {
+                continue;
+            }
+
+            $line = '      ' . $i . '. ' . $nama;
+
+            if ($includeTag) {
+                $mention = $this->formatMention($personil->no_wa);
+                if ($mention) {
+                    $line .= ' ' . $mention;
+                }
+            }
+
+            $lines[] = $line;
+            $i++;
+        }
+
+        return $this->formatTemplateInlineBlock($lines);
+    }
+
     protected function buildGroupAgendaList(Collection $items): string
     {
         if ($items->isEmpty()) {
@@ -1258,37 +1292,7 @@ class WaGatewayService
 
             /** @var \App\Models\Kegiatan $kegiatan */
             foreach ($items as $kegiatan) {
-                $personilLines = [];
-                $personils = $kegiatan->personils ?? collect();
-
-                if ($personils->isNotEmpty()) {
-                    $personilLines[] = '   👥 Penerima Disposisi:';
-
-                    $i = 1;
-                    foreach ($personils as $p) {
-                        $nama = trim((string) ($p->nama ?? ''));
-
-                        if ($nama === '') {
-                            continue;
-                        }
-
-                        $rawNo  = trim((string) ($p->no_wa ?? ''));
-                        $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
-
-                        if ($includeTag && $digits !== '') {
-                            if (substr($digits, 0, 1) === '0') {
-                                $digits = '62' . substr($digits, 1);
-                            }
-
-                            $tag = ' @' . $digits;
-                        } else {
-                            $tag = '';
-                        }
-
-                        $personilLines[] = '      ' . $i . '. ' . $nama . $tag;
-                        $i++;
-                    }
-                }
+                $personilBlock = $this->buildPersonilBlock($kegiatan, $includeTag);
 
                 $keteranganLines = [];
                 $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
@@ -1305,7 +1309,7 @@ class WaGatewayService
                     'judul' => (string) ($kegiatan->nama_kegiatan ?? '-'),
                     'waktu' => (string) ($kegiatan->waktu ?? '-'),
                     'tempat' => (string) ($kegiatan->tempat ?? '-'),
-                    'personil_block' => $this->formatTemplateInlineBlock($personilLines),
+                    'personil_block' => $personilBlock,
                     'keterangan_block' => $this->formatTemplateInlineBlock($keteranganLines),
                     'surat_line' => $this->formatTemplateLine(
                         $suratUrl ? '   📎 Link Surat: ' . $suratUrl : ''
@@ -1399,10 +1403,12 @@ class WaGatewayService
         /** @var WaMessageTemplateService $templateService */
         $templateService = app(WaMessageTemplateService::class);
         $meta = $templateService->metaFor('group_belum_disposisi');
+        $includeTag = $templateService->includePersonilTag('group_belum_disposisi', true);
         $itemTemplate = trim((string) ($meta['item_template'] ?? ''));
         $separator = (string) ($meta['item_separator'] ?? "\n\n");
 
         if ($itemTemplate !== '') {
+            $items->loadMissing('personils');
             $rendered = [];
             $no = 1;
 
@@ -1425,6 +1431,7 @@ class WaGatewayService
                     'waktu' => (string) ($kegiatan->waktu ?? '-'),
                     'tempat' => (string) ($kegiatan->tempat ?? '-'),
                     'surat_block' => $suratBlock,
+                    'personil_block' => $this->buildPersonilBlock($kegiatan, $includeTag),
                 ];
 
                 $rendered[] = $templateService->renderString($itemTemplate, $data);

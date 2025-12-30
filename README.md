@@ -59,6 +59,34 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
     ```
 - Pastikan path PHP sesuai (`which php`) dan folder proyek/log bisa ditulis user cron.
 
+## Auto-start queue worker (Ubuntu + systemd)
+- Buat service `queue:work` agar otomatis jalan dan restart saat crash:
+  ```
+  sudo tee /etc/systemd/system/laravel-queue.service > /dev/null <<'EOF'
+  [Unit]
+  Description=Laravel Queue Worker
+  After=network.target
+
+  [Service]
+  User=www-data
+  Group=www-data
+  WorkingDirectory=/var/www/jadwal
+  ExecStart=/usr/bin/php artisan queue:work --sleep=3 --tries=3 --timeout=90
+  Restart=always
+  RestartSec=5
+
+  [Install]
+  WantedBy=multi-user.target
+  EOF
+  ```
+- Aktifkan dan cek status:
+  ```
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now laravel-queue
+  sudo systemctl status laravel-queue
+  ```
+- Sesuaikan `User/Group` dan path PHP (`which php`) bila berbeda.
+
 ## Catatan operasional
 - Scheduler menjalankan pengingat TL (awal H-5 jam, akhir saat batas TL) dan webhook wa-gateway menangani balasan "TL-{id} selesai".
 - Jika device wa-gateway atau konfigurasi tidak lengkap, pengiriman gagal dan status log menjadi failed; kirim ulang via aksi "Kirim Ulang" di Log Pengingat TL.

@@ -29,6 +29,12 @@ class WaMessageTemplateService
      */
     public function renderString(string $template, array $data): string
     {
+        foreach ($this->commonPlaceholders() as $placeholder) {
+            if (! array_key_exists($placeholder, $data)) {
+                $data[$placeholder] = '';
+            }
+        }
+
         $replace = [];
 
         foreach ($data as $key => $value) {
@@ -42,6 +48,16 @@ class WaMessageTemplateService
         $result = preg_replace("/\\n{3,}/", "\n\n", $result) ?? $result;
 
         return trim($result);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function commonPlaceholders(): array
+    {
+        return [
+            'personil_block',
+        ];
     }
 
     /**
