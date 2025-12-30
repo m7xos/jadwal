@@ -9,6 +9,8 @@ use App\Models\WaInboxMessage;
 use App\Support\RoleAccess;
 use BackedEnum;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Textarea;
@@ -186,6 +188,12 @@ class WaInboxMessageResource extends Resource
 
                         return $record->assigned_to === null || $record->assigned_to === $userId;
                     }),
+                DeleteAction::make()
+                    ->visible(fn () => auth()->user()?->isAdmin() === true),
+            ])
+            ->bulkActions([
+                DeleteBulkAction::make()
+                    ->visible(fn () => auth()->user()?->isAdmin() === true),
             ]);
     }
 
@@ -202,6 +210,16 @@ class WaInboxMessageResource extends Resource
         }
 
         return $record->assigned_to === null || $record->assigned_to === $userId;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()?->isAdmin() === true;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()?->isAdmin() === true;
     }
 
     public static function getPages(): array
