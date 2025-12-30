@@ -55,6 +55,17 @@ class WaMessageTemplateService
         return is_array($meta) ? $meta : [];
     }
 
+    public function includePersonilTag(string $key, bool $default = true): bool
+    {
+        $meta = $this->metaFor($key);
+
+        if (array_key_exists('include_personil_tag', $meta)) {
+            return (bool) $meta['include_personil_tag'];
+        }
+
+        return $default;
+    }
+
     protected function convertMarkdownToWhatsApp(string $text): string
     {
         $text = preg_replace('/\\*\\*(.+?)\\*\\*/s', '*$1*', $text) ?? $text;

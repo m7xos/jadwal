@@ -249,6 +249,14 @@ class WaGatewayService
         return '@' . $normalized;
     }
 
+    protected function includePersonilTagForTemplate(string $key): bool
+    {
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->includePersonilTag($key, true);
+    }
+
     /**
      * Format pesan pengingat batas waktu tindak lanjut.
      */
@@ -305,8 +313,9 @@ class WaGatewayService
             $lines[] = '';
         }
 
-        $dispositionTags = $this->getDispositionTags();
-        $personilTags = $this->getPersonilTagsForKegiatan($kegiatan);
+        $includeTag = $this->includePersonilTagForTemplate('tindak_lanjut_reminder');
+        $dispositionTags = $this->getDispositionTags($includeTag);
+        $personilTags = $this->getPersonilTagsForKegiatan($kegiatan, $includeTag);
 
         if (! empty($dispositionTags) || ! empty($personilTags)) {
             $lines[] = 'Mohon arahan percepatan tindak lanjut:';
@@ -366,7 +375,7 @@ class WaGatewayService
         return $templateService->render('tindak_lanjut_reminder', $data, $fallback);
     }
 
-    protected function getDispositionTags(): array
+    protected function getDispositionTags(bool $includeTag = true): array
     {
         $roles = [
             'Camat Watumalang',
@@ -376,14 +385,14 @@ class WaGatewayService
         return Personil::query()
             ->whereIn('jabatan', $roles)
             ->get(['no_wa', 'jabatan', 'nama'])
-            ->map(fn (Personil $personil) => $this->formatPersonilTag($personil, true))
+            ->map(fn (Personil $personil) => $this->formatPersonilTag($personil, true, $includeTag))
             ->filter()
             ->unique()
             ->values()
             ->all();
     }
 
-    protected function getPersonilTagsForKegiatan(Kegiatan $kegiatan): array
+    protected function getPersonilTagsForKegiatan(Kegiatan $kegiatan, bool $includeTag = true): array
     {
         $personils = $kegiatan->personils ?? collect();
 
@@ -392,7 +401,7 @@ class WaGatewayService
         }
 
         return $personils
-            ->map(fn (Personil $personil) => $this->formatPersonilTag($personil, true))
+            ->map(fn (Personil $personil) => $this->formatPersonilTag($personil, true, $includeTag))
             ->filter()
             ->unique()
             ->values()
@@ -441,11 +450,23 @@ class WaGatewayService
         return implode("\n", $filtered) . "\n";
     }
 
-    protected function formatPersonilTag(Personil $personil, bool $withJabatan = false): ?string
+    protected function formatPersonilTag(Personil $personil, bool $withJabatan = false, bool $includeTag = true): ?string
     {
         $mention = $this->formatMention($personil->no_wa);
         $name = trim((string) $personil->nama);
         $jabatan = trim((string) $personil->jabatan);
+
+        if (! $includeTag) {
+            if ($name === '' && $jabatan === '') {
+                return null;
+            }
+
+            if ($withJabatan && $jabatan !== '') {
+                return $name !== '' ? $name . ' (' . $jabatan . ')' : $jabatan;
+            }
+
+            return $name !== '' ? $name : $jabatan;
+        }
 
         if (! $mention) {
             if ($name === '') {
@@ -879,10 +900,11 @@ class WaGatewayService
             $lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
         }
 
+        $includeTag = $this->includePersonilTagForTemplate('group_belum_disposisi');
         $leadershipTags = $this->getPersonilTagsByJabatan([
             'Camat Watumalang',
             'Sekretaris Kecamatan Watumalang',
-        ]);
+        ], $includeTag);
 
         if (! empty($leadershipTags)) {
             $lines[] = '';
@@ -915,7 +937,7 @@ class WaGatewayService
         return $templateService->render('group_belum_disposisi', $data, $fallback);
     }
 
-    protected function getPersonilTagsByJabatan(array $jabatanList): array
+    protected function getPersonilTagsByJabatan(array $jabatanList, bool $includeTag = true): array
     {
         $personils = Personil::query()
             ->whereIn('jabatan', $jabatanList)
@@ -924,6 +946,19 @@ class WaGatewayService
         $tags = [];
 
         foreach ($personils as $personil) {
+            if (! $includeTag) {
+                $name = trim((string) ($personil->nama ?? ''));
+                $jabatan = trim((string) ($personil->jabatan ?? ''));
+
+                if ($name !== '') {
+                    $tags[] = $jabatan !== '' ? $name . ' - ' . $jabatan : $name;
+                } elseif ($jabatan !== '') {
+                    $tags[] = $jabatan;
+                }
+
+                continue;
+            }
+
             $rawNo  = trim((string) ($personil->no_wa ?? ''));
             $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
 
@@ -1045,7 +1080,8 @@ class WaGatewayService
         $title = trim((string) ($kegiatan->nama_kegiatan ?? '-'));
         $time = trim((string) ($kegiatan->waktu ?? '-'));
         $place = trim((string) ($kegiatan->tempat ?? '-'));
-        $participants = $this->formatParticipantsShort($kegiatan);
+        $includeTag = $this->includePersonilTagForTemplate('agenda_group');
+        $participants = $this->formatParticipantsShort($kegiatan, $includeTag);
         $notes = trim((string) ($kegiatan->keterangan ?? ''));
         $suratUrl = $this->getShortSuratUrl($kegiatan);
         $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
@@ -1162,7 +1198,7 @@ class WaGatewayService
     /**
      * Format peserta/mention singkat untuk satu agenda (gabungan kategori/jabatan dan mention).
      */
-    protected function formatParticipantsShort(Kegiatan $kegiatan): string
+    protected function formatParticipantsShort(Kegiatan $kegiatan, bool $includeTag = true): string
     {
         $personils = $kegiatan->personils ?? collect();
         if ($personils->isEmpty()) {
@@ -1191,7 +1227,7 @@ class WaGatewayService
                 $tags[] = $jabatan;
             }
 
-            if ($mention) {
+            if ($includeTag && $mention) {
                 $tags[] = $mention;
             } elseif ($nama !== '') {
                 $tags[] = $nama;
@@ -1212,6 +1248,7 @@ class WaGatewayService
         /** @var WaMessageTemplateService $templateService */
         $templateService = app(WaMessageTemplateService::class);
         $meta = $templateService->metaFor('group_rekap');
+        $includeTag = $templateService->includePersonilTag('group_rekap', true);
         $itemTemplate = trim((string) ($meta['item_template'] ?? ''));
         $separator = (string) ($meta['item_separator'] ?? "\n\n");
 
@@ -1238,7 +1275,7 @@ class WaGatewayService
                         $rawNo  = trim((string) ($p->no_wa ?? ''));
                         $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
 
-                        if ($digits !== '') {
+                        if ($includeTag && $digits !== '') {
                             if (substr($digits, 0, 1) === '0') {
                                 $digits = '62' . substr($digits, 1);
                             }
@@ -1311,7 +1348,7 @@ class WaGatewayService
                     $rawNo  = trim((string) ($p->no_wa ?? ''));
                     $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
 
-                    if ($digits !== '') {
+                    if ($includeTag && $digits !== '') {
                         if (substr($digits, 0, 1) === '0') {
                             $digits = '62' . substr($digits, 1);
                         }

@@ -280,126 +280,11 @@ class KegiatansTable
                     ->icon('heroicon-o-document-text'),
 
                 BulkActionGroup::make([
-                    // Bulk: kirim semua yang SEDANG tampil (sesuai filter/search/sort)
-                    BulkAction::make('kirim_wa_rekap_terfilter')
-                        ->label('Kirim Rekap Disposisi (Sesuai Filter)')
+                    BulkAction::make('kirim_wa_group')
+                        ->label('Kirim Group')
                         ->icon('heroicon-o-paper-airplane')
                         ->requiresConfirmation()
-                        ->modalHeading('Kirim rekap semua agenda yang sedang tampil (berdasarkan filter) ke grup WhatsApp?')
-                        ->action(function (array $data, $livewire) {
-                            // Ambil query yang sudah ter-filter + ter-sort + ter-search
-                            if (! method_exists($livewire, 'getFilteredSortedTableQuery')) {
-                                Notification::make()
-                                    ->title('Gagal')
-                                    ->body('Tidak dapat mengambil data terfilter dari tabel.')
-                                    ->danger()
-                                    ->send();
-
-                                return;
-                            }
-
-                            $query = clone $livewire->getFilteredSortedTableQuery();
-                            /** @var Collection $records */
-                            $records = $query->get();
-
-                            if ($records->isEmpty()) {
-                                Notification::make()
-                                    ->title('Tidak ada data')
-                                    ->body('Tidak ada agenda yang cocok dengan filter saat ini.')
-                                    ->warning()
-                                    ->send();
-
-                                return;
-                            }
-
-                            $records->load('personils');
-
-                            /** @var WaGatewayService $waGateway */
-                            $waGateway = app(WaGatewayService::class);
-
-                            $result = $waGateway->sendGroupRekap($records);
-
-                            if ($result['success'] ?? false) {
-                                Notification::make()
-                                    ->title('Berhasil')
-                                    ->body('Rekap semua agenda yang terfilter berhasil dikirim ke grup WhatsApp.')
-                                    ->success()
-                                    ->send();
-                            } else {
-                                Notification::make()
-                                    ->title('Gagal')
-                                    ->body($result['error'] ?? 'Gagal mengirim rekap ke WA. Cek konfigurasi dan koneksi device.')
-                                    ->danger()
-                                    ->send();
-                            }
-                        })
-                        ->deselectRecordsAfterCompletion()
-                        ->tooltip('Gunakan semua data yang sedang tampil di tabel (berdasarkan filter & pencarian).'),
-                     //baru   ,
-					BulkAction::make('kirim_wa_belum_disposisi')
-					->label('Mohon Disposisi (Filter)')
-					->icon('heroicon-o-paper-airplane')
-					->requiresConfirmation()
-					->modalHeading('Kirim ke grup WhatsApp daftar agenda yang belum disposisi (berdasarkan filter saat ini)?')
-					->action(function (array $data, $livewire) {
-						if (! method_exists($livewire, 'getFilteredSortedTableQuery')) {
-							Notification::make()
-								->title('Gagal')
-								->body('Tidak dapat mengambil data terfilter dari tabel.')
-								->danger()
-								->send();
-
-							return;
-						}
-
-						/** @var Builder $query */
-						$query = clone $livewire->getFilteredSortedTableQuery();
-
-						// Hanya ambil yang BELUM disposisi
-						$query->where('sudah_disposisi', false);
-
-						/** @var Collection $records */
-						$records = $query->get();
-
-						if ($records->isEmpty()) {
-							Notification::make()
-								->title('Tidak ada data')
-								->body('Tidak ada agenda berstatus belum disposisi pada filter saat ini.')
-								->warning()
-								->send();
-
-							return;
-						}
-
-						$records->load('personils'); // tidak wajib, tapi kalau mau pakai nanti aman
-
-						/** @var WaGatewayService $waGateway */
-						$waGateway = app(WaGatewayService::class);
-
-						$success = $waGateway->sendGroupBelumDisposisi($records);
-
-						if ($success) {
-							Notification::make()
-								->title('Berhasil')
-								->body('Daftar agenda yang belum disposisi berhasil dikirim ke grup WhatsApp.')
-								->success()
-								->send();
-						} else {
-							Notification::make()
-								->title('Gagal')
-								->body('Gagal mengirim pesan ke WA Gateway. Cek konfigurasi/token/ID grup.')
-								->danger()
-								->send();
-						}
-					})
-					->deselectRecordsAfterCompletion()
-                    ->tooltip('Mengirim ke grup WA daftar agenda yang belum disposisi, berdasarkan filter & pencarian saat ini.'),
-
-                    BulkAction::make('kirim_wa_multi_grup')
-                        ->label('Kirim WA Multi Grup')
-                        ->icon('heroicon-o-paper-airplane')
-                        ->requiresConfirmation()
-                        ->modalHeading('Kirim agenda terpilih ke grup WhatsApp yang dipilih di form tiap agenda?')
+                        ->modalHeading('Kirim agenda yang dicentang ke grup WhatsApp sesuai pilihan grup pada agenda?')
                         ->action(function (Collection $records) {
                             if ($records->isEmpty()) {
                                 Notification::make()
@@ -464,7 +349,48 @@ class KegiatansTable
                             }
                         })
                         ->deselectRecordsAfterCompletion()
-                        ->tooltip('Kirim agenda terpilih ke grup WA sesuai pilihan grup pada form agenda.'),
+                        ->tooltip('Hanya agenda yang dicentang yang dikirim ke grup WA sesuai pilihan grup pada form agenda.'),
+                    BulkAction::make('kirim_wa_belum_disposisi')
+                        ->label('Mohon Disposisi (Filter)')
+                        ->icon('heroicon-o-paper-airplane')
+                        ->requiresConfirmation()
+                        ->modalHeading('Kirim ke grup WhatsApp daftar agenda yang belum disposisi (berdasarkan filter saat ini)?')
+                        ->action(function (Collection $records) {
+                            $records = $records->where('sudah_disposisi', false);
+
+                            if ($records->isEmpty()) {
+                                Notification::make()
+                                    ->title('Tidak ada data')
+                                    ->body('Tidak ada agenda berstatus belum disposisi yang dicentang.')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $records->load('personils'); // tidak wajib, tapi kalau mau pakai nanti aman
+
+                            /** @var WaGatewayService $waGateway */
+                            $waGateway = app(WaGatewayService::class);
+
+                            $success = $waGateway->sendGroupBelumDisposisi($records);
+
+                            if ($success) {
+                                Notification::make()
+                                    ->title('Berhasil')
+                                    ->body('Daftar agenda yang belum disposisi berhasil dikirim ke grup WhatsApp.')
+                                    ->success()
+                                    ->send();
+                            } else {
+                                Notification::make()
+                                    ->title('Gagal')
+                                    ->body('Gagal mengirim pesan ke WA Gateway. Cek konfigurasi/token/ID grup.')
+                                    ->danger()
+                                    ->send();
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->tooltip('Mengirim ke grup WA daftar agenda yang belum disposisi, hanya untuk agenda yang dicentang.'),
 
                     DeleteBulkAction::make(),
                 ]),	

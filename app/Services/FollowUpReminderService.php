@@ -47,6 +47,7 @@ class FollowUpReminderService
 
     public function buildMessage(FollowUpReminder $reminder): string
     {
+        $includeTag = $this->includePersonilTag();
         $tanggalLabel = $reminder->tanggal
             ? $reminder->tanggal->locale('id')->isoFormat('dddd, D MMMM Y')
             : '-';
@@ -65,7 +66,8 @@ class FollowUpReminderService
             $lines[] = $this->formatLabel('Tempat', $tempat);
         }
 
-        $mention = $this->buildMention($reminder);
+        $mention = $includeTag ? $this->buildMention($reminder) : $this->recipientLabel($reminder);
+        $mention = $mention !== '' ? $mention : null;
         if ($mention) {
             $lines[] = $this->formatLabel('Untuk', $mention);
         }
@@ -116,6 +118,14 @@ class FollowUpReminderService
         $templateService = app(WaMessageTemplateService::class);
 
         return $templateService->render('follow_up_reminder', $data, $fallback);
+    }
+
+    protected function includePersonilTag(): bool
+    {
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->includePersonilTag('follow_up_reminder', true);
     }
 
     public function handleThanksReply(array $payload): bool
