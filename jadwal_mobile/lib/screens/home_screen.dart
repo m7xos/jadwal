@@ -41,7 +41,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Jadwal Watumalang'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Jadwal Watumalang'),
+            if (auth.personil?.jabatan != null)
+              Text(
+                auth.personil?.jabatan ?? '',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.black54,
+                    ),
+              ),
+          ],
+        ),
         actions: [
           IconButton(
             onPressed: () async {

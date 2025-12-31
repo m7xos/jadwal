@@ -52,13 +52,13 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> login(String noWa, String password) async {
+  Future<bool> login(String nip, String password) async {
     _setLoading(true);
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final result = await _authService.login(noWa: noWa, password: password);
+      final result = await _authService.login(nip: nip, password: password);
       _apiClient.setToken(result.token);
       await _storageService.saveToken(result.token);
       _personil = result.personil;
@@ -69,7 +69,7 @@ class AuthController extends ChangeNotifier {
       _setLoading(false);
       return true;
     } catch (e) {
-      _errorMessage = 'Login gagal. Periksa nomor WA dan password.';
+      _errorMessage = _resolveErrorMessage(e);
       _setLoading(false);
       return false;
     }
@@ -95,5 +95,20 @@ class AuthController extends ChangeNotifier {
 
   void _setLoading(bool value) {
     _loading = value;
+  }
+
+  String _resolveErrorMessage(Object error) {
+    try {
+      final dioError = error as dynamic;
+      final response = dioError.response;
+      if (response?.data is Map<String, dynamic>) {
+        final message = response.data['message'] as String?;
+        if (message != null && message.trim().isNotEmpty) {
+          return message;
+        }
+      }
+    } catch (_) {}
+
+    return 'Username/password salah.';
   }
 }

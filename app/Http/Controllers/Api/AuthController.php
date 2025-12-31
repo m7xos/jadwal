@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Personil;
-use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -14,21 +13,18 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'no_wa' => ['required', 'string'],
+            'nip' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        $normalized = PhoneNumber::normalize($data['no_wa']);
-        if (! $normalized) {
-            return response()->json(['message' => 'Nomor WA tidak valid.'], 422);
-        }
+        $nip = trim($data['nip']);
 
         $personil = Personil::query()
-            ->where('no_wa', $normalized)
+            ->where('nip', $nip)
             ->first();
 
         if (! $personil || ! Hash::check($data['password'], $personil->password)) {
-            return response()->json(['message' => 'Login gagal.'], 401);
+            return response()->json(['message' => 'Username/password salah.'], 401);
         }
 
         $tokenName = $request->userAgent() ?: 'android';

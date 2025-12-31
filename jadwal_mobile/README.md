@@ -17,6 +17,6 @@ Aplikasi Android untuk Jadwal Watumalang (personil internal).
   - Saat ini `assets/logo.png` masih placeholder, silakan ganti dengan logo yang dilampirkan.
 
 ## Catatan
-- Login memakai nomor WA dan password yang sama dengan backend.
+- Login memakai NIP dan password (default password masih nomor WA).
 - Push notifikasi akan aktif setelah token device berhasil didaftarkan ke API.
   - Jika API masih HTTP (tanpa SSL), tambahkan `android:usesCleartextTraffic="true"` di `android/app/src/main/AndroidManifest.xml`.

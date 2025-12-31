@@ -10,6 +10,7 @@ class Kegiatan {
     required this.sudahDisposisi,
     required this.suratPreviewUrl,
     required this.suratViewUrl,
+    required this.personilIds,
   });
 
   final int id;
@@ -22,8 +23,12 @@ class Kegiatan {
   final bool sudahDisposisi;
   final String? suratPreviewUrl;
   final String? suratViewUrl;
+  final List<int> personilIds;
 
   factory Kegiatan.fromJson(Map<String, dynamic> json) {
+    final personils = (json['personils'] as List<dynamic>? ?? [])
+        .cast<Map<String, dynamic>>();
+
     return Kegiatan(
       id: (json['id'] as num?)?.toInt() ?? 0,
       nama: (json['nama_kegiatan'] as String?) ?? '-',
@@ -35,6 +40,10 @@ class Kegiatan {
       sudahDisposisi: (json['sudah_disposisi'] as bool?) ?? false,
       suratPreviewUrl: json['surat_preview_url'] as String?,
       suratViewUrl: json['surat_view_url'] as String?,
+      personilIds: personils
+          .map((personil) => (personil['id'] as num?)?.toInt())
+          .whereType<int>()
+          .toList(),
     );
   }
 }

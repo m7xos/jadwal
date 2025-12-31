@@ -19,13 +19,13 @@ class AuthService {
   final ApiClient _apiClient;
 
   Future<AuthResult> login({
-    required String noWa,
+    required String nip,
     required String password,
   }) async {
     final response = await _apiClient.post(
       '/auth/login',
       data: {
-        'no_wa': noWa,
+        'nip': nip,
         'password': password,
       },
     );

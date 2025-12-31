@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../controllers/notifications_controller.dart';
 import '../models/app_notification.dart';
+import '../widgets/app_card.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -61,38 +62,56 @@ class _NotificationCard extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      child: Container(
+      child: AppCard(
         padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isRead ? Colors.white : const Color(0xFFFFF6F7),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isRead
-                ? Colors.grey.shade200
-                : Theme.of(context).colorScheme.primary.withOpacity(0.2),
-          ),
-        ),
-        child: Column(
+        child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              notification.title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+            Container(
+              width: 6,
+              height: 56,
+              decoration: BoxDecoration(
+                color: isRead
+                    ? Colors.grey.shade300
+                    : Theme.of(context).colorScheme.primary,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    notification.title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
                   ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              notification.body,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              notification.createdAt ?? '-',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.black54,
+                  const SizedBox(height: 6),
+                  Text(
+                    notification.body,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    notification.createdAt ?? '-',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.black54,
+                        ),
+                  ),
+                ],
+              ),
             ),
+            if (!isRead)
+              Padding(
+                padding: const EdgeInsets.only(left: 8, top: 6),
+                child: Icon(
+                  Icons.fiber_manual_record,
+                  size: 10,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
           ],
         ),
       ),

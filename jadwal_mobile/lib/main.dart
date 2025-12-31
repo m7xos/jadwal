@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'controllers/agenda_controller.dart';
@@ -14,6 +13,7 @@ import 'screens/login_screen.dart';
 import 'services/api_client.dart';
 import 'services/push_notification_service.dart';
 import 'services/storage_service.dart';
+import 'theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,11 +33,6 @@ class JadwalApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: const Color(0xFFD31E28),
-      surface: const Color(0xFFF7F4F1),
-    );
-
     return MultiProvider(
       providers: [
         Provider<ApiClient>(create: (_) => ApiClient()),
@@ -69,13 +64,7 @@ class JadwalApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Jadwal Watumalang',
-        theme: ThemeData(
-          colorScheme: colorScheme,
-          useMaterial3: true,
-          textTheme: GoogleFonts.merriweatherSansTextTheme(
-            Theme.of(context).textTheme,
-          ),
-        ),
+        theme: AppTheme.build(),
         home: Consumer<AuthController>(
           builder: (context, auth, _) {
             if (auth.isLoading) {

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../controllers/layanan_controller.dart';
 import '../models/layanan.dart';
+import '../widgets/app_card.dart';
 
 class LayananScreen extends StatefulWidget {
   const LayananScreen({super.key});
@@ -29,24 +30,27 @@ class _LayananScreenState extends State<LayananScreen> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'Layanan Publik Aktif',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
+          AppCard(
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Layanan Publik Aktif',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
                 ),
-              ),
-              FilledButton.icon(
-                onPressed: layanan.items.isEmpty
-                    ? null
-                    : () => _openRegisterForm(context, layanan),
-                icon: const Icon(Icons.add),
-                label: const Text('Daftarkan'),
-              ),
-            ],
+                FilledButton.icon(
+                  onPressed: layanan.items.isEmpty
+                      ? null
+                      : () => _openRegisterForm(context, layanan),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Daftarkan'),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
           if (layanan.isLoading)
@@ -69,6 +73,10 @@ class _LayananScreenState extends State<LayananScreen> {
     final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (context) {
         return Padding(
           padding: EdgeInsets.only(
@@ -184,30 +192,32 @@ class _LayananCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            item.nama,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-          ),
-          if (item.kategori != null) ...[
-            const SizedBox(height: 4),
-            Text('Kategori: ${item.kategori}'),
+      child: AppCard(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              item.nama,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            if (item.kategori != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                'Kategori: ${item.kategori}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.black54,
+                    ),
+              ),
+            ],
+            if (item.deskripsi != null) ...[
+              const SizedBox(height: 10),
+              Text(item.deskripsi!),
+            ],
           ],
-          if (item.deskripsi != null) ...[
-            const SizedBox(height: 8),
-            Text(item.deskripsi!),
-          ],
-        ],
+        ),
       ),
     );
   }

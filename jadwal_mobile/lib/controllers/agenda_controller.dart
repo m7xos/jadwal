@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 
 import '../models/kegiatan.dart';
 import '../services/api_client.dart';
@@ -14,13 +15,26 @@ class AgendaController extends ChangeNotifier {
   List<Kegiatan> get items => _items;
   bool get isLoading => _loading;
 
-  Future<void> fetchAgenda({bool pendingOnly = false}) async {
+  Future<void> fetchAgenda({
+    DateTime? date,
+    bool? belumDisposisi,
+  }) async {
     _loading = true;
     notifyListeners();
 
+    final queryParameters = <String, dynamic>{};
+    if (date != null) {
+      final dateString = DateFormat('yyyy-MM-dd').format(date);
+      queryParameters['tanggal_mulai'] = dateString;
+      queryParameters['tanggal_selesai'] = dateString;
+    }
+    if (belumDisposisi != null) {
+      queryParameters['belum_disposisi'] = belumDisposisi;
+    }
+
     final response = await _apiClient.get(
       '/kegiatan',
-      queryParameters: pendingOnly ? {'belum_disposisi': true} : null,
+      queryParameters: queryParameters.isEmpty ? null : queryParameters,
     );
     final payload = response.data as Map<String, dynamic>;
     final data = (payload['data'] as List<dynamic>? ?? [])
