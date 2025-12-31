@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Kegiatans\Schemas;
 
 use App\Models\Kegiatan;
 use App\Models\Personil;
+use App\Models\PersonilCategory;
 use App\Services\NomorSuratExtractor;
 use App\Services\PdfCompressor;
 use Carbon\Carbon;
@@ -261,6 +262,61 @@ class KegiatanForm
 
                                 $set('personils', $allIds);
                             }),
+
+                        Select::make('personilCategories')
+                            ->label('Kategori Personil')
+                            ->relationship(
+                                'personilCategories',
+                                'nama',
+                                fn ($query) => $query
+                                    ->where('is_active', true)
+                                    ->orderBy('urutan')
+                                    ->orderBy('nama')
+                            )
+                            ->getOptionLabelFromRecordUsing(function (PersonilCategory $record): string {
+                                $label = trim((string) ($record->nama ?? $record->slug ?? ''));
+
+                                return $label !== '' ? $label : (string) $record->getKey();
+                            })
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
+                            ->live()
+                            ->afterStateUpdated(function ($state, callable $set, Get $get) {
+                                $categoryIds = is_array($state) ? array_filter($state) : [];
+
+                                if (empty($categoryIds)) {
+                                    return;
+                                }
+
+                                $categorySlugs = PersonilCategory::query()
+                                    ->whereIn('id', $categoryIds)
+                                    ->pluck('slug')
+                                    ->filter()
+                                    ->values()
+                                    ->all();
+
+                                if (empty($categorySlugs)) {
+                                    return;
+                                }
+
+                                $personilIds = Personil::query()
+                                    ->whereIn('kategori', $categorySlugs)
+                                    ->pluck('id')
+                                    ->all();
+
+                                if (empty($personilIds)) {
+                                    return;
+                                }
+
+                                $current = $get('personils');
+                                $currentIds = is_array($current) ? $current : [];
+                                $merged = array_values(array_unique(array_merge($currentIds, $personilIds)));
+
+                                $set('personils', $merged);
+                                $set('sudah_disposisi', count($merged) > 0 ? 1 : 0);
+                            })
+                            ->helperText('Pilih kategori untuk menambahkan personil sesuai kategori ke daftar di bawah.'),
 
                         Select::make('personils')
                             ->label('Pilih Personil')
