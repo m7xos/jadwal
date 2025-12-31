@@ -28,7 +28,7 @@ class KirimPengingatTindakLanjut extends Command
 
         // Pengingat awal (5 jam sebelum batas TL)
         $dueKegiatans = Kegiatan::query()
-            ->where('jenis_surat', 'tindak_lanjut')
+            ->where('perlu_tindak_lanjut', true)
             ->whereNotNull('batas_tindak_lanjut')
             ->whereNull('tl_reminder_sent_at')
             ->whereNull('tindak_lanjut_selesai_at')
@@ -62,7 +62,7 @@ class KirimPengingatTindakLanjut extends Command
 
         // Overdue (melewati batas) - kirim pengingat akhir atau ulang + perpanjang 1 hari
         $overdueBatch = Kegiatan::query()
-            ->where('jenis_surat', 'tindak_lanjut')
+            ->where('perlu_tindak_lanjut', true)
             ->whereNotNull('batas_tindak_lanjut')
             ->whereNull('tindak_lanjut_selesai_at')
             ->where('batas_tindak_lanjut', '<=', $now)

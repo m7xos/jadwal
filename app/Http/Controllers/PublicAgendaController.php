@@ -42,12 +42,12 @@ class PublicAgendaController extends Controller
 		}
 
 		// Query agenda HARI INI & MENDATANG (dalam rentang)
-                $upcomingQuery = Kegiatan::with('personils')
+		$upcomingQuery = Kegiatan::with('personils')
                         ->where(function ($query) {
-                                $query->whereNull('jenis_surat')
-                                    ->orWhere('jenis_surat', 'undangan')
+                                $query->where('perlu_tindak_lanjut', false)
+                                    ->orWhereNull('perlu_tindak_lanjut')
                                     ->orWhere(function ($query) {
-                                        $query->where('jenis_surat', 'tindak_lanjut')
+                                        $query->where('perlu_tindak_lanjut', true)
                                             ->where('tampilkan_di_public', true);
                                     });
                         });
@@ -73,10 +73,10 @@ class PublicAgendaController extends Controller
 
                 $past = Kegiatan::with('personils')
                         ->where(function ($query) {
-                                $query->whereNull('jenis_surat')
-                                    ->orWhere('jenis_surat', 'undangan')
+                                $query->where('perlu_tindak_lanjut', false)
+                                    ->orWhereNull('perlu_tindak_lanjut')
                                     ->orWhere(function ($query) {
-                                        $query->where('jenis_surat', 'tindak_lanjut')
+                                        $query->where('perlu_tindak_lanjut', true)
                                             ->where('tampilkan_di_public', true);
                                     });
                         })
@@ -102,10 +102,10 @@ class PublicAgendaController extends Controller
 
         $agendaToday = Kegiatan::with('personils')
             ->where(function ($query) {
-                $query->whereNull('jenis_surat')
-                    ->orWhere('jenis_surat', 'undangan')
+                $query->where('perlu_tindak_lanjut', false)
+                    ->orWhereNull('perlu_tindak_lanjut')
                     ->orWhere(function ($query) {
-                        $query->where('jenis_surat', 'tindak_lanjut')
+                        $query->where('perlu_tindak_lanjut', true)
                             ->where('tampilkan_di_public', true);
                     });
             })

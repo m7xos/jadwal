@@ -40,17 +40,29 @@ class KegiatanForm
                 // =========================
                 Section::make('Informasi Kegiatan')
                     ->schema([
-                        Select::make('jenis_surat')
-                            ->label('Jenis Surat')
+                        Select::make('sifat_surat')
+                            ->label('Sifat Surat')
                             ->options([
-                                'undangan'      => 'Surat Undangan',
-                                'tindak_lanjut' => 'Surat Masuk',
+                                'undangan' => 'Undangan',
+                                'edaran' => 'Surat Edaran',
+                                'pemberitahuan' => 'Pemberitahuan',
+                                'lainnya' => 'Lainnya',
                             ])
                             ->default('undangan')
                             ->required()
                             ->native(false)
-                            ->helperText('Pilih apakah surat undangan atau surat masuk dengan batas tindak lanjut.')
-                            ->reactive(), // penting supaya visible()/required() ikut berubah
+                            ->helperText('Pilih sifat/isi surat untuk menampilkan field yang relevan.')
+                            ->reactive(),
+
+                        Toggle::make('perlu_tindak_lanjut')
+                            ->label('Perlu Tindak Lanjut')
+                            ->helperText('Centang jika surat perlu tindak lanjut dan pengingat.')
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                if (! $state) {
+                                    $set('batas_tindak_lanjut', null);
+                                }
+                            }),
 
                         
                         FileUpload::make('surat_undangan')
@@ -60,7 +72,7 @@ class KegiatanForm
                             ->preserveFilenames()
                             ->storeFiles(false)
                             ->acceptedFileTypes(['application/pdf'])
-                            ->required(fn (Get $get) => $get('jenis_surat') === 'undangan')
+                            ->required(fn (Get $get) => $get('sifat_surat') === 'undangan')
                             ->deleteUploadedFileUsing(function ($file): void {
                                 if ($file instanceof TemporaryUploadedFile) {
                                     $file->delete();
@@ -206,25 +218,25 @@ class KegiatanForm
                         TextInput::make('waktu')
                             ->label('Waktu')
                             ->placeholder('Contoh: 09.00 - 11.00 WIB')
-                            ->required(fn (Get $get) => $get('jenis_surat') === 'undangan')
-                            ->visible(fn (Get $get) => $get('jenis_surat') === 'undangan')
+                            ->required(fn (Get $get) => $get('sifat_surat') === 'undangan')
+                            ->visible(fn (Get $get) => $get('sifat_surat') === 'undangan')
                             // opsional: supaya tidak ikut disimpan kalau hidden
-                            ->dehydrated(fn (Get $get) => $get('jenis_surat') === 'undangan')
+                            ->dehydrated(fn (Get $get) => $get('sifat_surat') === 'undangan')
                             ->maxLength(100),
 
                         TextInput::make('tempat')
 							->label('Tempat')
-							->required(fn (Get $get) => $get('jenis_surat') === 'undangan')
-							->visible(fn (Get $get) => $get('jenis_surat') === 'undangan')
-							->dehydrated(fn (Get $get) => $get('jenis_surat') === 'undangan')
+							->required(fn (Get $get) => $get('sifat_surat') === 'undangan')
+							->visible(fn (Get $get) => $get('sifat_surat') === 'undangan')
+							->dehydrated(fn (Get $get) => $get('sifat_surat') === 'undangan')
 							->maxLength(255),
 
                         DateTimePicker::make('batas_tindak_lanjut')
                             ->label('Batas Waktu Tindak Lanjut')
                             ->seconds(false)
-                            ->visible(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
-                            ->required(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
-                            ->helperText('Wajib diisi untuk surat masuk yang harus ditindaklanjuti.'),
+                            ->visible(fn (Get $get) => (bool) $get('perlu_tindak_lanjut'))
+                            ->required(fn (Get $get) => (bool) $get('perlu_tindak_lanjut'))
+                            ->helperText('Wajib diisi jika surat perlu tindak lanjut.'),
 
                         Textarea::make('keterangan')
                             ->label('Keterangan')

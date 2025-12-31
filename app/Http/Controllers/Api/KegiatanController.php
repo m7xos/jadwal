@@ -19,9 +19,14 @@ class KegiatanController extends Controller
 
         $query = Kegiatan::query()->with('personils');
 
-        $jenisSurat = $request->input('jenis_surat');
-        if (is_string($jenisSurat) && $jenisSurat !== '') {
-            $query->where('jenis_surat', $jenisSurat);
+        $sifatSurat = $request->input('sifat_surat');
+        if (is_string($sifatSurat) && $sifatSurat !== '') {
+            $query->where('sifat_surat', $sifatSurat);
+        }
+
+        $perluTl = $request->input('perlu_tindak_lanjut');
+        if ($perluTl !== null) {
+            $query->where('perlu_tindak_lanjut', filter_var($perluTl, FILTER_VALIDATE_BOOLEAN));
         }
 
         $belumDisposisi = $request->input('belum_disposisi');
@@ -155,7 +160,7 @@ class KegiatanController extends Controller
 
         return [
             'id' => $kegiatan->id,
-            'jenis_surat' => $kegiatan->jenis_surat,
+            'sifat_surat' => $kegiatan->sifat_surat,
             'nomor' => $kegiatan->nomor,
             'nama_kegiatan' => $kegiatan->nama_kegiatan,
             'tanggal' => $kegiatan->tanggal?->format('Y-m-d'),
@@ -164,6 +169,7 @@ class KegiatanController extends Controller
             'keterangan' => $kegiatan->keterangan,
             'sudah_disposisi' => (bool) $kegiatan->sudah_disposisi,
             'tampilkan_di_public' => (bool) $kegiatan->tampilkan_di_public,
+            'perlu_tindak_lanjut' => (bool) $kegiatan->perlu_tindak_lanjut,
             'batas_tindak_lanjut' => $kegiatan->batas_tindak_lanjut?->toISOString(),
             'surat_undangan' => $kegiatan->surat_undangan,
             'lampiran_surat' => $kegiatan->lampiran_surat,

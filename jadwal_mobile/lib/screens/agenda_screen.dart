@@ -152,6 +152,19 @@ class _AgendaCard extends StatelessWidget {
 
   final Kegiatan item;
 
+  String _sifatLabel(String? value) {
+    switch (value) {
+      case 'undangan':
+        return 'Undangan';
+      case 'edaran':
+        return 'Surat Edaran';
+      case 'pemberitahuan':
+        return 'Pemberitahuan';
+      default:
+        return 'Lainnya';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final statusColor = item.sudahDisposisi
@@ -217,13 +230,18 @@ class _AgendaCard extends StatelessWidget {
                       : 'Menunggu disposisi',
                   color: statusColor,
                 ),
-                if (item.jenisSurat != null) ...[
+                if (item.sifatSurat != null) ...[
                   const SizedBox(width: 8),
                   _Tag(
-                    label: item.jenisSurat == 'tindak_lanjut'
-                        ? 'Tindak lanjut'
-                        : 'Undangan',
+                    label: _sifatLabel(item.sifatSurat),
                     color: Colors.blueGrey,
+                  ),
+                ],
+                if (item.perluTindakLanjut) ...[
+                  const SizedBox(width: 8),
+                  _Tag(
+                    label: 'Perlu TL',
+                    color: Colors.deepOrange,
                   ),
                 ],
                 const Spacer(),

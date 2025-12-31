@@ -19,7 +19,7 @@ class EskalasiDisposisiKegiatan extends Command
             ->where('sudah_disposisi', false)
             ->whereNull('disposisi_escalated_at')
             ->where(function ($query) {
-                $query->where('jenis_surat', 'tindak_lanjut')
+                $query->where('perlu_tindak_lanjut', true)
                     ->orWhereNotNull('surat_undangan');
             })
             ->get();
@@ -48,7 +48,7 @@ class EskalasiDisposisiKegiatan extends Command
 
     protected function resolveDeadline(Kegiatan $kegiatan): ?Carbon
     {
-        if ($kegiatan->jenis_surat === 'tindak_lanjut' && $kegiatan->batas_tindak_lanjut) {
+        if ($kegiatan->perlu_tindak_lanjut && $kegiatan->batas_tindak_lanjut) {
             return Carbon::parse($kegiatan->batas_tindak_lanjut);
         }
 

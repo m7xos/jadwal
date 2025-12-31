@@ -19,7 +19,7 @@ class Kegiatan extends Model
     protected $table = 'kegiatans';
 
     protected $fillable = [
-        'jenis_surat',
+        'sifat_surat',
         'nomor',
         'nama_kegiatan',
         'tanggal',
@@ -30,6 +30,7 @@ class Kegiatan extends Model
                 'sudah_disposisi',   // <--- baru
         'lampiran_surat',
         'tampilkan_di_public',
+        'perlu_tindak_lanjut',
         'batas_tindak_lanjut',
         'tl_reminder_sent_at',
         'tl_final_reminder_sent_at',
@@ -43,6 +44,7 @@ class Kegiatan extends Model
         'tanggal' => 'date',
         'sudah_disposisi' => 'boolean',   // <--- baru
         'tampilkan_di_public' => 'boolean',
+        'perlu_tindak_lanjut' => 'boolean',
         'tindak_lanjut_deadline' => 'datetime',
         'tindak_lanjut_reminder_sent_at' => 'datetime',
         'tindak_lanjut_selesai_at' => 'datetime',
@@ -128,7 +130,7 @@ class Kegiatan extends Model
     protected static function booted(): void
     {
         static::created(function (Kegiatan $kegiatan) {
-            if ($kegiatan->jenis_surat !== 'tindak_lanjut' && ! $kegiatan->surat_undangan) {
+            if (! $kegiatan->perlu_tindak_lanjut && ! $kegiatan->surat_undangan) {
                 return;
             }
 
@@ -136,7 +138,7 @@ class Kegiatan extends Model
         });
 
         static::saved(function (Kegiatan $kegiatan) {
-            if ($kegiatan->jenis_surat !== 'tindak_lanjut') {
+            if (! $kegiatan->perlu_tindak_lanjut) {
                 return;
             }
 
@@ -149,7 +151,7 @@ class Kegiatan extends Model
             }
 
             $shouldEnsureLog = $kegiatan->wasRecentlyCreated
-                || $kegiatan->wasChanged('jenis_surat')
+                || $kegiatan->wasChanged('perlu_tindak_lanjut')
                 || $kegiatan->wasChanged('batas_tindak_lanjut');
 
             if (! $shouldEnsureLog) {

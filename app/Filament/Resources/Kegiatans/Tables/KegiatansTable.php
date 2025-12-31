@@ -36,18 +36,22 @@ class KegiatansTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('jenis_surat')
-                    ->label('Jenis Surat')
-                    ->formatStateUsing(function (string $state): string {
+                TextColumn::make('sifat_surat')
+                    ->label('Sifat Surat')
+                    ->formatStateUsing(function (?string $state): string {
                         return match ($state) {
-                            'tindak_lanjut' => 'Surat Masuk (TL)',
-                            default => 'Surat Undangan',
+                            'undangan' => 'Undangan',
+                            'edaran' => 'Surat Edaran',
+                            'pemberitahuan' => 'Pemberitahuan',
+                            default => 'Lainnya',
                         };
                     })
                     ->badge()
                     ->colors([
-                        'warning' => 'tindak_lanjut',
                         'primary' => 'undangan',
+                        'warning' => 'edaran',
+                        'success' => 'pemberitahuan',
+                        'gray' => 'lainnya',
                     ]),
 
                 TextColumn::make('nama_kegiatan')
@@ -86,12 +90,12 @@ class KegiatansTable
                     ->label('Batas TL')
                     ->dateTime('d-m-Y H:i')
                     ->toggleable()
-                    ->visible(fn (?Kegiatan $record) => $record?->jenis_surat === 'tindak_lanjut'),
+                    ->visible(fn (?Kegiatan $record) => (bool) $record?->perlu_tindak_lanjut),
 
                 TextColumn::make('tindak_lanjut_selesai_at')
                     ->label('Status TL')
                     ->state(function (Kegiatan $record): ?string {
-                        if ($record->jenis_surat !== 'tindak_lanjut') {
+                        if (! $record->perlu_tindak_lanjut) {
                             return null;
                         }
 
@@ -107,7 +111,7 @@ class KegiatansTable
                         ? 'Sudah selesai tindak lanjut'
                         : ($state === 'Belum TL' ? 'Belum selesai tindak lanjut' : ''))
                     // allow rendering header when $record null; hide for undangan rows
-                    ->visible(fn ($record) => $record === null || $record?->jenis_surat === 'tindak_lanjut'),
+                    ->visible(fn ($record) => $record === null || (bool) $record?->perlu_tindak_lanjut),
             ])
             ->defaultSort('tanggal', 'asc')
 
@@ -153,9 +157,9 @@ class KegiatansTable
                     ->query(fn (Builder $query): Builder => $query->where('sudah_disposisi', false))
                     ->toggle(),
 
-                Filter::make('tindak_lanjut')
-                    ->label('Surat Masuk (TL)')
-                    ->query(fn (Builder $query): Builder => $query->where('jenis_surat', 'tindak_lanjut')),
+                Filter::make('perlu_tindak_lanjut')
+                    ->label('Perlu TL')
+                    ->query(fn (Builder $query): Builder => $query->where('perlu_tindak_lanjut', true)),
             ])
 
             // ================== AKSI PER RECORD ==================

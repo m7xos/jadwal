@@ -674,14 +674,14 @@ class WaGatewayWebhookController extends Controller
         if ($kegiatanId) {
             return Kegiatan::query()
                 ->where('id', $kegiatanId)
-                ->where('jenis_surat', 'tindak_lanjut')
+                ->where('perlu_tindak_lanjut', true)
                 ->whereNull('tindak_lanjut_selesai_at')
                 ->first();
         }
 
         $log = TindakLanjutReminderLog::query()
             ->whereHas('kegiatan', fn ($q) => $q
-                ->where('jenis_surat', 'tindak_lanjut')
+                ->where('perlu_tindak_lanjut', true)
                 ->whereNull('tindak_lanjut_selesai_at'))
             ->orderByDesc('created_at')
             ->first();
