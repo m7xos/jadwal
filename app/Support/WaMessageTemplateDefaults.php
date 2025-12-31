@@ -44,7 +44,8 @@ class WaMessageTemplateDefaults
                         'label' => 'Agenda',
                         'template' => implode("\n", [
                             '#1 {judul}',
-                            '   ⏰ {waktu} | 📍 {tempat}',
+                            '   ⏰ {waktu}',
+                            '   📍 {tempat}',
                             '{peserta_line}{keterangan_line}{surat_line}{lampiran_line}',
                         ]),
                     ],
@@ -57,7 +58,8 @@ class WaMessageTemplateDefaults
                     '📌 REKAP AGENDA — {tanggal_header}',
                     implode("\n", [
                         '#1 {judul}',
-                        '   ⏰ {waktu} | 📍 {tempat}',
+                        '   ⏰ {waktu}',
+                        '   📍 {tempat}',
                         '{peserta_line}{keterangan_line}{surat_line}{lampiran_line}',
                     ]),
                     '{footer}',

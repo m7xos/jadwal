@@ -295,7 +295,7 @@ class WaMessageTemplates extends Page implements HasForms
                 'waktu' => '09:00 WIB',
                 'tempat' => 'Ruang Rapat Utama',
                 'peserta_line' => $includeTag
-                    ? "   👥 Camat, Sekcam, @6281234567890\n"
+                    ? "   👥 Camat, Sekcam\n      @6281234567890 @6289876543210\n"
                     : "   👥 Camat, Sekcam, Budi\n",
                 'keterangan_line' => "   📝 Dimohon hadir tepat waktu.\n",
                 'surat_line' => "   📎 Surat: https://example.com/surat\n",
@@ -388,9 +388,8 @@ class WaMessageTemplates extends Page implements HasForms
                     'tempat' => 'Ruang Rapat Utama',
                     'personil_block' => implode("\n", [
                         '   👥 Penerima Disposisi:',
-                        $includeTag
-                            ? '      1. Budi @6281234567890'
-                            : '      1. Budi',
+                        $includeTag ? '      1. Budi' : '      1. Budi',
+                        $includeTag ? '         @6281234567890' : '',
                         '',
                     ]),
                     'keterangan_block' => implode("\n", [
@@ -408,9 +407,8 @@ class WaMessageTemplates extends Page implements HasForms
                     'tempat' => 'Desa Sumber',
                     'personil_block' => implode("\n", [
                         '   👥 Penerima Disposisi:',
-                        $includeTag
-                            ? '      1. Sari @6289876543210'
-                            : '      1. Sari',
+                        $includeTag ? '      1. Sari' : '      1. Sari',
+                        $includeTag ? '         @6289876543210' : '',
                         '',
                     ]),
                     'keterangan_block' => '',
