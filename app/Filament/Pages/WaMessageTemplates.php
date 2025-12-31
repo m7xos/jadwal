@@ -297,9 +297,26 @@ class WaMessageTemplates extends Page implements HasForms
                 'peserta_line' => $includeTag
                     ? "   👥 Camat, Sekcam\n      @6281234567890 @6289876543210\n"
                     : "   👥 Camat, Sekcam, Budi\n",
+                'peserta_raw' => $includeTag ? 'Camat, Sekcam' : 'Camat, Sekcam, Budi',
+                'mentions_raw' => $includeTag ? '@6281234567890 @6289876543210' : '',
+                'mentions_line' => $includeTag ? "      @6281234567890 @6289876543210\n" : '',
+                'personil_list_raw' => $includeTag
+                    ? implode("\n", [
+                        '1. Budi',
+                        '   @6281234567890',
+                        '2. Sari',
+                        '   @6289876543210',
+                    ])
+                    : implode("\n", [
+                        '1. Budi',
+                        '2. Sari',
+                    ]),
                 'keterangan_line' => "   📝 Dimohon hadir tepat waktu.\n",
+                'keterangan_raw' => 'Dimohon hadir tepat waktu.',
                 'surat_line' => "   📎 Surat: https://example.com/surat\n",
+                'surat_url' => 'https://example.com/surat',
                 'lampiran_line' => "   📎 Lampiran: https://example.com/lampiran\n",
+                'lampiran_url' => 'https://example.com/lampiran',
                 'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
             ],
             'agenda_personil' => [
@@ -309,13 +326,19 @@ class WaMessageTemplates extends Page implements HasForms
                 'waktu' => '09:00 WIB',
                 'tempat' => 'Balai Desa',
                 'keterangan_block' => "*Keterangan*\nMohon membawa bahan paparan.\n\n",
+                'keterangan_raw' => 'Mohon membawa bahan paparan.',
                 'surat_block' => "📎 *Lihat Surat (PDF)*\nhttps://example.com/surat\n\n",
+                'surat_url' => 'https://example.com/surat',
                 'lampiran_block' => "📎 *Lampiran*\nhttps://example.com/lampiran\n\n",
+                'lampiran_url' => 'https://example.com/lampiran',
                 'footer' => '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._',
             ],
             'tindak_lanjut_reminder' => [
                 'nomor_surat' => '123/ABC/2026',
                 'kode_tl' => 'TL-45',
+                'perihal' => 'Klarifikasi Dokumen',
+                'tanggal' => 'Senin, 12 Januari 2026',
+                'batas_tl' => 'Selasa, 13 Januari 2026 10:00 WIB',
                 'label_lines' => implode("\n", [
                     'Kode TL       : TL-45',
                     'Perihal       : Klarifikasi Dokumen',
@@ -323,10 +346,14 @@ class WaMessageTemplates extends Page implements HasForms
                     'Batas TL      : Selasa, 13 Januari 2026 10:00 WIB',
                 ]),
                 'surat_block' => "📎 Surat (PDF):\nhttps://example.com/surat\n\n",
+                'surat_url' => 'https://example.com/surat',
                 'lampiran_block' => "📎 Lampiran Surat:\nhttps://example.com/lampiran\n\n",
+                'lampiran_url' => 'https://example.com/lampiran',
                 'disposisi_block' => $includeTag
                     ? "Mohon arahan percepatan tindak lanjut:\n@6281234567890\nkepada: @6289876543210\n\n"
                     : "Mohon arahan percepatan tindak lanjut:\nCamat, Sekcam\nkepada: Budi\n\n",
+                'disposisi_tags' => $includeTag ? '@6281234567890' : 'Camat, Sekcam',
+                'personil_tags' => $includeTag ? '@6289876543210' : 'Budi',
                 'balasan_line' => '_Balas pesan ini dengan *TL-45 selesai* jika sudah menyelesaikan TL_' . "\n",
                 'footer' => '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._',
             ],
@@ -342,18 +369,27 @@ class WaMessageTemplates extends Page implements HasForms
                 'leadership_block' => $includeTag
                     ? "*Mohon petunjuk/arahan disposisi:*\n@6281234567890\n\n"
                     : "*Mohon petunjuk/arahan disposisi:*\nCamat, Sekcam\n\n",
+                'leadership_tags' => $includeTag ? '@6281234567890' : 'Camat, Sekcam',
                 'footer' => '_Pesan ini dikirim otomatis dari sistem agenda kantor._',
             ],
             'follow_up_reminder' => [
                 'kegiatan_line' => 'Kegiatan  : Verifikasi Dokumen',
+                'kegiatan' => 'Verifikasi Dokumen',
                 'tanggal_line' => 'Tanggal   : Senin, 12 Januari 2026',
+                'tanggal' => 'Senin, 12 Januari 2026',
                 'jam_line' => 'Jam       : 09:30 WIB',
+                'jam' => '09:30 WIB',
                 'tempat_line' => 'Tempat    : Ruang Arsip' . "\n",
+                'tempat' => 'Ruang Arsip',
                 'penerima_line' => $includeTag
                     ? 'Untuk     : @6281234567890 (Budi)' . "\n"
                     : 'Untuk     : Budi' . "\n",
+                'penerima' => $includeTag ? '@6281234567890 (Budi)' : 'Budi',
+                'penerima_mention' => $includeTag ? '@6281234567890' : '',
                 'keterangan_block' => "\n*Keterangan:*\nMohon siapkan dokumen pendukung.\n\n",
+                'keterangan' => 'Mohon siapkan dokumen pendukung.',
                 'kode_line' => 'Kode      : PR-12',
+                'kode' => 'PR-12',
                 'footer' => implode("\n", [
                     'Mohon tindak lanjuti kegiatan di atas.',
                     'Balas pesan ini dengan kata kunci *terima kasih* untuk menghentikan pengingat.',
@@ -392,13 +428,24 @@ class WaMessageTemplates extends Page implements HasForms
                         $includeTag ? '         @6281234567890' : '',
                         '',
                     ]),
+                    'personil_list_raw' => $includeTag
+                        ? implode("\n", [
+                            '1. Budi',
+                            '   @6281234567890',
+                        ])
+                        : '1. Budi',
+                    'personil_names_raw' => 'Budi',
+                    'personil_mentions_raw' => $includeTag ? '@6281234567890' : '',
                     'keterangan_block' => implode("\n", [
                         '   📝 Keterangan:',
                         '      Dimohon hadir tepat waktu.',
                         '',
                     ]),
+                    'keterangan_raw' => 'Dimohon hadir tepat waktu.',
                     'surat_line' => '   📎 Link Surat: https://example.com/surat' . "\n",
+                    'surat_url' => 'https://example.com/surat',
                     'lampiran_line' => '   📎 Lampiran: https://example.com/lampiran' . "\n",
+                    'lampiran_url' => 'https://example.com/lampiran',
                 ],
                 [
                     'no' => '2',
@@ -411,9 +458,20 @@ class WaMessageTemplates extends Page implements HasForms
                         $includeTag ? '         @6289876543210' : '',
                         '',
                     ]),
+                    'personil_list_raw' => $includeTag
+                        ? implode("\n", [
+                            '1. Sari',
+                            '   @6289876543210',
+                        ])
+                        : '1. Sari',
+                    'personil_names_raw' => 'Sari',
+                    'personil_mentions_raw' => $includeTag ? '@6289876543210' : '',
                     'keterangan_block' => '',
+                    'keterangan_raw' => '',
                     'surat_line' => '',
+                    'surat_url' => '',
                     'lampiran_line' => '',
+                    'lampiran_url' => '',
                 ],
             ],
             'group_belum_disposisi' => [
@@ -427,6 +485,15 @@ class WaMessageTemplates extends Page implements HasForms
                         '📎 *Lihat Surat (PDF)*',
                         'https://example.com/surat',
                     ]) . "\n",
+                    'surat_url' => 'https://example.com/surat',
+                    'personil_list_raw' => $includeTag
+                        ? implode("\n", [
+                            '1. Budi',
+                            '   @6281234567890',
+                        ])
+                        : '1. Budi',
+                    'personil_names_raw' => 'Budi',
+                    'personil_mentions_raw' => $includeTag ? '@6281234567890' : '',
                 ],
                 [
                     'no' => '2',
@@ -435,6 +502,10 @@ class WaMessageTemplates extends Page implements HasForms
                     'waktu' => '10:30 WIB',
                     'tempat' => 'Aula Kecamatan',
                     'surat_block' => '',
+                    'surat_url' => '',
+                    'personil_list_raw' => '',
+                    'personil_names_raw' => '',
+                    'personil_mentions_raw' => '',
                 ],
             ],
             default => [],
