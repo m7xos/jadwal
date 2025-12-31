@@ -66,7 +66,7 @@ class _LayananScreenState extends State<LayananScreen> {
     final waController = TextEditingController();
     int? selectedId = controller.items.first.id;
 
-    final result = await showModalBottomSheet<bool>(
+    final result = await showModalBottomSheet<Map<String, dynamic>>(
       context: context,
       isScrollControlled: true,
       builder: (context) {
@@ -149,10 +149,10 @@ class _LayananScreenState extends State<LayananScreen> {
     namaController.dispose();
     waController.dispose();
 
-    if (result is Map && context.mounted) {
+    if (result != null && context.mounted) {
       final kode = result['kode_register'] ?? '-';
       final queue = result['queue_number'] ?? '-';
-      final layanan = result['layanan']?['nama'] ?? '-';
+      final layanan = (result['layanan'] as Map<String, dynamic>?)?['nama'] ?? '-';
 
       showDialog(
         context: context,
