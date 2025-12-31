@@ -8,6 +8,7 @@ use App\Models\PersonilCategory;
 use App\Services\NomorSuratExtractor;
 use App\Services\PdfCompressor;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -20,6 +21,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
@@ -246,23 +248,6 @@ class KegiatanForm
                 // =========================
                 Section::make('Personil yang ditugaskan')
                     ->schema([
-                        Toggle::make('semua_personil')
-                            ->label('Pilih semua pegawai')
-                            ->helperText('Centang jika undangan melibatkan seluruh personil.')
-                            ->live()
-                            ->dehydrated(false)
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                if (! $state) {
-                                    return;
-                                }
-
-                                $allIds = Personil::query()
-                                    ->pluck('id')
-                                    ->all();
-
-                                $set('personils', $allIds);
-                            }),
-
                         Select::make('personilCategories')
                             ->label('Kategori Personil')
                             ->relationship(
@@ -321,6 +306,17 @@ class KegiatanForm
                         Select::make('personils')
                             ->label('Pilih Personil')
                             ->relationship('personils', 'nama')
+                            ->hintAction(
+                                Action::make('bersihkan_personil')
+                                    ->label('Bersihkan')
+                                    ->icon('heroicon-m-x-mark')
+                                    ->color('danger')
+                                    ->visible(fn (Get $get) => ! empty($get('personils')))
+                                    ->action(function (Set $set) {
+                                        $set('personils', []);
+                                        $set('sudah_disposisi', 0);
+                                    })
+                            )
                             ->getOptionLabelFromRecordUsing(function (Personil $record): string {
                                 $nama = trim((string) ($record->nama ?? ''));
                                 $jabatan = trim((string) ($record->jabatan ?? ''));
