@@ -20,9 +20,9 @@ class VehicleTaxReminderLogResource extends Resource
     protected static ?string $model = VehicleTaxReminderLog::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chat-bubble-left-ellipsis';
-    protected static ?string $navigationLabel = 'Log Pengiriman Pengingat Pajak';
-    protected static ?string $modelLabel = 'Log Pengiriman Pengingat Pajak';
-    protected static ?string $pluralModelLabel = 'Log Pengiriman Pengingat Pajak';
+    protected static ?string $navigationLabel = 'Log Pengingat Pajak';
+    protected static ?string $modelLabel = 'Log Pengingat Pajak';
+    protected static ?string $pluralModelLabel = 'Log Pengingat Pajak';
     protected static ?string $slug = 'vehicle-tax-reminder-logs';
     protected static string|UnitEnum|null $navigationGroup = 'Log';
     protected static ?int $navigationSort = 40;
