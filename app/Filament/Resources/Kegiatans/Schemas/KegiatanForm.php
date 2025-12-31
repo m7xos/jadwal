@@ -283,6 +283,8 @@ class KegiatanForm
                                 $categoryIds = is_array($state) ? array_filter($state) : [];
 
                                 if (empty($categoryIds)) {
+                                    $set('personils', []);
+                                    $set('sudah_disposisi', 0);
                                     return;
                                 }
 
@@ -294,6 +296,8 @@ class KegiatanForm
                                     ->all();
 
                                 if (empty($categorySlugs)) {
+                                    $set('personils', []);
+                                    $set('sudah_disposisi', 0);
                                     return;
                                 }
 
@@ -302,16 +306,10 @@ class KegiatanForm
                                     ->pluck('id')
                                     ->all();
 
-                                if (empty($personilIds)) {
-                                    return;
-                                }
+                                $personilIds = array_values(array_unique(array_filter($personilIds)));
 
-                                $current = $get('personils');
-                                $currentIds = is_array($current) ? $current : [];
-                                $merged = array_values(array_unique(array_merge($currentIds, $personilIds)));
-
-                                $set('personils', $merged);
-                                $set('sudah_disposisi', count($merged) > 0 ? 1 : 0);
+                                $set('personils', $personilIds);
+                                $set('sudah_disposisi', count($personilIds) > 0 ? 1 : 0);
                             })
                             ->helperText('Pilih kategori untuk menambahkan personil sesuai kategori ke daftar di bawah.'),
 
@@ -325,6 +323,7 @@ class KegiatanForm
                                     ->color('danger')
                                     ->visible(fn (Get $get) => ! empty($get('personils')))
                                     ->action(function (Set $set) {
+                                        $set('personilCategories', []);
                                         $set('personils', []);
                                         $set('sudah_disposisi', 0);
                                     })
