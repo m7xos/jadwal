@@ -1173,6 +1173,10 @@ class WaGatewayService
         $notes = trim((string) ($kegiatan->keterangan ?? ''));
         $suratUrl = $this->getShortSuratUrl($kegiatan);
         $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+        $mentions = $includeTag ? $this->getPersonilMentions($kegiatan) : [];
+        $mentionLine = ! empty($mentions)
+            ? $this->formatTemplateLine('      ' . implode(' ', $mentions))
+            : '';
 
         $lines[] = '#1 ' . ($title !== '' ? $title : '-');
         $lines = array_merge(
@@ -1218,7 +1222,7 @@ class WaGatewayService
             'waktu' => $time !== '' ? $time : '-',
             'tempat' => $place !== '' ? $place : '-',
             'peserta_line' => $participants !== ''
-                ? $this->formatTemplateWrappedLine('   👥 ', $participants)
+                ? $this->formatTemplateWrappedLine('   👥 ', $participants) . $mentionLine
                 : '',
             'personil_block' => $this->buildPersonilBlock($kegiatan, $includeTag),
             'keterangan_line' => $notes !== ''
@@ -1628,6 +1632,113 @@ class WaGatewayService
                     'response' => null,
                 ];
 
+                continue;
+            }
+
+            $sendResult = $this->sendTextToGroup($phone, $message);
+            $results[$group->id] = $sendResult;
+
+            if ($sendResult['success']) {
+                $success = true;
+            }
+        }
+
+        return [
+            'success' => $success,
+            'results' => $results,
+        ];
+    }
+
+    /**
+     * @param iterable<Kegiatan> $kegiatans
+     * @param  array<int, int|string>  $groupIds
+     * @return array{success: bool, results: array<int, array{success: bool, response: mixed, error: string|null}>}
+     */
+    public function sendGroupRekapToGroups(iterable $kegiatans, array $groupIds): array
+    {
+        if (! $this->hasClientCredentials()) {
+            return [
+                'success' => false,
+                'results' => [],
+            ];
+        }
+
+        $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
+
+        if ($items->isEmpty()) {
+            Log::warning('WA Gateway: sendGroupRekapToGroups dipanggil tanpa data kegiatan');
+
+            return [
+                'success' => false,
+                'results' => [],
+            ];
+        }
+
+        $rawIds = collect($groupIds)
+            ->filter(fn ($id) => $id !== null && $id !== '')
+            ->map(fn ($id) => trim((string) $id))
+            ->filter()
+            ->values();
+
+        if ($rawIds->isEmpty()) {
+            $groups = $this->resolveDefaultGroups();
+        } else {
+            $numericIds = $rawIds
+                ->filter(fn ($id) => ctype_digit($id))
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values();
+
+            $groups = Group::query()
+                ->where(function ($query) use ($numericIds, $rawIds) {
+                    $hasCondition = false;
+
+                    if ($numericIds->isNotEmpty()) {
+                        $query->whereIn('id', $numericIds);
+                        $hasCondition = true;
+                    }
+
+                    if ($rawIds->isNotEmpty()) {
+                        $method = $hasCondition ? 'orWhereIn' : 'whereIn';
+                        $query->{$method}('wa_gateway_group_id', $rawIds);
+                    }
+                })
+                ->get();
+        }
+
+        if ($groups->isEmpty()) {
+            Log::warning('WA Gateway: sendGroupRekapToGroups tidak menemukan grup tujuan', [
+                'input_ids' => $rawIds->all(),
+            ]);
+
+            return [
+                'success' => false,
+                'results' => [],
+            ];
+        }
+
+        if (method_exists($items, 'loadMissing')) {
+            $items->loadMissing('personils');
+        }
+
+        $message = $this->buildGroupMessage($items);
+        $results = [];
+        $success = false;
+
+        foreach ($groups as $group) {
+            $phone = $this->resolveGroupPhone($group);
+
+            if (! $phone) {
+                Log::warning('WA Gateway: ID grup WA tidak tersedia untuk rekap', [
+                    'group_id' => $group->id,
+                    'group_name' => $group->nama,
+                ]);
+
+                $results[$group->id] = [
+                    'success' => false,
+                    'error' => 'ID grup WA tidak tersedia',
+                    'response' => null,
+                ];
                 continue;
             }
 

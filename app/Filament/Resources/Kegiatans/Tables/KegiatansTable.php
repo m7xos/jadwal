@@ -285,10 +285,10 @@ class KegiatansTable
 
                 BulkActionGroup::make([
                     BulkAction::make('kirim_wa_group')
-                        ->label('Kirim Group')
+                        ->label('Kirim Rekap Group')
                         ->icon('heroicon-o-paper-airplane')
                         ->requiresConfirmation()
-                        ->modalHeading('Kirim agenda yang dicentang ke grup WhatsApp sesuai pilihan grup pada agenda?')
+                        ->modalHeading('Kirim agenda terpilih ke grup WhatsApp masing-masing?')
                         ->action(function (Collection $records) {
                             if ($records->isEmpty()) {
                                 Notification::make()
@@ -305,35 +305,88 @@ class KegiatansTable
 
                             $records->load('groups', 'personils');
 
-                            $success = false;
-                            $messages = [];
+                            $groupBuckets = [];
+                            $missingGroups = [];
 
                             foreach ($records as $record) {
-                                $groupIds = $record->groups?->pluck('id')
-                                    ->filter()
-                                    ->unique()
-                                    ->values()
-                                    ->all() ?? [];
+                                $recordGroups = $record->groups ?? collect();
 
-                                if (empty($groupIds)) {
-                                    $messages[] = ($record->nama_kegiatan ?? 'Agenda') . ': tidak ada grup tujuan';
+                                if ($recordGroups->isEmpty()) {
+                                    $missingGroups[] = $record->nama_kegiatan ?? 'Agenda';
                                     continue;
                                 }
 
-                                $result = $waGateway->sendAgendaToGroups($record, $groupIds);
+                                foreach ($recordGroups as $group) {
+                                    if (! $group || ! $group->id) {
+                                        continue;
+                                    }
 
-                                if ($result['success'] ?? false) {
-                                    $success = true;
-                                    $sentGroups = $record->groups
-                                        ->whereIn('id', array_keys($result['results'] ?? []))
-                                        ->pluck('nama')
-                                        ->filter()
-                                        ->implode(', ');
+                                    if (! array_key_exists($group->id, $groupBuckets)) {
+                                        $groupBuckets[$group->id] = [
+                                            'group' => $group,
+                                            'records' => collect(),
+                                        ];
+                                    }
 
-                                    $messages[] = ($record->nama_kegiatan ?? 'Agenda') . ': terkirim ke ' . ($sentGroups ?: 'grup terpilih');
-                                } else {
-                                    $messages[] = ($record->nama_kegiatan ?? 'Agenda') . ': gagal (cek token/ID grup)';
+                                    $groupBuckets[$group->id]['records']->push($record);
                                 }
+                            }
+
+                            if (empty($groupBuckets)) {
+                                Notification::make()
+                                    ->title('Tidak ada grup tujuan')
+                                    ->body('Agenda terpilih belum memiliki grup tujuan.')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $results = [];
+                            $success = false;
+
+                            foreach ($groupBuckets as $groupId => $bucket) {
+                                /** @var \Illuminate\Support\Collection $bucketRecords */
+                                $bucketRecords = $bucket['records']->unique('id')->values();
+
+                                if ($bucketRecords->count() === 1) {
+                                    /** @var Kegiatan $singleRecord */
+                                    $singleRecord = $bucketRecords->first();
+                                    $result = $waGateway->sendAgendaToGroups($singleRecord, [$groupId]);
+                                } else {
+                                    $result = $waGateway->sendGroupRekapToGroups($bucketRecords, [$groupId]);
+                                }
+
+                                $resultEntry = $result['results'][$groupId] ?? null;
+                                if ($resultEntry) {
+                                    $results[$groupId] = $resultEntry;
+                                    if ($resultEntry['success'] ?? false) {
+                                        $success = true;
+                                    }
+                                }
+                            }
+
+                            $sentGroups = collect($groupBuckets)
+                                ->filter(fn ($bucket, $groupId) => (bool) ($results[$groupId]['success'] ?? false))
+                                ->map(fn ($bucket) => $bucket['group']?->nama)
+                                ->filter()
+                                ->implode(', ');
+
+                            $failedGroups = collect($groupBuckets)
+                                ->filter(fn ($bucket, $groupId) => ! ($results[$groupId]['success'] ?? false))
+                                ->map(fn ($bucket) => $bucket['group']?->nama)
+                                ->filter()
+                                ->implode(', ');
+
+                            $messages = [];
+                            if ($sentGroups !== '') {
+                                $messages[] = 'Terkirim ke: ' . $sentGroups;
+                            }
+                            if ($failedGroups !== '') {
+                                $messages[] = 'Gagal: ' . $failedGroups;
+                            }
+                            if (! empty($missingGroups)) {
+                                $messages[] = 'Tanpa grup: ' . implode(', ', array_unique($missingGroups));
                             }
 
                             $body = implode("\n", $messages);
@@ -341,7 +394,7 @@ class KegiatansTable
                             if ($success) {
                                 Notification::make()
                                     ->title('Selesai')
-                                    ->body($body)
+                                    ->body($body ?: 'Rekap agenda dikirim ke grup terpilih.')
                                     ->success()
                                     ->send();
                             } else {
@@ -353,7 +406,7 @@ class KegiatansTable
                             }
                         })
                         ->deselectRecordsAfterCompletion()
-                        ->tooltip('Hanya agenda yang dicentang yang dikirim ke grup WA sesuai pilihan grup pada form agenda.'),
+                        ->tooltip('Agenda terpilih dikirim ke grup WA masing-masing sesuai relasinya.'),
                     BulkAction::make('kirim_wa_belum_disposisi')
                         ->label('Mohon Disposisi (Filter)')
                         ->icon('heroicon-o-paper-airplane')
