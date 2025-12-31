@@ -318,7 +318,7 @@ class WaMessageTemplateDefaults
                 ]),
             ],
             'follow_up_reminder' => [
-                'label' => 'Pengingat Kegiatan Lainnya',
+                'label' => 'Pengingat Kegiatan Lain',
                 'description' => 'Pesan pengingat tindak lanjut pekerjaan lainnya.',
                 'placeholders' => [
                     'kegiatan_line',

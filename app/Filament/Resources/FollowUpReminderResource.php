@@ -33,9 +33,9 @@ class FollowUpReminderResource extends Resource
     protected static ?string $model = FollowUpReminder::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-bell-alert';
-    protected static ?string $navigationLabel = 'Pengingat Kegiatan Lainnya';
-    protected static ?string $pluralModelLabel = 'Pengingat Kegiatan Lainnya';
-    protected static ?string $modelLabel = 'Pengingat Kegiatan Lainnya';
+    protected static ?string $navigationLabel = 'Pengingat Kegiatan Lain';
+    protected static ?string $pluralModelLabel = 'Pengingat Kegiatan Lain';
+    protected static ?string $modelLabel = 'Pengingat Kegiatan Lain';
     protected static string|UnitEnum|null $navigationGroup = 'Manajemen Kegiatan';
     protected static ?string $slug = 'follow-up-reminders';
     protected static ?int $navigationSort = 15;
