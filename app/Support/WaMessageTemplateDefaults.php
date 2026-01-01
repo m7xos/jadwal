@@ -323,7 +323,7 @@ class WaMessageTemplateDefaults
                     ' *Waktu*       : {waktu}',
                     ' *Tempat*      : {tempat}',
                     '',
-                    '{surat_block}',
+                    '{keterangan_block}{surat_block}',
                 ]),
                 'list_item_placeholders' => [
                     'no',
@@ -331,6 +331,8 @@ class WaMessageTemplateDefaults
                     'tanggal',
                     'waktu',
                     'tempat',
+                    'keterangan_block',
+                    'keterangan_raw',
                     'surat_block',
                     'surat_url',
                     'personil_list_raw',

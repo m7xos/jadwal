@@ -1008,6 +1008,14 @@ class WaGatewayService
             );
             $lines[] = '';
             $lines[] = '';
+            $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+            if ($keterangan !== '') {
+                $lines = array_merge(
+                    $lines,
+                    $this->wrapLine('   📝 Keterangan: ', $keterangan)
+                );
+                $lines[] = '';
+            }
             $suratUrl = $this->getShortSuratUrl($kegiatan);
             if ($suratUrl) {
                 $lines[] = '📎 *Lihat Surat (PDF)*';
@@ -1548,6 +1556,11 @@ class WaGatewayService
             /** @var \App\Models\Kegiatan $kegiatan */
             foreach ($items as $kegiatan) {
                 $suratUrl = $this->getShortSuratUrl($kegiatan);
+                $keteranganLines = [];
+                $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+                if ($keterangan !== '') {
+                    $keteranganLines = $this->wrapLine('   📝 Keterangan: ', $keterangan);
+                }
                 $personilListRaw = $this->buildPersonilListRaw($kegiatan->personils ?? collect(), $includeTag);
                 $personilNamesRaw = $this->buildPersonilNamesRaw($kegiatan->personils ?? collect());
                 $personilMentionsRaw = $includeTag
@@ -1568,6 +1581,8 @@ class WaGatewayService
                     'tanggal' => (string) ($kegiatan->tanggal_label ?? '-'),
                     'waktu' => (string) ($kegiatan->waktu ?? '-'),
                     'tempat' => (string) ($kegiatan->tempat ?? '-'),
+                    'keterangan_block' => $this->formatTemplateInlineBlock($keteranganLines),
+                    'keterangan_raw' => $keterangan,
                     'surat_block' => $suratBlock,
                     'surat_url' => $suratUrl ?? '',
                     'personil_block' => $this->buildPersonilBlock($kegiatan, $includeTag),
@@ -1609,6 +1624,15 @@ class WaGatewayService
             );
             $lines[] = '';
             $lines[] = '';
+
+            $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+            if ($keterangan !== '') {
+                $lines = array_merge(
+                    $lines,
+                    $this->wrapLine('   📝 Keterangan: ', $keterangan)
+                );
+                $lines[] = '';
+            }
 
             $suratUrl = $this->getShortSuratUrl($kegiatan);
             if ($suratUrl) {
