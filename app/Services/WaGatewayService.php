@@ -287,16 +287,7 @@ class WaGatewayService
         $tanggalLabel = (string) ($kegiatan->tanggal_label ?? '-');
         $lines[] = $this->formatLabelLine('Tanggal', $tanggalLabel);
 
-        $deadline = $kegiatan->batas_tindak_lanjut ?? $kegiatan->tindak_lanjut_deadline;
-        $deadlineLabel = '-';
-
-        if ($deadline) {
-            $deadlineLabel = $deadline
-                ->locale('id')
-                ->isoFormat('dddd, D MMMM Y HH:mm') . ' WIB';
-        } elseif ($kegiatan->tindak_lanjut_deadline_label) {
-            $deadlineLabel = $kegiatan->tindak_lanjut_deadline_label;
-        }
+        $deadlineLabel = $this->formatTindakLanjutDeadlineLabel($kegiatan);
 
         $lines[] = $this->formatLabelLine('Batas TL', $deadlineLabel);
         $lines[] = '';
@@ -383,6 +374,23 @@ class WaGatewayService
         $templateService = app(WaMessageTemplateService::class);
 
         return $templateService->render('tindak_lanjut_reminder', $data, $fallback);
+    }
+
+    protected function formatTindakLanjutDeadlineLabel(Kegiatan $kegiatan): string
+    {
+        $deadline = $kegiatan->batas_tindak_lanjut ?? $kegiatan->tindak_lanjut_deadline;
+
+        if ($deadline) {
+            return $deadline
+                ->locale('id')
+                ->isoFormat('dddd, D MMMM Y HH:mm') . ' WIB';
+        }
+
+        if ($kegiatan->tindak_lanjut_deadline_label) {
+            return $kegiatan->tindak_lanjut_deadline_label;
+        }
+
+        return '-';
     }
 
     protected function getDispositionTags(bool $includeTag = true): array
@@ -1547,6 +1555,10 @@ class WaGatewayService
         $includeTag = $templateService->includePersonilTag('group_belum_disposisi', true);
         $itemTemplate = trim((string) ($meta['item_template'] ?? ''));
         $separator = (string) ($meta['item_separator'] ?? "\n\n");
+        $leadershipTags = $this->getPersonilTagsByJabatan([
+            'Camat Watumalang',
+            'Sekretaris Kecamatan Watumalang',
+        ], $includeTag);
 
         if ($itemTemplate !== '') {
             $items->loadMissing('personils');
@@ -1555,6 +1567,11 @@ class WaGatewayService
 
             /** @var \App\Models\Kegiatan $kegiatan */
             foreach ($items as $kegiatan) {
+                if ((bool) ($kegiatan->perlu_tindak_lanjut ?? false)) {
+                    $rendered[] = $this->buildBelumDisposisiTindakLanjutBlock($kegiatan, $leadershipTags);
+                    continue;
+                }
+
                 $suratUrl = $this->getShortSuratUrl($kegiatan);
                 $keteranganLines = [];
                 $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
@@ -1602,11 +1619,22 @@ class WaGatewayService
 
         $lines = [];
         $no = 1;
+        $index = 0;
 
         /** @var \App\Models\Kegiatan $kegiatan */
         foreach ($items as $kegiatan) {
-            if ($no > 1) {
+            if ($index > 0) {
                 $lines[] = '────────────────────────';
+            }
+
+            $index++;
+
+            if ((bool) ($kegiatan->perlu_tindak_lanjut ?? false)) {
+                $lines = array_merge(
+                    $lines,
+                    explode("\n", $this->buildBelumDisposisiTindakLanjutBlock($kegiatan, $leadershipTags))
+                );
+                continue;
             }
 
             $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
@@ -1647,6 +1675,66 @@ class WaGatewayService
         $lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * @param array<int, string> $leadershipTags
+     */
+    protected function buildBelumDisposisiTindakLanjutBlock(Kegiatan $kegiatan, array $leadershipTags): string
+    {
+        $nomorSurat = trim((string) ($kegiatan->nomor ?? ''));
+        if ($nomorSurat === '') {
+            $nomorSurat = '-';
+        }
+
+        $perihal = trim((string) ($kegiatan->nama_kegiatan ?? ''));
+        if ($perihal === '') {
+            $perihal = '-';
+        }
+
+        $tanggalLabel = trim((string) ($kegiatan->tanggal_label ?? ''));
+        if ($tanggalLabel === '') {
+            $tanggalLabel = '-';
+        }
+
+        $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+        if ($keterangan === '') {
+            $keterangan = '-';
+        }
+
+        $deadlineLabel = $this->formatTindakLanjutDeadlineLabel($kegiatan);
+        $suratUrl = $this->getShortSuratUrl($kegiatan);
+        $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+
+        $lines = [
+            '*MOHON DISPOSISI — SURAT PERLU TL*',
+            '',
+            $this->formatLabelLine('Nomor Surat', $nomorSurat),
+            $this->formatLabelLine('Perihal', $perihal),
+            $this->formatLabelLine('Tanggal', $tanggalLabel),
+            $this->formatLabelLine('Keterangan', $keterangan),
+            $this->formatLabelLine('Batas TL', $deadlineLabel),
+            '',
+        ];
+
+        if ($suratUrl) {
+            $lines[] = '📎 Surat (PDF):';
+            $lines[] = $suratUrl;
+            $lines[] = '';
+        }
+
+        if ($lampiranUrl) {
+            $lines[] = '📎 Lampiran:';
+            $lines[] = $lampiranUrl;
+            $lines[] = '';
+        }
+
+        $lines[] = 'Mohon petunjuk penugasan/arahannya.:';
+        if (! empty($leadershipTags)) {
+            $lines[] = implode(' ', $leadershipTags);
+        }
+
+        return trim(implode("\n", $lines));
     }
 
     /**

@@ -411,7 +411,7 @@ class WaMessageTemplates extends Page implements HasForms
     }
 
     /**
-     * @return array<int, array<string, string>>
+     * @return array<int, array<string, mixed>>
      */
     protected function dummyListItemsFor(string $key, bool $includeTag = true): array
     {
@@ -476,18 +476,24 @@ class WaMessageTemplates extends Page implements HasForms
             ],
             'group_belum_disposisi' => [
                 [
+                    'perlu_tindak_lanjut' => true,
+                    'nomor_surat' => '123/ABC/2026',
                     'no' => '1',
                     'judul' => 'Permohonan Data',
+                    'perihal' => 'Klarifikasi Dokumen',
                     'tanggal' => 'Senin, 12 Januari 2026',
                     'waktu' => '09:00 WIB',
                     'tempat' => 'Ruang Camat',
                     'keterangan_block' => '   📝 Keterangan: Mohon ditindaklanjuti.' . "\n",
-                    'keterangan_raw' => 'Mohon ditindaklanjuti.',
+                    'keterangan_raw' => 'Mohon verifikasi dokumen pendukung dan koordinasi lintas bidang.',
+                    'batas_tl' => 'Selasa, 13 Januari 2026 10:00 WIB',
                     'surat_block' => implode("\n", [
                         '📎 *Lihat Surat (PDF)*',
                         'https://example.com/surat',
                     ]) . "\n",
                     'surat_url' => 'https://example.com/surat',
+                    'lampiran_url' => 'https://example.com/lampiran',
+                    'leadership_tags' => $includeTag ? '@6281234567890' : 'Camat, Sekcam',
                     'personil_list_raw' => $includeTag
                         ? implode("\n", [
                             '1. Budi',
@@ -498,6 +504,7 @@ class WaMessageTemplates extends Page implements HasForms
                     'personil_mentions_raw' => $includeTag ? '@6281234567890' : '',
                 ],
                 [
+                    'perlu_tindak_lanjut' => false,
                     'no' => '2',
                     'judul' => 'Permintaan Dukungan',
                     'tanggal' => 'Selasa, 13 Januari 2026',
@@ -534,6 +541,10 @@ class WaMessageTemplates extends Page implements HasForms
 
         $rendered = [];
         foreach ($items as $item) {
+            if ($key === 'group_belum_disposisi' && ! empty($item['perlu_tindak_lanjut'])) {
+                $rendered[] = $this->buildDummyBelumDisposisiTindakLanjutBlock($item);
+                continue;
+            }
             $rendered[] = $templateService->renderString($template, $item);
         }
 
@@ -542,6 +553,76 @@ class WaMessageTemplates extends Page implements HasForms
         }
 
         return implode($separator, $rendered);
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    protected function buildDummyBelumDisposisiTindakLanjutBlock(array $item): string
+    {
+        $nomorSurat = trim((string) ($item['nomor_surat'] ?? ''));
+        if ($nomorSurat === '') {
+            $nomorSurat = '-';
+        }
+
+        $perihal = trim((string) ($item['perihal'] ?? $item['judul'] ?? ''));
+        if ($perihal === '') {
+            $perihal = '-';
+        }
+
+        $tanggal = trim((string) ($item['tanggal'] ?? ''));
+        if ($tanggal === '') {
+            $tanggal = '-';
+        }
+
+        $keterangan = trim((string) ($item['keterangan_raw'] ?? ''));
+        if ($keterangan === '') {
+            $keterangan = '-';
+        }
+
+        $batasTl = trim((string) ($item['batas_tl'] ?? ''));
+        if ($batasTl === '') {
+            $batasTl = '-';
+        }
+
+        $suratUrl = trim((string) ($item['surat_url'] ?? ''));
+        $lampiranUrl = trim((string) ($item['lampiran_url'] ?? ''));
+        $leadershipTags = trim((string) ($item['leadership_tags'] ?? ''));
+
+        $lines = [
+            '*MOHON DISPOSISI — SURAT PERLU TL*',
+            '',
+            $this->formatLabelLine('Nomor Surat', $nomorSurat),
+            $this->formatLabelLine('Perihal', $perihal),
+            $this->formatLabelLine('Tanggal', $tanggal),
+            $this->formatLabelLine('Keterangan', $keterangan),
+            $this->formatLabelLine('Batas TL', $batasTl),
+            '',
+        ];
+
+        if ($suratUrl !== '') {
+            $lines[] = '📎 Surat (PDF):';
+            $lines[] = $suratUrl;
+            $lines[] = '';
+        }
+
+        if ($lampiranUrl !== '') {
+            $lines[] = '📎 Lampiran:';
+            $lines[] = $lampiranUrl;
+            $lines[] = '';
+        }
+
+        $lines[] = 'Mohon petunjuk penugasan/arahannya.:';
+        if ($leadershipTags !== '') {
+            $lines[] = $leadershipTags;
+        }
+
+        return trim(implode("\n", $lines));
+    }
+
+    protected function formatLabelLine(string $label, string $value): string
+    {
+        return sprintf('%-14s: %s', $label, $value);
     }
 
     /**
