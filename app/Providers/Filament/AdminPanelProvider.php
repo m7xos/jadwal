@@ -137,13 +137,6 @@ class AdminPanelProvider extends PanelProvider
                     ->group('Halaman Publik')
                     ->sort(100),
 
-                // Rekap bulanan (laporan surat masuk bulanan) di tab baru
-                NavigationItem::make('Rekap Bulanan')
-                    ->url($laporanUrl, shouldOpenInNewTab: true)
-                    ->icon('heroicon-o-document-text')
-                    ->group('Laporan')
-                    ->sort(110)
-                    ->visible(fn () => RoleAccess::canSeeNav(auth()->user(), 'filament.admin.pages.laporan-surat-masuk-bulanan')),
             ])
 
             ->middleware([

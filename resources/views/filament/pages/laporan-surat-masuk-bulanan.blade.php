@@ -175,18 +175,52 @@
 <div class="no-print mb-4" style="text-align: center;">
     <div style="display: inline-flex; align-items: flex-end; gap: 10px;">
         <div style="display: flex; flex-direction: column; align-items: flex-start;">
-            <label for="bulan" style="font-size: 11px; color: #4b5563; margin-bottom: 2px;">
-                Bulan rekap
+            <label for="jenis_rekap" style="font-size: 11px; color: #4b5563; margin-bottom: 2px;">
+                Jenis rekap
             </label>
-            <input
-                id="bulan"
-                type="month"
-                wire:model.live="bulan"
-                style="width: 180px; height: 32px; font-size: 12px; padding: 2px 6px;
+            <select
+                id="jenis_rekap"
+                wire:model.live="jenisRekap"
+                style="width: 160px; height: 32px; font-size: 12px; padding: 2px 6px;
                        border-radius: 0.5rem; border: 1px solid #d1d5db;"
                 class="focus:border-primary-500 focus:ring-primary-500"
-            />
+            >
+                <option value="bulanan">Bulanan</option>
+                <option value="tahunan">Tahunan</option>
+            </select>
         </div>
+
+        @if(($jenisRekap ?? 'bulanan') === 'tahunan')
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                <label for="tahun" style="font-size: 11px; color: #4b5563; margin-bottom: 2px;">
+                    Tahun rekap
+                </label>
+                <input
+                    id="tahun"
+                    type="number"
+                    min="2000"
+                    max="2100"
+                    wire:model.live="tahun"
+                    style="width: 120px; height: 32px; font-size: 12px; padding: 2px 6px;
+                           border-radius: 0.5rem; border: 1px solid #d1d5db;"
+                    class="focus:border-primary-500 focus:ring-primary-500"
+                />
+            </div>
+        @else
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                <label for="bulan" style="font-size: 11px; color: #4b5563; margin-bottom: 2px;">
+                    Bulan rekap
+                </label>
+                <input
+                    id="bulan"
+                    type="month"
+                    wire:model.live="bulan"
+                    style="width: 180px; height: 32px; font-size: 12px; padding: 2px 6px;
+                           border-radius: 0.5rem; border: 1px solid #d1d5db;"
+                    class="focus:border-primary-500 focus:ring-primary-500"
+                />
+            </div>
+        @endif
 
         <button
             type="button"
@@ -249,12 +283,12 @@
 
         <div class="mb-3 kop-judul">
             <div class="font-bold uppercase">
-                LAPORAN REKAP SURAT MASUK
+                LAPORAN REKAP KEGIATAN
             </div>
             <br>
-            @if($bulanLabel)
+            @if(! empty($periodeLabel ?? $bulanLabel))
                 <div class="mt-1">
-                    Bulan: <span class="font-semibold">{{ $bulanLabel }}</span>
+                    {{ $periodeCaption ?? 'Bulan' }}: <span class="font-semibold">{{ $periodeLabel ?? $bulanLabel }}</span>
                 </div>
             @endif
         </div>
@@ -311,7 +345,7 @@
                     @empty
                         <tr>
                             <td colspan="9" class="py-4 text-center">
-                                Tidak ada data surat masuk pada bulan ini.
+                                Tidak ada data kegiatan pada periode ini.
                             </td>
                         </tr>
                     @endforelse
