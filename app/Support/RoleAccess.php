@@ -41,6 +41,7 @@ class RoleAccess
             'filament.admin.resources.vehicle-tax-reminder-logs' => 'Log Pengingat Pajak',
             'filament.admin.resources.follow-up-reminder-logs' => 'Log Pengingat Lain',
             'filament.admin.pages.laporan-surat-masuk-bulanan' => 'Rekap Kegiatan',
+            'filament.admin.pages.laporan-surat-keluar-bulanan' => 'Rekap Surat Keluar',
             'filament.admin.pages.laporan-pembayaran-pajak' => 'Laporan Pembayaran Pajak',
             'filament.admin.resources.personil-categories' => 'Kategori Personil',
         ];
