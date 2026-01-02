@@ -232,6 +232,27 @@
             box-shadow: var(--shadow);
             overflow: hidden;
             width: 100%;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .status-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 55%);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+
+        .status-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(15, 118, 110, 0.25);
+            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.18);
+        }
+
+        .status-card:hover::after {
+            opacity: 1;
         }
 
         .status-card::before {
@@ -298,6 +319,12 @@
             white-space: nowrap;
             line-height: 1.2;
             max-width: 100%;
+        }
+
+        .status-footer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: flex-start;
         }
 
         .status-pill.is-kantor {
@@ -508,6 +535,8 @@
                                     <div class="nama">{{ $item['nama'] }}</div>
                                 </div>
                             </div>
+                        </div>
+                        <div class="status-footer">
                             <span class="status-pill {{ $pillClass }}">
                                 {{ $item['status'] }}
                             </span>
