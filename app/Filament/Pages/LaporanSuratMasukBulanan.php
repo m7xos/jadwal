@@ -18,6 +18,8 @@ class LaporanSuratMasukBulanan extends Page
     protected static ?string $navigationLabel = 'Rekap Kegiatan';
     protected static UnitEnum|string|null $navigationGroup = 'Laporan';
     protected static ?int $navigationSort  = 10;
+    protected static ?string $title = 'Rekap Kegiatan';
+    protected ?string $heading = '';
 
     // ⚠️ DI VERSION-MU, $view BUKAN static → jangan pakai "static"
     protected string $view = 'filament.pages.laporan-surat-masuk-bulanan';
