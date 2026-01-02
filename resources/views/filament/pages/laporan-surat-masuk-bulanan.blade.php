@@ -160,8 +160,12 @@
             .kop-garis {
                 border-bottom: 2px solid #000000 !important;
             }
-            .print-area .mb-2,
-            .print-area .mb-3 {
+            .print-area .kop-wrapper {
+                margin-top: -2mm !important;
+                margin-bottom: 1mm !important;
+            }
+            .print-area .judul-blok {
+                margin-top: 0 !important;
                 margin-bottom: 1mm !important;
             }
 			
@@ -252,7 +256,7 @@
     <div class="print-area p-4 md:p-6">
 
         {{-- JUDUL / KOP + LOGO --}}
-        <div class="mb-2">
+        <div class="kop-wrapper">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                     {{-- Logo pojok kiri atas --}}
@@ -284,7 +288,7 @@
             <div class="kop-garis"></div>
         </div>
 
-        <div class="mb-3 kop-judul">
+        <div class="judul-blok kop-judul">
             <div class="font-bold uppercase">
                 LAPORAN REKAP KEGIATAN
             </div>
