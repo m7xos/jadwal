@@ -8,6 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('groups') || Schema::hasColumn('groups', 'is_default')) {
+            return;
+        }
+
+
         Schema::table('groups', function (Blueprint $table): void {
             $table->boolean('is_default')->default(false)->after('wa_gateway_group_id');
         });

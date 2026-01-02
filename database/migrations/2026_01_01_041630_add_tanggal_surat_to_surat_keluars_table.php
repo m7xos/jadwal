@@ -8,6 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('surat_keluars') || Schema::hasColumn('surat_keluars', 'tanggal_surat')) {
+            return;
+        }
+
+
         Schema::table('surat_keluars', function (Blueprint $table) {
             $table->date('tanggal_surat')->nullable()->after('nomor_sisipan');
         });

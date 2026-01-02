@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('tindak_lanjut_reminder_logs')) {
+            return;
+        }
+
         Schema::create('tindak_lanjut_reminder_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('kegiatan_id')->constrained()->cascadeOnDelete();

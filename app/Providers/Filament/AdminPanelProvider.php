@@ -4,7 +4,6 @@ namespace App\Providers\Filament;
 
 use App\Filament\Widgets\AgendaPerHariChart;
 use App\Filament\Widgets\AgendaStatsOverview;
-use App\Filament\Widgets\LayananPublikRequestsWidget;
 use App\Filament\Widgets\VehicleStatsOverview;
 use App\Filament\Pages\LaporanSuratMasukBulanan;
 use App\Filament\Pages\RoleAccessSettings;
@@ -19,6 +18,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Pages\Dashboard;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use YieldStudio\FilamentPanel\Plugins\YieldPanel;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
@@ -107,10 +107,10 @@ class AdminPanelProvider extends PanelProvider
             )
             ->widgets([
                 AgendaStatsOverview::class,
-                LayananPublikRequestsWidget::class,
                 AgendaPerHariChart::class,
                 VehicleStatsOverview::class,
             ])
+            ->renderHook(PanelsRenderHook::BODY_END, fn () => view('filament.partials.wa-inbox-toast'))
             ->navigationGroups([
                 NavigationGroup::make()->label('Manajemen Kegiatan'),
                 NavigationGroup::make()->label('Administrasi Surat'),
@@ -137,13 +137,6 @@ class AdminPanelProvider extends PanelProvider
                     ->group('Halaman Publik')
                     ->sort(100),
 
-                // Rekap bulanan (laporan surat masuk bulanan) di tab baru
-                NavigationItem::make('Rekap Bulanan')
-                    ->url($laporanUrl, shouldOpenInNewTab: true)
-                    ->icon('heroicon-o-document-text')
-                    ->group('Laporan')
-                    ->sort(110)
-                    ->visible(fn () => RoleAccess::canSeeNav(auth()->user(), 'filament.admin.pages.laporan-surat-masuk-bulanan')),
             ])
 
             ->middleware([

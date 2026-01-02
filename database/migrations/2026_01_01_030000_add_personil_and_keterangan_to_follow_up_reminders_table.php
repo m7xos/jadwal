@@ -8,14 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('follow_up_reminders', function (Blueprint $table) {
-            $table->foreignId('personil_id')
-                ->nullable()
-                ->after('user_id')
-                ->constrained('personils')
-                ->nullOnDelete();
+        if (! Schema::hasTable('follow_up_reminders')) {
+            return;
+        }
 
-            $table->text('keterangan')->nullable()->after('tempat');
+        Schema::table('follow_up_reminders', function (Blueprint $table) {
+            if (! Schema::hasColumn('follow_up_reminders', 'personil_id')) {
+                $table->foreignId('personil_id')
+                    ->nullable()
+                    ->after('user_id')
+                    ->constrained('personils')
+                    ->nullOnDelete();
+            }
+
+            if (! Schema::hasColumn('follow_up_reminders', 'keterangan')) {
+                $table->text('keterangan')->nullable()->after('tempat');
+            }
         });
     }
 

@@ -172,6 +172,36 @@ class SuratKeluarService
     }
 
     /**
+     * @return array{deleted: int, cleared_global: int, cleared_kode: int}
+     */
+    public function resetNumbering(int $tahun, bool $deleteData = false): array
+    {
+        return DB::transaction(function () use ($tahun, $deleteData) {
+            $deleted = 0;
+
+            if ($deleteData) {
+                $deleted = SuratKeluar::query()
+                    ->where('tahun', $tahun)
+                    ->delete();
+            }
+
+            $clearedGlobal = SuratKeluarGlobalCounter::query()
+                ->where('tahun', $tahun)
+                ->delete();
+
+            $clearedKode = SuratKeluarCounter::query()
+                ->where('tahun', $tahun)
+                ->delete();
+
+            return [
+                'deleted' => $deleted,
+                'cleared_global' => $clearedGlobal,
+                'cleared_kode' => $clearedKode,
+            ];
+        });
+    }
+
+    /**
      * @return array{available: array<int, int>, booked: array<int, array{nomor: int, booked_at: string|null}>}
      */
     public function getNumberingStatus(KodeSurat $kodeSurat, int $tahun): array

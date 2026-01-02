@@ -8,9 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('personils')) {
+            return;
+        }
+
         Schema::table('personils', function (Blueprint $table): void {
-            $table->string('pangkat', 100)->nullable()->after('jabatan');
-            $table->string('golongan', 50)->nullable()->after('pangkat');
+            if (! Schema::hasColumn('personils', 'pangkat')) {
+                $table->string('pangkat', 100)->nullable()->after('jabatan');
+            }
+
+            if (! Schema::hasColumn('personils', 'golongan')) {
+                $table->string('golongan', 50)->nullable()->after('pangkat');
+            }
         });
     }
 

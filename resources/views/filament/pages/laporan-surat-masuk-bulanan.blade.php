@@ -32,6 +32,35 @@
         .print-area {
             background: transparent !important;
         }
+        .fi-page-header-main-ctn,
+        .fi-page-header,
+        .fi-page-main,
+        .fi-page-content {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+        .ttd-block {
+            line-height: 1.2;
+        }
+        .ttd-spacer {
+            height: 14mm;
+        }
+        .ttd-spacer-srikandi {
+            height: 6mm;
+        }
+        .ttd-srikandi {
+            min-height: 16mm;
+            margin: 2mm 0;
+        }
+        .ttd-name {
+            font-weight: 600;
+            text-decoration: underline;
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .ttd-nip {
+            margin-top: 0;
+        }
 
         /* Garis kop dari pojok ke pojok */
         .kop-garis {
@@ -42,7 +71,7 @@
 
         /* TABEL LAPORAN: garis hitam jelas & responsif */
         .laporan-wrapper {
-            margin-bottom: 8mm;
+            margin-bottom: 4mm;
         }
 
         .kop-wrapper {
@@ -105,7 +134,7 @@
             @page {
                 /* Folio 8.5 x 13 inch, orientasi landscape: 330 x 215 mm */
                 size: 330mm 215mm;
-                margin: 3mm 10mm 12mm 10mm;
+                margin: 4mm 10mm 12mm 10mm;
             }
 
             body {
@@ -142,7 +171,7 @@
                 box-shadow: none !important;
                 border: none !important;
                 background: transparent !important; /* tanpa warna saat print */
-                padding: 0 0 60mm 0; /* ruang bawah untuk footer */
+                padding: 0 0 30mm 0 !important; /* ruang bawah untuk footer */
             }
 
             /* Elemen yang memang tidak perlu tercetak (filter, tombol, dsb) */
@@ -160,6 +189,29 @@
             .kop-garis {
                 border-bottom: 2px solid #000000 !important;
             }
+            .print-area .kop-wrapper {
+                margin-top: -2mm !important;
+                margin-bottom: 0.5mm !important;
+            }
+            .print-area .judul-blok {
+                margin-top: 0 !important;
+                margin-bottom: 0.5mm !important;
+            }
+            .print-area .ttd-block {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                margin-top: 4mm !important;
+            }
+            .print-area .ttd-spacer {
+                height: 14mm;
+            }
+            .print-area .ttd-spacer-srikandi {
+                height: 6mm;
+            }
+            .print-area .ttd-srikandi {
+                min-height: 16mm;
+                margin: 2mm 0;
+            }
 			
 			/* Bar filter bulan + tombol cetak */
 			.filter-bar {
@@ -175,18 +227,63 @@
 <div class="no-print mb-4" style="text-align: center;">
     <div style="display: inline-flex; align-items: flex-end; gap: 10px;">
         <div style="display: flex; flex-direction: column; align-items: flex-start;">
-            <label for="bulan" style="font-size: 11px; color: #4b5563; margin-bottom: 2px;">
-                Bulan rekap
+            <label for="jenis_rekap" style="font-size: 11px; color: #4b5563; margin-bottom: 2px;">
+                Jenis rekap
             </label>
-            <input
-                id="bulan"
-                type="month"
-                wire:model.live="bulan"
-                style="width: 180px; height: 32px; font-size: 12px; padding: 2px 6px;
+            <select
+                id="jenis_rekap"
+                wire:model.live="jenisRekap"
+                style="width: 160px; height: 32px; font-size: 12px; padding: 2px 6px;
                        border-radius: 0.5rem; border: 1px solid #d1d5db;"
                 class="focus:border-primary-500 focus:ring-primary-500"
-            />
+            >
+                <option value="bulanan">Bulanan</option>
+                <option value="tahunan">Tahunan</option>
+            </select>
         </div>
+        <div style="display: inline-flex; align-items: center; gap: 6px; height: 32px;">
+            <input
+                id="ttd_srikandi"
+                type="checkbox"
+                wire:model.live="ttdSrikandi"
+                style="width: 14px; height: 14px;"
+            />
+            <label for="ttd_srikandi" style="font-size: 12px; color: #374151;">
+                TTD Srikandi
+            </label>
+        </div>
+
+        @if(($jenisRekap ?? 'bulanan') === 'tahunan')
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                <label for="tahun" style="font-size: 11px; color: #4b5563; margin-bottom: 2px;">
+                    Tahun rekap
+                </label>
+                <input
+                    id="tahun"
+                    type="number"
+                    min="2000"
+                    max="2100"
+                    wire:model.live="tahun"
+                    style="width: 120px; height: 32px; font-size: 12px; padding: 2px 6px;
+                           border-radius: 0.5rem; border: 1px solid #d1d5db;"
+                    class="focus:border-primary-500 focus:ring-primary-500"
+                />
+            </div>
+        @else
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                <label for="bulan" style="font-size: 11px; color: #4b5563; margin-bottom: 2px;">
+                    Bulan rekap
+                </label>
+                <input
+                    id="bulan"
+                    type="month"
+                    wire:model.live="bulan"
+                    style="width: 180px; height: 32px; font-size: 12px; padding: 2px 6px;
+                           border-radius: 0.5rem; border: 1px solid #d1d5db;"
+                    class="focus:border-primary-500 focus:ring-primary-500"
+                />
+            </div>
+        @endif
 
         <button
             type="button"
@@ -206,6 +303,23 @@
             </svg>
             <span>Cetak Laporan</span>
         </button>
+        <a
+            href="{{ route('filament.admin.pages.dashboard') }}"
+            style="display: inline-flex; align-items: center; gap: 6px;
+                   border-radius: 0.5rem; border: 1px solid #6b7280;
+                   background-color: #ffffff; padding: 6px 14px;
+                   font-size: 12px; font-weight: 600; color: #374151;
+                   box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;
+                   text-decoration: none;"
+            class="hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+        >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                      d="M10 19l-7-7 7-7M3 12h18" />
+            </svg>
+            <span>Kembali ke Dasbor</span>
+        </a>
     </div>
 </div>
 
@@ -214,7 +328,7 @@
     <div class="print-area p-4 md:p-6">
 
         {{-- JUDUL / KOP + LOGO --}}
-        <div class="mb-2">
+        <div class="kop-wrapper">
             <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                     {{-- Logo pojok kiri atas --}}
@@ -244,19 +358,6 @@
 
             {{-- GARIS DARI POJOK KIRI KE POJOK KANAN, DI BAWAH LOGO + TEKS --}}
             <div class="kop-garis"></div>
-            <br>
-        </div>
-
-        <div class="mb-3 kop-judul">
-            <div class="font-bold uppercase">
-                LAPORAN REKAP SURAT MASUK
-            </div>
-            <br>
-            @if($bulanLabel)
-                <div class="mt-1">
-                    Bulan: <span class="font-semibold">{{ $bulanLabel }}</span>
-                </div>
-            @endif
         </div>
 
         {{-- TABEL LAPORAN --}}
@@ -311,7 +412,7 @@
                     @empty
                         <tr>
                             <td colspan="9" class="py-4 text-center">
-                                Tidak ada data surat masuk pada bulan ini.
+                                Tidak ada data kegiatan pada periode ini.
                             </td>
                         </tr>
                     @endforelse
@@ -324,7 +425,7 @@
             $camat = \App\Models\Personil::where('jabatan', 'like', '%Camat Watumalang%')->first();
         @endphp
 
-        <div class="mt-8 flex justify-end" style="text-align: center;">
+        <div class="mt-8 flex justify-end ttd-block" style="text-align: center;">
             <div class="w-72 text-center">
                 <div>
                     <br>
@@ -334,14 +435,17 @@
                 <div class="mt-1">
                     Camat Watumalang
                 </div>
-                <br></br>
-				<br></br>
-                <div class="mt-10 font-semibold underline uppercase">
+                
+                <div class="ttd-spacer {{ ($ttdSrikandi ?? false) ? 'ttd-spacer-srikandi' : '' }}"></div>
+                @if($ttdSrikandi ?? false)
+                    <div class="ttd-srikandi">${ttd_pengirim}</div>
+                @endif
+                <div class="ttd-name">
                     {{ $camat->nama ?? $namaCamat ?? '____________________' }}
                 </div>
 
                 @if(! empty($camat?->nip))
-                    <div class="mt-1">
+                    <div class="ttd-nip">
                         NIP. {{ $camat->nip }}
                     </div>
                 @endif

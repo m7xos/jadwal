@@ -9,7 +9,11 @@ class WaMessageTemplateDefaults
      */
     public static function definitions(): array
     {
-        return [
+        $commonPlaceholders = [
+            'personil_block',
+        ];
+
+        $definitions = [
             'agenda_group' => [
                 'label' => 'Agenda ke Grup',
                 'description' => 'Pesan agenda untuk grup WhatsApp (single agenda).',
@@ -19,9 +23,16 @@ class WaMessageTemplateDefaults
                     'waktu',
                     'tempat',
                     'peserta_line',
+                    'peserta_raw',
+                    'mentions_raw',
+                    'mentions_line',
+                    'personil_list_raw',
                     'keterangan_line',
+                    'keterangan_raw',
                     'surat_line',
+                    'surat_url',
                     'lampiran_line',
+                    'lampiran_url',
                     'footer',
                 ],
                 'required_placeholders' => [
@@ -40,7 +51,8 @@ class WaMessageTemplateDefaults
                         'label' => 'Agenda',
                         'template' => implode("\n", [
                             '#1 {judul}',
-                            '   ⏰ {waktu} | 📍 {tempat}',
+                            '   ⏰ {waktu}',
+                            '   📍 {tempat}',
                             '{peserta_line}{keterangan_line}{surat_line}{lampiran_line}',
                         ]),
                     ],
@@ -53,7 +65,8 @@ class WaMessageTemplateDefaults
                     '📌 REKAP AGENDA — {tanggal_header}',
                     implode("\n", [
                         '#1 {judul}',
-                        '   ⏰ {waktu} | 📍 {tempat}',
+                        '   ⏰ {waktu}',
+                        '   📍 {tempat}',
                         '{peserta_line}{keterangan_line}{surat_line}{lampiran_line}',
                     ]),
                     '{footer}',
@@ -69,8 +82,11 @@ class WaMessageTemplateDefaults
                     'waktu',
                     'tempat',
                     'keterangan_block',
+                    'keterangan_raw',
                     'surat_block',
+                    'surat_url',
                     'lampiran_block',
+                    'lampiran_url',
                     'footer',
                 ],
                 'required_placeholders' => [
@@ -147,10 +163,17 @@ class WaMessageTemplateDefaults
                 'placeholders' => [
                     'nomor_surat',
                     'kode_tl',
+                    'perihal',
+                    'tanggal',
+                    'batas_tl',
                     'label_lines',
                     'surat_block',
+                    'surat_url',
                     'lampiran_block',
+                    'lampiran_url',
                     'disposisi_block',
+                    'disposisi_tags',
+                    'personil_tags',
                     'balasan_line',
                     'footer',
                 ],
@@ -239,9 +262,15 @@ class WaMessageTemplateDefaults
                     'waktu',
                     'tempat',
                     'personil_block',
+                    'personil_list_raw',
+                    'personil_names_raw',
+                    'personil_mentions_raw',
                     'keterangan_block',
+                    'keterangan_raw',
                     'surat_line',
+                    'surat_url',
                     'lampiran_line',
+                    'lampiran_url',
                 ],
                 'template' => implode("\n\n", [
                     '{judul}',
@@ -263,6 +292,7 @@ class WaMessageTemplateDefaults
                 'placeholders' => [
                     'agenda_list',
                     'leadership_block',
+                    'leadership_tags',
                     'footer',
                 ],
                 'required_placeholders' => [
@@ -293,7 +323,7 @@ class WaMessageTemplateDefaults
                     ' *Waktu*       : {waktu}',
                     ' *Tempat*      : {tempat}',
                     '',
-                    '{surat_block}',
+                    '{keterangan_block}{surat_block}',
                 ]),
                 'list_item_placeholders' => [
                     'no',
@@ -301,7 +331,13 @@ class WaMessageTemplateDefaults
                     'tanggal',
                     'waktu',
                     'tempat',
+                    'keterangan_block',
+                    'keterangan_raw',
                     'surat_block',
+                    'surat_url',
+                    'personil_list_raw',
+                    'personil_names_raw',
+                    'personil_mentions_raw',
                 ],
                 'template' => implode("\n\n", [
                     implode("\n", [
@@ -314,16 +350,24 @@ class WaMessageTemplateDefaults
                 ]),
             ],
             'follow_up_reminder' => [
-                'label' => 'Pengingat Kegiatan Lainnya',
+                'label' => 'Pengingat Kegiatan Lain',
                 'description' => 'Pesan pengingat tindak lanjut pekerjaan lainnya.',
                 'placeholders' => [
                     'kegiatan_line',
+                    'kegiatan',
                     'tanggal_line',
+                    'tanggal',
                     'jam_line',
+                    'jam',
                     'tempat_line',
+                    'tempat',
                     'penerima_line',
+                    'penerima',
+                    'penerima_mention',
                     'keterangan_block',
+                    'keterangan',
                     'kode_line',
+                    'kode',
                     'footer',
                 ],
                 'required_placeholders' => [
@@ -412,5 +456,23 @@ class WaMessageTemplateDefaults
                 ]),
             ],
         ];
+
+        foreach ($definitions as $key => $definition) {
+            $placeholders = $definition['placeholders'] ?? [];
+            $definitions[$key]['placeholders'] = array_values(array_unique(array_merge(
+                $placeholders,
+                $commonPlaceholders,
+            )));
+
+            if (array_key_exists('list_item_placeholders', $definition)) {
+                $itemPlaceholders = $definition['list_item_placeholders'] ?? [];
+                $definitions[$key]['list_item_placeholders'] = array_values(array_unique(array_merge(
+                    $itemPlaceholders,
+                    $commonPlaceholders,
+                )));
+            }
+        }
+
+        return $definitions;
     }
 }

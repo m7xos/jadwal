@@ -29,6 +29,12 @@ class WaMessageTemplateService
      */
     public function renderString(string $template, array $data): string
     {
+        foreach ($this->commonPlaceholders() as $placeholder) {
+            if (! array_key_exists($placeholder, $data)) {
+                $data[$placeholder] = '';
+            }
+        }
+
         $replace = [];
 
         foreach ($data as $key => $value) {
@@ -45,6 +51,16 @@ class WaMessageTemplateService
     }
 
     /**
+     * @return array<int, string>
+     */
+    protected function commonPlaceholders(): array
+    {
+        return [
+            'personil_block',
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     public function metaFor(string $key): array
@@ -53,6 +69,17 @@ class WaMessageTemplateService
         $meta = $record?->meta;
 
         return is_array($meta) ? $meta : [];
+    }
+
+    public function includePersonilTag(string $key, bool $default = true): bool
+    {
+        $meta = $this->metaFor($key);
+
+        if (array_key_exists('include_personil_tag', $meta)) {
+            return (bool) $meta['include_personil_tag'];
+        }
+
+        return $default;
     }
 
     protected function convertMarkdownToWhatsApp(string $text): string

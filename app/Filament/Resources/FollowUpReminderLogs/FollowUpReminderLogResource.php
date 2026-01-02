@@ -18,9 +18,9 @@ class FollowUpReminderLogResource extends Resource
     protected static ?string $model = FollowUpReminder::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
-    protected static ?string $navigationLabel = 'Log Pengingat Kegiatan Lainnya';
-    protected static ?string $pluralModelLabel = 'Log Pengingat Kegiatan Lainnya';
-    protected static ?string $modelLabel = 'Log Pengingat Kegiatan Lainnya';
+    protected static ?string $navigationLabel = 'Log Pengingat Lain';
+    protected static ?string $pluralModelLabel = 'Log Pengingat Lain';
+    protected static ?string $modelLabel = 'Log Pengingat Lain';
     protected static ?string $slug = 'follow-up-reminder-logs';
     protected static string|UnitEnum|null $navigationGroup = 'Log';
     protected static ?int $navigationSort = 50;

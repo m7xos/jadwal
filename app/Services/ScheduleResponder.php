@@ -48,7 +48,9 @@ class ScheduleResponder
             : $this->getSchedulesForGroup($groupCandidates, $date, $onlyPending);
 
         $message = $kegiatan->isNotEmpty()
-            ? $this->formatKegiatanMessage($date, $label, $kegiatan, $onlyPending)
+            ? ($onlyPending
+                ? $waGateway->formatGroupBelumDisposisiMessage($kegiatan)
+                : $waGateway->formatGroupRekapMessage($kegiatan))
             : $this->formatScheduleMessage($date, $label, $schedules, $onlyPending);
 
         $sent = $waGateway->sendTextToSpecificGroup($groupIdRaw, $message);
@@ -74,28 +76,30 @@ class ScheduleResponder
 
         $hasJadwal   = str_contains($text, 'jadwal');
         $hasKegiatan = str_contains($text, 'kegiatan');
+        $hasAgenda   = str_contains($text, 'agenda');
         $hasHariIni  = str_contains($text, 'hari ini');
         $hasBesok    = str_contains($text, 'besok');
         $hasPending  = str_contains($text, 'belum disposisi');
+        $hasCommand  = $hasJadwal || $hasKegiatan || $hasAgenda;
 
-        if (($hasJadwal || $hasKegiatan) && $hasPending && $hasHariIni) {
+        if ($hasCommand && $hasPending && $hasHariIni) {
             return 'today_pending';
         }
 
-        if (($hasJadwal || $hasKegiatan) && $hasPending && $hasBesok) {
+        if ($hasCommand && $hasPending && $hasBesok) {
             return 'tomorrow_pending';
         }
 
         // Jika minta "belum disposisi" tanpa sebut hari, default hari ini.
-        if (($hasJadwal || $hasKegiatan) && $hasPending) {
+        if ($hasCommand && $hasPending) {
             return 'today_pending';
         }
 
-        if (($hasJadwal || $hasKegiatan) && $hasHariIni) {
+        if ($hasCommand && $hasHariIni) {
             return 'today_all';
         }
 
-        if (($hasJadwal || $hasKegiatan) && $hasBesok) {
+        if ($hasCommand && $hasBesok) {
             return 'tomorrow_all';
         }
 
@@ -105,10 +109,10 @@ class ScheduleResponder
     protected function commandMeta(string $command): array
     {
         return match ($command) {
-            'today_pending'    => [Carbon::today(), true, 'Jadwal belum disposisi hari ini'],
-            'tomorrow_pending' => [Carbon::today()->addDay(), true, 'Jadwal belum disposisi besok'],
-            'today_all'        => [Carbon::today(), false, 'Jadwal kegiatan hari ini'],
-            'tomorrow_all'     => [Carbon::today()->addDay(), false, 'Jadwal kegiatan besok'],
+            'today_pending'    => [Carbon::today(), true, 'Agenda belum disposisi hari ini'],
+            'tomorrow_pending' => [Carbon::today()->addDay(), true, 'Agenda belum disposisi besok'],
+            'today_all'        => [Carbon::today(), false, 'Agenda kegiatan hari ini'],
+            'tomorrow_all'     => [Carbon::today()->addDay(), false, 'Agenda kegiatan besok'],
         };
     }
 
@@ -125,29 +129,72 @@ class ScheduleResponder
         }
 
         $lines = [];
-        foreach ($schedules as $idx => $schedule) {
-            $time      = $schedule->starts_at ? $schedule->starts_at->format('H:i') : '-';
-            $disposed  = $schedule->is_disposed ? 'Sudah disposisi' : 'Belum disposisi';
-            $location  = $schedule->location ? " | Lokasi: {$schedule->location}" : '';
-            $notes     = $schedule->notes ? "\n   Catatan: {$schedule->notes}" : '';
 
-            $lines[] = sprintf(
-                "%d. %s - %s%s\n   Status: %s%s",
-                $idx + 1,
-                $time,
-                $schedule->title,
-                $location,
-                $disposed,
-                $notes
-            );
+        if ($onlyPending) {
+            $lines[] = '*AGENDA MENUNGGU DISPOSISI PIMPINAN*';
+            $lines[] = '';
+            $lines[] = 'Berikut daftar kegiatan yang belum mendapatkan disposisi pimpinan:';
+            $lines[] = '';
+
+            foreach ($schedules as $idx => $schedule) {
+                if ($idx > 0) {
+                    $lines[] = '------------------------';
+                }
+
+                $time = $schedule->starts_at ? $schedule->starts_at->format('H:i') : '-';
+                $place = $schedule->location ?: '-';
+                $notes = trim((string) ($schedule->notes ?? ''));
+
+                $lines[] = '*' . ($idx + 1) . '. ' . ($schedule->title ?? '-') . '*';
+                $lines[] = ' *Tanggal*     : ' . $dateLabel;
+                $lines[] = ' *Waktu*       : ' . $time;
+                $lines[] = ' *Tempat*      : ' . $place;
+                $lines[] = '';
+                $lines[] = '';
+
+                if ($notes !== '') {
+                    $lines[] = '   Keterangan: ' . $notes;
+                    $lines[] = '';
+                }
+            }
+
+            $lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
+            $lines[] = '';
+            $lines[] = '_Harap selalu laporkan hasil kegiatan kepada atasan._';
+            $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
+
+            return implode("\n", $lines);
         }
 
-        return sprintf(
-            "%s (%s)\n%s",
-            $label,
-            $dateLabel,
-            implode("\n", $lines)
-        );
+        $lines[] = 'REKAP AGENDA KEGIATAN KANTOR';
+        $lines[] = '';
+        $lines[] = 'Agenda ' . $dateLabel;
+        $lines[] = '';
+
+        foreach ($schedules as $idx => $schedule) {
+            $time = $schedule->starts_at ? $schedule->starts_at->format('H:i') : '-';
+            $place = $schedule->location ?: '-';
+            $notes = trim((string) ($schedule->notes ?? ''));
+
+            $lines[] = '*' . ($idx + 1) . '. ' . ($schedule->title ?? '-') . '*';
+            $lines[] = '   Waktu: ' . $time;
+            $lines[] = '   Tempat: ' . $place;
+
+            if ($notes !== '') {
+                $lines[] = '   Keterangan: ' . $notes;
+            }
+
+            $lines[] = '';
+        }
+
+        $lines[] = 'Tanggal rekap: ' . now()
+            ->locale('id')
+            ->translatedFormat('d F Y H:i') . ' WIB';
+        $lines[] = '';
+        $lines[] = 'Harap selalu laporkan hasil kegiatan kepada atasan.';
+        $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
+
+        return implode("\n", $lines);
     }
 
     protected function formatKegiatanMessage(Carbon $date, string $label, $kegiatan, bool $onlyPending): string

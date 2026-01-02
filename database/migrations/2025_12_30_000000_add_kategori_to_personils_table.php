@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
+        if (! Schema::hasTable('personils') || Schema::hasColumn('personils', 'kategori')) {
+            return;
+        }
+
+
         Schema::table('personils', function (Blueprint $table) {
             $table->string('kategori', 50)
                 ->nullable()

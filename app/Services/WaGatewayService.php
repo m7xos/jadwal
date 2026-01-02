@@ -16,6 +16,8 @@ use Illuminate\Support\Str;
 
 class WaGatewayService
 {
+    protected const WA_WRAP_WIDTH = 48;
+
     protected string $baseUrl;
     protected string $token;
     protected ?string $secretKey;
@@ -44,7 +46,8 @@ class WaGatewayService
     {
         return $this->baseUrl !== ''
             && $this->token !== ''
-            && $this->groupId !== '';
+            && $this->groupId !== ''
+            && trim($this->masterKey) !== '';
     }
 
     protected function getAuthHeaderValue(): string
@@ -116,6 +119,82 @@ class WaGatewayService
         return $this->baseUrl !== '' && $this->token !== '';
     }
 
+    public function getContactName(string $phone): ?string
+    {
+        if (! $this->hasClientCredentials()) {
+            return null;
+        }
+
+        $digits = preg_replace('/\D+/', '', $phone) ?? '';
+        if ($digits === '') {
+            return null;
+        }
+
+        try {
+            $response = $this->client()
+                ->get($this->baseUrl . '/api/v2/contact', ['phone' => $digits]);
+        } catch (\Throwable $e) {
+            Log::error('WA Gateway: HTTP error get contact', ['message' => $e->getMessage()]);
+
+            return null;
+        }
+
+        if (! $response->successful()) {
+            Log::warning('WA Gateway: HTTP error get contact', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return null;
+        }
+
+        $name = trim((string) data_get($response->json(), 'data.0.name', ''));
+
+        return $name !== '' ? $name : null;
+    }
+
+    public function resolveLidNumber(string $lid): ?string
+    {
+        if (! $this->hasClientCredentials()) {
+            return null;
+        }
+
+        $lid = trim($lid);
+        if ($lid === '' || ! str_contains($lid, '@lid')) {
+            return null;
+        }
+
+        try {
+            $response = $this->client()
+                ->get($this->baseUrl . '/api/v2/resolve-lid', ['lid' => $lid]);
+        } catch (\Throwable $e) {
+            Log::error('WA Gateway: HTTP error resolve lid', ['message' => $e->getMessage()]);
+
+            return null;
+        }
+
+        if (! $response->successful()) {
+            Log::warning('WA Gateway: HTTP error resolve lid', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return null;
+        }
+
+        $phone = (string) data_get($response->json(), 'data.phone', '');
+        if ($phone === '') {
+            $jid = (string) data_get($response->json(), 'data.jid', '');
+            if ($jid !== '') {
+                $phone = preg_replace('/@.*/', '', $jid) ?? '';
+            }
+        }
+
+        $normalized = $this->normalizePhone($phone);
+
+        return $normalized !== '' ? $normalized : null;
+    }
+
     protected function resolveDefaultGroupId(): string
     {
         $default = Group::query()
@@ -172,6 +251,14 @@ class WaGatewayService
         return '@' . $normalized;
     }
 
+    protected function includePersonilTagForTemplate(string $key): bool
+    {
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->includePersonilTag($key, true);
+    }
+
     /**
      * Format pesan pengingat batas waktu tindak lanjut.
      */
@@ -197,18 +284,10 @@ class WaGatewayService
         $lines[] = '';
         $lines[] = $this->formatLabelLine('Kode TL', $kodePengingat);
         $lines[] = $this->formatLabelLine('Perihal', $perihal);
-        $lines[] = $this->formatLabelLine('Tanggal', $kegiatan->tanggal_label ?? '-');
+        $tanggalLabel = (string) ($kegiatan->tanggal_label ?? '-');
+        $lines[] = $this->formatLabelLine('Tanggal', $tanggalLabel);
 
-        $deadline = $kegiatan->batas_tindak_lanjut ?? $kegiatan->tindak_lanjut_deadline;
-        $deadlineLabel = '-';
-
-        if ($deadline) {
-            $deadlineLabel = $deadline
-                ->locale('id')
-                ->isoFormat('dddd, D MMMM Y HH:mm') . ' WIB';
-        } elseif ($kegiatan->tindak_lanjut_deadline_label) {
-            $deadlineLabel = $kegiatan->tindak_lanjut_deadline_label;
-        }
+        $deadlineLabel = $this->formatTindakLanjutDeadlineLabel($kegiatan);
 
         $lines[] = $this->formatLabelLine('Batas TL', $deadlineLabel);
         $lines[] = '';
@@ -228,8 +307,9 @@ class WaGatewayService
             $lines[] = '';
         }
 
-        $dispositionTags = $this->getDispositionTags();
-        $personilTags = $this->getPersonilTagsForKegiatan($kegiatan);
+        $includeTag = $this->includePersonilTagForTemplate('tindak_lanjut_reminder');
+        $dispositionTags = $this->getDispositionTags($includeTag);
+        $personilTags = $this->getPersonilTagsForKegiatan($kegiatan, $includeTag);
 
         if (! empty($dispositionTags) || ! empty($personilTags)) {
             $lines[] = 'Mohon arahan percepatan tindak lanjut:';
@@ -244,6 +324,7 @@ class WaGatewayService
 
         $lines[] = '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_';
         $lines[] = '';
+        $lines[] = '_Harap selalu laporkan hasil kegiatan kepada atasan._';
         $lines[] = '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._';
 
         $fallback = implode("\n", $lines);
@@ -251,7 +332,7 @@ class WaGatewayService
         $labelLines = [
             $this->formatLabelLine('Kode TL', $kodePengingat),
             $this->formatLabelLine('Perihal', $perihal),
-            $this->formatLabelLine('Tanggal', $kegiatan->tanggal_label ?? '-'),
+            $this->formatLabelLine('Tanggal', $tanggalLabel),
             $this->formatLabelLine('Batas TL', $deadlineLabel),
         ];
 
@@ -269,18 +350,28 @@ class WaGatewayService
         $data = [
             'nomor_surat' => $nomorSurat,
             'kode_tl' => $kodePengingat,
+            'perihal' => $perihal,
+            'tanggal' => $tanggalLabel,
+            'batas_tl' => $deadlineLabel,
             'label_lines' => implode("\n", $labelLines),
             'surat_block' => $suratUrl
                 ? $this->formatTemplateBlock(['📎 Surat (PDF):', $suratUrl])
                 : '',
+            'surat_url' => $suratUrl ?? '',
             'lampiran_block' => $lampiranUrl
                 ? $this->formatTemplateBlock(['📎 Lampiran Surat:', $lampiranUrl])
                 : '',
+            'lampiran_url' => $lampiranUrl ?? '',
             'disposisi_block' => $this->formatTemplateBlock($disposisiLines),
+            'disposisi_tags' => ! empty($dispositionTags) ? implode(' ', $dispositionTags) : '',
+            'personil_tags' => ! empty($personilTags) ? implode(' ', $personilTags) : '',
             'balasan_line' => $this->formatTemplateLine(
                 '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_'
             ),
-            'footer' => '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._',
+            'footer' => implode("\n", [
+                '_Harap selalu laporkan hasil kegiatan kepada atasan._',
+                '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._',
+            ]),
         ];
 
         /** @var WaMessageTemplateService $templateService */
@@ -289,7 +380,24 @@ class WaGatewayService
         return $templateService->render('tindak_lanjut_reminder', $data, $fallback);
     }
 
-    protected function getDispositionTags(): array
+    protected function formatTindakLanjutDeadlineLabel(Kegiatan $kegiatan): string
+    {
+        $deadline = $kegiatan->batas_tindak_lanjut ?? $kegiatan->tindak_lanjut_deadline;
+
+        if ($deadline) {
+            return $deadline
+                ->locale('id')
+                ->isoFormat('dddd, D MMMM Y HH:mm') . ' WIB';
+        }
+
+        if ($kegiatan->tindak_lanjut_deadline_label) {
+            return $kegiatan->tindak_lanjut_deadline_label;
+        }
+
+        return '-';
+    }
+
+    protected function getDispositionTags(bool $includeTag = true): array
     {
         $roles = [
             'Camat Watumalang',
@@ -299,14 +407,14 @@ class WaGatewayService
         return Personil::query()
             ->whereIn('jabatan', $roles)
             ->get(['no_wa', 'jabatan', 'nama'])
-            ->map(fn (Personil $personil) => $this->formatPersonilTag($personil, true))
+            ->map(fn (Personil $personil) => $this->formatPersonilTag($personil, true, $includeTag))
             ->filter()
             ->unique()
             ->values()
             ->all();
     }
 
-    protected function getPersonilTagsForKegiatan(Kegiatan $kegiatan): array
+    protected function getPersonilTagsForKegiatan(Kegiatan $kegiatan, bool $includeTag = true): array
     {
         $personils = $kegiatan->personils ?? collect();
 
@@ -315,7 +423,7 @@ class WaGatewayService
         }
 
         return $personils
-            ->map(fn (Personil $personil) => $this->formatPersonilTag($personil, true))
+            ->map(fn (Personil $personil) => $this->formatPersonilTag($personil, true, $includeTag))
             ->filter()
             ->unique()
             ->values()
@@ -364,11 +472,143 @@ class WaGatewayService
         return implode("\n", $filtered) . "\n";
     }
 
-    protected function formatPersonilTag(Personil $personil, bool $withJabatan = false): ?string
+    /**
+     * @return array<int, string>
+     */
+    protected function wrapLine(string $prefix, string $value, int $width = self::WA_WRAP_WIDTH): array
+    {
+        $value = trim($value);
+
+        if ($value === '') {
+            return [];
+        }
+
+        $prefixLen = strlen($prefix);
+        $available = max($width - $prefixLen, 12);
+        $wrapped = wordwrap($value, $available, "\n", false);
+        $parts = explode("\n", $wrapped);
+        $indent = str_repeat(' ', $prefixLen);
+        $lines = [];
+
+        foreach ($parts as $index => $part) {
+            $lines[] = ($index === 0 ? $prefix : $indent) . $part;
+        }
+
+        return $lines;
+    }
+
+    protected function formatTemplateWrappedLine(string $prefix, string $value): string
+    {
+        $lines = $this->wrapLine($prefix, $value);
+
+        if (empty($lines)) {
+            return '';
+        }
+
+        return implode("\n", $lines) . "\n";
+    }
+
+    /**
+     * @param iterable<Personil> $personils
+     * @return array<int, string>
+     */
+    protected function buildPersonilLines(
+        iterable $personils,
+        bool $includeTag = true,
+        int $width = self::WA_WRAP_WIDTH,
+        string $baseIndent = '      '
+    ): array {
+        $lines = [];
+        $index = 1;
+
+        foreach ($personils as $personil) {
+            $nama = trim((string) ($personil->nama ?? ''));
+
+            if ($nama === '') {
+                continue;
+            }
+
+            $prefix = $baseIndent . $index . '. ';
+            $lines = array_merge($lines, $this->wrapLine($prefix, $nama, $width));
+
+            if ($includeTag) {
+                $mention = $this->formatMention($personil->no_wa);
+                if ($mention) {
+                    $mentionIndent = $baseIndent . str_repeat(' ', strlen((string) $index) + 2);
+                    $lines[] = $mentionIndent . $mention;
+                }
+            }
+
+            $index++;
+        }
+
+        return $lines;
+    }
+
+    /**
+     * @param iterable<Personil> $personils
+     */
+    protected function buildPersonilListRaw(iterable $personils, bool $includeTag = true): string
+    {
+        $lines = $this->buildPersonilLines($personils, $includeTag, self::WA_WRAP_WIDTH, '');
+
+        return empty($lines) ? '' : implode("\n", $lines);
+    }
+
+    /**
+     * @param iterable<Personil> $personils
+     */
+    protected function buildPersonilNamesRaw(iterable $personils): string
+    {
+        $names = [];
+
+        foreach ($personils as $personil) {
+            $name = trim((string) ($personil->nama ?? ''));
+
+            if ($name !== '') {
+                $names[] = $name;
+            }
+        }
+
+        return implode(', ', $names);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function getPersonilMentions(Kegiatan $kegiatan): array
+    {
+        $personils = $kegiatan->personils ?? collect();
+
+        if ($personils->isEmpty()) {
+            return [];
+        }
+
+        return $personils
+            ->map(fn (Personil $personil) => $this->formatMention($personil->no_wa))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    protected function formatPersonilTag(Personil $personil, bool $withJabatan = false, bool $includeTag = true): ?string
     {
         $mention = $this->formatMention($personil->no_wa);
         $name = trim((string) $personil->nama);
         $jabatan = trim((string) $personil->jabatan);
+
+        if (! $includeTag) {
+            if ($name === '' && $jabatan === '') {
+                return null;
+            }
+
+            if ($withJabatan && $jabatan !== '') {
+                return $name !== '' ? $name . ' (' . $jabatan . ')' : $jabatan;
+            }
+
+            return $name !== '' ? $name : $jabatan;
+        }
 
         if (! $mention) {
             if ($name === '') {
@@ -533,7 +773,16 @@ class WaGatewayService
         $data = [];
 
         foreach ($numbers as $number) {
-            $normalized = $this->normalizePhone($number);
+            $raw = trim((string) ($number ?? ''));
+            if ($raw === '') {
+                continue;
+            }
+
+            if (str_contains($raw, '@lid')) {
+                $normalized = $this->resolveLidNumber($raw);
+            } else {
+                $normalized = $this->normalizePhone($raw);
+            }
 
             if (! $normalized) {
                 continue;
@@ -597,10 +846,22 @@ class WaGatewayService
      *
      * @param iterable<Kegiatan> $kegiatans
      */
+    public function formatGroupRekapMessage(iterable $kegiatans): string
+    {
+        $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
+
+        if (method_exists($items, 'loadMissing')) {
+            $items->loadMissing('personils');
+        }
+
+        return $this->buildGroupMessage($items);
+    }
+
     protected function buildGroupMessage(iterable $kegiatans): string
     {
         $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
         $items = $items->sortBy('tanggal');
+        $includeTag = $this->includePersonilTagForTemplate('group_rekap');
 
         $lines = [];
 
@@ -637,8 +898,14 @@ class WaGatewayService
             //$lines[] = '';
 
             // Waktu & tempat
-            $lines[] = '   ⏰ ' . ($kegiatan->waktu ?? '-');
-            $lines[] = '   📍 ' . ($kegiatan->tempat ?? '-');
+            $lines = array_merge(
+                $lines,
+                $this->wrapLine('   ⏰ ', (string) ($kegiatan->waktu ?? '-'))
+            );
+            $lines = array_merge(
+                $lines,
+                $this->wrapLine('   📍 ', (string) ($kegiatan->tempat ?? '-'))
+            );
             $lines[] = '';
 
             // Personil (Penerima Disposisi)
@@ -646,31 +913,7 @@ class WaGatewayService
 
             if ($personils->isNotEmpty()) {
                 $lines[] = '   👥 Penerima Disposisi:';
-
-                $i = 1;
-                foreach ($personils as $p) {
-                    $nama = trim((string) ($p->nama ?? ''));
-
-                    if ($nama === '') {
-                        continue;
-                    }
-
-                    $rawNo  = trim((string) ($p->no_wa ?? ''));
-                    $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
-
-                    if ($digits !== '') {
-                        if (substr($digits, 0, 1) === '0') {
-                            $digits = '62' . substr($digits, 1);
-                        }
-
-                        $tag = ' @' . $digits;
-                    } else {
-                        $tag = '';
-                    }
-
-                    $lines[] = '      ' . $i . '. ' . $nama . $tag;
-                    $i++;
-                }
+                $lines = array_merge($lines, $this->buildPersonilLines($personils, $includeTag));
 
                 $lines[] = '';
             }
@@ -678,8 +921,10 @@ class WaGatewayService
             // KETERANGAN (hanya kalau diisi)
             $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
             if ($keterangan !== '') {
-                $lines[] = '   📝 Keterangan:';
-                $lines[] = '      ' . $keterangan;
+                $lines = array_merge(
+                    $lines,
+                    $this->wrapLine('   📝 Keterangan: ', $keterangan)
+                );
                 $lines[] = '';
             }
 
@@ -708,6 +953,7 @@ class WaGatewayService
             ->locale('id')
             ->translatedFormat('d F Y H:i') . ' WIB';
         $lines[] = '';
+        $lines[] = 'Harap selalu laporkan hasil kegiatan kepada atasan.';
         $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
 
         $fallback = implode("\n", $lines);
@@ -737,7 +983,10 @@ class WaGatewayService
             'tanggal_label' => $tanggalLabel,
             'agenda_list' => $this->buildGroupAgendaList($items),
             'generated_at' => now()->locale('id')->translatedFormat('d F Y H:i') . ' WIB',
-            'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+            'footer' => implode("\n", [
+                'Harap selalu laporkan hasil kegiatan kepada atasan.',
+                'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+            ]),
         ];
 
         /** @var WaMessageTemplateService $templateService */
@@ -772,11 +1021,28 @@ class WaGatewayService
             }
 
             $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
-            $lines[] = ' *Tanggal*     : ' . ($kegiatan->tanggal_label ?? '-');
-            $lines[] = ' *Waktu*       : ' . ($kegiatan->waktu ?? '-');
-            $lines[] = ' *Tempat*      : ' . ($kegiatan->tempat ?? '-');
+            $lines = array_merge(
+                $lines,
+                $this->wrapLine(' *Tanggal*     : ', (string) ($kegiatan->tanggal_label ?? '-'))
+            );
+            $lines = array_merge(
+                $lines,
+                $this->wrapLine(' *Waktu*       : ', (string) ($kegiatan->waktu ?? '-'))
+            );
+            $lines = array_merge(
+                $lines,
+                $this->wrapLine(' *Tempat*      : ', (string) ($kegiatan->tempat ?? '-'))
+            );
             $lines[] = '';
             $lines[] = '';
+            $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+            if ($keterangan !== '') {
+                $lines = array_merge(
+                    $lines,
+                    $this->wrapLine('   📝 Keterangan: ', $keterangan)
+                );
+                $lines[] = '';
+            }
             $suratUrl = $this->getShortSuratUrl($kegiatan);
             if ($suratUrl) {
                 $lines[] = '📎 *Lihat Surat (PDF)*';
@@ -793,10 +1059,11 @@ class WaGatewayService
             $lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
         }
 
+        $includeTag = $this->includePersonilTagForTemplate('group_belum_disposisi');
         $leadershipTags = $this->getPersonilTagsByJabatan([
             'Camat Watumalang',
             'Sekretaris Kecamatan Watumalang',
-        ]);
+        ], $includeTag);
 
         if (! empty($leadershipTags)) {
             $lines[] = '';
@@ -805,6 +1072,7 @@ class WaGatewayService
         }
 
         $lines[] = '';
+        $lines[] = '_Harap selalu laporkan hasil kegiatan kepada atasan._';
         $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
 
         $fallback = implode("\n", $lines);
@@ -820,7 +1088,11 @@ class WaGatewayService
         $data = [
             'agenda_list' => $this->buildBelumDisposisiAgendaList($items),
             'leadership_block' => $leadershipBlock,
-            'footer' => '_Pesan ini dikirim otomatis dari sistem agenda kantor._',
+            'leadership_tags' => ! empty($leadershipTags) ? implode(' ', $leadershipTags) : '',
+            'footer' => implode("\n", [
+                '_Harap selalu laporkan hasil kegiatan kepada atasan._',
+                '_Pesan ini dikirim otomatis dari sistem agenda kantor._',
+            ]),
         ];
 
         /** @var WaMessageTemplateService $templateService */
@@ -829,7 +1101,21 @@ class WaGatewayService
         return $templateService->render('group_belum_disposisi', $data, $fallback);
     }
 
-    protected function getPersonilTagsByJabatan(array $jabatanList): array
+    /**
+     * @param iterable<Kegiatan> $kegiatans
+     */
+    public function formatGroupBelumDisposisiMessage(iterable $kegiatans): string
+    {
+        $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
+
+        if (method_exists($items, 'loadMissing')) {
+            $items->loadMissing('personils');
+        }
+
+        return $this->buildGroupMessageBelumDisposisi($items);
+    }
+
+    protected function getPersonilTagsByJabatan(array $jabatanList, bool $includeTag = true): array
     {
         $personils = Personil::query()
             ->whereIn('jabatan', $jabatanList)
@@ -838,6 +1124,19 @@ class WaGatewayService
         $tags = [];
 
         foreach ($personils as $personil) {
+            if (! $includeTag) {
+                $name = trim((string) ($personil->nama ?? ''));
+                $jabatan = trim((string) ($personil->jabatan ?? ''));
+
+                if ($name !== '') {
+                    $tags[] = $jabatan !== '' ? $name . ' - ' . $jabatan : $name;
+                } elseif ($jabatan !== '') {
+                    $tags[] = $jabatan;
+                }
+
+                continue;
+            }
+
             $rawNo  = trim((string) ($personil->no_wa ?? ''));
             $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
 
@@ -908,6 +1207,7 @@ class WaGatewayService
 
         $lines[] = 'Mohon kehadiran Bapak/Ibu sesuai jadwal di atas.';
         $lines[] = '';
+        $lines[] = '_Harap selalu laporkan hasil kegiatan kepada atasan._';
         $lines[] = '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._';
 
         $fallback = implode("\n", $lines);
@@ -930,9 +1230,15 @@ class WaGatewayService
             'waktu' => (string) ($kegiatan->waktu ?? '-'),
             'tempat' => (string) ($kegiatan->tempat ?? '-'),
             'keterangan_block' => $keteranganBlock,
+            'keterangan_raw' => $keterangan,
             'surat_block' => $suratBlock,
+            'surat_url' => $suratUrl ?? '',
             'lampiran_block' => $lampiranBlock,
-            'footer' => '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._',
+            'lampiran_url' => $lampiranUrl ?? '',
+            'footer' => implode("\n", [
+                '_Harap selalu laporkan hasil kegiatan kepada atasan._',
+                '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._',
+            ]),
         ];
 
         /** @var WaMessageTemplateService $templateService */
@@ -959,20 +1265,41 @@ class WaGatewayService
         $title = trim((string) ($kegiatan->nama_kegiatan ?? '-'));
         $time = trim((string) ($kegiatan->waktu ?? '-'));
         $place = trim((string) ($kegiatan->tempat ?? '-'));
-        $participants = $this->formatParticipantsShort($kegiatan);
+        $includeTag = $this->includePersonilTagForTemplate('agenda_group');
+        $participants = $this->formatParticipantsShort($kegiatan, false);
         $notes = trim((string) ($kegiatan->keterangan ?? ''));
         $suratUrl = $this->getShortSuratUrl($kegiatan);
         $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+        $mentions = $includeTag ? $this->getPersonilMentions($kegiatan) : [];
+        $mentionLine = ! empty($mentions)
+            ? $this->formatTemplateLine('      ' . implode(' ', $mentions))
+            : '';
+        $mentionsRaw = ! empty($mentions) ? implode(' ', $mentions) : '';
+        $personilListRaw = $this->buildPersonilListRaw($kegiatan->personils ?? collect(), $includeTag);
 
         $lines[] = '#1 ' . ($title !== '' ? $title : '-');
-        $lines[] = '   ⏰ ' . ($time !== '' ? $time : '-') . ' | 📍 ' . ($place !== '' ? $place : '-');
+        $lines = array_merge(
+            $lines,
+            $this->wrapLine('   ⏰ ', $time !== '' ? $time : '-')
+        );
+        $lines = array_merge(
+            $lines,
+            $this->wrapLine('   📍 ', $place !== '' ? $place : '-')
+        );
 
         if ($participants !== '') {
-            $lines[] = '   👥 ' . $participants;
+            $lines = array_merge($lines, $this->wrapLine('   👥 ', $participants));
+        }
+
+        if ($includeTag) {
+            $mentions = $this->getPersonilMentions($kegiatan);
+            if (! empty($mentions)) {
+                $lines[] = '      ' . implode(' ', $mentions);
+            }
         }
 
         if ($notes !== '') {
-            $lines[] = '   📝 ' . $notes;
+            $lines = array_merge($lines, $this->wrapLine('   📝 ', $notes));
         }
 
         if ($suratUrl) {
@@ -984,6 +1311,7 @@ class WaGatewayService
         }
 
         $lines[] = '';
+        $lines[] = 'Harap selalu laporkan hasil kegiatan kepada atasan.';
         $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
 
         $fallback = implode("\n", $lines);
@@ -993,11 +1321,26 @@ class WaGatewayService
             'judul' => $title !== '' ? $title : '-',
             'waktu' => $time !== '' ? $time : '-',
             'tempat' => $place !== '' ? $place : '-',
-            'peserta_line' => $this->formatTemplateLine($participants !== '' ? '   👥 ' . $participants : ''),
-            'keterangan_line' => $this->formatTemplateLine($notes !== '' ? '   📝 ' . $notes : ''),
+            'peserta_line' => $participants !== ''
+                ? $this->formatTemplateWrappedLine('   👥 ', $participants) . $mentionLine
+                : '',
+            'peserta_raw' => $participants,
+            'mentions_raw' => $mentionsRaw,
+            'mentions_line' => $mentionLine,
+            'personil_list_raw' => $personilListRaw,
+            'personil_block' => $this->buildPersonilBlock($kegiatan, $includeTag),
+            'keterangan_line' => $notes !== ''
+                ? $this->formatTemplateWrappedLine('   📝 ', $notes)
+                : '',
+            'keterangan_raw' => $notes,
             'surat_line' => $this->formatTemplateLine($suratUrl ? '   📎 Surat: ' . $suratUrl : ''),
+            'surat_url' => $suratUrl ?? '',
             'lampiran_line' => $this->formatTemplateLine($lampiranUrl ? '   📎 Lampiran: ' . $lampiranUrl : ''),
-            'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+            'lampiran_url' => $lampiranUrl ?? '',
+            'footer' => implode("\n", [
+                'Harap selalu laporkan hasil kegiatan kepada atasan.',
+                'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+            ]),
         ];
 
         /** @var WaMessageTemplateService $templateService */
@@ -1076,7 +1419,7 @@ class WaGatewayService
     /**
      * Format peserta/mention singkat untuk satu agenda (gabungan kategori/jabatan dan mention).
      */
-    protected function formatParticipantsShort(Kegiatan $kegiatan): string
+    protected function formatParticipantsShort(Kegiatan $kegiatan, bool $includeTag = true): string
     {
         $personils = $kegiatan->personils ?? collect();
         if ($personils->isEmpty()) {
@@ -1105,7 +1448,7 @@ class WaGatewayService
                 $tags[] = $jabatan;
             }
 
-            if ($mention) {
+            if ($includeTag && $mention) {
                 $tags[] = $mention;
             } elseif ($nama !== '') {
                 $tags[] = $nama;
@@ -1117,6 +1460,19 @@ class WaGatewayService
         return implode(', ', $parts);
     }
 
+    protected function buildPersonilBlock(Kegiatan $kegiatan, bool $includeTag = true): string
+    {
+        $personils = $kegiatan->personils ?? collect();
+        if ($personils->isEmpty()) {
+            return '';
+        }
+
+        $lines = ['   👥 Penerima Disposisi:'];
+        $lines = array_merge($lines, $this->buildPersonilLines($personils, $includeTag));
+
+        return $this->formatTemplateInlineBlock($lines);
+    }
+
     protected function buildGroupAgendaList(Collection $items): string
     {
         if ($items->isEmpty()) {
@@ -1126,6 +1482,7 @@ class WaGatewayService
         /** @var WaMessageTemplateService $templateService */
         $templateService = app(WaMessageTemplateService::class);
         $meta = $templateService->metaFor('group_rekap');
+        $includeTag = $templateService->includePersonilTag('group_rekap', true);
         $itemTemplate = trim((string) ($meta['item_template'] ?? ''));
         $separator = (string) ($meta['item_separator'] ?? "\n\n");
 
@@ -1135,43 +1492,17 @@ class WaGatewayService
 
             /** @var \App\Models\Kegiatan $kegiatan */
             foreach ($items as $kegiatan) {
-                $personilLines = [];
-                $personils = $kegiatan->personils ?? collect();
-
-                if ($personils->isNotEmpty()) {
-                    $personilLines[] = '   👥 Penerima Disposisi:';
-
-                    $i = 1;
-                    foreach ($personils as $p) {
-                        $nama = trim((string) ($p->nama ?? ''));
-
-                        if ($nama === '') {
-                            continue;
-                        }
-
-                        $rawNo  = trim((string) ($p->no_wa ?? ''));
-                        $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
-
-                        if ($digits !== '') {
-                            if (substr($digits, 0, 1) === '0') {
-                                $digits = '62' . substr($digits, 1);
-                            }
-
-                            $tag = ' @' . $digits;
-                        } else {
-                            $tag = '';
-                        }
-
-                        $personilLines[] = '      ' . $i . '. ' . $nama . $tag;
-                        $i++;
-                    }
-                }
+                $personilBlock = $this->buildPersonilBlock($kegiatan, $includeTag);
+                $personilListRaw = $this->buildPersonilListRaw($kegiatan->personils ?? collect(), $includeTag);
+                $personilNamesRaw = $this->buildPersonilNamesRaw($kegiatan->personils ?? collect());
+                $personilMentionsRaw = $includeTag
+                    ? implode(' ', $this->getPersonilMentions($kegiatan))
+                    : '';
 
                 $keteranganLines = [];
                 $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
                 if ($keterangan !== '') {
-                    $keteranganLines[] = '   📝 Keterangan:';
-                    $keteranganLines[] = '      ' . $keterangan;
+                    $keteranganLines = $this->wrapLine('   📝 Keterangan: ', $keterangan);
                 }
 
                 $suratUrl = $this->getShortSuratUrl($kegiatan);
@@ -1182,14 +1513,20 @@ class WaGatewayService
                     'judul' => (string) ($kegiatan->nama_kegiatan ?? '-'),
                     'waktu' => (string) ($kegiatan->waktu ?? '-'),
                     'tempat' => (string) ($kegiatan->tempat ?? '-'),
-                    'personil_block' => $this->formatTemplateInlineBlock($personilLines),
+                    'personil_block' => $personilBlock,
+                    'personil_list_raw' => $personilListRaw,
+                    'personil_names_raw' => $personilNamesRaw,
+                    'personil_mentions_raw' => $personilMentionsRaw,
                     'keterangan_block' => $this->formatTemplateInlineBlock($keteranganLines),
+                    'keterangan_raw' => $keterangan,
                     'surat_line' => $this->formatTemplateLine(
                         $suratUrl ? '   📎 Link Surat: ' . $suratUrl : ''
                     ),
+                    'surat_url' => $suratUrl ?? '',
                     'lampiran_line' => $this->formatTemplateLine(
                         $lampiranUrl ? '   📎 Lampiran: ' . $lampiranUrl : ''
                     ),
+                    'lampiran_url' => $lampiranUrl ?? '',
                 ];
 
                 $rendered[] = $templateService->renderString($itemTemplate, $data);
@@ -1205,47 +1542,31 @@ class WaGatewayService
         /** @var \App\Models\Kegiatan $kegiatan */
         foreach ($items as $kegiatan) {
             $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
-            $lines[] = '   ⏰ ' . ($kegiatan->waktu ?? '-');
-            $lines[] = '   📍 ' . ($kegiatan->tempat ?? '-');
+            $lines = array_merge(
+                $lines,
+                $this->wrapLine('   ⏰ ', (string) ($kegiatan->waktu ?? '-'))
+            );
+            $lines = array_merge(
+                $lines,
+                $this->wrapLine('   📍 ', (string) ($kegiatan->tempat ?? '-'))
+            );
             $lines[] = '';
 
             $personils = $kegiatan->personils ?? collect();
 
             if ($personils->isNotEmpty()) {
                 $lines[] = '   👥 Penerima Disposisi:';
-
-                $i = 1;
-                foreach ($personils as $p) {
-                    $nama = trim((string) ($p->nama ?? ''));
-
-                    if ($nama === '') {
-                        continue;
-                    }
-
-                    $rawNo  = trim((string) ($p->no_wa ?? ''));
-                    $digits = preg_replace('/[^0-9]/', '', $rawNo) ?? '';
-
-                    if ($digits !== '') {
-                        if (substr($digits, 0, 1) === '0') {
-                            $digits = '62' . substr($digits, 1);
-                        }
-
-                        $tag = ' @' . $digits;
-                    } else {
-                        $tag = '';
-                    }
-
-                    $lines[] = '      ' . $i . '. ' . $nama . $tag;
-                    $i++;
-                }
+                $lines = array_merge($lines, $this->buildPersonilLines($personils, $includeTag));
 
                 $lines[] = '';
             }
 
             $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
             if ($keterangan !== '') {
-                $lines[] = '   📝 Keterangan:';
-                $lines[] = '      ' . $keterangan;
+                $lines = array_merge(
+                    $lines,
+                    $this->wrapLine('   📝 Keterangan: ', $keterangan)
+                );
                 $lines[] = '';
             }
 
@@ -1276,16 +1597,37 @@ class WaGatewayService
         /** @var WaMessageTemplateService $templateService */
         $templateService = app(WaMessageTemplateService::class);
         $meta = $templateService->metaFor('group_belum_disposisi');
+        $includeTag = $templateService->includePersonilTag('group_belum_disposisi', true);
         $itemTemplate = trim((string) ($meta['item_template'] ?? ''));
         $separator = (string) ($meta['item_separator'] ?? "\n\n");
+        $leadershipTags = $this->getPersonilTagsByJabatan([
+            'Camat Watumalang',
+            'Sekretaris Kecamatan Watumalang',
+        ], $includeTag);
 
         if ($itemTemplate !== '') {
+            $items->loadMissing('personils');
             $rendered = [];
             $no = 1;
 
             /** @var \App\Models\Kegiatan $kegiatan */
             foreach ($items as $kegiatan) {
+                if ((bool) ($kegiatan->perlu_tindak_lanjut ?? false)) {
+                    $rendered[] = $this->buildBelumDisposisiTindakLanjutBlock($kegiatan, $leadershipTags);
+                    continue;
+                }
+
                 $suratUrl = $this->getShortSuratUrl($kegiatan);
+                $keteranganLines = [];
+                $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+                if ($keterangan !== '') {
+                    $keteranganLines = $this->wrapLine('   📝 Keterangan: ', $keterangan);
+                }
+                $personilListRaw = $this->buildPersonilListRaw($kegiatan->personils ?? collect(), $includeTag);
+                $personilNamesRaw = $this->buildPersonilNamesRaw($kegiatan->personils ?? collect());
+                $personilMentionsRaw = $includeTag
+                    ? implode(' ', $this->getPersonilMentions($kegiatan))
+                    : '';
                 $suratBlock = '';
 
                 if ($suratUrl) {
@@ -1301,7 +1643,14 @@ class WaGatewayService
                     'tanggal' => (string) ($kegiatan->tanggal_label ?? '-'),
                     'waktu' => (string) ($kegiatan->waktu ?? '-'),
                     'tempat' => (string) ($kegiatan->tempat ?? '-'),
+                    'keterangan_block' => $this->formatTemplateInlineBlock($keteranganLines),
+                    'keterangan_raw' => $keterangan,
                     'surat_block' => $suratBlock,
+                    'surat_url' => $suratUrl ?? '',
+                    'personil_block' => $this->buildPersonilBlock($kegiatan, $includeTag),
+                    'personil_list_raw' => $personilListRaw,
+                    'personil_names_raw' => $personilNamesRaw,
+                    'personil_mentions_raw' => $personilMentionsRaw,
                 ];
 
                 $rendered[] = $templateService->renderString($itemTemplate, $data);
@@ -1315,19 +1664,48 @@ class WaGatewayService
 
         $lines = [];
         $no = 1;
+        $index = 0;
 
         /** @var \App\Models\Kegiatan $kegiatan */
         foreach ($items as $kegiatan) {
-            if ($no > 1) {
+            if ($index > 0) {
                 $lines[] = '────────────────────────';
             }
 
+            $index++;
+
+            if ((bool) ($kegiatan->perlu_tindak_lanjut ?? false)) {
+                $lines = array_merge(
+                    $lines,
+                    explode("\n", $this->buildBelumDisposisiTindakLanjutBlock($kegiatan, $leadershipTags))
+                );
+                continue;
+            }
+
             $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
-            $lines[] = ' *Tanggal*     : ' . ($kegiatan->tanggal_label ?? '-');
-            $lines[] = ' *Waktu*       : ' . ($kegiatan->waktu ?? '-');
-            $lines[] = ' *Tempat*      : ' . ($kegiatan->tempat ?? '-');
+            $lines = array_merge(
+                $lines,
+                $this->wrapLine(' *Tanggal*     : ', (string) ($kegiatan->tanggal_label ?? '-'))
+            );
+            $lines = array_merge(
+                $lines,
+                $this->wrapLine(' *Waktu*       : ', (string) ($kegiatan->waktu ?? '-'))
+            );
+            $lines = array_merge(
+                $lines,
+                $this->wrapLine(' *Tempat*      : ', (string) ($kegiatan->tempat ?? '-'))
+            );
             $lines[] = '';
             $lines[] = '';
+
+            $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+            if ($keterangan !== '') {
+                $lines = array_merge(
+                    $lines,
+                    $this->wrapLine('   📝 Keterangan: ', $keterangan)
+                );
+                $lines[] = '';
+            }
 
             $suratUrl = $this->getShortSuratUrl($kegiatan);
             if ($suratUrl) {
@@ -1342,6 +1720,66 @@ class WaGatewayService
         $lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
 
         return implode("\n", $lines);
+    }
+
+    /**
+     * @param array<int, string> $leadershipTags
+     */
+    protected function buildBelumDisposisiTindakLanjutBlock(Kegiatan $kegiatan, array $leadershipTags): string
+    {
+        $nomorSurat = trim((string) ($kegiatan->nomor ?? ''));
+        if ($nomorSurat === '') {
+            $nomorSurat = '-';
+        }
+
+        $perihal = trim((string) ($kegiatan->nama_kegiatan ?? ''));
+        if ($perihal === '') {
+            $perihal = '-';
+        }
+
+        $tanggalLabel = trim((string) ($kegiatan->tanggal_label ?? ''));
+        if ($tanggalLabel === '') {
+            $tanggalLabel = '-';
+        }
+
+        $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+        if ($keterangan === '') {
+            $keterangan = '-';
+        }
+
+        $deadlineLabel = $this->formatTindakLanjutDeadlineLabel($kegiatan);
+        $suratUrl = $this->getShortSuratUrl($kegiatan);
+        $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
+
+        $lines = [
+            '*MOHON DISPOSISI — SURAT PERLU TL*',
+            '',
+            $this->formatLabelLine('Nomor Surat', $nomorSurat),
+            $this->formatLabelLine('Perihal', $perihal),
+            $this->formatLabelLine('Tanggal', $tanggalLabel),
+            $this->formatLabelLine('Keterangan', $keterangan),
+            $this->formatLabelLine('Batas TL', $deadlineLabel),
+            '',
+        ];
+
+        if ($suratUrl) {
+            $lines[] = '📎 Surat (PDF):';
+            $lines[] = $suratUrl;
+            $lines[] = '';
+        }
+
+        if ($lampiranUrl) {
+            $lines[] = '📎 Lampiran:';
+            $lines[] = $lampiranUrl;
+            $lines[] = '';
+        }
+
+        $lines[] = 'Mohon petunjuk penugasan/arahannya.:';
+        if (! empty($leadershipTags)) {
+            $lines[] = implode(' ', $leadershipTags);
+        }
+
+        return trim(implode("\n", $lines));
     }
 
     /**
@@ -1420,6 +1858,113 @@ class WaGatewayService
                     'response' => null,
                 ];
 
+                continue;
+            }
+
+            $sendResult = $this->sendTextToGroup($phone, $message);
+            $results[$group->id] = $sendResult;
+
+            if ($sendResult['success']) {
+                $success = true;
+            }
+        }
+
+        return [
+            'success' => $success,
+            'results' => $results,
+        ];
+    }
+
+    /**
+     * @param iterable<Kegiatan> $kegiatans
+     * @param  array<int, int|string>  $groupIds
+     * @return array{success: bool, results: array<int, array{success: bool, response: mixed, error: string|null}>}
+     */
+    public function sendGroupRekapToGroups(iterable $kegiatans, array $groupIds): array
+    {
+        if (! $this->hasClientCredentials()) {
+            return [
+                'success' => false,
+                'results' => [],
+            ];
+        }
+
+        $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
+
+        if ($items->isEmpty()) {
+            Log::warning('WA Gateway: sendGroupRekapToGroups dipanggil tanpa data kegiatan');
+
+            return [
+                'success' => false,
+                'results' => [],
+            ];
+        }
+
+        $rawIds = collect($groupIds)
+            ->filter(fn ($id) => $id !== null && $id !== '')
+            ->map(fn ($id) => trim((string) $id))
+            ->filter()
+            ->values();
+
+        if ($rawIds->isEmpty()) {
+            $groups = $this->resolveDefaultGroups();
+        } else {
+            $numericIds = $rawIds
+                ->filter(fn ($id) => ctype_digit($id))
+                ->map(fn ($id) => (int) $id)
+                ->unique()
+                ->values();
+
+            $groups = Group::query()
+                ->where(function ($query) use ($numericIds, $rawIds) {
+                    $hasCondition = false;
+
+                    if ($numericIds->isNotEmpty()) {
+                        $query->whereIn('id', $numericIds);
+                        $hasCondition = true;
+                    }
+
+                    if ($rawIds->isNotEmpty()) {
+                        $method = $hasCondition ? 'orWhereIn' : 'whereIn';
+                        $query->{$method}('wa_gateway_group_id', $rawIds);
+                    }
+                })
+                ->get();
+        }
+
+        if ($groups->isEmpty()) {
+            Log::warning('WA Gateway: sendGroupRekapToGroups tidak menemukan grup tujuan', [
+                'input_ids' => $rawIds->all(),
+            ]);
+
+            return [
+                'success' => false,
+                'results' => [],
+            ];
+        }
+
+        if (method_exists($items, 'loadMissing')) {
+            $items->loadMissing('personils');
+        }
+
+        $message = $this->buildGroupMessage($items);
+        $results = [];
+        $success = false;
+
+        foreach ($groups as $group) {
+            $phone = $this->resolveGroupPhone($group);
+
+            if (! $phone) {
+                Log::warning('WA Gateway: ID grup WA tidak tersedia untuk rekap', [
+                    'group_id' => $group->id,
+                    'group_name' => $group->nama,
+                ]);
+
+                $results[$group->id] = [
+                    'success' => false,
+                    'error' => 'ID grup WA tidak tersedia',
+                    'response' => null,
+                ];
                 continue;
             }
 

@@ -9,5 +9,5 @@ class ListVehicleTaxReminderLogs extends ListRecords
 {
     protected static string $resource = VehicleTaxReminderLogResource::class;
 
-    protected static ?string $title = 'Log Pengiriman Pengingat Pajak';
+    protected static ?string $title = 'Log Pengingat Pajak';
 }

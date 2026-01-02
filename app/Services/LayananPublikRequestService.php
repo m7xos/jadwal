@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
+use App\Services\MobileNotificationService;
 
 class LayananPublikRequestService
 {
@@ -209,5 +210,7 @@ class LayananPublikRequestService
                 ->body($body)
                 ->sendToDatabase($personil);
         }
+
+        app(MobileNotificationService::class)->notifyLayananPublikRegister($request);
     }
 }

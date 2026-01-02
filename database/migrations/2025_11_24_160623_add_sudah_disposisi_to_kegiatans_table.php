@@ -8,6 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('kegiatans') || Schema::hasColumn('kegiatans', 'sudah_disposisi')) {
+            return;
+        }
+
+
         Schema::table('kegiatans', function (Blueprint $table) {
             $table->boolean('sudah_disposisi')
                 ->default(false)

@@ -8,11 +8,26 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('vehicle_taxes')) {
+            return;
+        }
+
         Schema::table('vehicle_taxes', function (Blueprint $table): void {
-            $table->string('last_tahunan_reminder_stage', 10)->nullable()->after('last_tahunan_reminder_sent_at');
-            $table->date('last_tahunan_reminder_for_date')->nullable()->after('last_tahunan_reminder_stage');
-            $table->string('last_lima_tahunan_reminder_stage', 10)->nullable()->after('last_lima_tahunan_reminder_sent_at');
-            $table->date('last_lima_tahunan_reminder_for_date')->nullable()->after('last_lima_tahunan_reminder_stage');
+            if (! Schema::hasColumn('vehicle_taxes', 'last_tahunan_reminder_stage')) {
+                $table->string('last_tahunan_reminder_stage', 10)->nullable()->after('last_tahunan_reminder_sent_at');
+            }
+
+            if (! Schema::hasColumn('vehicle_taxes', 'last_tahunan_reminder_for_date')) {
+                $table->date('last_tahunan_reminder_for_date')->nullable()->after('last_tahunan_reminder_stage');
+            }
+
+            if (! Schema::hasColumn('vehicle_taxes', 'last_lima_tahunan_reminder_stage')) {
+                $table->string('last_lima_tahunan_reminder_stage', 10)->nullable()->after('last_lima_tahunan_reminder_sent_at');
+            }
+
+            if (! Schema::hasColumn('vehicle_taxes', 'last_lima_tahunan_reminder_for_date')) {
+                $table->date('last_lima_tahunan_reminder_for_date')->nullable()->after('last_lima_tahunan_reminder_stage');
+            }
         });
     }
 

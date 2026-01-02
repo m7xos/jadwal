@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Kegiatan;
 use App\Models\Personil;
 use App\Models\TindakLanjutReminderLog;
+use App\Models\WaInboxMessage;
+use App\Events\WaInboxMessageReceived;
 use App\Services\FollowUpReminderService;
+use App\Services\MobileNotificationService;
 use App\Services\ScheduleResponder;
 use App\Services\SuratKeluarRequestService;
 use App\Services\WaGatewayService;
 use App\Services\LayananPublikStatusResponder;
 use App\Services\VehicleTaxPaymentService;
 use App\Models\WaGatewaySetting;
+use App\Support\PhoneNumber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -39,6 +43,10 @@ class WaGatewayWebhookController extends Controller
         }
 
         if (app(SuratKeluarRequestService::class)->handleIncoming($payload, $waGateway)) {
+            return response()->json(['status' => 'ok']);
+        }
+
+        if ($this->handleIncomingChat($payload, $waGateway)) {
             return response()->json(['status' => 'ok']);
         }
 
@@ -288,6 +296,82 @@ class WaGatewayWebhookController extends Controller
         return $this->sendHelpReply($payload, $waGateway, $message);
     }
 
+    protected function handleIncomingChat(array $payload, WaGatewayService $waGateway): bool
+    {
+        if (($payload['isGroup'] ?? false) === true) {
+            return false;
+        }
+
+        if ($this->isFromSelf($payload)) {
+            return false;
+        }
+
+        $message = $this->extractIncomingText($payload);
+        if ($message === null) {
+            return false;
+        }
+
+        $normalized = strtolower(preg_replace('/\\s+/', ' ', $message));
+        if ($this->isBotCommandMessage($normalized)) {
+            return false;
+        }
+
+        $sender = $this->extractSenderNumberForChat($payload);
+        if (! $sender) {
+            return false;
+        }
+
+        $senderLid = null;
+        if (str_contains($sender, '@lid')) {
+            $senderLid = $sender;
+            $resolved = $waGateway->resolveLidNumber($sender);
+            if ($resolved) {
+                $sender = $resolved;
+            }
+        }
+
+        $exists = WaInboxMessage::query()
+            ->where('sender_number', $sender)
+            ->where('message', $message)
+            ->where('received_at', '>=', now()->subMinutes(2))
+            ->exists();
+
+        if ($exists) {
+            return true;
+        }
+
+        $senderName = $this->extractSenderName($payload);
+        if (! $senderName && ! str_contains($sender, '@lid')) {
+            $senderName = $waGateway->getContactName($sender);
+        }
+
+        $meta = [
+            'from' => $payload['from'] ?? null,
+            'sender_raw' => $payload['sender'] ?? null,
+        ];
+
+        if ($senderLid) {
+            $meta['sender_lid'] = $senderLid;
+            if ($sender !== $senderLid) {
+                $meta['sender_resolved'] = $sender;
+            }
+        }
+
+        $inboxMessage = WaInboxMessage::create([
+            'sender_number' => $sender,
+            'sender_name' => $senderName,
+            'message' => $message,
+            'received_at' => now(),
+            'status' => WaInboxMessage::STATUS_NEW,
+            'meta' => $meta,
+        ]);
+
+        WaInboxMessageReceived::dispatch($inboxMessage->id);
+        app(MobileNotificationService::class)->notifyWaInbox($inboxMessage);
+
+        return true;
+    }
+
     protected function helpMessageFor(string $topic): string
     {
         if ($topic === '') {
@@ -329,10 +413,10 @@ class WaGatewayWebhookController extends Controller
     {
         return implode("\n", [
             '*Topik Jadwal/Agenda*',
-            '- jadwal hari ini',
-            '- jadwal besok',
-            '- jadwal belum disposisi hari ini',
-            '- jadwal belum disposisi besok',
+            '- agenda hari ini',
+            '- agenda besok',
+            '- agenda belum disposisi hari ini',
+            '- agenda belum disposisi besok',
         ]);
     }
 
@@ -421,6 +505,130 @@ class WaGatewayWebhookController extends Controller
         return null;
     }
 
+    protected function extractSenderNumberForChat(array $payload): ?string
+    {
+        $candidates = [
+            $payload['senderNumber'] ?? null,
+            data_get($payload, 'sender.number'),
+            data_get($payload, 'sender.phone'),
+            data_get($payload, 'sender.user'),
+            data_get($payload, 'sender.id'),
+            data_get($payload, 'sender.id._serialized'),
+            data_get($payload, 'sender.id.user'),
+            data_get($payload, 'sender.jid'),
+            data_get($payload, 'sender.remoteJid'),
+            (string) ($payload['participant'] ?? ''),
+            (string) ($payload['sender'] ?? ''),
+            (string) ($payload['from'] ?? ''),
+        ];
+
+        $lidRaw = null;
+
+        foreach ($candidates as $raw) {
+            if (! is_string($raw) && ! is_numeric($raw)) {
+                continue;
+            }
+
+            $raw = trim((string) $raw);
+
+            if ($raw === '' || str_contains($raw, '@g.us')) {
+                continue;
+            }
+
+            if (str_contains($raw, '@lid')) {
+                $lidRaw = $raw;
+                continue;
+            }
+
+            $normalized = PhoneNumber::normalize($raw);
+            if ($normalized) {
+                return $normalized;
+            }
+        }
+
+        if ($lidRaw) {
+            return $lidRaw;
+        }
+
+        return null;
+    }
+
+    protected function extractSenderName(array $payload): ?string
+    {
+        $candidates = [
+            $payload['senderName'] ?? null,
+            $payload['pushName'] ?? null,
+            $payload['name'] ?? null,
+            data_get($payload, 'sender.name'),
+            data_get($payload, 'sender.pushName'),
+            data_get($payload, 'sender.pushname'),
+            data_get($payload, 'sender.verifiedName'),
+            data_get($payload, 'sender.notify'),
+            data_get($payload, 'contact.name'),
+            data_get($payload, 'contact.pushName'),
+            data_get($payload, 'contact.pushname'),
+            data_get($payload, 'contact.notify'),
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (is_string($candidate) && trim($candidate) !== '') {
+                return trim($candidate);
+            }
+        }
+
+        return null;
+    }
+
+    protected function isBotCommandMessage(string $message): bool
+    {
+        if ($message === '') {
+            return false;
+        }
+
+        if (preg_match('/^help(\\s|$)/i', $message)) {
+            return true;
+        }
+
+        if (str_contains($message, 'minta nomor surat')) {
+            return true;
+        }
+
+        if (preg_match('/\\btl\\W*\\d+\\W*selesai\\b/i', $message)) {
+            return true;
+        }
+
+        if (preg_match('/pajak-[a-z0-9 ]+\\s+terbayar/i', $message)) {
+            return true;
+        }
+
+        if (preg_match('/\\b(cek|status)\\s+layanan/i', $message)) {
+            return true;
+        }
+
+        if (preg_match('/\\bLP\\-[A-Za-z0-9\\-]+\\b/', $message)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    protected function isFromSelf(array $payload): bool
+    {
+        $flags = [
+            $payload['fromMe'] ?? null,
+            $payload['isFromMe'] ?? null,
+            data_get($payload, 'message.fromMe'),
+        ];
+
+        foreach ($flags as $flag) {
+            if ($flag === true || $flag === 1 || $flag === 'true') {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     protected function extractSenderNumberForHelp(array $payload): ?string
     {
         $candidates = [
@@ -430,7 +638,7 @@ class WaGatewayWebhookController extends Controller
         ];
 
         foreach ($candidates as $raw) {
-            if ($raw === '' || str_contains($raw, '@g.us') || str_contains($raw, '@lid')) {
+            if ($raw === '' || str_contains($raw, '@g.us')) {
                 continue;
             }
 
@@ -466,14 +674,14 @@ class WaGatewayWebhookController extends Controller
         if ($kegiatanId) {
             return Kegiatan::query()
                 ->where('id', $kegiatanId)
-                ->where('jenis_surat', 'tindak_lanjut')
+                ->where('perlu_tindak_lanjut', true)
                 ->whereNull('tindak_lanjut_selesai_at')
                 ->first();
         }
 
         $log = TindakLanjutReminderLog::query()
             ->whereHas('kegiatan', fn ($q) => $q
-                ->where('jenis_surat', 'tindak_lanjut')
+                ->where('perlu_tindak_lanjut', true)
                 ->whereNull('tindak_lanjut_selesai_at'))
             ->orderByDesc('created_at')
             ->first();

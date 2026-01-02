@@ -8,6 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('kegiatans') || Schema::hasColumn('kegiatans', 'batas_tindak_lanjut')) {
+            return;
+        }
+
+
         Schema::table('kegiatans', function (Blueprint $table) {
             $table->dateTime('batas_tindak_lanjut')->nullable()->after('keterangan');
         });

@@ -18,6 +18,8 @@ class LaporanSuratMasukBulanan extends Page
     protected static ?string $navigationLabel = 'Rekap Kegiatan';
     protected static UnitEnum|string|null $navigationGroup = 'Laporan';
     protected static ?int $navigationSort  = 10;
+    protected static ?string $title = 'Rekap Kegiatan';
+    protected ?string $heading = '';
 
     // ⚠️ DI VERSION-MU, $view BUKAN static → jangan pakai "static"
     protected string $view = 'filament.pages.laporan-surat-masuk-bulanan';
@@ -32,6 +34,9 @@ class LaporanSuratMasukBulanan extends Page
      * Bulan rekap dalam format "YYYY-MM" (untuk input type="month").
      */
     public ?string $bulan = null;
+    public ?string $tahun = null;
+    public ?string $jenisRekap = 'bulanan';
+    public bool $ttdSrikandi = false;
 
     /**
      * Data baris laporan untuk tabel.
@@ -42,6 +47,8 @@ class LaporanSuratMasukBulanan extends Page
 
     public ?string $judulLaporan = null;
     public ?string $bulanLabel   = null;
+    public ?string $periodeLabel = null;
+    public ?string $periodeCaption = null;
     public ?string $namaCamat    = null;
 
     // tanggal rekap (untuk teks "Wonosobo, …")
@@ -51,6 +58,8 @@ class LaporanSuratMasukBulanan extends Page
     {
         $now            = now();
         $this->bulan    = $now->format('Y-m'); // default bulan berjalan
+        $this->tahun    = $now->format('Y');
+        $this->jenisRekap = 'bulanan';
         $this->rekapDate = $now;
 
         $this->loadData();
@@ -61,20 +70,53 @@ class LaporanSuratMasukBulanan extends Page
         $this->loadData();
     }
 
+    public function updatedTahun(): void
+    {
+        $this->loadData();
+    }
+
+    public function updatedJenisRekap(): void
+    {
+        $this->loadData();
+    }
+
     protected function loadData(): void
     {
-        if (empty($this->bulan) || ! str_contains($this->bulan, '-')) {
-            $this->rows         = [];
-            $this->judulLaporan = 'Laporan Rekap Surat Masuk Bulan - Kantor Kecamatan Watumalang';
-            $this->bulanLabel   = '-';
+        if ($this->jenisRekap === 'tahunan') {
+            $year = is_numeric($this->tahun ?? '') ? (int) $this->tahun : null;
 
-            return;
+            if (! $year) {
+                $this->rows = [];
+                $this->judulLaporan = 'Laporan Rekap Kegiatan Tahun - Kantor Kecamatan Watumalang';
+                $this->periodeLabel = '-';
+                $this->periodeCaption = 'Tahun';
+                $this->bulanLabel = null;
+
+                return;
+            }
+
+            $start = Carbon::createFromDate($year, 1, 1)->startOfDay();
+            $end = (clone $start)->endOfYear()->endOfDay();
+            $this->periodeLabel = (string) $year;
+            $this->periodeCaption = 'Tahun';
+        } else {
+            if (empty($this->bulan) || ! str_contains($this->bulan, '-')) {
+                $this->rows         = [];
+                $this->judulLaporan = 'Laporan Rekap Kegiatan Bulan - Kantor Kecamatan Watumalang';
+                $this->bulanLabel   = '-';
+                $this->periodeLabel = '-';
+                $this->periodeCaption = 'Bulan';
+
+                return;
+            }
+
+            [$year, $month] = explode('-', $this->bulan);
+
+            $start = Carbon::createFromDate((int) $year, (int) $month, 1)->startOfDay();
+            $end   = (clone $start)->endOfMonth()->endOfDay();
+            $this->periodeLabel = $start->locale('id')->isoFormat('MMMM Y');
+            $this->periodeCaption = 'Bulan';
         }
-
-        [$year, $month] = explode('-', $this->bulan);
-
-        $start = Carbon::createFromDate((int) $year, (int) $month, 1)->startOfDay();
-        $end   = (clone $start)->endOfMonth()->endOfDay();
 
         /** @var Collection<int, Kegiatan> $kegiatans */
         $kegiatans = Kegiatan::with('personils')
@@ -102,11 +144,15 @@ class LaporanSuratMasukBulanan extends Page
         })->all();
 
         // Contoh: "November 2025"
-        $this->bulanLabel = $start->locale('id')->isoFormat('MMMM Y');
+        $this->bulanLabel = $this->jenisRekap === 'tahunan'
+            ? null
+            : $start->locale('id')->isoFormat('MMMM Y');
 
         // Judul sesuai permintaan:
-        $this->judulLaporan = 'Laporan Rekap Surat Masuk Bulan ' .
-            $this->bulanLabel .
+        $periodeLabel = $this->periodeLabel ?? $this->bulanLabel ?? '-';
+        $this->judulLaporan = 'Laporan Rekap Kegiatan ' .
+            ($this->periodeCaption ?? 'Bulan') . ' ' .
+            $periodeLabel .
             ' Kantor Kecamatan Watumalang';
 
         // Ambil nama camat dari Personil (jabatan LIKE %Camat Watumalang%)
@@ -124,9 +170,14 @@ class LaporanSuratMasukBulanan extends Page
             'rows'         => $this->rows,
             'judulLaporan' => $this->judulLaporan,
             'bulanLabel'   => $this->bulanLabel,
+            'periodeLabel' => $this->periodeLabel ?? $this->bulanLabel,
+            'periodeCaption' => $this->periodeCaption,
             'namaCamat'    => $this->namaCamat,
             'rekapDate'    => $this->rekapDate ?? now(),
             'bulan'        => $this->bulan,
+            'tahun'        => $this->tahun,
+            'jenisRekap'   => $this->jenisRekap,
+            'ttdSrikandi'  => $this->ttdSrikandi,
         ];
     }
 }

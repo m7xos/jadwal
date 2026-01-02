@@ -11,6 +11,7 @@ use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -53,6 +54,10 @@ class WaMessageTemplates extends Page implements HasForms
                 $state[$this->listItemFieldName($key)] = $meta['item_template'] ?? $definition['list_item_template'];
                 $state[$this->listSeparatorFieldName($key)] = $meta['item_separator'] ?? "\n\n";
             }
+
+            $state[$this->tagFieldName($key)] = array_key_exists('include_personil_tag', $meta)
+                ? (bool) $meta['include_personil_tag']
+                : true;
 
             $state['preview_' . $key] = $this->buildPreview($key, $definition, $sections, $state);
         }
@@ -112,6 +117,13 @@ class WaMessageTemplates extends Page implements HasForms
                     Placeholder::make('placeholders_' . $key)
                         ->label('Placeholder tersedia')
                         ->content($placeholderList),
+                    Toggle::make($this->tagFieldName($key))
+                        ->label('Tag nomor personil')
+                        ->helperText('Aktifkan untuk menyertakan mention nomor WA (@62...) di template ini.')
+                        ->live()
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) use ($key) {
+                            $this->updatePreviewFromState($key, $set, $get);
+                        }),
                     ...$sectionFields,
                     Textarea::make('preview_' . $key)
                         ->label('Preview (data dummy, format WA)')
@@ -150,6 +162,11 @@ class WaMessageTemplates extends Page implements HasForms
     protected function listSeparatorFieldName(string $key): string
     {
         return $key . '__list_item_separator';
+    }
+
+    protected function tagFieldName(string $key): string
+    {
+        return $key . '__include_personil_tag';
     }
 
     /**
@@ -223,12 +240,13 @@ class WaMessageTemplates extends Page implements HasForms
             $template = (string) ($definition['template'] ?? '');
         }
 
-        $data = $this->dummyDataFor($key);
+        $includeTag = (bool) ($state[$this->tagFieldName($key)] ?? true);
+        $data = $this->dummyDataFor($key, $includeTag);
 
         if (! empty($definition['list_item_template'])) {
             $itemTemplate = (string) ($state[$this->listItemFieldName($key)] ?? $definition['list_item_template']);
             $separator = (string) ($state[$this->listSeparatorFieldName($key)] ?? "\n\n");
-            $data['agenda_list'] = $this->buildDummyAgendaList($key, $itemTemplate, $separator);
+            $data['agenda_list'] = $this->buildDummyAgendaList($key, $itemTemplate, $separator, $includeTag);
         }
 
         return $this->renderPreview($template, $data);
@@ -253,12 +271,13 @@ class WaMessageTemplates extends Page implements HasForms
             $template = (string) ($definition['template'] ?? '');
         }
 
-        $data = $this->dummyDataFor($key);
+        $includeTag = (bool) ($get($this->tagFieldName($key)) ?? true);
+        $data = $this->dummyDataFor($key, $includeTag);
 
         if (! empty($definition['list_item_template'])) {
             $itemTemplate = (string) ($get($this->listItemFieldName($key)) ?? $definition['list_item_template']);
             $separator = (string) ($get($this->listSeparatorFieldName($key)) ?? "\n\n");
-            $data['agenda_list'] = $this->buildDummyAgendaList($key, $itemTemplate, $separator);
+            $data['agenda_list'] = $this->buildDummyAgendaList($key, $itemTemplate, $separator, $includeTag);
         }
 
         $set('preview_' . $key, $this->renderPreview($template, $data));
@@ -267,19 +286,38 @@ class WaMessageTemplates extends Page implements HasForms
     /**
      * @return array<string, string>
      */
-    protected function dummyDataFor(string $key): array
+    protected function dummyDataFor(string $key, bool $includeTag = true): array
     {
-        return match ($key) {
+        $data = match ($key) {
             'agenda_group' => [
                 'tanggal_header' => 'Senin, 12 Januari 2026',
                 'judul' => 'Rapat Koordinasi Evaluasi Program',
                 'waktu' => '09:00 WIB',
                 'tempat' => 'Ruang Rapat Utama',
-                'peserta_line' => "   👥 Camat, Sekcam, @6281234567890\n",
+                'peserta_line' => $includeTag
+                    ? "   👥 Camat, Sekcam\n      @6281234567890 @6289876543210\n"
+                    : "   👥 Camat, Sekcam, Budi\n",
+                'peserta_raw' => $includeTag ? 'Camat, Sekcam' : 'Camat, Sekcam, Budi',
+                'mentions_raw' => $includeTag ? '@6281234567890 @6289876543210' : '',
+                'mentions_line' => $includeTag ? "      @6281234567890 @6289876543210\n" : '',
+                'personil_list_raw' => $includeTag
+                    ? implode("\n", [
+                        '1. Budi',
+                        '   @6281234567890',
+                        '2. Sari',
+                        '   @6289876543210',
+                    ])
+                    : implode("\n", [
+                        '1. Budi',
+                        '2. Sari',
+                    ]),
                 'keterangan_line' => "   📝 Dimohon hadir tepat waktu.\n",
+                'keterangan_raw' => 'Dimohon hadir tepat waktu.',
                 'surat_line' => "   📎 Surat: https://example.com/surat\n",
+                'surat_url' => 'https://example.com/surat',
                 'lampiran_line' => "   📎 Lampiran: https://example.com/lampiran\n",
-                'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+                'lampiran_url' => 'https://example.com/lampiran',
+                'footer' => "Harap selalu laporkan hasil kegiatan kepada atasan.\nPesan ini dikirim otomatis dari sistem agenda kantor.",
             ],
             'agenda_personil' => [
                 'nama_kegiatan' => 'Sosialisasi Program Desa',
@@ -288,13 +326,19 @@ class WaMessageTemplates extends Page implements HasForms
                 'waktu' => '09:00 WIB',
                 'tempat' => 'Balai Desa',
                 'keterangan_block' => "*Keterangan*\nMohon membawa bahan paparan.\n\n",
+                'keterangan_raw' => 'Mohon membawa bahan paparan.',
                 'surat_block' => "📎 *Lihat Surat (PDF)*\nhttps://example.com/surat\n\n",
+                'surat_url' => 'https://example.com/surat',
                 'lampiran_block' => "📎 *Lampiran*\nhttps://example.com/lampiran\n\n",
-                'footer' => '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._',
+                'lampiran_url' => 'https://example.com/lampiran',
+                'footer' => "_Harap selalu laporkan hasil kegiatan kepada atasan._\n_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._",
             ],
             'tindak_lanjut_reminder' => [
                 'nomor_surat' => '123/ABC/2026',
                 'kode_tl' => 'TL-45',
+                'perihal' => 'Klarifikasi Dokumen',
+                'tanggal' => 'Senin, 12 Januari 2026',
+                'batas_tl' => 'Selasa, 13 Januari 2026 10:00 WIB',
                 'label_lines' => implode("\n", [
                     'Kode TL       : TL-45',
                     'Perihal       : Klarifikasi Dokumen',
@@ -302,31 +346,50 @@ class WaMessageTemplates extends Page implements HasForms
                     'Batas TL      : Selasa, 13 Januari 2026 10:00 WIB',
                 ]),
                 'surat_block' => "📎 Surat (PDF):\nhttps://example.com/surat\n\n",
+                'surat_url' => 'https://example.com/surat',
                 'lampiran_block' => "📎 Lampiran Surat:\nhttps://example.com/lampiran\n\n",
-                'disposisi_block' => "Mohon arahan percepatan tindak lanjut:\n@6281234567890\nkepada: @6289876543210\n\n",
+                'lampiran_url' => 'https://example.com/lampiran',
+                'disposisi_block' => $includeTag
+                    ? "Mohon arahan percepatan tindak lanjut:\n@6281234567890\nkepada: @6289876543210\n\n"
+                    : "Mohon arahan percepatan tindak lanjut:\nCamat, Sekcam\nkepada: Budi\n\n",
+                'disposisi_tags' => $includeTag ? '@6281234567890' : 'Camat, Sekcam',
+                'personil_tags' => $includeTag ? '@6289876543210' : 'Budi',
                 'balasan_line' => '_Balas pesan ini dengan *TL-45 selesai* jika sudah menyelesaikan TL_' . "\n",
-                'footer' => '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._',
+                'footer' => "_Harap selalu laporkan hasil kegiatan kepada atasan._\n_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._",
             ],
             'group_rekap' => [
                 'judul' => 'REKAP AGENDA KEGIATAN KANTOR',
                 'tanggal_label' => 'Senin, 12 Januari 2026',
                 'agenda_list' => '',
                 'generated_at' => '12 Januari 2026 08:00 WIB',
-                'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+                'footer' => "Harap selalu laporkan hasil kegiatan kepada atasan.\nPesan ini dikirim otomatis dari sistem agenda kantor.",
             ],
             'group_belum_disposisi' => [
                 'agenda_list' => '',
-                'leadership_block' => "*Mohon petunjuk/arahan disposisi:*\n@6281234567890\n\n",
-                'footer' => '_Pesan ini dikirim otomatis dari sistem agenda kantor._',
+                'leadership_block' => $includeTag
+                    ? "*Mohon petunjuk/arahan disposisi:*\n@6281234567890\n\n"
+                    : "*Mohon petunjuk/arahan disposisi:*\nCamat, Sekcam\n\n",
+                'leadership_tags' => $includeTag ? '@6281234567890' : 'Camat, Sekcam',
+                'footer' => "_Harap selalu laporkan hasil kegiatan kepada atasan._\n_Pesan ini dikirim otomatis dari sistem agenda kantor._",
             ],
             'follow_up_reminder' => [
                 'kegiatan_line' => 'Kegiatan  : Verifikasi Dokumen',
+                'kegiatan' => 'Verifikasi Dokumen',
                 'tanggal_line' => 'Tanggal   : Senin, 12 Januari 2026',
+                'tanggal' => 'Senin, 12 Januari 2026',
                 'jam_line' => 'Jam       : 09:30 WIB',
+                'jam' => '09:30 WIB',
                 'tempat_line' => 'Tempat    : Ruang Arsip' . "\n",
-                'penerima_line' => 'Untuk     : @6281234567890 (Budi)' . "\n",
+                'tempat' => 'Ruang Arsip',
+                'penerima_line' => $includeTag
+                    ? 'Untuk     : @6281234567890 (Budi)' . "\n"
+                    : 'Untuk     : Budi' . "\n",
+                'penerima' => $includeTag ? '@6281234567890 (Budi)' : 'Budi',
+                'penerima_mention' => $includeTag ? '@6281234567890' : '',
                 'keterangan_block' => "\n*Keterangan:*\nMohon siapkan dokumen pendukung.\n\n",
+                'keterangan' => 'Mohon siapkan dokumen pendukung.',
                 'kode_line' => 'Kode      : PR-12',
+                'kode' => 'PR-12',
                 'footer' => implode("\n", [
                     'Mohon tindak lanjuti kegiatan di atas.',
                     'Balas pesan ini dengan kata kunci *terima kasih* untuk menghentikan pengingat.',
@@ -343,12 +406,14 @@ class WaMessageTemplates extends Page implements HasForms
             ],
             default => [],
         };
+
+        return $data;
     }
 
     /**
-     * @return array<int, array<string, string>>
+     * @return array<int, array<string, mixed>>
      */
-    protected function dummyListItemsFor(string $key): array
+    protected function dummyListItemsFor(string $key, bool $includeTag = true): array
     {
         return match ($key) {
             'group_rekap' => [
@@ -359,16 +424,28 @@ class WaMessageTemplates extends Page implements HasForms
                     'tempat' => 'Ruang Rapat Utama',
                     'personil_block' => implode("\n", [
                         '   👥 Penerima Disposisi:',
-                        '      1. Budi @6281234567890',
+                        $includeTag ? '      1. Budi' : '      1. Budi',
+                        $includeTag ? '         @6281234567890' : '',
                         '',
                     ]),
+                    'personil_list_raw' => $includeTag
+                        ? implode("\n", [
+                            '1. Budi',
+                            '   @6281234567890',
+                        ])
+                        : '1. Budi',
+                    'personil_names_raw' => 'Budi',
+                    'personil_mentions_raw' => $includeTag ? '@6281234567890' : '',
                     'keterangan_block' => implode("\n", [
                         '   📝 Keterangan:',
                         '      Dimohon hadir tepat waktu.',
                         '',
                     ]),
+                    'keterangan_raw' => 'Dimohon hadir tepat waktu.',
                     'surat_line' => '   📎 Link Surat: https://example.com/surat' . "\n",
+                    'surat_url' => 'https://example.com/surat',
                     'lampiran_line' => '   📎 Lampiran: https://example.com/lampiran' . "\n",
+                    'lampiran_url' => 'https://example.com/lampiran',
                 ],
                 [
                     'no' => '2',
@@ -377,42 +454,78 @@ class WaMessageTemplates extends Page implements HasForms
                     'tempat' => 'Desa Sumber',
                     'personil_block' => implode("\n", [
                         '   👥 Penerima Disposisi:',
-                        '      1. Sari @6289876543210',
+                        $includeTag ? '      1. Sari' : '      1. Sari',
+                        $includeTag ? '         @6289876543210' : '',
                         '',
                     ]),
+                    'personil_list_raw' => $includeTag
+                        ? implode("\n", [
+                            '1. Sari',
+                            '   @6289876543210',
+                        ])
+                        : '1. Sari',
+                    'personil_names_raw' => 'Sari',
+                    'personil_mentions_raw' => $includeTag ? '@6289876543210' : '',
                     'keterangan_block' => '',
+                    'keterangan_raw' => '',
                     'surat_line' => '',
+                    'surat_url' => '',
                     'lampiran_line' => '',
+                    'lampiran_url' => '',
                 ],
             ],
             'group_belum_disposisi' => [
                 [
+                    'perlu_tindak_lanjut' => true,
+                    'nomor_surat' => '123/ABC/2026',
                     'no' => '1',
                     'judul' => 'Permohonan Data',
+                    'perihal' => 'Klarifikasi Dokumen',
                     'tanggal' => 'Senin, 12 Januari 2026',
                     'waktu' => '09:00 WIB',
                     'tempat' => 'Ruang Camat',
+                    'keterangan_block' => '   📝 Keterangan: Mohon ditindaklanjuti.' . "\n",
+                    'keterangan_raw' => 'Mohon verifikasi dokumen pendukung dan koordinasi lintas bidang.',
+                    'batas_tl' => 'Selasa, 13 Januari 2026 10:00 WIB',
                     'surat_block' => implode("\n", [
                         '📎 *Lihat Surat (PDF)*',
                         'https://example.com/surat',
                     ]) . "\n",
+                    'surat_url' => 'https://example.com/surat',
+                    'lampiran_url' => 'https://example.com/lampiran',
+                    'leadership_tags' => $includeTag ? '@6281234567890' : 'Camat, Sekcam',
+                    'personil_list_raw' => $includeTag
+                        ? implode("\n", [
+                            '1. Budi',
+                            '   @6281234567890',
+                        ])
+                        : '1. Budi',
+                    'personil_names_raw' => 'Budi',
+                    'personil_mentions_raw' => $includeTag ? '@6281234567890' : '',
                 ],
                 [
+                    'perlu_tindak_lanjut' => false,
                     'no' => '2',
                     'judul' => 'Permintaan Dukungan',
                     'tanggal' => 'Selasa, 13 Januari 2026',
                     'waktu' => '10:30 WIB',
                     'tempat' => 'Aula Kecamatan',
+                    'keterangan_block' => '',
+                    'keterangan_raw' => '',
                     'surat_block' => '',
+                    'surat_url' => '',
+                    'personil_list_raw' => '',
+                    'personil_names_raw' => '',
+                    'personil_mentions_raw' => '',
                 ],
             ],
             default => [],
         };
     }
 
-    protected function buildDummyAgendaList(string $key, string $itemTemplate, string $separator): string
+    protected function buildDummyAgendaList(string $key, string $itemTemplate, string $separator, bool $includeTag): string
     {
-        $items = $this->dummyListItemsFor($key);
+        $items = $this->dummyListItemsFor($key, $includeTag);
 
         if (empty($items)) {
             return '';
@@ -428,6 +541,10 @@ class WaMessageTemplates extends Page implements HasForms
 
         $rendered = [];
         foreach ($items as $item) {
+            if ($key === 'group_belum_disposisi' && ! empty($item['perlu_tindak_lanjut'])) {
+                $rendered[] = $this->buildDummyBelumDisposisiTindakLanjutBlock($item);
+                continue;
+            }
             $rendered[] = $templateService->renderString($template, $item);
         }
 
@@ -436,6 +553,76 @@ class WaMessageTemplates extends Page implements HasForms
         }
 
         return implode($separator, $rendered);
+    }
+
+    /**
+     * @param array<string, mixed> $item
+     */
+    protected function buildDummyBelumDisposisiTindakLanjutBlock(array $item): string
+    {
+        $nomorSurat = trim((string) ($item['nomor_surat'] ?? ''));
+        if ($nomorSurat === '') {
+            $nomorSurat = '-';
+        }
+
+        $perihal = trim((string) ($item['perihal'] ?? $item['judul'] ?? ''));
+        if ($perihal === '') {
+            $perihal = '-';
+        }
+
+        $tanggal = trim((string) ($item['tanggal'] ?? ''));
+        if ($tanggal === '') {
+            $tanggal = '-';
+        }
+
+        $keterangan = trim((string) ($item['keterangan_raw'] ?? ''));
+        if ($keterangan === '') {
+            $keterangan = '-';
+        }
+
+        $batasTl = trim((string) ($item['batas_tl'] ?? ''));
+        if ($batasTl === '') {
+            $batasTl = '-';
+        }
+
+        $suratUrl = trim((string) ($item['surat_url'] ?? ''));
+        $lampiranUrl = trim((string) ($item['lampiran_url'] ?? ''));
+        $leadershipTags = trim((string) ($item['leadership_tags'] ?? ''));
+
+        $lines = [
+            '*MOHON DISPOSISI — SURAT PERLU TL*',
+            '',
+            $this->formatLabelLine('Nomor Surat', $nomorSurat),
+            $this->formatLabelLine('Perihal', $perihal),
+            $this->formatLabelLine('Tanggal', $tanggal),
+            $this->formatLabelLine('Keterangan', $keterangan),
+            $this->formatLabelLine('Batas TL', $batasTl),
+            '',
+        ];
+
+        if ($suratUrl !== '') {
+            $lines[] = '📎 Surat (PDF):';
+            $lines[] = $suratUrl;
+            $lines[] = '';
+        }
+
+        if ($lampiranUrl !== '') {
+            $lines[] = '📎 Lampiran:';
+            $lines[] = $lampiranUrl;
+            $lines[] = '';
+        }
+
+        $lines[] = 'Mohon petunjuk penugasan/arahannya.:';
+        if ($leadershipTags !== '') {
+            $lines[] = $leadershipTags;
+        }
+
+        return trim(implode("\n", $lines));
+    }
+
+    protected function formatLabelLine(string $label, string $value): string
+    {
+        return sprintf('%-14s: %s', $label, $value);
     }
 
     /**
@@ -492,6 +679,8 @@ class WaMessageTemplates extends Page implements HasForms
                 $meta['item_template'] = $itemTemplate;
                 $meta['item_separator'] = (string) ($state[$this->listSeparatorFieldName($key)] ?? "\n\n");
             }
+
+            $meta['include_personil_tag'] = (bool) ($state[$this->tagFieldName($key)] ?? true);
 
             $payloads[$key] = [
                 'content' => $content,

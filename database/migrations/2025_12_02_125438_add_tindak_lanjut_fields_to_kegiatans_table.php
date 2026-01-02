@@ -11,22 +11,34 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (! Schema::hasTable('kegiatans')) {
+            return;
+        }
+
         Schema::table('kegiatans', function (Blueprint $table) {
-            $table->string('jenis_surat')
-                ->default('undangan')
-                ->after('surat_undangan');
+            if (! Schema::hasColumn('kegiatans', 'jenis_surat')) {
+                $table->string('jenis_surat')
+                    ->default('undangan')
+                    ->after('surat_undangan');
+            }
 
-            $table->boolean('tampilkan_di_public')
-                ->default(true)
-                ->after('sudah_disposisi');
+            if (! Schema::hasColumn('kegiatans', 'tampilkan_di_public')) {
+                $table->boolean('tampilkan_di_public')
+                    ->default(true)
+                    ->after('sudah_disposisi');
+            }
 
-            $table->dateTime('tindak_lanjut_deadline')
-                ->nullable()
-                ->after('tampilkan_di_public');
+            if (! Schema::hasColumn('kegiatans', 'tindak_lanjut_deadline')) {
+                $table->dateTime('tindak_lanjut_deadline')
+                    ->nullable()
+                    ->after('tampilkan_di_public');
+            }
 
-            $table->dateTime('tindak_lanjut_reminder_sent_at')
-                ->nullable()
-                ->after('tindak_lanjut_deadline');
+            if (! Schema::hasColumn('kegiatans', 'tindak_lanjut_reminder_sent_at')) {
+                $table->dateTime('tindak_lanjut_reminder_sent_at')
+                    ->nullable()
+                    ->after('tindak_lanjut_deadline');
+            }
         });
     }
 

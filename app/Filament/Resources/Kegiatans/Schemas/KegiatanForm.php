@@ -4,9 +4,11 @@ namespace App\Filament\Resources\Kegiatans\Schemas;
 
 use App\Models\Kegiatan;
 use App\Models\Personil;
+use App\Models\PersonilCategory;
 use App\Services\NomorSuratExtractor;
 use App\Services\PdfCompressor;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
@@ -19,6 +21,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
@@ -37,17 +40,29 @@ class KegiatanForm
                 // =========================
                 Section::make('Informasi Kegiatan')
                     ->schema([
-                        Select::make('jenis_surat')
-                            ->label('Jenis Surat')
+                        Select::make('sifat_surat')
+                            ->label('Sifat Surat')
                             ->options([
-                                'undangan'      => 'Surat Undangan',
-                                'tindak_lanjut' => 'Surat Masuk',
+                                'undangan' => 'Undangan',
+                                'edaran' => 'Surat Edaran',
+                                'pemberitahuan' => 'Pemberitahuan',
+                                'lainnya' => 'Lainnya',
                             ])
                             ->default('undangan')
                             ->required()
                             ->native(false)
-                            ->helperText('Pilih apakah surat undangan atau surat masuk dengan batas tindak lanjut.')
-                            ->reactive(), // penting supaya visible()/required() ikut berubah
+                            ->helperText('Pilih sifat/isi surat untuk menampilkan field yang relevan.')
+                            ->reactive(),
+
+                        Toggle::make('perlu_tindak_lanjut')
+                            ->label('Perlu Tindak Lanjut')
+                            ->helperText('Centang jika surat perlu tindak lanjut dan pengingat.')
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set) {
+                                if (! $state) {
+                                    $set('batas_tindak_lanjut', null);
+                                }
+                            }),
 
                         
                         FileUpload::make('surat_undangan')
@@ -57,7 +72,7 @@ class KegiatanForm
                             ->preserveFilenames()
                             ->storeFiles(false)
                             ->acceptedFileTypes(['application/pdf'])
-                            ->required(fn (Get $get) => $get('jenis_surat') === 'undangan')
+                            ->required(fn (Get $get) => $get('sifat_surat') === 'undangan')
                             ->deleteUploadedFileUsing(function ($file): void {
                                 if ($file instanceof TemporaryUploadedFile) {
                                     $file->delete();
@@ -203,25 +218,25 @@ class KegiatanForm
                         TextInput::make('waktu')
                             ->label('Waktu')
                             ->placeholder('Contoh: 09.00 - 11.00 WIB')
-                            ->required(fn (Get $get) => $get('jenis_surat') === 'undangan')
-                            ->visible(fn (Get $get) => $get('jenis_surat') === 'undangan')
+                            ->required(fn (Get $get) => $get('sifat_surat') === 'undangan')
+                            ->visible(fn (Get $get) => $get('sifat_surat') === 'undangan')
                             // opsional: supaya tidak ikut disimpan kalau hidden
-                            ->dehydrated(fn (Get $get) => $get('jenis_surat') === 'undangan')
+                            ->dehydrated(fn (Get $get) => $get('sifat_surat') === 'undangan')
                             ->maxLength(100),
 
                         TextInput::make('tempat')
 							->label('Tempat')
-							->required(fn (Get $get) => $get('jenis_surat') === 'undangan')
-							->visible(fn (Get $get) => $get('jenis_surat') === 'undangan')
-							->dehydrated(fn (Get $get) => $get('jenis_surat') === 'undangan')
+							->required(fn (Get $get) => $get('sifat_surat') === 'undangan')
+							->visible(fn (Get $get) => $get('sifat_surat') === 'undangan')
+							->dehydrated(fn (Get $get) => $get('sifat_surat') === 'undangan')
 							->maxLength(255),
 
                         DateTimePicker::make('batas_tindak_lanjut')
                             ->label('Batas Waktu Tindak Lanjut')
                             ->seconds(false)
-                            ->visible(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
-                            ->required(fn (Get $get) => $get('jenis_surat') === 'tindak_lanjut')
-                            ->helperText('Wajib diisi untuk surat masuk yang harus ditindaklanjuti.'),
+                            ->visible(fn (Get $get) => (bool) $get('perlu_tindak_lanjut'))
+                            ->required(fn (Get $get) => (bool) $get('perlu_tindak_lanjut'))
+                            ->helperText('Wajib diisi jika surat perlu tindak lanjut.'),
 
                         Textarea::make('keterangan')
                             ->label('Keterangan')
@@ -245,26 +260,74 @@ class KegiatanForm
                 // =========================
                 Section::make('Personil yang ditugaskan')
                     ->schema([
-                        Toggle::make('semua_personil')
-                            ->label('Pilih semua pegawai')
-                            ->helperText('Centang jika undangan melibatkan seluruh personil.')
+                        Select::make('personilCategories')
+                            ->label('Kategori Personil')
+                            ->relationship(
+                                'personilCategories',
+                                'nama',
+                                fn ($query) => $query
+                                    ->where('is_active', true)
+                                    ->orderBy('urutan')
+                                    ->orderBy('nama')
+                            )
+                            ->getOptionLabelFromRecordUsing(function (PersonilCategory $record): string {
+                                $label = trim((string) ($record->nama ?? $record->slug ?? ''));
+
+                                return $label !== '' ? $label : (string) $record->getKey();
+                            })
+                            ->multiple()
+                            ->preload()
+                            ->searchable()
                             ->live()
-                            ->dehydrated(false)
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                if (! $state) {
+                            ->afterStateUpdated(function ($state, callable $set, Get $get) {
+                                $categoryIds = is_array($state) ? array_filter($state) : [];
+
+                                if (empty($categoryIds)) {
+                                    $set('personils', []);
+                                    $set('sudah_disposisi', 0);
                                     return;
                                 }
 
-                                $allIds = Personil::query()
+                                $categorySlugs = PersonilCategory::query()
+                                    ->whereIn('id', $categoryIds)
+                                    ->pluck('slug')
+                                    ->filter()
+                                    ->values()
+                                    ->all();
+
+                                if (empty($categorySlugs)) {
+                                    $set('personils', []);
+                                    $set('sudah_disposisi', 0);
+                                    return;
+                                }
+
+                                $personilIds = Personil::query()
+                                    ->whereIn('kategori', $categorySlugs)
                                     ->pluck('id')
                                     ->all();
 
-                                $set('personils', $allIds);
-                            }),
+                                $personilIds = array_values(array_unique(array_filter($personilIds)));
+
+                                $set('personils', $personilIds);
+                                $set('sudah_disposisi', count($personilIds) > 0 ? 1 : 0);
+                            })
+                            ->helperText('Pilih kategori untuk menambahkan personil sesuai kategori ke daftar di bawah.'),
 
                         Select::make('personils')
                             ->label('Pilih Personil')
                             ->relationship('personils', 'nama')
+                            ->hintAction(
+                                Action::make('bersihkan_personil')
+                                    ->label('Bersihkan')
+                                    ->icon('heroicon-m-x-mark')
+                                    ->color('danger')
+                                    ->visible(fn (Get $get) => ! empty($get('personils')))
+                                    ->action(function (Set $set) {
+                                        $set('personilCategories', []);
+                                        $set('personils', []);
+                                        $set('sudah_disposisi', 0);
+                                    })
+                            )
                             ->getOptionLabelFromRecordUsing(function (Personil $record): string {
                                 $nama = trim((string) ($record->nama ?? ''));
                                 $jabatan = trim((string) ($record->jabatan ?? ''));

@@ -139,7 +139,7 @@
     </form>
 
     <p class="note" style="margin-top:16px;">
-        Balasan otomatis WA: kirim perintah di grup seperti "jadwal kegiatan hari ini/besok" atau "jadwal belum disposisi hari ini/besok".
+        Balasan otomatis WA: kirim perintah di grup seperti "agenda hari ini/besok" atau "agenda belum disposisi hari ini/besok".
     </p>
 </div>
 </body>

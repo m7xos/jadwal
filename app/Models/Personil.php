@@ -11,11 +11,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\HasApiTokens;
 
 class Personil extends Authenticatable implements FilamentUser, HasName
 {
     use HasFactory;
     use Notifiable;
+    use HasApiTokens;
 
     protected $table = 'personils';
 
@@ -23,6 +25,7 @@ class Personil extends Authenticatable implements FilamentUser, HasName
         'nama',
 		'nip', 
         'jabatan',
+        'jabatan_akronim',
         'pangkat',
         'golongan',
         'kategori',
@@ -52,6 +55,24 @@ class Personil extends Authenticatable implements FilamentUser, HasName
     public function groups(): BelongsToMany
     {
         return $this->belongsToMany(Group::class, 'group_personil')->withTimestamps();
+    }
+
+    public function deviceTokens()
+    {
+        return $this->hasMany(PersonilDeviceToken::class);
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function routeNotificationForFcm(): array
+    {
+        return $this->deviceTokens()
+            ->pluck('token')
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 
     public function getLabelAttribute(): string

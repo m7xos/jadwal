@@ -5,10 +5,14 @@ namespace App\Filament\Pages;
 use App\Services\SuratKeluarService;
 use App\Support\RoleAccess;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use UnitEnum;
@@ -70,6 +74,67 @@ class SuratKeluarNumbering extends Page implements HasForms
 
         $this->availableList = $this->formatAvailableList($status['available']);
         $this->bookedList = $this->formatBookedList($status['booked']);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('reset_nomor')
+                ->label('Reset Nomor')
+                ->icon('heroicon-o-arrow-path')
+                ->color('danger')
+                ->form([
+                    TextInput::make('tahun')
+                        ->label('Tahun')
+                        ->numeric()
+                        ->required()
+                        ->default(now()->year),
+                    Toggle::make('hapus_data')
+                        ->label('Hapus data surat keluar tahun ini')
+                        ->helperText('Aktifkan jika ingin nomor mulai dari 1 (data surat keluar tahun ini akan dihapus).')
+                        ->live(),
+                    TextInput::make('konfirmasi')
+                        ->label('Ketik RESET untuk melanjutkan')
+                        ->required(fn (Get $get) => (bool) $get('hapus_data'))
+                        ->visible(fn (Get $get) => (bool) $get('hapus_data')),
+                ])
+                ->modalHeading('Reset Nomor Surat Keluar')
+                ->modalDescription('Reset hanya menghapus counter. Jika ingin mulai dari 1 pada tahun yang sama, centang opsi hapus data.')
+                ->action(function (array $data) {
+                    $tahun = (int) ($data['tahun'] ?? now()->year);
+                    $hapusData = (bool) ($data['hapus_data'] ?? false);
+
+                    if ($hapusData) {
+                        $confirm = strtoupper(trim((string) ($data['konfirmasi'] ?? '')));
+
+                        if ($confirm !== 'RESET') {
+                            Notification::make()
+                                ->title('Konfirmasi tidak sesuai')
+                                ->body('Ketik RESET untuk menghapus data surat keluar.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+                    }
+
+                    /** @var SuratKeluarService $service */
+                    $service = app(SuratKeluarService::class);
+
+                    $result = $service->resetNumbering($tahun, $hapusData);
+
+                    $body = $hapusData
+                        ? "Counter direset dan {$result['deleted']} data surat keluar tahun {$tahun} dihapus."
+                        : "Counter nomor surat keluar tahun {$tahun} direset.";
+
+                    Notification::make()
+                        ->title('Reset selesai')
+                        ->body($body)
+                        ->success()
+                        ->send();
+
+                    $this->refreshLists();
+                }),
+        ];
     }
 
     /**

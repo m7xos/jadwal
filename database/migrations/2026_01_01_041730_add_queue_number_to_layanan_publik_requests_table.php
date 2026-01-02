@@ -8,6 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (! Schema::hasTable('layanan_publik_requests') || Schema::hasColumn('layanan_publik_requests', 'queue_number')) {
+            return;
+        }
+
+
         Schema::table('layanan_publik_requests', function (Blueprint $table) {
             $table->unsignedInteger('queue_number')->nullable()->after('kode_register');
             $table->index(['tanggal_masuk', 'queue_number'], 'layanan_publik_requests_queue_index');

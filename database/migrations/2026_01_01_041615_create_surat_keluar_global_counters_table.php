@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('surat_keluar_global_counters')) {
+            return;
+        }
+
         Schema::create('surat_keluar_global_counters', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('tahun')->unique();

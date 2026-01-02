@@ -43,7 +43,7 @@ class RemindTindakLanjutCommand extends Command
 
         // Pengingat awal (5 jam sebelum batas TL)
         $firstBatch = Kegiatan::query()
-            ->where('jenis_surat', 'tindak_lanjut')
+            ->where('perlu_tindak_lanjut', true)
             ->whereNotNull('batas_tindak_lanjut')
             ->whereNull('tl_reminder_sent_at')
             ->whereNull('tindak_lanjut_selesai_at')
@@ -81,7 +81,7 @@ class RemindTindakLanjutCommand extends Command
 
         // Pengingat terakhir tepat saat atau setelah batas TL jika belum selesai.
         $finalBatch = Kegiatan::query()
-            ->where('jenis_surat', 'tindak_lanjut')
+            ->where('perlu_tindak_lanjut', true)
             ->whereNotNull('batas_tindak_lanjut')
             ->whereNull('tindak_lanjut_selesai_at')
             ->whereNull('tl_final_reminder_sent_at')

@@ -47,6 +47,7 @@ class FollowUpReminderService
 
     public function buildMessage(FollowUpReminder $reminder): string
     {
+        $includeTag = $this->includePersonilTag();
         $tanggalLabel = $reminder->tanggal
             ? $reminder->tanggal->locale('id')->isoFormat('dddd, D MMMM Y')
             : '-';
@@ -65,9 +66,13 @@ class FollowUpReminderService
             $lines[] = $this->formatLabel('Tempat', $tempat);
         }
 
-        $mention = $this->buildMention($reminder);
-        if ($mention) {
-            $lines[] = $this->formatLabel('Untuk', $mention);
+        $mentionTag = $includeTag ? $this->buildMentionTag($reminder) : null;
+        $recipientLabel = $this->recipientLabel($reminder);
+        $recipient = $includeTag ? ($mentionTag ?: $recipientLabel) : $recipientLabel;
+        $recipient = $recipient !== '' ? $recipient : null;
+
+        if ($recipient) {
+            $lines[] = $this->formatLabel('Untuk', $recipient);
         }
 
         $keterangan = trim((string) ($reminder->keterangan ?? ''));
@@ -88,8 +93,8 @@ class FollowUpReminderService
         $tempatLine = $tempat !== ''
             ? $this->formatLabel('Tempat', $tempat) . "\n"
             : '';
-        $penerimaLine = $mention
-            ? $this->formatLabel('Untuk', $mention) . "\n"
+        $penerimaLine = $recipient
+            ? $this->formatLabel('Untuk', $recipient) . "\n"
             : '';
         $keteranganBlock = $keterangan !== ''
             ? "\n*Keterangan:*\n{$keterangan}\n"
@@ -103,12 +108,20 @@ class FollowUpReminderService
 
         $data = [
             'kegiatan_line' => $this->formatLabel('Kegiatan', $reminder->nama_kegiatan ?? '-'),
+            'kegiatan' => (string) ($reminder->nama_kegiatan ?? '-'),
             'tanggal_line' => $this->formatLabel('Tanggal', $tanggalLabel),
+            'tanggal' => $tanggalLabel,
             'jam_line' => $this->formatLabel('Jam', $jamLabel),
+            'jam' => $jamLabel,
             'tempat_line' => $tempatLine,
+            'tempat' => $tempat,
             'penerima_line' => $penerimaLine,
+            'penerima' => $recipient ?? '',
+            'penerima_mention' => $mentionTag ?? '',
             'keterangan_block' => $keteranganBlock,
+            'keterangan' => $keterangan,
             'kode_line' => $this->formatLabel('Kode', $reminder->reminder_code),
+            'kode' => (string) ($reminder->reminder_code ?? ''),
             'footer' => $footer,
         ];
 
@@ -116,6 +129,14 @@ class FollowUpReminderService
         $templateService = app(WaMessageTemplateService::class);
 
         return $templateService->render('follow_up_reminder', $data, $fallback);
+    }
+
+    protected function includePersonilTag(): bool
+    {
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->includePersonilTag('follow_up_reminder', true);
     }
 
     public function handleThanksReply(array $payload): bool
@@ -277,6 +298,33 @@ class FollowUpReminderService
         $name = $this->recipientLabel($reminder);
 
         return $name !== '' ? $name : null;
+    }
+
+    protected function buildMentionTag(FollowUpReminder $reminder): ?string
+    {
+        if ($reminder->send_via !== 'group') {
+            return null;
+        }
+
+        $group = $reminder->group;
+
+        if ($group) {
+            $group->loadMissing('personils');
+        }
+
+        $target = $reminder->normalized_no_wa ?? PhoneNumber::normalize($reminder->no_wa);
+
+        if ($group && $target) {
+            $hasNumber = $group->personils
+                ->filter()
+                ->contains(fn ($personil) => PhoneNumber::normalize($personil->no_wa) === $target);
+
+            if ($hasNumber) {
+                return '@' . $target;
+            }
+        }
+
+        return null;
     }
 
     protected function recipientLabel(FollowUpReminder $reminder): string

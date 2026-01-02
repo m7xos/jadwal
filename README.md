@@ -38,10 +38,17 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
 - WhatsApp Gateway:
   - Pengaturan kini dikelola di menu **Pengaturan -> WA Gateway** (database).
   - Nilai di `.env` tetap menjadi fallback awal saat tabel belum terisi.
+  - Jika wa-gateway mengaktifkan `KEY` (production), isi `WA_GATEWAY_KEY` agar request tidak 401.
+  - Token device diisi manual dari wa-gateway (tidak ada registry sync).
   - Default grup WA diambil dari tabel Grup WA (centang "Jadikan grup default").
   - Template pesan WhatsApp bisa diubah di menu **Pengaturan -> Template Pesan WA** (kosongkan untuk kembali ke default).
 - PDF to text: `PDFTOTEXT_PATH=/usr/bin/pdftotext` (untuk Ubuntu)
   - Whitelist penyelesaian TL di menu **Pengaturan -> WA Gateway** berisi nomor WA (format 62xxxx) yang tetap boleh menandai TL selesai di webhook, selain personil yang ditugaskan. Pisahkan dengan koma, contoh: `6281234567890,6289876543210`. Biarkan kosong jika tidak ingin whitelist tambahan.
+- Notifikasi mobile (Android):
+  - `FCM_SERVER_KEY` (legacy server key Firebase).
+  - `FCM_SENDER_ID` (opsional, untuk header Sender).
+  - `JADWAL_JABATAN_CAMAT` (default `Camat Watumalang`, bisa daftar dipisah koma).
+  - `JADWAL_JABATAN_SEKCAM` (default `Sekretaris Kecamatan Watumalang`, bisa daftar dipisah koma).
 
 ## Webhook WhatsApp (wajib)
 - Untuk wa-gateway: set `webhookBaseUrl = ${APP_URL}/wa-gateway/webhook` di wa-gateway (ia akan POST ke `${webhookBaseUrl}/message`).
@@ -56,6 +63,34 @@ Panduan singkat memasang aplikasi dan scheduler di server Ubuntu.
     * * * * * cd /var/www/jadwal && /usr/bin/php artisan schedule:run >> /var/www/jadwal/storage/logs/schedule.log 2>&1
     ```
 - Pastikan path PHP sesuai (`which php`) dan folder proyek/log bisa ditulis user cron.
+
+## Auto-start queue worker (Ubuntu + systemd)
+- Buat service `queue:work` agar otomatis jalan dan restart saat crash:
+  ```
+  sudo tee /etc/systemd/system/laravel-queue.service > /dev/null <<'EOF'
+  [Unit]
+  Description=Laravel Queue Worker
+  After=network.target
+
+  [Service]
+  User=www-data
+  Group=www-data
+  WorkingDirectory=/var/www/jadwal
+  ExecStart=/usr/bin/php artisan queue:work --sleep=3 --tries=3 --timeout=90
+  Restart=always
+  RestartSec=5
+
+  [Install]
+  WantedBy=multi-user.target
+  EOF
+  ```
+- Aktifkan dan cek status:
+  ```
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now laravel-queue
+  sudo systemctl status laravel-queue
+  ```
+- Sesuaikan `User/Group` dan path PHP (`which php`) bila berbeda.
 
 ## Catatan operasional
 - Scheduler menjalankan pengingat TL (awal H-5 jam, akhir saat batas TL) dan webhook wa-gateway menangani balasan "TL-{id} selesai".
