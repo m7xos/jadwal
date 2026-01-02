@@ -10,6 +10,19 @@ class EditKegiatan extends EditRecord
 {
     protected static string $resource = KegiatanResource::class;
 
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getSaveFormAction(),
+            Actions\Action::make('disposisi')
+                ->label('Disposisi')
+                ->url(fn () => route('kegiatan.disposisi', $this->record))
+                ->openUrlInNewTab()
+                ->color('gray'),
+            $this->getCancelFormAction(),
+        ];
+    }
+
     protected function getHeaderActions(): array
     {
         return [
