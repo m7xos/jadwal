@@ -162,27 +162,27 @@
                 </a>
 
                 @if (config('app.show_admin_panel_menu'))
-                    {{-- Kartu: Pengingat Pajak Kendaraan --}}
-                    <a href="{{ url('/admin/pajak-kendaraan') }}"
+                    {{-- Kartu: Status Pejabat --}}
+                    <a href="{{ route('public.pejabat.status') }}"
                        class="group bg-white/90 border border-slate-200 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition p-5 flex flex-col">
                         <div class="flex items-center justify-between mb-3">
-                            <div class="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                                <span class="text-amber-600 text-xl font-semibold">PK</span>
+                            <div class="h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                <span class="text-emerald-600 text-xl">🏢</span>
                             </div>
-                            <span class="text-[11px] px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
-                                Admin
+                            <span class="text-[11px] px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                Publik
                             </span>
                         </div>
-                        <h2 class="text-lg font-semibold mb-1 text-slate-900 group-hover:text-amber-700">
-                            Pengingat Pajak Kendaraan
+                        <h2 class="text-lg font-semibold mb-1 text-slate-900 group-hover:text-emerald-700">
+                            Status Pejabat Kecamatan
                         </h2>
                         <p class="text-sm text-slate-600 flex-1">
-                            Kelola data kendaraan dinas, jadwal pajak tahunan dan 5 tahunan,
-                            serta kirim pengingat otomatis ke pemegang dan pengurus barang.
+                            Pantau status pejabat hari ini: di kantor atau sedang dinas luar,
+                            berdasarkan agenda kegiatan.
                         </p>
                         <div class="mt-4 text-xs text-slate-500 flex items-center justify-between">
-                            <span>Perlu login admin</span>
-                            <span class="inline-flex items-center gap-1 text-amber-600">
+                            <span>Update agenda harian</span>
+                            <span class="inline-flex items-center gap-1 text-emerald-600">
                                 Buka
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none"
                                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
