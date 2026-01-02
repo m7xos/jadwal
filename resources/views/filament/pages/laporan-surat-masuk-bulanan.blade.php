@@ -312,17 +312,6 @@
             <div class="kop-garis"></div>
         </div>
 
-        <div class="judul-blok kop-judul">
-            <div class="font-bold uppercase">
-                LAPORAN REKAP KEGIATAN
-            </div>
-            @if(! empty($periodeLabel ?? $bulanLabel))
-                <div class="mt-1">
-                    {{ $periodeCaption ?? 'Bulan' }}: <span class="font-semibold">{{ $periodeLabel ?? $bulanLabel }}</span>
-                </div>
-            @endif
-        </div>
-
         {{-- TABEL LAPORAN --}}
         <div class="overflow-x-auto mt-2 laporan-wrapper">
             <table class="laporan">
