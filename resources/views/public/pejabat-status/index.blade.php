@@ -493,31 +493,7 @@
 
     <main class="pb-10">
         <div class="max-w-6xl mx-auto px-4 space-y-6">
-            <section class="board reveal" style="animation-delay: 0.12s;">
-                <div>
-                    <h2>Status Snapshot</h2>
-                    <p>
-                        Status dinas luar muncul jika agenda hari ini berada di luar aula kantor.
-                    </p>
-                    <div class="board-note">
-                        Lokasi kantor: Aula Kantor Kecamatan Lantai 2, Aula Kantor Kecamatan.
-                    </div>
-                </div>
-                <div class="stat-stack">
-                    <div class="stat-chip is-kantor">
-                        Di Kantor
-                        <span>{{ $countKantor }}</span>
-                    </div>
-                    <div class="stat-chip is-dinas">
-                        Dinas Luar
-                        <span>{{ $countDinas }}</span>
-                    </div>
-                    <div class="stat-chip is-unknown">
-                        Tidak Diketahui
-                        <span>{{ $countUnknown }}</span>
-                    </div>
-                </div>
-            </section>
+            {{-- Status Snapshot disembunyikan sesuai permintaan --}}
 
             <section class="cards-grid">
                 @foreach($statuses as $item)

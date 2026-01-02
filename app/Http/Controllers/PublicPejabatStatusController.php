@@ -24,6 +24,7 @@ class PublicPejabatStatusController extends Controller
         $allowedPlaces = [
             'aula kantor kecamatan lantai 2',
             'aula kantor kecamatan',
+            'aula lantai 2 kantor kecamatan watumalang',
         ];
 
         $normalizeNip = function (?string $value): ?string {
