@@ -105,7 +105,7 @@
             @page {
                 /* Folio 8.5 x 13 inch, orientasi landscape: 330 x 215 mm */
                 size: 330mm 215mm;
-                margin: 1mm 10mm 12mm 10mm;
+                margin: 4mm 10mm 12mm 10mm;
             }
 
             body {
@@ -142,7 +142,7 @@
                 box-shadow: none !important;
                 border: none !important;
                 background: transparent !important; /* tanpa warna saat print */
-                padding: 0 0 60mm 0; /* ruang bawah untuk footer */
+                padding: 0 0 60mm 0 !important; /* ruang bawah untuk footer */
             }
 
             /* Elemen yang memang tidak perlu tercetak (filter, tombol, dsb) */
@@ -159,6 +159,10 @@
 
             .kop-garis {
                 border-bottom: 2px solid #000000 !important;
+            }
+            .print-area .mb-2,
+            .print-area .mb-3 {
+                margin-bottom: 1mm !important;
             }
 			
 			/* Bar filter bulan + tombol cetak */
@@ -278,14 +282,12 @@
 
             {{-- GARIS DARI POJOK KIRI KE POJOK KANAN, DI BAWAH LOGO + TEKS --}}
             <div class="kop-garis"></div>
-            <br>
         </div>
 
         <div class="mb-3 kop-judul">
             <div class="font-bold uppercase">
                 LAPORAN REKAP KEGIATAN
             </div>
-            <br>
             @if(! empty($periodeLabel ?? $bulanLabel))
                 <div class="mt-1">
                     {{ $periodeCaption ?? 'Bulan' }}: <span class="font-semibold">{{ $periodeLabel ?? $bulanLabel }}</span>
