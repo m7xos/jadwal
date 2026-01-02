@@ -43,7 +43,6 @@
                 radial-gradient(900px 500px at 88% 8%, rgba(234, 179, 8, 0.18), transparent 55%),
                 linear-gradient(160deg, #f8fafc 0%, #fef3c7 50%, #e0f2fe 100%);
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
         h1, h2, h3 {
@@ -53,7 +52,7 @@
         .page-shell {
             position: relative;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         .bg-orb {
