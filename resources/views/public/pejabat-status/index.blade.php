@@ -476,7 +476,7 @@
     <div class="bg-orb orb-three"></div>
 
     <header class="hero">
-        <div class="max-w-6xl mx-auto px-4 hero-inner reveal" style="animation-delay: 0.05s;">
+        <div class="max-w-screen-2xl mx-auto px-4 md:px-6 hero-inner reveal" style="animation-delay: 0.05s;">
             <div class="hero-title">
                 <span class="kicker">Dashboard Publik</span>
                 <h1>Status Pejabat Kecamatan Watumalang</h1>
@@ -492,7 +492,7 @@
     </header>
 
     <main class="pb-10">
-        <div class="max-w-6xl mx-auto px-4 space-y-6">
+        <div class="max-w-screen-2xl mx-auto px-4 md:px-6 space-y-6">
             {{-- Status Snapshot disembunyikan sesuai permintaan --}}
 
             <section class="cards-grid">
