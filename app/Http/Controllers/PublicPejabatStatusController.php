@@ -78,14 +78,21 @@ class PublicPejabatStatusController extends Controller
             })->values();
 
             $status = $kegiatanLuar->isNotEmpty() ? 'Dinas Luar' : 'Di Kantor';
+            $photoCandidates = [];
+            if (! empty($personil->photo_url)) {
+                $photoCandidates[] = $personil->photo_url;
+            }
+            if ($nip) {
+                $baseUrl = 'https://simpeg.wonosobokab.go.id/packages/upload/photo/pegawai/';
+                $photoCandidates[] = $baseUrl . $nip . '.jpg';
+                $photoCandidates[] = $baseUrl . $nip . '.jpeg';
+            }
 
             return [
                 'jabatan' => $jabatan,
                 'nama' => $personil->nama ?? '-',
                 'nip' => $nip,
-                'photo_url' => $nip
-                    ? 'https://simpeg.wonosobokab.go.id/packages/upload/photo/pegawai/' . $nip . '.jpg'
-                    : null,
+                'photo_candidates' => $photoCandidates,
                 'status' => $status,
                 'kegiatan' => $kegiatan,
                 'kegiatan_luar' => $kegiatanLuar,

@@ -30,6 +30,11 @@ class PersonilForm
 							->required()
 							->unique(table: \App\Models\Personil::class, column: 'nip', ignoreRecord: true),
 
+                        TextInput::make('photo_url')
+                            ->label('URL Foto (SIMPEG)')
+                            ->maxLength(255)
+                            ->helperText('Isi URL foto SIMPEG jika tersedia.'),
+
                         TextInput::make('jabatan')
                             ->label('Jabatan')
                             ->maxLength(255),

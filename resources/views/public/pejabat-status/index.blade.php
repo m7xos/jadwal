@@ -300,12 +300,32 @@
             justify-content: center;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+            position: relative;
         }
 
         .avatar img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .avatar img.is-loaded {
+            opacity: 1;
+        }
+
+        .avatar-fallback {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #64748b;
         }
 
         .status-pill {
@@ -506,6 +526,8 @@
                         $isUnknown = $item['status'] === 'Tidak diketahui';
                         $cardClass = $isUnknown ? 'is-unknown' : ($isDinasLuar ? 'is-dinas' : 'is-kantor');
                         $pillClass = $cardClass;
+                        $photoCandidates = $item['photo_candidates'] ?? [];
+                        $hasPhoto = ! empty($photoCandidates);
                         $initials = '';
                         if (! empty($item['nama']) && $item['nama'] !== 'Belum terdaftar') {
                             $parts = preg_split('/\s+/', trim($item['nama']));
@@ -518,17 +540,16 @@
                         <div class="status-header">
                             <div class="profile">
                                 <div class="avatar">
-                                    @if(! empty($item['photo_url']))
+                                    @if($hasPhoto)
                                         <img
-                                            src="{{ $item['photo_url'] }}"
+                                            data-photo-candidates='@json($photoCandidates)'
                                             alt="Foto {{ $item['nama'] ?? 'Pejabat' }}"
                                             loading="lazy"
                                         />
-                                    @else
-                                        <span class="text-sm font-semibold text-slate-500">
-                                            {{ $initials !== '' ? $initials : 'N/A' }}
-                                        </span>
                                     @endif
+                                    <span class="avatar-fallback">
+                                        {{ $initials !== '' ? $initials : 'N/A' }}
+                                    </span>
                                 </div>
                                 <div>
                                     <div class="jabatan">{{ $item['jabatan'] }}</div>
@@ -565,5 +586,39 @@
         </div>
     </main>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('img[data-photo-candidates]').forEach((img) => {
+            let candidates = [];
+            try {
+                candidates = JSON.parse(img.dataset.photoCandidates || '[]');
+            } catch (error) {
+                candidates = [];
+            }
+
+            if (!Array.isArray(candidates) || candidates.length === 0) {
+                return;
+            }
+
+            let index = 0;
+            const loadNext = () => {
+                if (index >= candidates.length) {
+                    return;
+                }
+                const url = candidates[index];
+                index += 1;
+                const tester = new Image();
+                tester.onload = () => {
+                    img.src = url;
+                    img.classList.add('is-loaded');
+                };
+                tester.onerror = loadNext;
+                tester.src = url;
+            };
+
+            loadNext();
+        });
+    });
+</script>
 </body>
 </html>

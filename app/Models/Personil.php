@@ -24,6 +24,7 @@ class Personil extends Authenticatable implements FilamentUser, HasName
     protected $fillable = [
         'nama',
 		'nip', 
+        'photo_url',
         'jabatan',
         'jabatan_akronim',
         'pangkat',
