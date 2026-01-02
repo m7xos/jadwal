@@ -376,10 +376,13 @@
                 $periodeLabel = 'BULAN ' . $bulanLabel;
             }
         @endphp
+       
         <div class="judul-blok kop-judul" style="font-weight: bold; text-transform: uppercase;">
-            REKAP AGENDA MASUK {{ $periodeLabel }}
+       
+        REKAP AGENDA MASUK {{ $periodeLabel }}
+       
         </div>
-
+            
         {{-- TABEL LAPORAN --}}
         <div class="overflow-x-auto mt-2 laporan-wrapper">
             <table class="laporan">
