@@ -83,6 +83,9 @@
             margin: 0 0 2mm 0 !important;
             padding: 0 !important;
         }
+        .judul-spacer {
+            height: 1em;
+        }
 
         table.laporan {
             border-collapse: collapse;
@@ -378,9 +381,9 @@
         @endphp
        
         <div class="judul-blok kop-judul" style="font-weight: bold; text-transform: uppercase;">
-       
-        REKAP AGENDA MASUK {{ $periodeLabel }}
-       
+            <div class="judul-spacer"></div>
+            REKAP AGENDA MASUK {{ $periodeLabel }}
+            <div class="judul-spacer"></div>
         </div>
             
         {{-- TABEL LAPORAN --}}
