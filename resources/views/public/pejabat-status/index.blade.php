@@ -5,89 +5,496 @@
     <title>Status Pejabat Kecamatan Watumalang</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Source+Sans+3:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
     {{-- Tailwind CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
+        :root {
+            --ink: #0f172a;
+            --muted: #475569;
+            --muted-light: #94a3b8;
+            --teal: #0f766e;
+            --emerald: #10b981;
+            --rose: #ef4444;
+            --amber: #f59e0b;
+            --sky: #38bdf8;
+            --card: #ffffff;
+            --glass: rgba(255, 255, 255, 0.82);
+            --border: rgba(15, 23, 42, 0.12);
+            --shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background: radial-gradient(circle at top left, #e0f2fe, #fef9c3, #f8fafc);
+            font-family: "Source Sans 3", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(1200px 600px at 8% 0%, rgba(14, 116, 144, 0.18), transparent 60%),
+                radial-gradient(900px 500px at 88% 8%, rgba(234, 179, 8, 0.18), transparent 55%),
+                linear-gradient(160deg, #f8fafc 0%, #fef3c7 50%, #e0f2fe 100%);
+            min-height: 100vh;
+        }
+
+        h1, h2, h3 {
+            font-family: "Sora", sans-serif;
+        }
+
+        .page-shell {
+            position: relative;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(10px);
+            opacity: 0.55;
+            animation: float 14s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .orb-one {
+            width: 260px;
+            height: 260px;
+            background: rgba(16, 185, 129, 0.25);
+            top: -60px;
+            left: 6%;
+        }
+
+        .orb-two {
+            width: 320px;
+            height: 320px;
+            background: rgba(56, 189, 248, 0.3);
+            right: 8%;
+            top: 80px;
+            animation-delay: -4s;
+        }
+
+        .orb-three {
+            width: 240px;
+            height: 240px;
+            background: rgba(251, 146, 60, 0.22);
+            bottom: -60px;
+            left: 20%;
+            animation-delay: -6s;
+        }
+
+        .hero {
+            position: relative;
+            padding: 32px 0 10px;
+        }
+
+        .hero-inner {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: rgba(15, 118, 110, 0.12);
+            color: var(--teal);
+        }
+
+        .hero-title h1 {
+            font-size: clamp(2rem, 2.6vw, 2.6rem);
+            line-height: 1.1;
+            margin-top: 12px;
+        }
+
+        .hero-title p {
+            margin-top: 10px;
+            color: var(--muted);
+            max-width: 560px;
+        }
+
+        .date-card {
+            padding: 14px 18px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: var(--shadow);
+            min-width: 220px;
+        }
+
+        .date-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--muted-light);
+        }
+
+        .date-value {
+            font-size: 16px;
+            margin-top: 6px;
+            font-weight: 600;
+        }
+
+        .board {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 22px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr);
+            gap: 18px;
+        }
+
+        .board h2 {
+            font-size: 1.1rem;
+        }
+
+        .board p {
+            color: var(--muted);
+            margin-top: 8px;
+            font-size: 0.95rem;
+        }
+
+        .board-note {
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: var(--muted-light);
+        }
+
+        .stat-stack {
+            display: grid;
+            gap: 12px;
+        }
+
+        .stat-chip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            border-radius: 16px;
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            background: #ffffff;
+        }
+
+        .stat-chip span {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .stat-chip.is-kantor {
+            border-color: rgba(16, 185, 129, 0.35);
+            color: #047857;
+            background: rgba(16, 185, 129, 0.12);
+        }
+
+        .stat-chip.is-dinas {
+            border-color: rgba(239, 68, 68, 0.35);
+            color: #be123c;
+            background: rgba(239, 68, 68, 0.12);
+        }
+
+        .stat-chip.is-unknown {
+            border-color: rgba(100, 116, 139, 0.4);
+            color: #475569;
+            background: rgba(148, 163, 184, 0.18);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+
+        .status-card {
+            position: relative;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .status-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 6px;
+            background: var(--accent, #e2e8f0);
+        }
+
+        .status-card.is-kantor {
+            --accent: linear-gradient(90deg, #34d399, #0f766e);
+        }
+
+        .status-card.is-dinas {
+            --accent: linear-gradient(90deg, #fb7185, #be123c);
+        }
+
+        .status-card.is-unknown {
+            --accent: linear-gradient(90deg, #94a3b8, #64748b);
+        }
+
+        .status-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .profile {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 62px;
+            height: 62px;
+            border-radius: 999px;
+            border: 3px solid #ffffff;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status-pill {
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: 1px solid transparent;
+            white-space: nowrap;
+            line-height: 1.2;
+            max-width: 100%;
+        }
+
+        .status-pill.is-kantor {
+            background: rgba(16, 185, 129, 0.15);
+            color: #047857;
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+
+        .status-pill.is-dinas {
+            background: rgba(239, 68, 68, 0.15);
+            color: #be123c;
+            border-color: rgba(239, 68, 68, 0.35);
+        }
+
+        .status-pill.is-unknown {
+            background: rgba(148, 163, 184, 0.2);
+            color: #475569;
+            border-color: rgba(100, 116, 139, 0.35);
+        }
+
+        .jabatan {
+            font-size: 1.02rem;
+            font-weight: 600;
+        }
+
+        .nama {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .agenda-label {
+            margin-top: 16px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .agenda-label.is-dinas {
+            color: #be123c;
+        }
+
+        .agenda-list {
+            margin-top: 12px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .agenda-item {
+            border-radius: 14px;
+            padding: 10px 12px;
+            font-size: 0.92rem;
+            background: rgba(248, 250, 252, 0.9);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .agenda-item.is-dinas {
+            border-color: rgba(239, 68, 68, 0.25);
+            background: rgba(254, 226, 226, 0.5);
+        }
+
+        .agenda-item strong {
+            display: block;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .agenda-meta {
+            margin-top: 4px;
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .empty-note {
+            margin-top: 14px;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(14px);
+            animation: rise 0.7s ease forwards;
+        }
+
+        @keyframes rise {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(16px);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .board {
+                grid-template-columns: 1fr;
+            }
+
+            .date-card {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
-<body class="min-h-screen text-slate-800">
-<div class="min-h-screen flex flex-col">
-    <header class="bg-white/90 border-b border-slate-200 shadow-sm">
-        <div class="max-w-6xl mx-auto px-4 py-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-slate-900">
-                    Dashboard Status Pejabat
-                </h1>
-                <p class="text-sm text-slate-600 mt-1">
-                    Informasi keberadaan pejabat berdasarkan agenda hari ini.
-                </p>
+<body>
+@php
+    $countDinas = $statuses->where('status', 'Dinas Luar')->count();
+    $countKantor = $statuses->where('status', 'Di Kantor')->count();
+    $countUnknown = $statuses->where('status', 'Tidak diketahui')->count();
+@endphp
+
+<div class="page-shell">
+    <div class="bg-orb orb-one"></div>
+    <div class="bg-orb orb-two"></div>
+    <div class="bg-orb orb-three"></div>
+
+    <header class="hero">
+        <div class="max-w-6xl mx-auto px-4 hero-inner reveal" style="animation-delay: 0.05s;">
+            <div class="hero-title">
+                <span class="kicker">Dashboard Publik</span>
+                <h1>Status Pejabat Kecamatan Watumalang</h1>
+                <p>Ringkasan keberadaan pejabat berdasarkan agenda resmi hari ini.</p>
             </div>
-            <div class="text-xs md:text-sm text-right">
-                <div class="px-3 py-1 bg-slate-50 border border-slate-200 rounded-full inline-flex items-center gap-2">
-                    <span class="text-slate-500">Tanggal:</span>
-                    <span class="font-medium text-slate-800">
-                        {{ $today->locale('id')->isoFormat('dddd, D MMMM Y') }}
-                    </span>
+            <div class="date-card">
+                <div class="date-label">Hari ini</div>
+                <div class="date-value">
+                    {{ $today->locale('id')->isoFormat('dddd, D MMMM Y') }}
                 </div>
             </div>
         </div>
     </header>
 
-    <main class="flex-1">
-        <div class="max-w-6xl mx-auto px-4 py-6 md:py-8 space-y-6">
-            <section class="bg-white/80 border border-slate-200 rounded-2xl p-4 md:p-6">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-                    <div>
-                        <h2 class="text-lg md:text-xl font-semibold text-slate-800">Ringkasan Status</h2>
-                        <p class="text-sm text-slate-600 mt-1">
-                            Status dinas luar muncul jika ada agenda di luar kantor.
-                        </p>
-                    </div>
-                    <div class="flex flex-wrap items-center gap-2 text-xs">
-                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            Di Kantor
-                        </span>
-                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                            Dinas Luar
-                        </span>
-                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
-                            Tidak diketahui
-                        </span>
+    <main class="pb-10">
+        <div class="max-w-6xl mx-auto px-4 space-y-6">
+            <section class="board reveal" style="animation-delay: 0.12s;">
+                <div>
+                    <h2>Status Snapshot</h2>
+                    <p>
+                        Status dinas luar muncul jika agenda hari ini berada di luar aula kantor.
+                    </p>
+                    <div class="board-note">
+                        Lokasi kantor: Aula Kantor Kecamatan Lantai 2, Aula Kantor Kecamatan.
                     </div>
                 </div>
-                <div class="mt-3 text-xs text-slate-500">
-                    Lokasi yang dianggap di kantor: Aula Kantor Kecamatan Lantai 2, Aula Kantor Kecamatan.
+                <div class="stat-stack">
+                    <div class="stat-chip is-kantor">
+                        Di Kantor
+                        <span>{{ $countKantor }}</span>
+                    </div>
+                    <div class="stat-chip is-dinas">
+                        Dinas Luar
+                        <span>{{ $countDinas }}</span>
+                    </div>
+                    <div class="stat-chip is-unknown">
+                        Tidak Diketahui
+                        <span>{{ $countUnknown }}</span>
+                    </div>
                 </div>
             </section>
 
-            <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <section class="cards-grid">
                 @foreach($statuses as $item)
                     @php
                         $isDinasLuar = $item['status'] === 'Dinas Luar';
                         $isUnknown = $item['status'] === 'Tidak diketahui';
-                        $badgeClass = $isUnknown
-                            ? 'bg-slate-100 text-slate-600 border-slate-200'
-                            : ($isDinasLuar ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
+                        $cardClass = $isUnknown ? 'is-unknown' : ($isDinasLuar ? 'is-dinas' : 'is-kantor');
+                        $pillClass = $cardClass;
                         $initials = '';
                         if (! empty($item['nama']) && $item['nama'] !== 'Belum terdaftar') {
                             $parts = preg_split('/\s+/', trim($item['nama']));
                             $initials = strtoupper(substr($parts[0] ?? '', 0, 1) . substr($parts[1] ?? '', 0, 1));
                         }
+                        $delay = number_format($loop->index * 0.06 + 0.15, 2, '.', '');
                     @endphp
 
-                    <article class="bg-white/90 border border-slate-200 rounded-2xl p-4 md:p-5 shadow-sm">
-                        <div class="flex items-start justify-between gap-3">
-                            <div class="flex items-start gap-3">
-                                <div class="h-14 w-14 rounded-full border border-white shadow bg-slate-100 overflow-hidden flex items-center justify-center">
+                    <article class="status-card {{ $cardClass }} reveal" style="animation-delay: {{ $delay }}s;">
+                        <div class="status-header">
+                            <div class="profile">
+                                <div class="avatar">
                                     @if(! empty($item['photo_url']))
                                         <img
                                             src="{{ $item['photo_url'] }}"
                                             alt="Foto {{ $item['nama'] ?? 'Pejabat' }}"
-                                            class="h-full w-full object-cover"
                                             loading="lazy"
                                         />
                                     @else
@@ -97,46 +504,32 @@
                                     @endif
                                 </div>
                                 <div>
-                                    <h3 class="text-base md:text-lg font-semibold text-slate-900">
-                                        {{ $item['jabatan'] }}
-                                    </h3>
-                                    <p class="text-sm text-slate-600 mt-1">
-                                        {{ $item['nama'] }}
-                                    </p>
+                                    <div class="jabatan">{{ $item['jabatan'] }}</div>
+                                    <div class="nama">{{ $item['nama'] }}</div>
                                 </div>
                             </div>
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border {{ $badgeClass }}">
+                            <span class="status-pill {{ $pillClass }}">
                                 {{ $item['status'] }}
                             </span>
                         </div>
 
-                        <div class="mt-4 text-sm text-slate-700">
-                            @if(($item['kegiatan'] ?? collect())->isEmpty())
-                                <div class="text-slate-500 text-sm">
-                                    Tidak ada agenda hari ini.
-                                </div>
-                            @elseif(($item['kegiatan_luar'] ?? collect())->isNotEmpty())
-                                <div class="text-xs font-semibold uppercase tracking-wide text-rose-500 mb-2">
-                                    Agenda di luar kantor
-                                </div>
-                                <ul class="space-y-2 text-sm">
-                                    @foreach($item['kegiatan_luar'] as $kegiatan)
-                                        <li class="border border-rose-100 bg-rose-50/50 rounded-lg px-3 py-2">
-                                            <div class="font-medium text-slate-800">
-                                                {{ $kegiatan->nama_kegiatan ?? '-' }}
-                                            </div>
-                                            <div class="text-xs text-slate-500 mt-1">
-                                                {{ $kegiatan->waktu ?? '-' }} - {{ $kegiatan->tempat ?? '-' }}
-                                            </div>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            @else
-                                <div class="text-slate-500 text-sm">
-                                    Di kantor. Tidak ada agenda dinas luar hari ini.
-                                </div>
-                            @endif
-                        </div>
+                        @if(($item['kegiatan'] ?? collect())->isEmpty())
+                            <div class="empty-note">Tidak ada agenda hari ini.</div>
+                        @elseif(($item['kegiatan_luar'] ?? collect())->isNotEmpty())
+                            <div class="agenda-label is-dinas">Agenda di luar kantor</div>
+                            <div class="agenda-list">
+                                @foreach($item['kegiatan_luar'] as $kegiatan)
+                                    <div class="agenda-item is-dinas">
+                                        <strong>{{ $kegiatan->nama_kegiatan ?? '-' }}</strong>
+                                        <div class="agenda-meta">
+                                            {{ $kegiatan->waktu ?? '-' }} - {{ $kegiatan->tempat ?? '-' }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="empty-note">Di kantor. Tidak ada agenda dinas luar hari ini.</div>
+                        @endif
                     </article>
                 @endforeach
             </section>
