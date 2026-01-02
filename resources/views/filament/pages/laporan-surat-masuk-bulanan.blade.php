@@ -435,6 +435,7 @@
                 <div class="mt-1">
                     Camat Watumalang
                 </div>
+                <div class="ttd-spacer"></div>
                 <div class="ttd-spacer {{ ($ttdSrikandi ?? false) ? 'ttd-spacer-srikandi' : '' }}"></div>
                 @if($ttdSrikandi ?? false)
                     <div class="ttd-srikandi">${ttd_pengirim}</div>
