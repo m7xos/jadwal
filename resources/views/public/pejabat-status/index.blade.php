@@ -271,6 +271,10 @@
             --accent: linear-gradient(90deg, #fb7185, #be123c);
         }
 
+        .status-card.is-offsite {
+            --accent: linear-gradient(90deg, #fbbf24, #f97316);
+        }
+
         .status-card.is-unknown {
             --accent: linear-gradient(90deg, #94a3b8, #64748b);
         }
@@ -357,6 +361,12 @@
             background: rgba(239, 68, 68, 0.15);
             color: #be123c;
             border-color: rgba(239, 68, 68, 0.35);
+        }
+
+        .status-pill.is-offsite {
+            background: rgba(245, 158, 11, 0.16);
+            color: #b45309;
+            border-color: rgba(245, 158, 11, 0.4);
         }
 
         .status-pill.is-unknown {
@@ -500,7 +510,10 @@
                     @php
                         $isDinasLuar = $item['status'] === 'Dinas Luar';
                         $isUnknown = $item['status'] === 'Tidak diketahui';
-                        $cardClass = $isUnknown ? 'is-unknown' : ($isDinasLuar ? 'is-dinas' : 'is-kantor');
+                        $isOffsite = $item['status'] === 'Tidak di Kantor';
+                        $cardClass = $isUnknown
+                            ? 'is-unknown'
+                            : ($isDinasLuar ? 'is-dinas' : ($isOffsite ? 'is-offsite' : 'is-kantor'));
                         $pillClass = $cardClass;
                         $photoCandidates = $item['photo_candidates'] ?? [];
                         $hasPhoto = ! empty($photoCandidates);
@@ -540,7 +553,9 @@
                         </div>
 
                         @if(($item['kegiatan'] ?? collect())->isEmpty())
-                            <div class="empty-note">Tidak ada agenda hari ini.</div>
+                            <div class="empty-note">
+                                {{ $item['status'] === 'Tidak di Kantor' ? 'Di luar jam kerja / libur.' : 'Tidak ada agenda hari ini.' }}
+                            </div>
                         @elseif(($item['kegiatan_luar'] ?? collect())->isNotEmpty())
                             <div class="agenda-label is-dinas">Agenda di luar kantor</div>
                             <div class="agenda-list">
@@ -554,7 +569,11 @@
                                 @endforeach
                             </div>
                         @else
-                            <div class="empty-note">Di kantor. Tidak ada agenda dinas luar hari ini.</div>
+                            <div class="empty-note">
+                                {{ $item['status'] === 'Tidak di Kantor'
+                                    ? 'Di luar jam kerja / libur. Tidak ada agenda dinas luar hari ini.'
+                                    : 'Di kantor. Tidak ada agenda dinas luar hari ini.' }}
+                            </div>
                         @endif
                     </article>
                 @endforeach

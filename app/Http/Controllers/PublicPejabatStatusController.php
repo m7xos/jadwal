@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Personil;
+use App\Services\HolidayCalendarService;
 use Carbon\Carbon;
 
 class PublicPejabatStatusController extends Controller
@@ -10,6 +11,20 @@ class PublicPejabatStatusController extends Controller
     public function index()
     {
         $today = Carbon::today();
+        $now = now();
+        $holidayService = app(HolidayCalendarService::class);
+        $isHoliday = $holidayService->isHoliday($today);
+        $dayOfWeek = (int) $today->dayOfWeekIso;
+        $isWorkDay = $dayOfWeek >= 1 && $dayOfWeek <= 5 && ! $isHoliday;
+        $isWorkTime = false;
+
+        if ($isWorkDay) {
+            $workStart = $today->copy()->setTime(7, 30);
+            $workEnd = $dayOfWeek === 5
+                ? $today->copy()->setTime(11, 0)
+                : $today->copy()->setTime(16, 0);
+            $isWorkTime = $now->betweenIncluded($workStart, $workEnd);
+        }
 
         $jabatanTargets = [
             'Camat Watumalang',
@@ -52,7 +67,7 @@ class PublicPejabatStatusController extends Controller
             return preg_replace('/\s+/', ' ', $normalized) ?? '';
         };
 
-        $statuses = collect($jabatanTargets)->map(function (string $jabatan) use ($personils, $allowedPlaces, $normalizePlace, $normalizeNip) {
+        $statuses = collect($jabatanTargets)->map(function (string $jabatan) use ($personils, $allowedPlaces, $normalizePlace, $normalizeNip, $isWorkTime) {
             $personil = $personils->first(function ($item) use ($jabatan) {
                 return $item->jabatan && stripos($item->jabatan, $jabatan) !== false;
             });
@@ -78,7 +93,13 @@ class PublicPejabatStatusController extends Controller
                 return $tempat !== '' && ! in_array($tempat, $allowedPlaces, true);
             })->values();
 
-            $status = $kegiatanLuar->isNotEmpty() ? 'Dinas Luar' : 'Di Kantor';
+            if ($kegiatanLuar->isNotEmpty()) {
+                $status = 'Dinas Luar';
+            } elseif (! $isWorkTime) {
+                $status = 'Tidak di Kantor';
+            } else {
+                $status = 'Di Kantor';
+            }
             $photoCandidates = [];
             if (! empty($personil->photo_url)) {
                 $photoCandidates[] = $personil->photo_url;
