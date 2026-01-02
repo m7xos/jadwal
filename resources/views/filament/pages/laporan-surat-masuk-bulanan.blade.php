@@ -36,6 +36,28 @@
         .print-guide-page {
             display: none;
         }
+        .fi-page-header-main-ctn,
+        .fi-page-header,
+        .fi-page-main,
+        .fi-page-content {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+        .ttd-block {
+            line-height: 1.2;
+        }
+        .ttd-spacer {
+            height: 18mm;
+        }
+        .ttd-name {
+            font-weight: 600;
+            text-decoration: underline;
+            text-transform: uppercase;
+            margin: 0;
+        }
+        .ttd-nip {
+            margin-top: 0;
+        }
 
         /* Garis kop dari pojok ke pojok */
         .kop-garis {
@@ -377,7 +399,7 @@
             $camat = \App\Models\Personil::where('jabatan', 'like', '%Camat Watumalang%')->first();
         @endphp
 
-        <div class="mt-8 flex justify-end" style="text-align: center;">
+        <div class="mt-8 flex justify-end ttd-block" style="text-align: center;">
             <div class="w-72 text-center">
                 <div>
                     <br>
@@ -387,14 +409,13 @@
                 <div class="mt-1">
                     Camat Watumalang
                 </div>
-                <br></br>
-				<br></br>
-                <div class="mt-10 font-semibold underline uppercase">
+                <div class="ttd-spacer"></div>
+                <div class="ttd-name">
                     {{ $camat->nama ?? $namaCamat ?? '____________________' }}
                 </div>
 
                 @if(! empty($camat?->nip))
-                    <div class="mt-1">
+                    <div class="ttd-nip">
                         NIP. {{ $camat->nip }}
                     </div>
                 @endif
