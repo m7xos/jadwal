@@ -36,6 +36,7 @@ class LaporanSuratMasukBulanan extends Page
     public ?string $bulan = null;
     public ?string $tahun = null;
     public ?string $jenisRekap = 'bulanan';
+    public bool $ttdSrikandi = false;
 
     /**
      * Data baris laporan untuk tabel.
@@ -176,6 +177,7 @@ class LaporanSuratMasukBulanan extends Page
             'bulan'        => $this->bulan,
             'tahun'        => $this->tahun,
             'jenisRekap'   => $this->jenisRekap,
+            'ttdSrikandi'  => $this->ttdSrikandi,
         ];
     }
 }
