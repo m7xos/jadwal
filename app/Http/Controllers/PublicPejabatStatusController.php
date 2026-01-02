@@ -26,6 +26,12 @@ class PublicPejabatStatusController extends Controller
             'aula kantor kecamatan',
         ];
 
+        $normalizeNip = function (?string $value): ?string {
+            $digits = preg_replace('/\D+/', '', (string) $value);
+
+            return $digits !== '' ? $digits : null;
+        };
+
         $personils = Personil::query()
             ->where(function ($query) use ($jabatanTargets) {
                 foreach ($jabatanTargets as $jabatan) {
@@ -45,7 +51,7 @@ class PublicPejabatStatusController extends Controller
             return preg_replace('/\s+/', ' ', $normalized) ?? '';
         };
 
-        $statuses = collect($jabatanTargets)->map(function (string $jabatan) use ($personils, $allowedPlaces, $normalizePlace) {
+        $statuses = collect($jabatanTargets)->map(function (string $jabatan) use ($personils, $allowedPlaces, $normalizePlace, $normalizeNip) {
             $personil = $personils->first(function ($item) use ($jabatan) {
                 return $item->jabatan && stripos($item->jabatan, $jabatan) !== false;
             });
@@ -54,6 +60,8 @@ class PublicPejabatStatusController extends Controller
                 return [
                     'jabatan' => $jabatan,
                     'nama' => 'Belum terdaftar',
+                    'nip' => null,
+                    'photo_url' => null,
                     'status' => 'Tidak diketahui',
                     'kegiatan' => collect(),
                     'kegiatan_luar' => collect(),
@@ -61,6 +69,7 @@ class PublicPejabatStatusController extends Controller
             }
 
             $kegiatan = $personil->kegiatans ?? collect();
+            $nip = $normalizeNip($personil->nip ?? null);
 
             $kegiatanLuar = $kegiatan->filter(function ($item) use ($allowedPlaces, $normalizePlace) {
                 $tempat = $normalizePlace($item->tempat ?? '');
@@ -73,6 +82,10 @@ class PublicPejabatStatusController extends Controller
             return [
                 'jabatan' => $jabatan,
                 'nama' => $personil->nama ?? '-',
+                'nip' => $nip,
+                'photo_url' => $nip
+                    ? 'https://simpeg.wonosobokab.go.id/packages/upload/photo/pegawai/' . $nip . '.jpg'
+                    : null,
                 'status' => $status,
                 'kegiatan' => $kegiatan,
                 'kegiatan_luar' => $kegiatanLuar,

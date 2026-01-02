@@ -72,17 +72,38 @@
                         $badgeClass = $isUnknown
                             ? 'bg-slate-100 text-slate-600 border-slate-200'
                             : ($isDinasLuar ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200');
+                        $initials = '';
+                        if (! empty($item['nama']) && $item['nama'] !== 'Belum terdaftar') {
+                            $parts = preg_split('/\s+/', trim($item['nama']));
+                            $initials = strtoupper(substr($parts[0] ?? '', 0, 1) . substr($parts[1] ?? '', 0, 1));
+                        }
                     @endphp
 
                     <article class="bg-white/90 border border-slate-200 rounded-2xl p-4 md:p-5 shadow-sm">
                         <div class="flex items-start justify-between gap-3">
-                            <div>
-                                <h3 class="text-base md:text-lg font-semibold text-slate-900">
-                                    {{ $item['jabatan'] }}
-                                </h3>
-                                <p class="text-sm text-slate-600 mt-1">
-                                    {{ $item['nama'] }}
-                                </p>
+                            <div class="flex items-start gap-3">
+                                <div class="h-14 w-14 rounded-full border border-white shadow bg-slate-100 overflow-hidden flex items-center justify-center">
+                                    @if(! empty($item['photo_url']))
+                                        <img
+                                            src="{{ $item['photo_url'] }}"
+                                            alt="Foto {{ $item['nama'] ?? 'Pejabat' }}"
+                                            class="h-full w-full object-cover"
+                                            loading="lazy"
+                                        />
+                                    @else
+                                        <span class="text-sm font-semibold text-slate-500">
+                                            {{ $initials !== '' ? $initials : 'N/A' }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <div>
+                                    <h3 class="text-base md:text-lg font-semibold text-slate-900">
+                                        {{ $item['jabatan'] }}
+                                    </h3>
+                                    <p class="text-sm text-slate-600 mt-1">
+                                        {{ $item['nama'] }}
+                                    </p>
+                                </div>
                             </div>
                             <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border {{ $badgeClass }}">
                                 {{ $item['status'] }}
