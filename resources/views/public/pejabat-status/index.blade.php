@@ -594,6 +594,57 @@
 
             loadNext();
         });
+
+        const pauseAutoScroll = (state, ms = 3000) => {
+            state.pausedUntil = performance.now() + ms;
+            state.lastTime = null;
+        };
+
+        const autoScrollState = {
+            direction: 1,
+            lastTime: null,
+            pausedUntil: 0,
+            speed: 0.45,
+        };
+
+        const autoScrollStep = (time) => {
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            if (maxScroll <= 4) {
+                requestAnimationFrame(autoScrollStep);
+                return;
+            }
+            if (time < autoScrollState.pausedUntil) {
+                requestAnimationFrame(autoScrollStep);
+                return;
+            }
+            if (autoScrollState.lastTime === null) {
+                autoScrollState.lastTime = time;
+            }
+
+            const delta = time - autoScrollState.lastTime;
+            autoScrollState.lastTime = time;
+            const current = window.scrollY || document.documentElement.scrollTop;
+            let next = current + autoScrollState.direction * autoScrollState.speed * delta;
+
+            if (next >= maxScroll) {
+                next = maxScroll;
+                autoScrollState.direction = -1;
+                pauseAutoScroll(autoScrollState, 1200);
+            } else if (next <= 0) {
+                next = 0;
+                autoScrollState.direction = 1;
+                pauseAutoScroll(autoScrollState, 1200);
+            }
+
+            window.scrollTo(0, next);
+            requestAnimationFrame(autoScrollStep);
+        };
+
+        window.addEventListener('wheel', () => pauseAutoScroll(autoScrollState), { passive: true });
+        window.addEventListener('touchstart', () => pauseAutoScroll(autoScrollState), { passive: true });
+        window.addEventListener('keydown', () => pauseAutoScroll(autoScrollState), { passive: true });
+
+        requestAnimationFrame(autoScrollStep);
     });
 </script>
 </body>
