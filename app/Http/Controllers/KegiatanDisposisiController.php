@@ -4,25 +4,91 @@ namespace App\Http\Controllers;
 
 use App\Models\Kegiatan;
 use App\Models\Personil;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class KegiatanDisposisiController extends Controller
 {
     public function show(Kegiatan $kegiatan)
     {
-        $kegiatan->loadMissing('personils');
-
-        $targets = $this->buildDisposisiTargets($kegiatan);
-        $camat = $this->resolveCamatPersonil();
+        $items = $this->buildDisposisiItems([$kegiatan]);
 
         return view('kegiatan.disposisi-print', [
-            'kegiatan' => $kegiatan,
-            'targets' => $targets['targets'],
-            'lainnya' => $targets['lainnya'],
-            'camat_nama' => $camat?->nama ?? '',
-            'camat_pangkat' => $camat?->pangkat ?: ($camat?->golongan ?? ''),
-            'camat_nip' => $camat?->nip ?? '',
+            'items' => $items,
         ]);
+    }
+
+    public function bulk(Request $request)
+    {
+        $ids = collect(explode(',', (string) $request->query('ids', '')))
+            ->map(fn (string $id) => trim($id))
+            ->filter(fn (string $id) => $id !== '' && ctype_digit($id))
+            ->map(fn (string $id) => (int) $id)
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            abort(404);
+        }
+
+        $kegiatans = Kegiatan::query()
+            ->whereKey($ids->all())
+            ->get();
+
+        if ($kegiatans->isEmpty()) {
+            abort(404);
+        }
+
+        $ordered = $kegiatans
+            ->sortBy(function (Kegiatan $kegiatan) use ($ids): int {
+                $index = array_search($kegiatan->getKey(), $ids->all(), true);
+
+                return $index === false ? PHP_INT_MAX : $index;
+            })
+            ->values();
+
+        $items = $this->buildDisposisiItems($ordered);
+
+        return view('kegiatan.disposisi-print', [
+            'items' => $items,
+        ]);
+    }
+
+    /**
+     * @param iterable<int, Kegiatan> $kegiatans
+     * @return array<int, array{
+     *     kegiatan: Kegiatan,
+     *     targets: array<int, array{label: string, checked: bool}>,
+     *     lainnya: string,
+     *     camat_nama: string,
+     *     camat_pangkat: string,
+     *     camat_nip: string
+     * }>
+     */
+    protected function buildDisposisiItems(iterable $kegiatans): array
+    {
+        $camat = $this->resolveCamatPersonil();
+        $camatNama = $camat?->nama ?? '';
+        $camatPangkat = $camat?->pangkat ?: ($camat?->golongan ?? '');
+        $camatNip = $camat?->nip ?? '';
+
+        $items = [];
+
+        foreach ($kegiatans as $kegiatan) {
+            $kegiatan->loadMissing('personils');
+            $targets = $this->buildDisposisiTargets($kegiatan);
+
+            $items[] = [
+                'kegiatan' => $kegiatan,
+                'targets' => $targets['targets'],
+                'lainnya' => $targets['lainnya'],
+                'camat_nama' => $camatNama,
+                'camat_pangkat' => $camatPangkat,
+                'camat_nip' => $camatNip,
+            ];
+        }
+
+        return $items;
     }
 
     /**

@@ -226,64 +226,6 @@ class KegiatansTable
             // ================== BULK ACTION (SESUAI FILTER) ==================
             ->toolbarActions([
                 BulkActionGroup::make([
-                    BulkAction::make('buat_surat_tugas')
-                        ->label('Buat Surat Tugas')
-                        ->icon('heroicon-o-document-text')
-                        ->requiresConfirmation()
-                        ->action(function (Collection $records) {
-                            if ($records->count() !== 1) {
-                                Notification::make()
-                                    ->title('Pilih satu agenda')
-                                    ->body('Pilih tepat satu agenda untuk membuat surat tugas.')
-                                    ->warning()
-                                    ->send();
-
-                                return;
-                            }
-
-                            $record = $records->first();
-
-                            /** @var SuratTugasGenerator $generator */
-                            $generator = app(SuratTugasGenerator::class);
-
-                            $generator->generate($record);
-
-                            return redirect()->route('kegiatan.surat_tugas', $record);
-                        })
-                        ->deselectRecordsAfterCompletion()
-                        ->tooltip('Buat surat tugas untuk agenda terpilih. Pilih satu agenda saja.'),
-
-                    BulkAction::make('buat_sppd')
-                        ->label('Buat SPPD')
-                        ->icon('heroicon-o-document-duplicate')
-                        ->requiresConfirmation()
-                        ->action(function (Collection $records) {
-                            if ($records->count() !== 1) {
-                                Notification::make()
-                                    ->title('Pilih satu agenda')
-                                    ->body('Pilih tepat satu agenda untuk membuat SPPD.')
-                                    ->warning()
-                                    ->send();
-
-                                return;
-                            }
-
-                            $record = $records->first();
-
-                            /** @var SppdGenerator $generator */
-                            $generator = app(SppdGenerator::class);
-
-                            $generator->generate($record);
-
-                            return redirect()->route('kegiatan.sppd', $record);
-                        })
-                        ->deselectRecordsAfterCompletion()
-                        ->tooltip('Buat SPPD untuk agenda terpilih (jika personil lebih dari 1, hasil ZIP).'),
-                ])
-                    ->label('Surat Tugas')
-                    ->icon('heroicon-o-document-text'),
-
-                BulkActionGroup::make([
                     BulkAction::make('kirim_wa_group')
                         ->label('Kirim Rekap Group')
                         ->icon('heroicon-o-paper-airplane')
@@ -450,7 +392,82 @@ class KegiatansTable
                         ->tooltip('Mengirim ke grup WA daftar agenda yang belum disposisi, hanya untuk agenda yang dicentang.'),
 
                     DeleteBulkAction::make(),
-                ]),	
+                ]),
+
+                BulkAction::make('cetak_disposisi')
+                    ->label('Cetak Disposisi')
+                    ->icon('heroicon-o-printer')
+                    ->alpineClickHandler(function (): string {
+                        $baseUrl = route('kegiatan.disposisi.bulk', ['ids' => '__IDS__']);
+                        $escapedUrl = str_replace("'", "\\'", $baseUrl);
+
+                        return "const records = [...selectedRecords];"
+                            . "if (records.length < 1) {"
+                            . "window.alert('Pilih minimal satu agenda untuk mencetak disposisi.');"
+                            . "return;"
+                            . "}"
+                            . "const url = '{$escapedUrl}';"
+                            . "window.open(url.replace('__IDS__', records.join(',')), '_blank');";
+                    })
+                    ->tooltip('Pilih minimal satu agenda untuk mencetak disposisi.'),
+
+                BulkActionGroup::make([
+                    BulkAction::make('buat_surat_tugas')
+                        ->label('Buat Surat Tugas')
+                        ->icon('heroicon-o-document-text')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            if ($records->count() !== 1) {
+                                Notification::make()
+                                    ->title('Pilih satu agenda')
+                                    ->body('Pilih tepat satu agenda untuk membuat surat tugas.')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $record = $records->first();
+
+                            /** @var SuratTugasGenerator $generator */
+                            $generator = app(SuratTugasGenerator::class);
+
+                            $generator->generate($record);
+
+                            return redirect()->route('kegiatan.surat_tugas', $record);
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->tooltip('Buat surat tugas untuk agenda terpilih. Pilih satu agenda saja.'),
+
+                    BulkAction::make('buat_sppd')
+                        ->label('Buat SPPD')
+                        ->icon('heroicon-o-document-duplicate')
+                        ->requiresConfirmation()
+                        ->action(function (Collection $records) {
+                            if ($records->count() !== 1) {
+                                Notification::make()
+                                    ->title('Pilih satu agenda')
+                                    ->body('Pilih tepat satu agenda untuk membuat SPPD.')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
+                            $record = $records->first();
+
+                            /** @var SppdGenerator $generator */
+                            $generator = app(SppdGenerator::class);
+
+                            $generator->generate($record);
+
+                            return redirect()->route('kegiatan.sppd', $record);
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->tooltip('Buat SPPD untuk agenda terpilih (jika personil lebih dari 1, hasil ZIP).'),
+                ])
+                    ->label('Surat Tugas')
+                    ->icon('heroicon-o-document-text'),
             ]);
     }
 }

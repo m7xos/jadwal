@@ -59,6 +59,9 @@ Route::get('/kegiatan/{kegiatan}/surat-tugas', [KegiatanSuratController::class, 
 Route::get('/kegiatan/{kegiatan}/sppd', [KegiatanSuratController::class, 'sppd'])
     ->middleware('auth:personil')
     ->name('kegiatan.sppd');
+Route::get('/kegiatan/disposisi/print', [KegiatanDisposisiController::class, 'bulk'])
+    ->middleware('auth:personil')
+    ->name('kegiatan.disposisi.bulk');
 Route::get('/kegiatan/{kegiatan}/disposisi', [KegiatanDisposisiController::class, 'show'])
     ->middleware('auth:personil')
     ->name('kegiatan.disposisi');
