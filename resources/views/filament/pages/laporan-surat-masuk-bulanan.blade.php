@@ -71,7 +71,7 @@
 
         /* TABEL LAPORAN: garis hitam jelas & responsif */
         .laporan-wrapper {
-            margin-bottom: 8mm;
+            margin-bottom: 4mm;
         }
 
         .kop-wrapper {
@@ -171,7 +171,7 @@
                 box-shadow: none !important;
                 border: none !important;
                 background: transparent !important; /* tanpa warna saat print */
-                padding: 0 0 60mm 0 !important; /* ruang bawah untuk footer */
+                padding: 0 0 30mm 0 !important; /* ruang bawah untuk footer */
             }
 
             /* Elemen yang memang tidak perlu tercetak (filter, tombol, dsb) */
