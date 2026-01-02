@@ -1,6 +1,5 @@
 {{-- resources/views/filament/pages/laporan-surat-masuk-bulanan.blade.php --}}
 <x-filament-panels::page>
-    <div class="print-guide-page" aria-hidden="true"></div>
     <style>
         /* Hilangkan sidebar & topbar Filament di halaman ini (untuk tampilan biasa) */
         .fi-layout .fi-sidebar,
@@ -32,9 +31,6 @@
         .fi-main,
         .print-area {
             background: transparent !important;
-        }
-        .print-guide-page {
-            display: none;
         }
         .fi-page-header-main-ctn,
         .fi-page-header,
@@ -169,8 +165,6 @@
                 border: none !important;
                 background: transparent !important; /* tanpa warna saat print */
                 padding: 0 0 60mm 0 !important; /* ruang bawah untuk footer */
-                outline: 1px dashed #22c55e;
-                outline-offset: 0;
             }
 
             /* Elemen yang memang tidak perlu tercetak (filter, tombol, dsb) */
@@ -189,30 +183,12 @@
                 border-bottom: 2px solid #000000 !important;
             }
             .print-area .kop-wrapper {
-                margin-top: -6mm !important;
+                margin-top: -2mm !important;
                 margin-bottom: 0.5mm !important;
             }
             .print-area .judul-blok {
                 margin-top: 0 !important;
                 margin-bottom: 0.5mm !important;
-            }
-            .print-guide-page {
-                display: block;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                border-top: 1px dashed #ef4444;
-            }
-            .print-guide-page::after {
-                content: "TOP PAGE";
-                position: fixed;
-                top: 0;
-                left: 10mm;
-                font-size: 10px;
-                color: #ef4444;
-                background: #ffffff;
-                padding: 0 2px;
             }
 			
 			/* Bar filter bulan + tombol cetak */
