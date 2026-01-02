@@ -94,40 +94,26 @@
                                 <div class="text-slate-500 text-sm">
                                     Tidak ada agenda hari ini.
                                 </div>
+                            @elseif(($item['kegiatan_luar'] ?? collect())->isNotEmpty())
+                                <div class="text-xs font-semibold uppercase tracking-wide text-rose-500 mb-2">
+                                    Agenda di luar kantor
+                                </div>
+                                <ul class="space-y-2 text-sm">
+                                    @foreach($item['kegiatan_luar'] as $kegiatan)
+                                        <li class="border border-rose-100 bg-rose-50/50 rounded-lg px-3 py-2">
+                                            <div class="font-medium text-slate-800">
+                                                {{ $kegiatan->nama_kegiatan ?? '-' }}
+                                            </div>
+                                            <div class="text-xs text-slate-500 mt-1">
+                                                {{ $kegiatan->waktu ?? '-' }} - {{ $kegiatan->tempat ?? '-' }}
+                                            </div>
+                                        </li>
+                                    @endforeach
+                                </ul>
                             @else
-                                @if(($item['kegiatan_luar'] ?? collect())->isNotEmpty())
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-rose-500 mb-2">
-                                        Agenda di luar kantor
-                                    </div>
-                                    <ul class="space-y-2 text-sm">
-                                        @foreach($item['kegiatan_luar'] as $kegiatan)
-                                            <li class="border border-rose-100 bg-rose-50/50 rounded-lg px-3 py-2">
-                                                <div class="font-medium text-slate-800">
-                                                    {{ $kegiatan->nama_kegiatan ?? '-' }}
-                                                </div>
-                                                <div class="text-xs text-slate-500 mt-1">
-                                                    {{ $kegiatan->waktu ?? '-' }} - {{ $kegiatan->tempat ?? '-' }}
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @else
-                                    <div class="text-xs font-semibold uppercase tracking-wide text-emerald-500 mb-2">
-                                        Agenda di kantor
-                                    </div>
-                                    <ul class="space-y-2 text-sm">
-                                        @foreach($item['kegiatan'] as $kegiatan)
-                                            <li class="border border-emerald-100 bg-emerald-50/50 rounded-lg px-3 py-2">
-                                                <div class="font-medium text-slate-800">
-                                                    {{ $kegiatan->nama_kegiatan ?? '-' }}
-                                                </div>
-                                                <div class="text-xs text-slate-500 mt-1">
-                                                    {{ $kegiatan->waktu ?? '-' }} - {{ $kegiatan->tempat ?? '-' }}
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @endif
+                                <div class="text-slate-500 text-sm">
+                                    Di kantor. Tidak ada agenda dinas luar hari ini.
+                                </div>
                             @endif
                         </div>
                     </article>
