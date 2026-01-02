@@ -413,10 +413,10 @@ class WaGatewayWebhookController extends Controller
     {
         return implode("\n", [
             '*Topik Jadwal/Agenda*',
-            '- jadwal hari ini',
-            '- jadwal besok',
-            '- jadwal belum disposisi hari ini',
-            '- jadwal belum disposisi besok',
+            '- agenda hari ini',
+            '- agenda besok',
+            '- agenda belum disposisi hari ini',
+            '- agenda belum disposisi besok',
         ]);
     }
 

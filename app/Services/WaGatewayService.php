@@ -324,6 +324,7 @@ class WaGatewayService
 
         $lines[] = '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_';
         $lines[] = '';
+        $lines[] = '_Harap selalu laporkan hasil kegiatan kepada atasan._';
         $lines[] = '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._';
 
         $fallback = implode("\n", $lines);
@@ -367,7 +368,10 @@ class WaGatewayService
             'balasan_line' => $this->formatTemplateLine(
                 '_Balas pesan ini dengan *TL-' . $kegiatan->id . ' selesai* jika sudah menyelesaikan TL_'
             ),
-            'footer' => '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._',
+            'footer' => implode("\n", [
+                '_Harap selalu laporkan hasil kegiatan kepada atasan._',
+                '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._',
+            ]),
         ];
 
         /** @var WaMessageTemplateService $templateService */
@@ -842,6 +846,17 @@ class WaGatewayService
      *
      * @param iterable<Kegiatan> $kegiatans
      */
+    public function formatGroupRekapMessage(iterable $kegiatans): string
+    {
+        $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
+
+        if (method_exists($items, 'loadMissing')) {
+            $items->loadMissing('personils');
+        }
+
+        return $this->buildGroupMessage($items);
+    }
+
     protected function buildGroupMessage(iterable $kegiatans): string
     {
         $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
@@ -938,6 +953,7 @@ class WaGatewayService
             ->locale('id')
             ->translatedFormat('d F Y H:i') . ' WIB';
         $lines[] = '';
+        $lines[] = 'Harap selalu laporkan hasil kegiatan kepada atasan.';
         $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
 
         $fallback = implode("\n", $lines);
@@ -967,7 +983,10 @@ class WaGatewayService
             'tanggal_label' => $tanggalLabel,
             'agenda_list' => $this->buildGroupAgendaList($items),
             'generated_at' => now()->locale('id')->translatedFormat('d F Y H:i') . ' WIB',
-            'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+            'footer' => implode("\n", [
+                'Harap selalu laporkan hasil kegiatan kepada atasan.',
+                'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+            ]),
         ];
 
         /** @var WaMessageTemplateService $templateService */
@@ -1053,6 +1072,7 @@ class WaGatewayService
         }
 
         $lines[] = '';
+        $lines[] = '_Harap selalu laporkan hasil kegiatan kepada atasan._';
         $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
 
         $fallback = implode("\n", $lines);
@@ -1069,13 +1089,30 @@ class WaGatewayService
             'agenda_list' => $this->buildBelumDisposisiAgendaList($items),
             'leadership_block' => $leadershipBlock,
             'leadership_tags' => ! empty($leadershipTags) ? implode(' ', $leadershipTags) : '',
-            'footer' => '_Pesan ini dikirim otomatis dari sistem agenda kantor._',
+            'footer' => implode("\n", [
+                '_Harap selalu laporkan hasil kegiatan kepada atasan._',
+                '_Pesan ini dikirim otomatis dari sistem agenda kantor._',
+            ]),
         ];
 
         /** @var WaMessageTemplateService $templateService */
         $templateService = app(WaMessageTemplateService::class);
 
         return $templateService->render('group_belum_disposisi', $data, $fallback);
+    }
+
+    /**
+     * @param iterable<Kegiatan> $kegiatans
+     */
+    public function formatGroupBelumDisposisiMessage(iterable $kegiatans): string
+    {
+        $items = $kegiatans instanceof Collection ? $kegiatans : collect($kegiatans);
+
+        if (method_exists($items, 'loadMissing')) {
+            $items->loadMissing('personils');
+        }
+
+        return $this->buildGroupMessageBelumDisposisi($items);
     }
 
     protected function getPersonilTagsByJabatan(array $jabatanList, bool $includeTag = true): array
@@ -1170,6 +1207,7 @@ class WaGatewayService
 
         $lines[] = 'Mohon kehadiran Bapak/Ibu sesuai jadwal di atas.';
         $lines[] = '';
+        $lines[] = '_Harap selalu laporkan hasil kegiatan kepada atasan._';
         $lines[] = '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._';
 
         $fallback = implode("\n", $lines);
@@ -1197,7 +1235,10 @@ class WaGatewayService
             'surat_url' => $suratUrl ?? '',
             'lampiran_block' => $lampiranBlock,
             'lampiran_url' => $lampiranUrl ?? '',
-            'footer' => '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._',
+            'footer' => implode("\n", [
+                '_Harap selalu laporkan hasil kegiatan kepada atasan._',
+                '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._',
+            ]),
         ];
 
         /** @var WaMessageTemplateService $templateService */
@@ -1270,6 +1311,7 @@ class WaGatewayService
         }
 
         $lines[] = '';
+        $lines[] = 'Harap selalu laporkan hasil kegiatan kepada atasan.';
         $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
 
         $fallback = implode("\n", $lines);
@@ -1295,7 +1337,10 @@ class WaGatewayService
             'surat_url' => $suratUrl ?? '',
             'lampiran_line' => $this->formatTemplateLine($lampiranUrl ? '   📎 Lampiran: ' . $lampiranUrl : ''),
             'lampiran_url' => $lampiranUrl ?? '',
-            'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+            'footer' => implode("\n", [
+                'Harap selalu laporkan hasil kegiatan kepada atasan.',
+                'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+            ]),
         ];
 
         /** @var WaMessageTemplateService $templateService */

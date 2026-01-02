@@ -317,7 +317,7 @@ class WaMessageTemplates extends Page implements HasForms
                 'surat_url' => 'https://example.com/surat',
                 'lampiran_line' => "   📎 Lampiran: https://example.com/lampiran\n",
                 'lampiran_url' => 'https://example.com/lampiran',
-                'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+                'footer' => "Harap selalu laporkan hasil kegiatan kepada atasan.\nPesan ini dikirim otomatis dari sistem agenda kantor.",
             ],
             'agenda_personil' => [
                 'nama_kegiatan' => 'Sosialisasi Program Desa',
@@ -331,7 +331,7 @@ class WaMessageTemplates extends Page implements HasForms
                 'surat_url' => 'https://example.com/surat',
                 'lampiran_block' => "📎 *Lampiran*\nhttps://example.com/lampiran\n\n",
                 'lampiran_url' => 'https://example.com/lampiran',
-                'footer' => '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._',
+                'footer' => "_Harap selalu laporkan hasil kegiatan kepada atasan._\n_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._",
             ],
             'tindak_lanjut_reminder' => [
                 'nomor_surat' => '123/ABC/2026',
@@ -355,14 +355,14 @@ class WaMessageTemplates extends Page implements HasForms
                 'disposisi_tags' => $includeTag ? '@6281234567890' : 'Camat, Sekcam',
                 'personil_tags' => $includeTag ? '@6289876543210' : 'Budi',
                 'balasan_line' => '_Balas pesan ini dengan *TL-45 selesai* jika sudah menyelesaikan TL_' . "\n",
-                'footer' => '_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._',
+                'footer' => "_Harap selalu laporkan hasil kegiatan kepada atasan._\n_Pesan ini dikirim otomatis saat batas waktu tindak lanjut tercapai._",
             ],
             'group_rekap' => [
                 'judul' => 'REKAP AGENDA KEGIATAN KANTOR',
                 'tanggal_label' => 'Senin, 12 Januari 2026',
                 'agenda_list' => '',
                 'generated_at' => '12 Januari 2026 08:00 WIB',
-                'footer' => 'Pesan ini dikirim otomatis dari sistem agenda kantor.',
+                'footer' => "Harap selalu laporkan hasil kegiatan kepada atasan.\nPesan ini dikirim otomatis dari sistem agenda kantor.",
             ],
             'group_belum_disposisi' => [
                 'agenda_list' => '',
@@ -370,7 +370,7 @@ class WaMessageTemplates extends Page implements HasForms
                     ? "*Mohon petunjuk/arahan disposisi:*\n@6281234567890\n\n"
                     : "*Mohon petunjuk/arahan disposisi:*\nCamat, Sekcam\n\n",
                 'leadership_tags' => $includeTag ? '@6281234567890' : 'Camat, Sekcam',
-                'footer' => '_Pesan ini dikirim otomatis dari sistem agenda kantor._',
+                'footer' => "_Harap selalu laporkan hasil kegiatan kepada atasan._\n_Pesan ini dikirim otomatis dari sistem agenda kantor._",
             ],
             'follow_up_reminder' => [
                 'kegiatan_line' => 'Kegiatan  : Verifikasi Dokumen',
