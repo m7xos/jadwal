@@ -105,7 +105,7 @@
             @page {
                 /* Folio 8.5 x 13 inch, orientasi landscape: 330 x 215 mm */
                 size: 330mm 215mm;
-                margin: 3mm 10mm 12mm 10mm;
+                margin: 1mm 10mm 12mm 10mm;
             }
 
             body {
