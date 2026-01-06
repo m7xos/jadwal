@@ -37,21 +37,29 @@ class ScheduleResponder
             return false;
         }
 
-        [$date, $onlyPending, $label] = $this->commandMeta($command);
+        [$start, $end, $onlyPending, $label, $isRange] = $this->commandMeta($command);
 
         $groupCandidates = $this->candidateGroupIds($groupIdRaw);
 
         // Cari data dari tabel kegiatan (utama) dan fallback ke tabel schedules jika ada.
-        $kegiatan = $this->getKegiatanForGroup($groupCandidates, $date, $onlyPending);
+        $kegiatan = $this->getKegiatanForGroup($groupCandidates, $start, $end, $onlyPending);
         $schedules = $kegiatan->isNotEmpty()
             ? collect()
-            : $this->getSchedulesForGroup($groupCandidates, $date, $onlyPending);
+            : $this->getSchedulesForGroup($groupCandidates, $start, $end, $onlyPending);
 
-        $message = $kegiatan->isNotEmpty()
-            ? ($onlyPending
+        if ($kegiatan->isNotEmpty()) {
+            $message = $onlyPending
                 ? $waGateway->formatGroupBelumDisposisiMessage($kegiatan)
-                : $waGateway->formatGroupRekapMessage($kegiatan))
-            : $this->formatScheduleMessage($date, $label, $schedules, $onlyPending);
+                : $waGateway->formatGroupRekapMessage($kegiatan);
+
+            if ($isRange) {
+                $message = $this->prependRangeHeader($label, $start, $end, $message);
+            }
+        } else {
+            $message = $isRange
+                ? $this->formatScheduleRangeMessage($start, $end, $label, $schedules, $onlyPending)
+                : $this->formatScheduleMessage($start, $label, $schedules, $onlyPending);
+        }
 
         $sent = $waGateway->sendTextToSpecificGroup($groupIdRaw, $message);
         $sentOk = (bool) ($sent['success'] ?? false);
@@ -59,8 +67,10 @@ class ScheduleResponder
         Log::info('ScheduleResponder processed command', [
             'group'        => $groupIdRaw,
             'command'      => $command,
-            'date'         => $date->toDateString(),
+            'date'         => $start->toDateString(),
+            'end_date'     => $end->toDateString(),
             'only_pending' => $onlyPending,
+            'is_range'     => $isRange,
             'count_kegiatan' => $kegiatan->count(),
             'count_schedules' => $schedules->count(),
             'sent'         => $sentOk,
@@ -80,7 +90,17 @@ class ScheduleResponder
         $hasHariIni  = str_contains($text, 'hari ini');
         $hasBesok    = str_contains($text, 'besok');
         $hasPending  = str_contains($text, 'belum disposisi');
+        $hasPlus7 = preg_match('/\+\s*7\b/', $text) === 1;
+        $hasMinus7 = preg_match('/-\s*7\b/', $text) === 1;
         $hasCommand  = $hasJadwal || $hasKegiatan || $hasAgenda;
+
+        if ($hasCommand && $hasPending && $hasPlus7) {
+            return 'future7_pending';
+        }
+
+        if ($hasCommand && $hasPending && $hasMinus7) {
+            return 'past7_pending';
+        }
 
         if ($hasCommand && $hasPending && $hasHariIni) {
             return 'today_pending';
@@ -109,10 +129,12 @@ class ScheduleResponder
     protected function commandMeta(string $command): array
     {
         return match ($command) {
-            'today_pending'    => [Carbon::today(), true, 'Agenda belum disposisi hari ini'],
-            'tomorrow_pending' => [Carbon::today()->addDay(), true, 'Agenda belum disposisi besok'],
-            'today_all'        => [Carbon::today(), false, 'Agenda kegiatan hari ini'],
-            'tomorrow_all'     => [Carbon::today()->addDay(), false, 'Agenda kegiatan besok'],
+            'today_pending'    => [Carbon::today(), Carbon::today(), true, 'Agenda belum disposisi hari ini', false],
+            'tomorrow_pending' => [Carbon::today()->addDay(), Carbon::today()->addDay(), true, 'Agenda belum disposisi besok', false],
+            'today_all'        => [Carbon::today(), Carbon::today(), false, 'Agenda kegiatan hari ini', false],
+            'tomorrow_all'     => [Carbon::today()->addDay(), Carbon::today()->addDay(), false, 'Agenda kegiatan besok', false],
+            'future7_pending'  => [Carbon::today(), Carbon::today()->addDays(7), true, 'Agenda belum disposisi 7 hari ke depan', true],
+            'past7_pending'    => [Carbon::today()->subDays(7), Carbon::today()->subDay(), true, 'Agenda belum disposisi 7 hari ke belakang', true],
         };
     }
 
@@ -185,6 +207,79 @@ class ScheduleResponder
             }
 
             $lines[] = '';
+        }
+
+        $lines[] = 'Tanggal rekap: ' . now()
+            ->locale('id')
+            ->translatedFormat('d F Y H:i') . ' WIB';
+        $lines[] = '';
+        $lines[] = 'Harap selalu laporkan hasil kegiatan kepada atasan.';
+        $lines[] = 'Pesan ini dikirim otomatis dari sistem agenda kantor.';
+
+        return implode("\n", $lines);
+    }
+
+    protected function formatScheduleRangeMessage(
+        Carbon $start,
+        Carbon $end,
+        string $label,
+        $schedules,
+        bool $onlyPending
+    ): string {
+        $rangeLabel = $this->formatDateRangeIndo($start, $end);
+
+        if ($schedules->isEmpty()) {
+            $noDataText = $onlyPending
+                ? "Tidak ada surat yang belum disposisi pada periode {$rangeLabel}."
+                : "Belum ada jadwal pada periode {$rangeLabel}.";
+
+            return $noDataText;
+        }
+
+        $lines = [
+            '*' . $label . '*',
+            'Periode: ' . $rangeLabel,
+            '',
+        ];
+
+        if ($onlyPending) {
+            $lines[] = 'Berikut daftar kegiatan yang belum mendapatkan disposisi pimpinan:';
+            $lines[] = '';
+        } else {
+            $lines[] = 'REKAP AGENDA KEGIATAN KANTOR';
+            $lines[] = '';
+        }
+
+        foreach ($schedules as $idx => $schedule) {
+            if ($idx > 0) {
+                $lines[] = '------------------------';
+            }
+
+            $time = $schedule->starts_at ? $schedule->starts_at->format('H:i') : '-';
+            $place = $schedule->location ?: '-';
+            $notes = trim((string) ($schedule->notes ?? ''));
+            $dateLabel = $this->formatScheduleDateLabel($schedule->starts_at ?? null);
+
+            $lines[] = '*' . ($idx + 1) . '. ' . ($schedule->title ?? '-') . '*';
+            $lines[] = ' *Tanggal*     : ' . $dateLabel;
+            $lines[] = ' *Waktu*       : ' . $time;
+            $lines[] = ' *Tempat*      : ' . $place;
+            $lines[] = '';
+            $lines[] = '';
+
+            if ($notes !== '') {
+                $lines[] = '   Keterangan: ' . $notes;
+                $lines[] = '';
+            }
+        }
+
+        if ($onlyPending) {
+            $lines[] = '_Mohon tindak lanjut disposisi sesuai kewenangan._';
+            $lines[] = '';
+            $lines[] = '_Harap selalu laporkan hasil kegiatan kepada atasan._';
+            $lines[] = '_Pesan ini dikirim otomatis dari sistem agenda kantor._';
+
+            return implode("\n", $lines);
         }
 
         $lines[] = 'Tanggal rekap: ' . now()
@@ -314,7 +409,7 @@ class ScheduleResponder
         return $value;
     }
 
-    protected function getKegiatanForGroup(array $groupIds, Carbon $date, bool $onlyPending)
+    protected function getKegiatanForGroup(array $groupIds, Carbon $start, Carbon $end, bool $onlyPending)
     {
         $normalized = collect($groupIds)
             ->map(fn ($id) => $this->normalizeGroupIdValue($id))
@@ -324,7 +419,7 @@ class ScheduleResponder
             ->all();
 
         $query = Kegiatan::query()
-            ->whereDate('tanggal', $date->toDateString())
+            ->whereBetween('tanggal', [$start->toDateString(), $end->toDateString()])
             ->when($onlyPending, function ($q) {
                 $q->where(function ($w) {
                     $w->whereNull('sudah_disposisi')
@@ -347,7 +442,7 @@ class ScheduleResponder
         // Jika belum ada relasi group_kegiatan, fallback: ambil semua kegiatan di tanggal tersebut.
         if ($results->isEmpty()) {
             $results = Kegiatan::query()
-                ->whereDate('tanggal', $date->toDateString())
+                ->whereBetween('tanggal', [$start->toDateString(), $end->toDateString()])
                 ->when($onlyPending, function ($q) {
                     $q->where(function ($w) {
                         $w->whereNull('sudah_disposisi')
@@ -363,11 +458,12 @@ class ScheduleResponder
         return $results;
     }
 
-    protected function getSchedulesForGroup(array $groupIds, Carbon $date, bool $onlyPending)
+    protected function getSchedulesForGroup(array $groupIds, Carbon $start, Carbon $end, bool $onlyPending)
     {
         return Schedule::query()
             ->whereIn('id_group', $groupIds)
-            ->whereDate('starts_at', $date->toDateString())
+            ->whereDate('starts_at', '>=', $start->toDateString())
+            ->whereDate('starts_at', '<=', $end->toDateString())
             ->when($onlyPending, fn ($q) => $q->where('is_disposed', false))
             ->orderBy('starts_at')
             ->get();
@@ -376,6 +472,34 @@ class ScheduleResponder
     protected function formatDateIndo(Carbon $date): string
     {
         return $date->locale('id')->isoFormat('D MMMM Y');
+    }
+
+    protected function formatDateRangeIndo(Carbon $start, Carbon $end): string
+    {
+        return $this->formatDateIndo($start) . ' - ' . $this->formatDateIndo($end);
+    }
+
+    protected function formatScheduleDateLabel($value): string
+    {
+        if (! $value) {
+            return '-';
+        }
+
+        $date = $value instanceof Carbon ? $value : Carbon::parse($value);
+
+        return $this->formatDateIndo($date);
+    }
+
+    protected function prependRangeHeader(string $label, Carbon $start, Carbon $end, string $message): string
+    {
+        $lines = [
+            '*' . $label . '*',
+            'Periode: ' . $this->formatDateRangeIndo($start, $end),
+            '',
+            trim($message),
+        ];
+
+        return implode("\n", $lines);
     }
 
     protected function formatAudience($kegiatan, string $prefix): ?string
