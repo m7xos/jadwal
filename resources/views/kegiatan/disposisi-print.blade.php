@@ -112,7 +112,7 @@
             display: inline-block;
             text-align: center;
             line-height: 10px;
-            font-size: 10px;
+            font-size: 11px;
         }
         .checked::after {
             content: "x";
