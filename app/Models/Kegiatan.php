@@ -35,6 +35,7 @@ class Kegiatan extends Model
         'tl_reminder_sent_at',
         'tl_final_reminder_sent_at',
         'tindak_lanjut_selesai_at',
+        'is_pkk',
     ];
 
     protected $casts = [
@@ -50,6 +51,7 @@ class Kegiatan extends Model
         'tindak_lanjut_selesai_at' => 'datetime',
         'disposisi_notified_at' => 'datetime',
         'disposisi_escalated_at' => 'datetime',
+        'is_pkk' => 'boolean',
     ];
 
     public function personils()

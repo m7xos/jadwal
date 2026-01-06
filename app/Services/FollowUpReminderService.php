@@ -49,7 +49,7 @@ class FollowUpReminderService
     {
         $includeTag = $this->includePersonilTag();
         $tanggalLabel = $reminder->tanggal
-            ? $reminder->tanggal->locale('id')->isoFormat('dddd, D MMMM Y')
+            ? $reminder->tanggal->locale('id')->isoFormat('D MMMM Y')
             : '-';
 
         $jamLabel = $this->formatJam($reminder->jam);

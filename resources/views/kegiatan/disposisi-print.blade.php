@@ -14,7 +14,7 @@
             color: #111827;
             margin: 0;
             padding: 0;
-            font-size: 11px;
+            font-size: 12px;
         }
         .no-print {
             margin: 12px 0;
@@ -181,7 +181,7 @@
                     <td class="label">Surat dari</td>
                     <td>: <span class="line">{{ $kegiatan->surat_dari ?? '' }}</span></td>
                     <td class="right-label">Diterima Tgl</td>
-                    <td>: <span class="line"></span></td>
+                    <td>: <span class="line">{{ $kegiatan->created_at?->format('d/m/Y') ?? '-' }}</span></td>
                 </tr>
                 <tr>
                     <td class="label">No Surat</td>
@@ -206,7 +206,7 @@
                 </tr>
                 <tr>
                     <td class="label">Hal</td>
-                    <td colspan="3">: {{ $kegiatan->nama_kegiatan ?? '-' }}</td>
+                    <td colspan="3">: <strong>{{ $kegiatan->nama_kegiatan ?? '-' }}</strong></td>
                 </tr>
                 <tr>
                     <td colspan="4"><div class="divider"></div></td>

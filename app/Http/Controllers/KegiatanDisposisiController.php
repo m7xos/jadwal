@@ -128,8 +128,18 @@ class KegiatanDisposisiController extends Controller
 
             if (! $matched) {
                 $name = trim((string) ($personil->nama ?? ''));
-                if ($name !== '') {
+                $jabatan = trim((string) ($personil->jabatan ?? ''));
+
+                if ($name === '' && $jabatan === '') {
+                    continue;
+                }
+
+                if ($name !== '' && $jabatan !== '') {
+                    $lainnyaNames[] = "{$name} - {$jabatan}";
+                } elseif ($name !== '') {
                     $lainnyaNames[] = $name;
+                } else {
+                    $lainnyaNames[] = $jabatan;
                 }
             }
         }
