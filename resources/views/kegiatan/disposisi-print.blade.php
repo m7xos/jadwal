@@ -187,7 +187,7 @@
                     <td class="label">No Surat</td>
                     <td>: {{ $kegiatan->nomor ?? '-' }}</td>
                     <td class="right-label">No Agenda</td>
-                    <td>: {{ $kegiatan->id ?? '-' }}</td>
+                    <td>: {{ $item['agenda_number'] ?? '-' }}</td>
                 </tr>
                 <tr>
                     <td class="label">Tgl Surat</td>
