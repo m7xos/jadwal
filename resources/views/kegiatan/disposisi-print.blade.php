@@ -35,7 +35,7 @@
             grid-template-columns: 90px 1fr;
             gap: 12px;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .header-logo {
             display: flex;
@@ -70,7 +70,7 @@
             text-align: center;
             font-size: 13px;
             font-weight: 700;
-            margin: 10px 0 8px;
+            margin: 8px 0 6px;
         }
         .grid {
             width: 100%;
@@ -103,7 +103,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
         .checkbox {
             width: 12px;
@@ -119,23 +119,23 @@
         }
         .divider {
             border-top: 1px solid #111827;
-            margin: 8px 0;
+            margin: 6px 0;
         }
         .notes-box {
             border: 1px solid #111827;
-            min-height: 70px;
+            min-height: 60px;
             padding: 6px;
             margin-top: 4px;
         }
         .signature {
             text-align: center;
-            margin-top: 18px;
+            margin-top: 12px;
         }
         .signature .name {
             font-weight: 700;
         }
         .spacer {
-            height: 8px;
+            height: 6px;
         }
         .check-inline {
             display: flex;
