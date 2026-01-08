@@ -24,7 +24,6 @@ class CreateSuratKeputusan extends CreateRecord
             'source' => 'manual',
             'tanggal_surat' => $data['tanggal_surat'] ?? now(),
             'tanggal_diundangkan' => $data['tanggal_diundangkan'] ?? null,
-            'berkas_surat' => $data['berkas_surat'] ?? null,
         ];
 
         if (($data['jenis_nomor'] ?? 'master') === 'sisipan') {

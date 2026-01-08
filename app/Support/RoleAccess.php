@@ -27,6 +27,7 @@ class RoleAccess
             'filament.admin.resources.groups' => 'Group Whatsapp',
             'filament.admin.resources.personils' => 'Personil',
             'filament.admin.resources.vehicle-assets' => 'Data Kendaraan',
+            'filament.admin.resources.data-kantor' => 'Data Kantor',
             'filament.admin.pages.pengurus-barang' => 'Pengurus Barang',
             'filament.admin.pages.wa-gateway' => 'Pengaturan WA Gateway',
             'filament.admin.pages.wa-message-templates' => 'Template Pesan WA',

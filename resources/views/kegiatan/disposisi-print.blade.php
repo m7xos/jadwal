@@ -26,6 +26,7 @@
             height: 158mm;
             break-inside: avoid;
             page-break-inside: avoid;
+            font-size: 13pt;
         }
         .sheet + .sheet {
             margin-top: 4mm;
@@ -36,6 +37,7 @@
             gap: 12px;
             align-items: center;
             margin-bottom: 8px;
+            font-size: 12px;
         }
         .header-logo {
             display: flex;
@@ -68,7 +70,7 @@
         }
         .title {
             text-align: center;
-            font-size: 13px;
+            font-size: 13pt;
             font-weight: 700;
             margin: 8px 0 6px;
         }
