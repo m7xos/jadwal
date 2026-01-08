@@ -54,10 +54,12 @@
         .header .line-1 {
             font-weight: 700;
             letter-spacing: 0.5px;
+            font-size: 13pt;
         }
         .header .line-2 {
             font-weight: 700;
             margin-top: 2px;
+            font-size: 13pt;
         }
         .header .line-3 {
             font-size: 11px;
