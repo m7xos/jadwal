@@ -219,12 +219,26 @@
 
             <div class="spacer"></div>
 
+            @php
+                $splitLabels = ['Seksi Trantibum', 'Seksi Kesra Sos', 'Seksi Ekbang'];
+                $leftTargets = [];
+                $rightTargets = [];
+
+                foreach ($item['targets'] as $target) {
+                    if (in_array($target['label'], $splitLabels, true)) {
+                        $rightTargets[] = $target;
+                    } else {
+                        $leftTargets[] = $target;
+                    }
+                }
+            @endphp
+
             <table class="grid">
                 <tr>
                     <td style="width: 55%;">
                         <div class="section-title">Diteruskan kepada Sdr :</div>
                         <div class="checklist">
-                            @foreach ($item['targets'] as $target)
+                            @foreach ($leftTargets as $target)
                                 <div class="check-item">
                                     <span class="checkbox {{ $target['checked'] ? 'checked' : '' }}"></span>
                                     <span>{{ $target['label'] }}</span>
@@ -238,6 +252,18 @@
                         </div>
                     </td>
                     <td style="width: 45%;">
+                        @if (count($rightTargets) > 0)
+                            <div class="section-title">Diteruskan kepada Sdr :</div>
+                            <div class="checklist">
+                                @foreach ($rightTargets as $target)
+                                    <div class="check-item">
+                                        <span class="checkbox {{ $target['checked'] ? 'checked' : '' }}"></span>
+                                        <span>{{ $target['label'] }}</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="spacer"></div>
+                        @endif
                         <div class="section-title">Dengan hormat harap</div>
                         <div class="checklist">
                             <div class="check-item"><span class="checkbox"></span> Tanggapan dan Saran</div>
