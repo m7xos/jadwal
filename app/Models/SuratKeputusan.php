@@ -19,6 +19,7 @@ class SuratKeputusan extends Model
         'tanggal_diundangkan',
         'master_id',
         'perihal',
+        'berkas_surat',
         'status',
         'booked_at',
         'source',

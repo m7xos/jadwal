@@ -13,6 +13,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -140,6 +141,19 @@ class SuratKeputusanResource extends Resource
                         ->label('Tanggal Diundangkan')
                         ->native(false)
                         ->displayFormat('d/m/Y'),
+
+                    FileUpload::make('berkas_surat')
+                        ->label('Berkas Surat')
+                        ->disk('public')
+                        ->directory('surat-keputusan')
+                        ->acceptedFileTypes([
+                            'application/pdf',
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                        ])
+                        ->helperText('Unggah berkas surat keputusan (PDF/DOC/DOCX).')
+                        ->openable()
+                        ->downloadable(),
 
                     Placeholder::make('nomor_preview')
                         ->label('Preview Nomor Surat')
