@@ -235,8 +235,15 @@
 
             <table class="grid">
                 <tr>
-                    <td style="width: 55%;">
+                    <td colspan="2">
                         <div class="section-title">Diteruskan kepada Sdr :</div>
+                    </td>
+                    <td>
+                        <div class="section-title">Dengan hormat harap</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 34%;">
                         <div class="checklist">
                             @foreach ($leftTargets as $target)
                                 <div class="check-item">
@@ -251,20 +258,17 @@
                             <div class="line" style="min-width: 100%;">{{ $item['lainnya'] }}</div>
                         </div>
                     </td>
-                    <td style="width: 45%;">
-                        @if (count($rightTargets) > 0)
-                            <div class="section-title">Diteruskan kepada Sdr :</div>
-                            <div class="checklist">
-                                @foreach ($rightTargets as $target)
-                                    <div class="check-item">
-                                        <span class="checkbox {{ $target['checked'] ? 'checked' : '' }}"></span>
-                                        <span>{{ $target['label'] }}</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                            <div class="spacer"></div>
-                        @endif
-                        <div class="section-title">Dengan hormat harap</div>
+                    <td style="width: 33%;">
+                        <div class="checklist">
+                            @foreach ($rightTargets as $target)
+                                <div class="check-item">
+                                    <span class="checkbox {{ $target['checked'] ? 'checked' : '' }}"></span>
+                                    <span>{{ $target['label'] }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </td>
+                    <td style="width: 33%;">
                         <div class="checklist">
                             <div class="check-item"><span class="checkbox"></span> Tanggapan dan Saran</div>
                             <div class="check-item"><span class="checkbox"></span> Proses lebih lanjut</div>
