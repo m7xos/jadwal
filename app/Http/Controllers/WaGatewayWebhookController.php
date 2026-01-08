@@ -50,11 +50,12 @@ class WaGatewayWebhookController extends Controller
             return response()->json(['status' => 'ok']);
         }
 
-        $message = trim((string) ($payload['message'] ?? ''));
-        if ($message === '') {
+        $message = $this->extractIncomingText($payload);
+        if ($message === null || trim($message) === '') {
             return response()->json(['ignored' => 'empty message']);
         }
 
+        $message = trim($message);
         $normalizedMessage = strtolower(preg_replace('/\s+/', ' ', $message));
 
         /** @var FollowUpReminderService $followUpReminder */
@@ -84,12 +85,8 @@ class WaGatewayWebhookController extends Controller
             return response()->json(['ignored' => 'not a group message']);
         }
 
-        $participantRaw = (string) ($payload['participant'] ?? '');
-        $senderRaw = (string) ($payload['sender'] ?? '');
-
-        $senderDigits = collect([$participantRaw, $senderRaw])
-            ->map(fn ($raw) => preg_replace('/[^0-9]/', '', (string) $raw) ?? '')
-            ->first(fn ($digits) => $digits !== '') ?? '';
+        $sender = $this->extractSenderNumberForTl($payload, $waGateway);
+        $senderDigits = preg_replace('/[^0-9]/', '', (string) $sender) ?? '';
 
         if ($senderDigits === '') {
             return response()->json(['ignored' => 'no sender number']);
@@ -555,6 +552,56 @@ class WaGatewayWebhookController extends Controller
         return null;
     }
 
+    protected function extractSenderNumberForTl(array $payload, WaGatewayService $waGateway): ?string
+    {
+        $candidates = [
+            $payload['senderNumber'] ?? null,
+            data_get($payload, 'sender.number'),
+            data_get($payload, 'sender.phone'),
+            data_get($payload, 'sender.user'),
+            data_get($payload, 'sender.id'),
+            data_get($payload, 'sender.id._serialized'),
+            data_get($payload, 'sender.id.user'),
+            data_get($payload, 'sender.jid'),
+            data_get($payload, 'sender.remoteJid'),
+            (string) ($payload['participant'] ?? ''),
+            (string) ($payload['sender'] ?? ''),
+        ];
+
+        $lidRaw = null;
+
+        foreach ($candidates as $raw) {
+            if (! is_string($raw) && ! is_numeric($raw)) {
+                continue;
+            }
+
+            $raw = trim((string) $raw);
+
+            if ($raw === '' || str_contains($raw, '@g.us')) {
+                continue;
+            }
+
+            if (str_contains($raw, '@lid')) {
+                $lidRaw = $raw;
+                continue;
+            }
+
+            $normalized = PhoneNumber::normalize($raw);
+            if ($normalized) {
+                return $normalized;
+            }
+        }
+
+        if ($lidRaw) {
+            $resolved = $waGateway->resolveLidNumber($lidRaw);
+            if ($resolved) {
+                return PhoneNumber::normalize($resolved) ?? $resolved;
+            }
+        }
+
+        return null;
+    }
+
     protected function extractSenderName(array $payload): ?string
     {
         $candidates = [
@@ -799,7 +846,9 @@ class WaGatewayWebhookController extends Controller
             return [];
         }
 
-        return collect(explode(',', $raw))
+        $tokens = preg_split('/[\\s,]+/', $raw, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        return collect($tokens)
             ->map(fn ($item) => $this->normalizeNumberFromDb(trim($item)))
             ->filter()
             ->unique()
