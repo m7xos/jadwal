@@ -53,6 +53,15 @@ class DataKantorResource extends Resource
                             'Lainnya' => 'Dokumen Lainnya',
                         ])
                         ->required()
+                        ->searchable()
+                        ->placeholder('Pilih atau ketik jenis dokumen')
+                        ->createOptionForm([
+                            TextInput::make('jenis_dokumen')
+                                ->label('Jenis Dokumen')
+                                ->required(),
+                        ])
+                        ->createOptionUsing(fn (array $data) => $data['jenis_dokumen'])
+                        ->dehydrateStateUsing(fn ($state) => is_string($state) ? $state : null)
                         ->native(false),
 
                     TextInput::make('nama_dokumen')
