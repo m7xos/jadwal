@@ -170,9 +170,9 @@
                     <div class="line-1">PEMERINTAH KABUPATEN WONOSOBO</div>
                     <div class="line-2">KECAMATAN WATUMALANG</div>
                     <div class="line-3">Jalan Kyai Jebeng Lintang Nomor 29 Watumalang Wonosobo, Jawa Tengah, 56352</div>
-                    <div class="line-4">Telpon ( 0286 ) 3304957</div>
-                    <div class="line-5">Laman: kecamatanwatumalang.wonosobokab.go.id</div>
-                    <div class="line-5">Pos-el watumalang08@gmail.com</div>
+                    <div class="line-4">
+                        Telpon ( 0286 ) 3304957 · Laman: kecamatanwatumalang.wonosobokab.go.id · Pos-el watumalang08@gmail.com
+                    </div>
                 </div>
             </div>
 
