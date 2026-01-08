@@ -23,7 +23,7 @@
             border: 1px solid #111827;
             padding: 10px 12px 12px;
             box-sizing: border-box;
-            height: 158mm;
+            height: 160mm;
             break-inside: avoid;
             page-break-inside: avoid;
             font-size: 13pt;
