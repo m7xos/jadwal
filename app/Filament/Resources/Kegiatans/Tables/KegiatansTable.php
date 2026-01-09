@@ -135,21 +135,13 @@ class KegiatansTable
                             array_unshift($years, $currentYear);
                         }
 
-                        $options = [
-                            'all' => 'Semua tahun',
-                        ];
-
-                        foreach ($years as $year) {
-                            $options[$year] = $year;
-                        }
-
-                        return $options;
+                        return array_combine($years, $years) ?: [];
                     })
                     ->default((string) now()->year)
                     ->query(function (Builder $query, array $data): Builder {
                         $value = $data['value'] ?? null;
 
-                        if (! $value || $value === 'all') {
+                        if (! $value) {
                             return $query;
                         }
 
