@@ -5,6 +5,9 @@
     $logo = $isDark
         ? 'images/logo/logo-icon-64x64-dark.png'
         : 'images/logo/logo-icon-64x64.png';
+    $loginLogo = $isDark
+        ? 'images/logo/logo-login-360x120-dark.png'
+        : 'images/logo/logo-login-360x120.png';
     $textClass = $isDark ? 'text-gray-100' : 'text-gray-800';
 @endphp
 
@@ -12,7 +15,12 @@
     <img
         src="{{ asset($logo) }}"
         alt="Logo {{ $brandName }}"
-        class="fi-app-logo-image"
+        class="fi-app-logo-image fi-app-logo-image-default"
+    >
+    <img
+        src="{{ asset($loginLogo) }}"
+        alt="Logo {{ $brandName }}"
+        class="fi-app-logo-image fi-app-logo-image-login"
     >
     <span class="fi-app-logo-text {{ $textClass }}">{{ $brandName }}</span>
 </div>

@@ -56,7 +56,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->brandLogo(fn () => view('filament.brand-logo', ['variant' => 'light']))
             ->darkModeBrandLogo(fn () => view('filament.brand-logo', ['variant' => 'dark']))
-            ->brandLogoHeight('2.25rem')
+            ->brandLogoHeight('2.75rem')
             ->favicon(asset('images/logo/favicon-16x16.png'))
             ->font($yieldPanelPref['font'] ? 'Inter' : null)
             ->plugin(
