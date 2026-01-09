@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Menu Aplikasi Kantor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @include('components.public-icons')
 
     {{-- Tailwind untuk tampilan cepat --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,8 +22,9 @@
     <header class="bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-md">
         <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight">
-                    Selamat datang
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-3">
+                    <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-10 w-10">
+                    <span>Selamat datang</span>
                 </h1>
                 <p class="text-sm md:text-base text-sky-100 mt-1">
                     Silakan pilih aplikasi yang ingin digunakan.

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Status Pejabat Kecamatan Watumalang</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @include('components.public-icons')
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -489,7 +490,10 @@
         <div class="max-w-screen-2xl mx-auto px-4 md:px-6 hero-inner reveal" style="animation-delay: 0.05s;">
             <div class="hero-title">
                 <span class="kicker">Dashboard Publik</span>
-                <h1>Status Pejabat Kecamatan Watumalang</h1>
+                <h1 class="flex items-center gap-3">
+                    <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-10 w-10">
+                    <span>Status Pejabat Kecamatan Watumalang</span>
+                </h1>
                 <p>Ringkasan keberadaan pejabat berdasarkan agenda resmi hari ini.</p>
             </div>
             <div class="date-card">

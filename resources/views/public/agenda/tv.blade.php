@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Agenda Kecamatan Watumalang Hari Ini - Layar TV</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @include('components.public-icons')
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -283,12 +284,15 @@
     <div class="relative z-10 max-w-6xl mx-auto px-4 md:px-6 py-6 flex flex-col gap-4 text-slate-50">
         {{-- Header --}} 
         <header class="flex items-center justify-between">
-            <div>
-                <div class="text-xs text-sky-300 uppercase tracking-[0.2em]">Agenda Kegiatan</div>
-                <h1 class="text-3xl font-bold">
-                    Hari Ini —
-                    {{ now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
-                </h1>
+            <div class="flex items-center gap-3">
+                <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-10 w-10">
+                <div>
+                    <div class="text-xs text-sky-300 uppercase tracking-[0.2em]">Agenda Kegiatan</div>
+                    <h1 class="text-3xl font-bold">
+                        Hari Ini —
+                        {{ now()->locale('id')->isoFormat('dddd, D MMMM Y') }}
+                    </h1>
+                </div>
             </div>
             <div class="text-right text-xs text-sky-200">
                 Layar TV Pelayanan<br>

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Agenda Kegiatan Kecamatan Watumalang</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @include('components.public-icons')
 
     {{-- Tailwind CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,8 +22,9 @@
     <header class="bg-white/95 border-b border-slate-200 shadow-sm">
         <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-sky-800">
-                    Agenda Kegiatan Kecamatan Watumalang
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-sky-800 flex items-center gap-3">
+                    <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-10 w-10">
+                    <span>Agenda Kegiatan Kecamatan Watumalang</span>
                 </h1>
                 <p class="text-sm text-slate-600 mt-1">
                     Informasi kegiatan resmi kecamatan untuk masyarakat.

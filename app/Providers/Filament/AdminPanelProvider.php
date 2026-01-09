@@ -54,7 +54,8 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => $primaryPalette,
             ])
-            ->brandLogo(asset('images/logo/logo-horizontal-300x80.png'))
+            ->brandLogo(fn () => view('filament.brand-logo', ['variant' => 'light']))
+            ->darkModeBrandLogo(fn () => view('filament.brand-logo', ['variant' => 'dark']))
             ->brandLogoHeight('2.25rem')
             ->favicon(asset('images/logo/favicon-16x16.png'))
             ->font($yieldPanelPref['font'] ? 'Inter' : null)
