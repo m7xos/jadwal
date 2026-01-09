@@ -6,6 +6,7 @@ use App\Filament\Resources\SuratKeluarResource\Pages\CreateSuratKeluar;
 use App\Filament\Resources\SuratKeluarResource\Pages\EditSuratKeluar;
 use App\Filament\Resources\SuratKeluarResource\Pages\ListSuratKeluars;
 use App\Models\KodeSurat;
+use App\Models\Personil;
 use App\Models\SuratKeluar;
 use App\Support\RoleAccess;
 use BackedEnum;
@@ -21,6 +22,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use UnitEnum;
 
 class SuratKeluarResource extends Resource
@@ -136,10 +138,117 @@ class SuratKeluarResource extends Resource
                         ->native(false)
                         ->displayFormat('d/m/Y'),
 
+                    Select::make('requested_by_personil_id')
+                        ->label('Akronim Jabatan')
+                        ->options(fn () => Personil::query()
+                            ->whereNotNull('jabatan_akronim')
+                            ->where('jabatan_akronim', '!=', '')
+                            ->orderBy('jabatan_akronim')
+                            ->limit(100)
+                            ->get()
+                            ->mapWithKeys(function (Personil $personil) {
+                                $akronim = trim((string) ($personil->jabatan_akronim ?? ''));
+                                $nama = trim((string) ($personil->nama ?? ''));
+
+                                if ($nama !== '') {
+                                    return [$personil->id => $akronim . ' - ' . $nama];
+                                }
+
+                                return [$personil->id => $akronim];
+                            })
+                            ->all())
+                        ->getSearchResultsUsing(function (string $search): array {
+                            $term = trim($search);
+
+                            return Personil::query()
+                                ->whereNotNull('jabatan_akronim')
+                                ->where('jabatan_akronim', '!=', '')
+                                ->when($term !== '', function ($query) use ($term) {
+                                    $query->where(function ($builder) use ($term) {
+                                        $builder
+                                            ->where('jabatan_akronim', 'like', "%{$term}%")
+                                            ->orWhere('nama', 'like', "%{$term}%")
+                                            ->orWhere('jabatan', 'like', "%{$term}%");
+                                    });
+                                })
+                                ->orderBy('jabatan_akronim')
+                                ->limit(50)
+                                ->get()
+                                ->mapWithKeys(function (Personil $personil) {
+                                    $akronim = trim((string) ($personil->jabatan_akronim ?? ''));
+                                    $nama = trim((string) ($personil->nama ?? ''));
+
+                                    if ($nama !== '') {
+                                        return [$personil->id => $akronim . ' - ' . $nama];
+                                    }
+
+                                    return [$personil->id => $akronim];
+                                })
+                                ->all();
+                        })
+                        ->getOptionLabelUsing(function ($value): ?string {
+                            if (! $value) {
+                                return null;
+                            }
+
+                            $personil = Personil::find($value);
+                            if (! $personil) {
+                                return null;
+                            }
+
+                            $akronim = trim((string) ($personil->jabatan_akronim ?? ''));
+                            if ($akronim === '') {
+                                return null;
+                            }
+
+                            $nama = trim((string) ($personil->nama ?? ''));
+
+                            if ($nama !== '') {
+                                return $akronim . ' - ' . $nama;
+                            }
+
+                            return $akronim;
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->placeholder('Pilih akronim')
+                        ->helperText('Akronim akan ditambahkan di akhir nomor surat.')
+                        ->default(function () {
+                            $user = auth()->user();
+
+                            if ($user?->isArsiparis() !== true) {
+                                return null;
+                            }
+
+                            $akronim = trim((string) ($user->jabatan_akronim ?? ''));
+
+                            return $akronim !== '' ? $user->id : null;
+                        })
+                        ->required(fn () => auth()->user()?->isArsiparis() === true)
+                        ->live()
+                        ->visible(fn () => auth()->user()?->isArsiparis() === true)
+                        ->hiddenOn('edit'),
+
                     Placeholder::make('nomor_preview')
                         ->label('Preview Nomor Surat')
-                        ->content(fn (callable $get) => app(\App\Services\SuratKeluarService::class)
-                            ->previewNextMasterNumberText($get('kode_surat_id'), $get('master_id')))
+                        ->content(function (callable $get) {
+                            $label = app(\App\Services\SuratKeluarService::class)
+                                ->previewNextMasterNumberText($get('kode_surat_id'), $get('master_id'));
+                            $personilId = $get('requested_by_personil_id');
+
+                            if (! $personilId) {
+                                return $label;
+                            }
+
+                            $personil = Personil::find($personilId);
+                            $akronim = trim((string) ($personil?->jabatan_akronim ?? ''));
+
+                            if ($akronim === '') {
+                                return $label;
+                            }
+
+                            return $label . '/' . $akronim;
+                        })
                         ->visible(fn (callable $get) => filled($get('kode_surat_id')) || filled($get('master_id')))
                         ->hiddenOn('edit')
                         ->dehydrated(false),
@@ -155,7 +264,17 @@ class SuratKeluarResource extends Resource
                 Tables\Columns\TextColumn::make('nomor_label')
                     ->label('Nomor Surat')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->formatStateUsing(function ($state, SuratKeluar $record) {
+                        $label = (string) $state;
+                        $akronim = trim((string) ($record->requester?->jabatan_akronim ?? ''));
+
+                        if ($akronim === '') {
+                            return $label;
+                        }
+
+                        return $label . '/' . $akronim;
+                    }),
                 Tables\Columns\TextColumn::make('perihal')
                     ->label('Perihal')
                     ->limit(40)
@@ -204,6 +323,12 @@ class SuratKeluarResource extends Resource
     public static function shouldRegisterNavigation(): bool
     {
         return RoleAccess::canSeeNav(auth()->user(), 'filament.admin.resources.surat-keluar');
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with('requester');
     }
 
     public static function getPages(): array

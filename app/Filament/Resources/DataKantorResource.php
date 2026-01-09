@@ -46,12 +46,35 @@ class DataKantorResource extends Resource
                 ->schema([
                     Select::make('jenis_dokumen')
                         ->label('Jenis Dokumen')
-                        ->options([
-                            'DPA' => 'DPA',
-                            'RKA' => 'RKA',
-                            'Renja' => 'Renja',
-                            'Lainnya' => 'Dokumen Lainnya',
-                        ])
+                        ->options(function (Get $get): array {
+                            $baseOptions = [
+                                'DPA' => 'DPA',
+                                'RKA' => 'RKA',
+                                'Renja' => 'Renja',
+                                'Lainnya' => 'Dokumen Lainnya',
+                            ];
+
+                            $existing = DataKantor::query()
+                                ->whereNotNull('jenis_dokumen')
+                                ->where('jenis_dokumen', '!=', '')
+                                ->distinct()
+                                ->orderBy('jenis_dokumen')
+                                ->pluck('jenis_dokumen')
+                                ->all();
+
+                            foreach ($existing as $value) {
+                                if (! isset($baseOptions[$value])) {
+                                    $baseOptions[$value] = $value;
+                                }
+                            }
+
+                            $current = $get('jenis_dokumen');
+                            if (is_string($current) && $current !== '' && ! isset($baseOptions[$current])) {
+                                $baseOptions[$current] = $current;
+                            }
+
+                            return $baseOptions;
+                        })
                         ->required()
                         ->searchable()
                         ->placeholder('Pilih atau ketik jenis dokumen')
@@ -60,8 +83,8 @@ class DataKantorResource extends Resource
                                 ->label('Jenis Dokumen')
                                 ->required(),
                         ])
-                        ->createOptionUsing(fn (array $data) => $data['jenis_dokumen'])
-                        ->dehydrateStateUsing(fn ($state) => is_string($state) ? $state : null)
+                        ->createOptionUsing(fn (array $data) => trim((string) ($data['jenis_dokumen'] ?? '')))
+                        ->dehydrateStateUsing(fn ($state) => is_string($state) ? trim($state) : null)
                         ->native(false),
 
                     TextInput::make('nama_dokumen')
