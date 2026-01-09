@@ -115,6 +115,7 @@ class AdminPanelProvider extends PanelProvider
                 VehicleStatsOverview::class,
             ])
             ->renderHook(PanelsRenderHook::BODY_END, fn () => view('filament.partials.wa-inbox-toast'))
+            ->renderHook(PanelsRenderHook::HEAD_END, fn () => view('filament.brand-logo-styles'))
             ->navigationGroups([
                 NavigationGroup::make()->label('Manajemen Kegiatan'),
                 NavigationGroup::make()->label('Administrasi Surat'),

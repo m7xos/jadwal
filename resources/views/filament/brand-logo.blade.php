@@ -8,11 +8,11 @@
     $textClass = $isDark ? 'text-gray-100' : 'text-gray-800';
 @endphp
 
-<div class="flex items-center gap-2">
+<div class="fi-app-logo">
     <img
         src="{{ asset($logo) }}"
         alt="Logo {{ $brandName }}"
-        style="height: 2.25rem; width: auto;"
+        class="fi-app-logo-image"
     >
-    <span class="text-base font-semibold {{ $textClass }}">{{ $brandName }}</span>
+    <span class="fi-app-logo-text {{ $textClass }}">{{ $brandName }}</span>
 </div>

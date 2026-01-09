@@ -284,8 +284,11 @@
     <div class="relative z-10 max-w-6xl mx-auto px-4 md:px-6 py-6 flex flex-col gap-4 text-slate-50">
         {{-- Header --}} 
         <header class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-10 w-10">
+            <div class="flex items-center gap-3 whitespace-nowrap">
+                <picture class="shrink-0">
+                    <source srcset="{{ asset('images/logo/logo-icon-64x64-dark.png') }}" media="(prefers-color-scheme: dark)">
+                    <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-14 w-14">
+                </picture>
                 <div>
                     <div class="text-xs text-sky-300 uppercase tracking-[0.2em]">Agenda Kegiatan</div>
                     <h1 class="text-3xl font-bold">

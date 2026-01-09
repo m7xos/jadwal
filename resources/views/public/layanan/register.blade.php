@@ -16,8 +16,11 @@
 <div class="min-h-screen flex flex-col">
     <header class="bg-white/95 border-b border-slate-200 shadow-sm">
         <div class="max-w-4xl mx-auto px-4 py-5">
-            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-sky-800 flex items-center gap-3">
-                <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-10 w-10">
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-sky-800 flex items-center gap-3 whitespace-nowrap">
+                <picture class="shrink-0">
+                    <source srcset="{{ asset('images/logo/logo-icon-64x64-dark.png') }}" media="(prefers-color-scheme: dark)">
+                    <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-12 w-12">
+                </picture>
                 <span>Pendaftaran Layanan Publik</span>
             </h1>
             <p class="text-sm text-slate-600 mt-1">

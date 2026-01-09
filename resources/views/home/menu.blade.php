@@ -22,8 +22,11 @@
     <header class="bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-md">
         <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-3">
-                    <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-10 w-10">
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-3 whitespace-nowrap">
+                    <picture class="shrink-0">
+                        <source srcset="{{ asset('images/logo/logo-icon-64x64-dark.png') }}" media="(prefers-color-scheme: dark)">
+                        <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-12 w-12">
+                    </picture>
                     <span>Selamat datang</span>
                 </h1>
                 <p class="text-sm md:text-base text-sky-100 mt-1">
