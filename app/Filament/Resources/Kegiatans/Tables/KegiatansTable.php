@@ -189,7 +189,9 @@ class KegiatansTable
 
                 Filter::make('perlu_tindak_lanjut')
                     ->label('Perlu TL')
-                    ->query(fn (Builder $query): Builder => $query->where('perlu_tindak_lanjut', true)),
+                    ->query(fn (Builder $query): Builder => $query
+                        ->where('perlu_tindak_lanjut', true)
+                        ->whereNull('tindak_lanjut_selesai_at')),
             ])
 
             // ================== AKSI PER RECORD ==================
