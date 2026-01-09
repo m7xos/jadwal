@@ -6,6 +6,7 @@ use App\Models\WaGatewaySetting;
 use App\Support\RoleAccess;
 use BackedEnum;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -171,6 +172,24 @@ class WaGatewaySettings extends Page implements HasForms
         } catch (\Throwable $e) {
             Notification::make()
                 ->title('Tes koneksi gagal')
+                ->body($e->getMessage())
+                ->danger()
+                ->send();
+        }
+    }
+
+    public function restartQueueWorkers(): void
+    {
+        try {
+            Artisan::call('queue:restart');
+
+            Notification::make()
+                ->title('Worker/queue direstart')
+                ->success()
+                ->send();
+        } catch (\Throwable $e) {
+            Notification::make()
+                ->title('Gagal restart worker/queue')
                 ->body($e->getMessage())
                 ->danger()
                 ->send();
