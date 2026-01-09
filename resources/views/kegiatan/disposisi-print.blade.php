@@ -21,22 +21,22 @@
         }
         .sheet {
             border: 1px solid #111827;
-            padding: 10px 12px 12px;
+            padding: 8px 10px 10px;
             box-sizing: border-box;
-            height: 160mm;
+            height: 156mm;
             break-inside: avoid;
             page-break-inside: avoid;
-            font-size: 13pt;
+            font-size: 12pt;
         }
         .sheet + .sheet {
-            margin-top: 4mm;
+            margin-top: 2mm;
         }
         .header {
             display: grid;
-            grid-template-columns: 90px 1fr;
-            gap: 12px;
+            grid-template-columns: 80px 1fr;
+            gap: 10px;
             align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-size: 12px;
         }
         .header-logo {
@@ -45,7 +45,7 @@
             align-items: center;
         }
         .header-logo img {
-            width: 70px;
+            width: 64px;
             height: auto;
         }
         .header-text {
@@ -54,27 +54,27 @@
         .header .line-1 {
             font-weight: 700;
             letter-spacing: 0.5px;
-            font-size: 13pt;
+            font-size: 12pt;
         }
         .header .line-2 {
             font-weight: 700;
-            margin-top: 2px;
-            font-size: 13pt;
+            margin-top: 1px;
+            font-size: 12pt;
         }
         .header .line-3 {
             font-size: 11px;
-            margin-top: 4px;
+            margin-top: 3px;
         }
         .header .line-4,
         .header .line-5 {
             font-size: 11px;
-            margin-top: 2px;
+            margin-top: 1px;
         }
         .title {
             text-align: center;
-            font-size: 13pt;
+            font-size: 12pt;
             font-weight: 700;
-            margin: 8px 0 6px;
+            margin: 6px 0 4px;
         }
         .grid {
             width: 100%;
@@ -82,7 +82,7 @@
         }
         .grid td {
             vertical-align: top;
-            padding: 2px 4px;
+            padding: 1px 3px;
         }
         .label {
             width: 30%;
@@ -98,16 +98,16 @@
         }
         .section-title {
             font-weight: 700;
-            margin: 4px 0;
+            margin: 2px 0;
         }
         .checklist {
-            margin-top: 4px;
+            margin-top: 2px;
         }
         .check-item {
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 1px;
+            margin-bottom: 0;
         }
         .checkbox {
             width: 12px;
@@ -123,29 +123,35 @@
         }
         .divider {
             border-top: 1px solid #111827;
-            margin: 6px 0;
+            margin: 4px 0;
         }
         .notes-box {
             border: 1px solid #111827;
-            min-height: 60px;
-            padding: 6px;
-            margin-top: 4px;
+            min-height: 48px;
+            padding: 4px;
+            margin-top: 2px;
         }
         .signature {
             text-align: center;
-            margin-top: 12px;
+            margin-top: 6px;
         }
         .signature .name {
             font-weight: 700;
         }
         .spacer {
-            height: 6px;
+            height: 4px;
+        }
+        .checklist .spacer {
+            height: 3px;
+        }
+        .signature .spacer {
+            height: 8px;
         }
         .check-inline {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-top: 2px;
+            margin-top: 1px;
         }
         @media print {
             .no-print {

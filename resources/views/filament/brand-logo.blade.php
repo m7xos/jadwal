@@ -6,8 +6,8 @@
         ? 'images/logo/logo-icon-64x64-dark.png'
         : 'images/logo/logo-icon-64x64.png';
     $loginLogo = $isDark
-        ? 'images/logo/logo-login-360x120-dark.png'
-        : 'images/logo/logo-login-360x120.png';
+        ? 'images/logo/android-512x512-dark.png'
+        : 'images/logo/android-512x512.png';
     $textClass = $isDark ? 'text-gray-100' : 'text-gray-800';
 @endphp
 

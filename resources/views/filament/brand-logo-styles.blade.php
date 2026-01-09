@@ -22,9 +22,10 @@
 
     .fi-simple-header .fi-app-logo {
         flex-direction: column;
-        gap: 0.5rem;
+        gap: 0;
         text-align: center;
-        margin-bottom: 0.35rem;
+        margin-top: -3rem;
+        margin-bottom: 0;
     }
 
     .fi-simple-header .fi-logo {
@@ -41,14 +42,47 @@
 
     .fi-simple-header .fi-app-logo-image-login {
         display: block;
-        height: 5.25rem;
+        height: 12.5rem;
     }
 
     .fi-simple-header .fi-app-logo-text {
-        font-size: 1.1rem;
+        display: none;
     }
 
     .fi-simple-header .fi-simple-header-heading {
-        margin-top: 0.4rem;
+        margin-top: -3rem;
+        font-size: 1rem;
+        line-height: 1.25;
+    }
+
+    @media (max-width: 640px) {
+        .fi-simple-header .fi-app-logo {
+            margin-top: -1.5rem;
+        }
+
+        .fi-simple-header .fi-app-logo-image-login {
+            height: 7.5rem;
+            max-width: min(80vw, 360px);
+        }
+
+        .fi-simple-header .fi-simple-header-heading {
+            margin-top: -1.2rem;
+            font-size: 0.95rem;
+        }
+    }
+
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .fi-simple-header .fi-app-logo {
+            margin-top: -2.25rem;
+        }
+
+        .fi-simple-header .fi-app-logo-image-login {
+            height: 9.5rem;
+            max-width: min(70vw, 460px);
+        }
+
+        .fi-simple-header .fi-simple-header-heading {
+            margin-top: -2rem;
+        }
     }
 </style>
