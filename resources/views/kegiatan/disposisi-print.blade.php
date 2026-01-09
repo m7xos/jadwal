@@ -7,7 +7,7 @@
     <style>
         @page {
             size: 216mm 330mm;
-            margin: 4mm 8mm 6mm;
+            margin: 4mm 5mm 6mm;
         }
         body {
             font-family: Arial, sans-serif;
