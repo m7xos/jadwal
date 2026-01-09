@@ -117,6 +117,44 @@ class KegiatansTable
 
             // ================== FILTER HARIAN ==================
             ->filters([
+                SelectFilter::make('tahun_surat')
+                    ->label('Tahun Surat')
+                    ->options(function (): array {
+                        $years = Kegiatan::query()
+                            ->whereNotNull('tanggal')
+                            ->selectRaw('YEAR(tanggal) as year')
+                            ->distinct()
+                            ->orderByDesc('year')
+                            ->pluck('year')
+                            ->map(fn ($year) => (string) $year)
+                            ->all();
+
+                        $currentYear = (string) now()->year;
+
+                        if (! in_array($currentYear, $years, true)) {
+                            array_unshift($years, $currentYear);
+                        }
+
+                        $options = [
+                            'all' => 'Semua tahun',
+                        ];
+
+                        foreach ($years as $year) {
+                            $options[$year] = $year;
+                        }
+
+                        return $options;
+                    })
+                    ->default((string) now()->year)
+                    ->query(function (Builder $query, array $data): Builder {
+                        $value = $data['value'] ?? null;
+
+                        if (! $value || $value === 'all') {
+                            return $query;
+                        }
+
+                        return $query->whereYear('tanggal', (int) $value);
+                    }),
                 // Tombol cepat: "Hari Ini"
                 Filter::make('hari_ini')
                     ->label('Hari Ini')
