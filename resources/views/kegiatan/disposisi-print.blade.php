@@ -311,6 +311,8 @@
                             <div class="spacer"></div>
                             <div class="spacer"></div>
                             <div class="spacer"></div>
+                            <div class="spacer"></div>
+                            <div class="spacer"></div>
                             <div class="name">{{ $item['camat_nama'] !== '' ? $item['camat_nama'] : '-' }}</div>
                             <div>{{ $item['camat_pangkat'] !== '' ? $item['camat_pangkat'] : '-' }}</div>
                             <div>NIP. {{ $item['camat_nip'] !== '' ? $item['camat_nip'] : '-' }}</div>
