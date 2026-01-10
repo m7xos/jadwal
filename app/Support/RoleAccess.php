@@ -34,6 +34,7 @@ class RoleAccess
             'filament.admin.resources.wa-inbox-messages' => 'Chat Masuk WA',
             'filament.admin.resources.surat-keluar' => 'Surat Keluar',
             'filament.admin.resources.surat-keputusan' => 'Surat Keputusan',
+            'filament.admin.resources.kode-surat' => 'Klasifikasi Surat',
             'filament.admin.resources.layanan-publik' => 'Layanan Publik',
             'filament.admin.resources.layanan-publik-register' => 'Register Layanan Publik',
             'filament.admin.pages.surat-keluar-status' => 'Status Nomor Surat Keluar',
