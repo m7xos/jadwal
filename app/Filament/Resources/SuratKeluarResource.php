@@ -226,8 +226,7 @@ class SuratKeluarResource extends Resource
                         })
                         ->required(fn () => auth()->user()?->isArsiparis() === true)
                         ->live()
-                        ->visible(fn () => auth()->user()?->isArsiparis() === true)
-                        ->hiddenOn('edit'),
+                        ->visible(fn () => auth()->user()?->isArsiparis() === true),
 
                     Placeholder::make('nomor_preview')
                         ->label('Preview Nomor Surat')

@@ -136,10 +136,16 @@ class LaporanSuratKeluarBulanan extends Page
             $statusLabel = $surat->status === SuratKeluar::STATUS_BOOKED ? 'Nomor dibooking' : 'Terbit';
             $perihal = $surat->perihal === SuratKeluar::BOOKED_PLACEHOLDER ? '-' : ($surat->perihal ?? '-');
             $pemohon = $surat->requester?->nama ?? $surat->requested_by_number ?? '-';
+            $akronim = trim((string) ($surat->requester?->jabatan_akronim ?? ''));
+            $nomorSurat = $surat->nomor_label ?? '-';
+
+            if ($nomorSurat !== '-' && $akronim !== '') {
+                $nomorSurat .= '/' . $akronim;
+            }
 
             return [
                 'no'             => $index + 1,
-                'nomor_surat'    => $surat->nomor_label ?? '-',
+                'nomor_surat'    => $nomorSurat,
                 'tanggal_surat'  => optional($surat->tanggal_surat)->format('d-m-Y') ?? '-',
                 'status'         => $statusLabel,
                 'perihal'        => $perihal,
