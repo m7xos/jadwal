@@ -500,7 +500,7 @@
                         <source srcset="{{ asset('images/logo/logo-icon-64x64-dark.png') }}" media="(prefers-color-scheme: dark)">
                         <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-12 w-12">
                     </picture>
-                    <span>Status Pejabat Kecamatan Watumalang</span>
+                    <span>Status Pejabat</span>
                 </h1>
                 <p>Ringkasan keberadaan pejabat berdasarkan agenda resmi hari ini.</p>
             </div>
