@@ -84,7 +84,17 @@ class FollowUpReminderLogResource extends Resource
                     ->limit(20),
                 Tables\Columns\TextColumn::make('tanggal')
                     ->label('Tanggal')
-                    ->date('d M Y'),
+                    ->formatStateUsing(function ($state) {
+                        if (! $state) {
+                            return '-';
+                        }
+
+                        try {
+                            return Carbon::parse($state)->locale('id')->isoFormat('D MMMM Y');
+                        } catch (\Throwable) {
+                            return $state;
+                        }
+                    }),
                 Tables\Columns\TextColumn::make('jam')
                     ->label('Jam')
                     ->formatStateUsing(function ($state) {

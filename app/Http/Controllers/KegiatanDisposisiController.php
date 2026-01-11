@@ -58,6 +58,7 @@ class KegiatanDisposisiController extends Controller
      * @param iterable<int, Kegiatan> $kegiatans
      * @return array<int, array{
      *     kegiatan: Kegiatan,
+     *     agenda_number: int,
      *     targets: array<int, array{label: string, checked: bool}>,
      *     lainnya: string,
      *     camat_nama: string,
@@ -72,14 +73,17 @@ class KegiatanDisposisiController extends Controller
         $camatPangkat = $camat?->pangkat ?: ($camat?->golongan ?? '');
         $camatNip = $camat?->nip ?? '';
 
+        $agendaNumbers = $this->buildAgendaNumbers($kegiatans);
         $items = [];
 
         foreach ($kegiatans as $kegiatan) {
             $kegiatan->loadMissing('personils');
             $targets = $this->buildDisposisiTargets($kegiatan);
+            $agendaNumber = $agendaNumbers[$kegiatan->getKey()] ?? $kegiatan->getKey();
 
             $items[] = [
                 'kegiatan' => $kegiatan,
+                'agenda_number' => (int) $agendaNumber,
                 'targets' => $targets['targets'],
                 'lainnya' => $targets['lainnya'],
                 'camat_nama' => $camatNama,
@@ -89,6 +93,44 @@ class KegiatanDisposisiController extends Controller
         }
 
         return $items;
+    }
+
+    /**
+     * @param iterable<int, Kegiatan> $kegiatans
+     * @return array<int, int>
+     */
+    protected function buildAgendaNumbers(iterable $kegiatans): array
+    {
+        $items = collect($kegiatans);
+        $years = $items
+            ->map(fn (Kegiatan $kegiatan) => $kegiatan->created_at?->year)
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($years->isEmpty()) {
+            return [];
+        }
+
+        $numbers = [];
+
+        foreach ($years as $year) {
+            $records = Kegiatan::query()
+                ->select(['id', 'created_at'])
+                ->whereYear('created_at', $year)
+                ->orderBy('created_at')
+                ->orderBy('id')
+                ->get();
+
+            $counter = 1;
+
+            foreach ($records as $record) {
+                $numbers[$record->id] = $counter;
+                $counter++;
+            }
+        }
+
+        return $numbers;
     }
 
     /**
@@ -128,9 +170,11 @@ class KegiatanDisposisiController extends Controller
 
             if (! $matched) {
                 $name = trim((string) ($personil->nama ?? ''));
-                if ($name !== '') {
-                    $lainnyaNames[] = $name;
+                if ($name === '') {
+                    continue;
                 }
+
+                $lainnyaNames[] = $name;
             }
         }
 

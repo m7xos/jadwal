@@ -346,6 +346,21 @@ npm run dev</code></pre>
                 <section class="space-y-6">
             <h3 class="text-xl font-semibold text-gray-900">
                 <span class="text-gray-500">15.</span>
+                Laporan Rekap Surat Keluar
+            </h3>
+            <div class="space-y-2 text-sm text-gray-700">
+                <p><strong>Menu:</strong> Laporan &rarr; Rekap Surat Keluar</p>
+                <ul class="list-disc space-y-1 pl-5">
+                    <li>Pilih jenis rekap bulanan atau tahunan sesuai periode.</li>
+                    <li>Menampilkan nomor surat, perihal, status, pemohon, dan sumber.</li>
+                </ul>
+            </div>
+            <p class="text-xs text-gray-500">Screenshot: rekap surat keluar (menyusul).</p>
+                </section>
+
+                <section class="space-y-6">
+            <h3 class="text-xl font-semibold text-gray-900">
+                <span class="text-gray-500">16.</span>
                 Laporan Pembayaran Pajak
             </h3>
             <div class="space-y-2 text-sm text-gray-700">
@@ -363,7 +378,7 @@ npm run dev</code></pre>
 
                 <section class="space-y-6">
             <h3 class="text-xl font-semibold text-gray-900">
-                <span class="text-gray-500">16.</span>
+                <span class="text-gray-500">17.</span>
                 Log Pengingat
             </h3>
             <div class="space-y-2 text-sm text-gray-700">
@@ -400,7 +415,7 @@ npm run dev</code></pre>
             <div class="mt-4 space-y-8">
                 <section class="space-y-6">
             <h3 class="text-xl font-semibold text-gray-900">
-                <span class="text-gray-500">17.</span>
+                <span class="text-gray-500">18.</span>
                 Halaman Publik
             </h3>
             <div class="space-y-2 text-sm text-gray-700">
@@ -422,7 +437,7 @@ npm run dev</code></pre>
 
                 <section class="space-y-4">
             <h3 class="text-xl font-semibold text-gray-900">
-                <span class="text-gray-500">18.</span>
+                <span class="text-gray-500">19.</span>
                 Tips Pemakaian untuk Pemula
             </h3>
             <ul class="list-disc space-y-1 pl-5 text-sm text-gray-700">

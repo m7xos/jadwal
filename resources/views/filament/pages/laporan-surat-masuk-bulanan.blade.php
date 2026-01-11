@@ -83,6 +83,9 @@
             margin: 0 0 2mm 0 !important;
             padding: 0 !important;
         }
+        .judul-spacer {
+            height: 1em;
+        }
 
         table.laporan {
             border-collapse: collapse;
@@ -360,6 +363,29 @@
             <div class="kop-garis"></div>
         </div>
 
+        @php
+            $jenisRekapValue = $jenisRekap ?? 'bulanan';
+            if ($jenisRekapValue === 'tahunan') {
+                $periodeLabel = 'TAHUN ' . ($tahun ?? now()->year);
+            } else {
+                $bulanValue = $bulan ?? now()->format('Y-m');
+                try {
+                    $bulanLabel = \Illuminate\Support\Carbon::createFromFormat('Y-m', $bulanValue)
+                        ->locale('id')
+                        ->isoFormat('MMMM YYYY');
+                } catch (\Exception $e) {
+                    $bulanLabel = $bulanValue;
+                }
+                $periodeLabel = 'BULAN ' . $bulanLabel;
+            }
+        @endphp
+       
+        <div class="judul-blok kop-judul" style="font-weight: bold; text-transform: uppercase;">
+            <div class="judul-spacer"></div>
+            REKAP AGENDA MASUK {{ $periodeLabel }}
+            <div class="judul-spacer"></div>
+        </div>
+            
         {{-- TABEL LAPORAN --}}
         <div class="overflow-x-auto mt-2 laporan-wrapper">
             <table class="laporan">

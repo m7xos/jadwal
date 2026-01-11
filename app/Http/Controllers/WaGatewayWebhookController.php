@@ -50,11 +50,12 @@ class WaGatewayWebhookController extends Controller
             return response()->json(['status' => 'ok']);
         }
 
-        $message = trim((string) ($payload['message'] ?? ''));
-        if ($message === '') {
+        $message = $this->extractIncomingText($payload);
+        if ($message === null || trim($message) === '') {
             return response()->json(['ignored' => 'empty message']);
         }
 
+        $message = trim($message);
         $normalizedMessage = strtolower(preg_replace('/\s+/', ' ', $message));
 
         /** @var FollowUpReminderService $followUpReminder */
@@ -84,39 +85,22 @@ class WaGatewayWebhookController extends Controller
             return response()->json(['ignored' => 'not a group message']);
         }
 
-        $participantRaw = (string) ($payload['participant'] ?? '');
-        $senderRaw = (string) ($payload['sender'] ?? '');
-
-        $senderDigits = collect([$participantRaw, $senderRaw])
-            ->map(fn ($raw) => preg_replace('/[^0-9]/', '', (string) $raw) ?? '')
-            ->first(fn ($digits) => $digits !== '') ?? '';
+        $sender = $this->extractSenderNumberForTl($payload, $waGateway);
+        $senderDigits = preg_replace('/[^0-9]/', '', (string) $sender) ?? '';
 
         if ($senderDigits === '') {
             return response()->json(['ignored' => 'no sender number']);
         }
 
-        $kegiatan = $this->resolveKegiatanForCompletion($explicitId);
+        $kegiatan = $this->resolveKegiatanById($explicitId);
         if (! $kegiatan) {
-            return response()->json(['ignored' => 'no pending TL found']);
+            return response()->json(['ignored' => 'no tl found']);
         }
 
         $incomingGroupIdRaw = $this->extractGroupId($payload);
         $incomingGroupId = $this->normalizeGroupId($incomingGroupIdRaw);
 
         $targetGroupPhones = $waGateway->getTlTargetGroupPhones($kegiatan);
-        $targetGroupPhonesNormalized = collect($targetGroupPhones)
-            ->map(fn ($id) => $this->normalizeGroupId($id))
-            ->filter()
-            ->values()
-            ->all();
-
-        if (
-            ! empty($targetGroupPhonesNormalized)
-            && $incomingGroupId !== null
-            && ! in_array($incomingGroupId, $targetGroupPhonesNormalized, true)
-        ) {
-            return response()->json(['ignored' => 'message from unrelated group']);
-        }
 
         [$isAuthorized, $allowedNumbers] = $this->isAuthorizedSender($kegiatan, $senderDigits, $payload);
 
@@ -141,6 +125,21 @@ class WaGatewayWebhookController extends Controller
             return response()->json(['ignored' => 'sender not authorized']);
         }
 
+        if ($kegiatan->tindak_lanjut_selesai_at) {
+            $infoMessage = $this->buildTlAlreadyCompletedMessage($kegiatan);
+
+            if ($incomingGroupIdRaw ?? $incomingGroupId) {
+                $waGateway->sendTextToSpecificGroup($incomingGroupIdRaw ?? $incomingGroupId, $infoMessage);
+            } else {
+                $waGateway->sendPersonalText(
+                    [$this->normalizeNumber($senderDigits)],
+                    $infoMessage
+                );
+            }
+
+            return response()->json(['status' => 'ok']);
+        }
+
         $kegiatan->forceFill([
             'tindak_lanjut_selesai_at' => Carbon::now(),
         ])->save();
@@ -155,7 +154,7 @@ class WaGatewayWebhookController extends Controller
 
         $sent = false;
 
-        if ($incomingGroupId && in_array($incomingGroupId, $targetGroupPhonesNormalized, true)) {
+        if ($incomingGroupIdRaw ?? $incomingGroupId) {
             $result = $waGateway->sendTextToSpecificGroup($incomingGroupIdRaw ?? $incomingGroupId, $thanksMessage);
             $sent = (bool) ($result['success'] ?? false);
         } elseif (! empty($targetGroupPhones)) {
@@ -400,12 +399,45 @@ class WaGatewayWebhookController extends Controller
     protected function helpOverviewMessage(): string
     {
         return implode("\n", [
-            '*Bantuan Singkat*',
-            'Pilih topik yang ingin kamu ketahui:',
-            '1) Jadwal/Agenda → ketik: help jadwal',
-            '2) Disposisi/TL → ketik: help tl',
-            '3) Surat Keluar → ketik: help surat',
-            '4) Pajak Kendaraan → ketik: help pajak',
+            '*Panduan Singkat WA*',
+            'Perintah yang tersedia:',
+            '',
+            '*Jadwal/Agenda (grup)*',
+            '- agenda hari ini',
+            '- agenda besok',
+            '- agenda belum disposisi hari ini',
+            '- agenda belum disposisi besok',
+            '- agenda belum disposisi +7',
+            '- agenda belum disposisi -7',
+            '',
+            '*Disposisi/TL (grup)*',
+            '- TL-<kode> selesai',
+            '',
+            '*Surat Keluar*',
+            '- (grup) minta nomor surat keluar',
+            '- (pribadi) kirim kode klasifikasi (contoh 000.1)',
+            '- (pribadi) kirim Hal Surat',
+            '- batal / batalkan',
+            '',
+            '*Pajak Kendaraan*',
+            '- pajak-<plat> terbayar',
+            '',
+            '*Status Layanan Publik*',
+            '- cek layanan publik <kode>',
+            '- status layanan publik <kode>',
+            '- LP-<kode>',
+            '',
+            '*Pengingat Tindak Lanjut*',
+            '- terima kasih',
+            '- terima kasih <kode>',
+            '- terima kasih semua',
+            '',
+            '*Bantuan*',
+            '- help',
+            '- help jadwal',
+            '- help tl',
+            '- help surat',
+            '- help pajak',
         ]);
     }
 
@@ -417,6 +449,8 @@ class WaGatewayWebhookController extends Controller
             '- agenda besok',
             '- agenda belum disposisi hari ini',
             '- agenda belum disposisi besok',
+            '- agenda belum disposisi +7',
+            '- agenda belum disposisi -7',
         ]);
     }
 
@@ -548,6 +582,56 @@ class WaGatewayWebhookController extends Controller
 
         if ($lidRaw) {
             return $lidRaw;
+        }
+
+        return null;
+    }
+
+    protected function extractSenderNumberForTl(array $payload, WaGatewayService $waGateway): ?string
+    {
+        $candidates = [
+            $payload['senderNumber'] ?? null,
+            data_get($payload, 'sender.number'),
+            data_get($payload, 'sender.phone'),
+            data_get($payload, 'sender.user'),
+            data_get($payload, 'sender.id'),
+            data_get($payload, 'sender.id._serialized'),
+            data_get($payload, 'sender.id.user'),
+            data_get($payload, 'sender.jid'),
+            data_get($payload, 'sender.remoteJid'),
+            (string) ($payload['participant'] ?? ''),
+            (string) ($payload['sender'] ?? ''),
+        ];
+
+        $lidRaw = null;
+
+        foreach ($candidates as $raw) {
+            if (! is_string($raw) && ! is_numeric($raw)) {
+                continue;
+            }
+
+            $raw = trim((string) $raw);
+
+            if ($raw === '' || str_contains($raw, '@g.us')) {
+                continue;
+            }
+
+            if (str_contains($raw, '@lid')) {
+                $lidRaw = $raw;
+                continue;
+            }
+
+            $normalized = PhoneNumber::normalize($raw);
+            if ($normalized) {
+                return $normalized;
+            }
+        }
+
+        if ($lidRaw) {
+            $resolved = $waGateway->resolveLidNumber($lidRaw);
+            if ($resolved) {
+                return PhoneNumber::normalize($resolved) ?? $resolved;
+            }
         }
 
         return null;
@@ -689,6 +773,37 @@ class WaGatewayWebhookController extends Controller
         return $log?->kegiatan;
     }
 
+    protected function resolveKegiatanById(?int $kegiatanId = null): ?Kegiatan
+    {
+        if (! $kegiatanId) {
+            return null;
+        }
+
+        return Kegiatan::query()
+            ->where('id', $kegiatanId)
+            ->where('perlu_tindak_lanjut', true)
+            ->first();
+    }
+
+    protected function buildTlAlreadyCompletedMessage(Kegiatan $kegiatan): string
+    {
+        $completedAt = $kegiatan->tindak_lanjut_selesai_at?->format('d/m/Y H:i');
+
+        $lines = [
+            '*INFO*',
+            'Agenda sudah selesai TL.',
+            'Kode Pengingat: *TL-' . $kegiatan->id . '*',
+            'Nomor: *' . ($kegiatan->nomor ?? '-') . '*',
+            'Perihal: *' . ($kegiatan->nama_kegiatan ?? '-') . '*',
+        ];
+
+        if ($completedAt) {
+            $lines[] = 'Selesai: *' . $completedAt . '*';
+        }
+
+        return implode("\n", $lines);
+    }
+
     /**
      * @return array{0: bool, 1: array<int, string>} [authorized, allowed_numbers]
      */
@@ -797,7 +912,9 @@ class WaGatewayWebhookController extends Controller
             return [];
         }
 
-        return collect(explode(',', $raw))
+        $tokens = preg_split('/[\\s,]+/', $raw, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        return collect($tokens)
             ->map(fn ($item) => $this->normalizeNumberFromDb(trim($item)))
             ->filter()
             ->unique()

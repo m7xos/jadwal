@@ -4,6 +4,7 @@ namespace App\Filament\Resources\SuratKeluarResource\Pages;
 
 use App\Filament\Resources\SuratKeluarResource;
 use App\Models\KodeSurat;
+use App\Models\Personil;
 use App\Services\SuratKeluarService;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -84,6 +85,94 @@ class ListSuratKeluars extends ListRecords
                         ->required()
                         ->default(now())
                         ->native(false),
+                    Select::make('requested_by_personil_id')
+                        ->label('Akronim Jabatan')
+                        ->options(fn () => Personil::query()
+                            ->whereNotNull('jabatan_akronim')
+                            ->where('jabatan_akronim', '!=', '')
+                            ->orderBy('jabatan_akronim')
+                            ->limit(100)
+                            ->get()
+                            ->mapWithKeys(function (Personil $personil) {
+                                $akronim = trim((string) ($personil->jabatan_akronim ?? ''));
+                                $nama = trim((string) ($personil->nama ?? ''));
+
+                                if ($nama !== '') {
+                                    return [$personil->id => $akronim . ' - ' . $nama];
+                                }
+
+                                return [$personil->id => $akronim];
+                            })
+                            ->all())
+                        ->getSearchResultsUsing(function (string $search): array {
+                            $term = trim($search);
+
+                            return Personil::query()
+                                ->whereNotNull('jabatan_akronim')
+                                ->where('jabatan_akronim', '!=', '')
+                                ->when($term !== '', function ($query) use ($term) {
+                                    $query->where(function ($builder) use ($term) {
+                                        $builder
+                                            ->where('jabatan_akronim', 'like', "%{$term}%")
+                                            ->orWhere('nama', 'like', "%{$term}%")
+                                            ->orWhere('jabatan', 'like', "%{$term}%");
+                                    });
+                                })
+                                ->orderBy('jabatan_akronim')
+                                ->limit(50)
+                                ->get()
+                                ->mapWithKeys(function (Personil $personil) {
+                                    $akronim = trim((string) ($personil->jabatan_akronim ?? ''));
+                                    $nama = trim((string) ($personil->nama ?? ''));
+
+                                    if ($nama !== '') {
+                                        return [$personil->id => $akronim . ' - ' . $nama];
+                                    }
+
+                                    return [$personil->id => $akronim];
+                                })
+                                ->all();
+                        })
+                        ->getOptionLabelUsing(function ($value): ?string {
+                            if (! $value) {
+                                return null;
+                            }
+
+                            $personil = Personil::find($value);
+                            if (! $personil) {
+                                return null;
+                            }
+
+                            $akronim = trim((string) ($personil->jabatan_akronim ?? ''));
+                            if ($akronim === '') {
+                                return null;
+                            }
+
+                            $nama = trim((string) ($personil->nama ?? ''));
+
+                            if ($nama !== '') {
+                                return $akronim . ' - ' . $nama;
+                            }
+
+                            return $akronim;
+                        })
+                        ->searchable()
+                        ->preload()
+                        ->placeholder('Pilih akronim')
+                        ->helperText('Akronim akan ditambahkan di akhir nomor surat.')
+                        ->default(function () {
+                            $user = auth()->user();
+
+                            if ($user?->isArsiparis() !== true) {
+                                return null;
+                            }
+
+                            $akronim = trim((string) ($user->jabatan_akronim ?? ''));
+
+                            return $akronim !== '' ? $user->id : null;
+                        })
+                        ->required(fn () => auth()->user()?->isArsiparis() === true)
+                        ->visible(fn () => auth()->user()?->isArsiparis() === true),
                 ])
                 ->action(function (array $data) {
                     $kode = KodeSurat::find($data['kode_surat_id'] ?? null);
@@ -108,11 +197,18 @@ class ListSuratKeluars extends ListRecords
 
                     /** @var SuratKeluarService $service */
                     $service = app(SuratKeluarService::class);
+                    $user = auth()->user();
+                    $requestedPersonilId = $user?->id;
+
+                    if ($user?->isArsiparis() && ! empty($data['requested_by_personil_id'])) {
+                        $requestedPersonilId = (int) $data['requested_by_personil_id'];
+                    }
 
                     try {
                         $service->createBooking($kode, $tahun, $nomor, [
                             'booked_at' => $data['booked_at'] ?? now(),
                             'source' => 'manual',
+                            'requested_by_personil_id' => $requestedPersonilId,
                         ]);
                     } catch (\Throwable $e) {
                         Notification::make()

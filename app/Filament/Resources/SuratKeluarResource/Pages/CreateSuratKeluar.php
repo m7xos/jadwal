@@ -21,8 +21,15 @@ class CreateSuratKeluar extends CreateRecord
         $service = app(SuratKeluarService::class);
 
         $requester = auth()->user();
+        $requestedPersonilId = $requester?->id;
+        $selectedPersonilId = $data['requested_by_personil_id'] ?? null;
+
+        if ($requester?->isArsiparis() && $selectedPersonilId) {
+            $requestedPersonilId = (int) $selectedPersonilId;
+        }
+
         $context = [
-            'requested_by_personil_id' => $requester?->id,
+            'requested_by_personil_id' => $requestedPersonilId,
             'source' => 'manual',
             'tanggal_surat' => $data['tanggal_surat'] ?? now(),
         ];

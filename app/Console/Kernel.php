@@ -34,6 +34,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('vehicle-taxes:send-reminders')->dailyAt('08:00');
         $schedule->command('reminders:send-follow-up')->everyFiveMinutes();
         $schedule->command('kegiatan:escalate-disposisi')->everyFiveMinutes();
+        $schedule->command('kegiatan:remind-disposisi-h-1')->dailyAt('17:00');
         $schedule->command('kegiatan:remind-personil --offset=1')->dailyAt('20:00');
         $schedule->command('kegiatan:remind-personil --offset=0')->dailyAt('05:00');
     }

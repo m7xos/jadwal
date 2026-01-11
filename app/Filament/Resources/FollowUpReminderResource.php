@@ -48,6 +48,66 @@ class FollowUpReminderResource extends Resource
                 Section::make('Data Pengingat')
                     ->columnSpanFull()
                     ->schema([
+                        Select::make('personil_ids')
+                            ->label('Nama Personil')
+                            ->options(fn () => Personil::query()
+                                ->orderBy('nama')
+                                ->get()
+                                ->mapWithKeys(function (Personil $personil) {
+                                    $nama = trim((string) ($personil->nama ?? ''));
+                                    $jabatan = trim((string) ($personil->jabatan ?? ''));
+
+                                    if ($jabatan !== '') {
+                                        return [$personil->id => "{$nama} - {$jabatan}"];
+                                    }
+
+                                    return [$personil->id => $nama];
+                                }))
+                            ->searchable()
+                            ->preload()
+                            ->required(fn (?FollowUpReminder $record) => $record === null)
+                            ->multiple()
+                            ->live()
+                            ->dehydrated(false)
+                            ->visible(fn (?FollowUpReminder $record) => $record === null)
+                            ->helperText('Bisa pilih lebih dari satu personil. Nomor WA diambil dari data personil.')
+                            ->getSearchResultsUsing(function (string $search): array {
+                                $term = trim($search);
+
+                                return Personil::query()
+                                    ->when($term !== '', function ($query) use ($term) {
+                                        $query->where(function ($q) use ($term) {
+                                            $q->where('nama', 'like', "%{$term}%")
+                                                ->orWhere('jabatan', 'like', "%{$term}%");
+                                        });
+                                    })
+                                    ->orderBy('nama')
+                                    ->limit(50)
+                                    ->get()
+                                    ->mapWithKeys(function (Personil $personil) {
+                                        $nama = trim((string) ($personil->nama ?? ''));
+                                        $jabatan = trim((string) ($personil->jabatan ?? ''));
+
+                                        if ($jabatan !== '') {
+                                            return [$personil->id => "{$nama} - {$jabatan}"];
+                                        }
+
+                                        return [$personil->id => $nama];
+                                    })
+                                    ->all();
+                            })
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if (! is_array($state) || count($state) !== 1) {
+                                    return;
+                                }
+
+                                $personil = Personil::find($state[0]);
+
+                                if ($personil && $personil->no_wa) {
+                                    $set('no_wa', $personil->no_wa);
+                                }
+                            }),
+
                         Select::make('personil_id')
                             ->label('Nama Personil')
                             ->options(fn () => Personil::query()
@@ -67,6 +127,7 @@ class FollowUpReminderResource extends Resource
                             ->preload()
                             ->required()
                             ->live()
+                            ->visible(fn (?FollowUpReminder $record) => $record !== null)
                             ->getSearchResultsUsing(function (string $search): array {
                                 $term = trim($search);
 
@@ -107,8 +168,8 @@ class FollowUpReminderResource extends Resource
                         TextInput::make('no_wa')
                             ->label('Nomor WA Personil')
                             ->placeholder('Contoh: 6281234567890')
-                            ->helperText('Nomor tujuan pengingat. Bila kosong di data user, isi manual di sini.')
-                            ->required()
+                            ->helperText('Nomor tujuan pengingat. Isi manual jika memilih 1 personil dan nomor belum ada.')
+                            ->required(fn (callable $get) => empty($get('personil_ids')))
                             ->maxLength(30),
 
                         Select::make('send_via')
@@ -207,7 +268,17 @@ class FollowUpReminderResource extends Resource
                     ->copyable(),
                 Tables\Columns\TextColumn::make('tanggal')
                     ->label('Tanggal')
-                    ->date('d M Y')
+                    ->formatStateUsing(function ($state) {
+                        if (! $state) {
+                            return '-';
+                        }
+
+                        try {
+                            return Carbon::parse($state)->locale('id')->isoFormat('D MMMM Y');
+                        } catch (\Throwable) {
+                            return $state;
+                        }
+                    })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('jam')
                     ->label('Jam')

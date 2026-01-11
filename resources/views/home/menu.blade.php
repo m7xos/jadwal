@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Menu Aplikasi Kantor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @include('components.public-icons')
 
     {{-- Tailwind untuk tampilan cepat --}}
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,8 +22,12 @@
     <header class="bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-md">
         <div class="max-w-5xl mx-auto px-4 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div>
-                <h1 class="text-2xl md:text-3xl font-bold tracking-tight">
-                    Selamat datang
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-3 whitespace-nowrap">
+                    <picture class="shrink-0">
+                        <source srcset="{{ asset('images/logo/logo-icon-64x64-dark.png') }}" media="(prefers-color-scheme: dark)">
+                        <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-12 w-12">
+                    </picture>
+                    <span>Selamat datang</span>
                 </h1>
                 <p class="text-sm md:text-base text-sky-100 mt-1">
                     Silakan pilih aplikasi yang ingin digunakan.
@@ -162,27 +167,27 @@
                 </a>
 
                 @if (config('app.show_admin_panel_menu'))
-                    {{-- Kartu: Pengingat Pajak Kendaraan --}}
-                    <a href="{{ url('/admin/pajak-kendaraan') }}"
+                    {{-- Kartu: Status Pejabat --}}
+                    <a href="{{ route('public.pejabat.status') }}"
                        class="group bg-white/90 border border-slate-200 rounded-2xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition p-5 flex flex-col">
                         <div class="flex items-center justify-between mb-3">
-                            <div class="h-10 w-10 rounded-xl bg-amber-100 flex items-center justify-center">
-                                <span class="text-amber-600 text-xl font-semibold">PK</span>
+                            <div class="h-10 w-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                <span class="text-emerald-600 text-xl">🏢</span>
                             </div>
-                            <span class="text-[11px] px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
-                                Admin
+                            <span class="text-[11px] px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                Publik
                             </span>
                         </div>
-                        <h2 class="text-lg font-semibold mb-1 text-slate-900 group-hover:text-amber-700">
-                            Pengingat Pajak Kendaraan
+                        <h2 class="text-lg font-semibold mb-1 text-slate-900 group-hover:text-emerald-700">
+                            Status Pejabat Kecamatan
                         </h2>
                         <p class="text-sm text-slate-600 flex-1">
-                            Kelola data kendaraan dinas, jadwal pajak tahunan dan 5 tahunan,
-                            serta kirim pengingat otomatis ke pemegang dan pengurus barang.
+                            Pantau status pejabat hari ini: di kantor atau sedang dinas luar,
+                            berdasarkan agenda kegiatan.
                         </p>
                         <div class="mt-4 text-xs text-slate-500 flex items-center justify-between">
-                            <span>Perlu login admin</span>
-                            <span class="inline-flex items-center gap-1 text-amber-600">
+                            <span>Update agenda harian</span>
+                            <span class="inline-flex items-center gap-1 text-emerald-600">
                                 Buka
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none"
                                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

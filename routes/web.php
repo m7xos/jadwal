@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KegiatanDisposisiController;
 use App\Http\Controllers\KegiatanSuratController;
 use App\Http\Controllers\PublicAgendaController;
+use App\Http\Controllers\PublicPejabatStatusController;
 use App\Http\Controllers\PublicLayananController;
 use App\Http\Controllers\WaGatewayWebhookController;
 use App\Http\Controllers\FilamentThemeController;
@@ -30,6 +31,9 @@ Route::get('/agenda-kegiatan', [PublicAgendaController::class, 'index'])
 // Halaman tampilan TV (yang full-screen tadi)
 Route::get('/agenda-kegiatan-tv', [PublicAgendaController::class, 'tv'])
     ->name('public.agenda.tv');
+
+Route::get('/status-pejabat', [PublicPejabatStatusController::class, 'index'])
+    ->name('public.pejabat.status');
 
 Route::get('/layanan/status/{kode}', [PublicLayananController::class, 'show'])
     ->name('public.layanan.status');

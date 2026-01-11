@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\UserRole;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasAvatar;
 use Filament\Models\Contracts\HasName;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,9 +12,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
-class Personil extends Authenticatable implements FilamentUser, HasName
+class Personil extends Authenticatable implements FilamentUser, HasAvatar, HasName
 {
     use HasFactory;
     use Notifiable;
@@ -24,6 +27,7 @@ class Personil extends Authenticatable implements FilamentUser, HasName
     protected $fillable = [
         'nama',
 		'nip', 
+        'photo_url',
         'jabatan',
         'jabatan_akronim',
         'pangkat',
@@ -135,6 +139,27 @@ class Personil extends Authenticatable implements FilamentUser, HasName
     public function getFilamentName(): string
     {
         return $this->nama ?? $this->attributes['nama'] ?? 'Pengguna';
+    }
+
+    public function getFilamentAvatarUrl(): ?string
+    {
+        $photoUrl = trim((string) ($this->photo_url ?? ''));
+
+        if ($photoUrl !== '') {
+            if (Str::startsWith($photoUrl, ['http://', 'https://'])) {
+                return $photoUrl;
+            }
+
+            return Storage::disk('public')->url($photoUrl);
+        }
+
+        $nip = preg_replace('/\D+/', '', (string) ($this->nip ?? ''));
+
+        if ($nip === '') {
+            return null;
+        }
+
+        return "https://simpeg.wonosobokab.go.id/packages/upload/photo/pegawai/{$nip}.jpg";
     }
 
     protected static function normalizePhone(?string $value): ?string

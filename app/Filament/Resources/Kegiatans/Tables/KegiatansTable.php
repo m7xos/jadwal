@@ -117,6 +117,36 @@ class KegiatansTable
 
             // ================== FILTER HARIAN ==================
             ->filters([
+                SelectFilter::make('tahun_surat')
+                    ->label('Tahun Surat')
+                    ->options(function (): array {
+                        $years = Kegiatan::query()
+                            ->whereNotNull('tanggal')
+                            ->selectRaw('YEAR(tanggal) as year')
+                            ->distinct()
+                            ->orderByDesc('year')
+                            ->pluck('year')
+                            ->map(fn ($year) => (string) $year)
+                            ->all();
+
+                        $currentYear = (string) now()->year;
+
+                        if (! in_array($currentYear, $years, true)) {
+                            array_unshift($years, $currentYear);
+                        }
+
+                        return array_combine($years, $years) ?: [];
+                    })
+                    ->default((string) now()->year)
+                    ->query(function (Builder $query, array $data): Builder {
+                        $value = $data['value'] ?? null;
+
+                        if (! $value) {
+                            return $query;
+                        }
+
+                        return $query->whereYear('tanggal', (int) $value);
+                    }),
                 // Tombol cepat: "Hari Ini"
                 Filter::make('hari_ini')
                     ->label('Hari Ini')
@@ -159,7 +189,9 @@ class KegiatansTable
 
                 Filter::make('perlu_tindak_lanjut')
                     ->label('Perlu TL')
-                    ->query(fn (Builder $query): Builder => $query->where('perlu_tindak_lanjut', true)),
+                    ->query(fn (Builder $query): Builder => $query
+                        ->where('perlu_tindak_lanjut', true)
+                        ->whereNull('tindak_lanjut_selesai_at')),
             ])
 
             // ================== AKSI PER RECORD ==================

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Tanda Register Layanan</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @include('components.public-icons')
     <style>
         body {
             font-family: Arial, sans-serif;

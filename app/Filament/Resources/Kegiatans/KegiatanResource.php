@@ -9,6 +9,7 @@ use App\Filament\Resources\Kegiatans\Schemas\KegiatanForm;
 use App\Filament\Resources\Kegiatans\Tables\KegiatansTable;
 use App\Models\Kegiatan;
 use App\Support\RoleAccess;
+use Illuminate\Database\Eloquent\Builder;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -33,6 +34,15 @@ class KegiatanResource extends Resource
     public static function table(Table $table): Table
     {
         return KegiatansTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where(function (Builder $query) {
+                $query->where('is_pkk', false)
+                    ->orWhereNull('is_pkk');
+            });
     }
 
     public static function shouldRegisterNavigation(): bool

@@ -54,6 +54,10 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => $primaryPalette,
             ])
+            ->brandLogo(fn () => view('filament.brand-logo', ['variant' => 'light']))
+            ->darkModeBrandLogo(fn () => view('filament.brand-logo', ['variant' => 'dark']))
+            ->brandLogoHeight('2.75rem')
+            ->favicon(asset('images/logo/favicon-16x16.png'))
             ->font($yieldPanelPref['font'] ? 'Inter' : null)
             ->plugin(
                 YieldPanel::make()
@@ -111,6 +115,7 @@ class AdminPanelProvider extends PanelProvider
                 VehicleStatsOverview::class,
             ])
             ->renderHook(PanelsRenderHook::BODY_END, fn () => view('filament.partials.wa-inbox-toast'))
+            ->renderHook(PanelsRenderHook::HEAD_END, fn () => view('filament.brand-logo-styles'))
             ->navigationGroups([
                 NavigationGroup::make()->label('Manajemen Kegiatan'),
                 NavigationGroup::make()->label('Administrasi Surat'),
