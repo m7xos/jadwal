@@ -331,6 +331,11 @@
             font-size: 0.9rem;
             font-weight: 600;
             color: #64748b;
+            transition: opacity 0.2s ease;
+        }
+
+        .avatar img.is-loaded ~ .avatar-fallback {
+            opacity: 0;
         }
 
         .status-pill {
