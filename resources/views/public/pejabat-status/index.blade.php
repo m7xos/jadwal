@@ -224,6 +224,100 @@
             align-items: start;
         }
 
+        .table-shell {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 18px;
+        }
+
+        .table-title {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .table-title h2 {
+            font-size: 1.1rem;
+        }
+
+        .table-meta {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .table-wrap {
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            overflow: auto;
+            background: #ffffff;
+        }
+
+        .status-table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+        }
+
+        .status-table th,
+        .status-table td {
+            text-align: left;
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+            vertical-align: top;
+        }
+
+        .status-table th {
+            font-size: 0.72rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted-light);
+            background: rgba(248, 250, 252, 0.92);
+        }
+
+        .status-row td:first-child {
+            padding-left: 18px;
+        }
+
+        .status-row.is-kantor td:first-child {
+            border-left: 4px solid #0f766e;
+        }
+
+        .status-row.is-dinas td:first-child {
+            border-left: 4px solid #be123c;
+        }
+
+        .status-row.is-offsite td:first-child {
+            border-left: 4px solid #f97316;
+        }
+
+        .status-row.is-unknown td:first-child {
+            border-left: 4px solid #64748b;
+        }
+
+        .table-person {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .table-person .avatar {
+            width: 48px;
+            height: 48px;
+        }
+
+        .table-person .jabatan {
+            font-size: 0.98rem;
+        }
+
+        .table-person .nama {
+            font-size: 0.85rem;
+        }
+
         .status-card {
             position: relative;
             background: var(--card);
@@ -471,6 +565,10 @@
             .cards-grid {
                 grid-template-columns: 1fr;
             }
+
+            .status-table {
+                min-width: 560px;
+            }
         }
     </style>
 </head>
@@ -512,78 +610,96 @@
         <div class="max-w-screen-2xl mx-auto px-4 md:px-6 space-y-6">
             {{-- Status Snapshot disembunyikan sesuai permintaan --}}
 
-            <section class="cards-grid">
-                @foreach($statuses as $item)
-                    @php
-                        $isDinasLuar = $item['status'] === 'Dinas Luar';
-                        $isUnknown = $item['status'] === 'Tidak diketahui';
-                        $isOffsite = $item['status'] === 'Tidak di Kantor';
-                        $cardClass = $isUnknown
-                            ? 'is-unknown'
-                            : ($isDinasLuar ? 'is-dinas' : ($isOffsite ? 'is-offsite' : 'is-kantor'));
-                        $pillClass = $cardClass;
-                        $photoCandidates = $item['photo_candidates'] ?? [];
-                        $hasPhoto = ! empty($photoCandidates);
-                        $initials = '';
-                        if (! empty($item['nama']) && $item['nama'] !== 'Belum terdaftar') {
-                            $parts = preg_split('/\s+/', trim($item['nama']));
-                            $initials = strtoupper(substr($parts[0] ?? '', 0, 1) . substr($parts[1] ?? '', 0, 1));
-                        }
-                        $delay = number_format($loop->index * 0.06 + 0.15, 2, '.', '');
-                    @endphp
+            <section class="table-shell">
+                <div class="table-title reveal" style="animation-delay: 0.08s;">
+                    <div>
+                        <h2>Status Pejabat Hari Ini</h2>
+                        <p class="table-meta">Ringkas per jabatan, status, dan agenda dinas luar.</p>
+                    </div>
+                </div>
+                <div class="table-wrap reveal" style="animation-delay: 0.12s;">
+                    <table class="status-table">
+                        <thead>
+                            <tr>
+                                <th>Pejabat</th>
+                                <th>Status</th>
+                                <th>Agenda</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($statuses as $item)
+                                @php
+                                    $isDinasLuar = $item['status'] === 'Dinas Luar';
+                                    $isUnknown = $item['status'] === 'Tidak diketahui';
+                                    $isOffsite = $item['status'] === 'Tidak di Kantor';
+                                    $rowClass = $isUnknown
+                                        ? 'is-unknown'
+                                        : ($isDinasLuar ? 'is-dinas' : ($isOffsite ? 'is-offsite' : 'is-kantor'));
+                                    $pillClass = $rowClass;
+                                    $photoCandidates = $item['photo_candidates'] ?? [];
+                                    $hasPhoto = ! empty($photoCandidates);
+                                    $initials = '';
+                                    if (! empty($item['nama']) && $item['nama'] !== 'Belum terdaftar') {
+                                        $parts = preg_split('/\s+/', trim($item['nama']));
+                                        $initials = strtoupper(substr($parts[0] ?? '', 0, 1) . substr($parts[1] ?? '', 0, 1));
+                                    }
+                                    $delay = number_format($loop->index * 0.04 + 0.18, 2, '.', '');
+                                @endphp
 
-                    <article class="status-card {{ $cardClass }} reveal" style="animation-delay: {{ $delay }}s;">
-                        <div class="status-header">
-                            <div class="profile">
-                                <div class="avatar">
-                                    @if($hasPhoto)
-                                        <img
-                                            data-photo-candidates='@json($photoCandidates)'
-                                            alt="Foto {{ $item['nama'] ?? 'Pejabat' }}"
-                                            loading="lazy"
-                                        />
-                                    @endif
-                                    <span class="avatar-fallback">
-                                        {{ $initials !== '' ? $initials : 'N/A' }}
-                                    </span>
-                                </div>
-                                <div>
-                                    <div class="jabatan">{{ $item['jabatan'] }}</div>
-                                    <div class="nama">{{ $item['nama'] }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="status-footer">
-                            <span class="status-pill {{ $pillClass }}">
-                                {{ $item['status'] }}
-                            </span>
-                        </div>
-
-                        @if(($item['kegiatan'] ?? collect())->isEmpty())
-                            <div class="empty-note">
-                                {{ $item['status'] === 'Tidak di Kantor' ? 'Di luar jam kerja / libur.' : 'Tidak ada agenda hari ini.' }}
-                            </div>
-                        @elseif(($item['kegiatan_luar'] ?? collect())->isNotEmpty())
-                            <div class="agenda-label is-dinas">Agenda di luar kantor</div>
-                            <div class="agenda-list">
-                                @foreach($item['kegiatan_luar'] as $kegiatan)
-                                    <div class="agenda-item is-dinas">
-                                        <strong>{{ $kegiatan->nama_kegiatan ?? '-' }}</strong>
-                                        <div class="agenda-meta">
-                                            {{ $kegiatan->waktu ?? '-' }} - {{ $kegiatan->tempat ?? '-' }}
+                                <tr class="status-row {{ $rowClass }} reveal" style="animation-delay: {{ $delay }}s;">
+                                    <td>
+                                        <div class="table-person">
+                                            <div class="avatar">
+                                                @if($hasPhoto)
+                                                    <img
+                                                        data-photo-candidates='@json($photoCandidates)'
+                                                        alt="Foto {{ $item['nama'] ?? 'Pejabat' }}"
+                                                        loading="lazy"
+                                                    />
+                                                @endif
+                                                <span class="avatar-fallback">
+                                                    {{ $initials !== '' ? $initials : 'N/A' }}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <div class="jabatan">{{ $item['jabatan'] }}</div>
+                                                <div class="nama">{{ $item['nama'] }}</div>
+                                            </div>
                                         </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="empty-note">
-                                {{ $item['status'] === 'Tidak di Kantor'
-                                    ? 'Di luar jam kerja / libur. Tidak ada agenda dinas luar hari ini.'
-                                    : 'Di kantor. Tidak ada agenda dinas luar hari ini.' }}
-                            </div>
-                        @endif
-                    </article>
-                @endforeach
+                                    </td>
+                                    <td>
+                                        <span class="status-pill {{ $pillClass }}">{{ $item['status'] }}</span>
+                                    </td>
+                                    <td>
+                                        @if(($item['kegiatan'] ?? collect())->isEmpty())
+                                            <div class="empty-note">
+                                                {{ $item['status'] === 'Tidak di Kantor' ? 'Di luar jam kerja / libur.' : 'Tidak ada agenda hari ini.' }}
+                                            </div>
+                                        @elseif(($item['kegiatan_luar'] ?? collect())->isNotEmpty())
+                                            <div class="agenda-label is-dinas">Agenda di luar kantor</div>
+                                            <div class="agenda-list">
+                                                @foreach($item['kegiatan_luar'] as $kegiatan)
+                                                    <div class="agenda-item is-dinas">
+                                                        <strong>{{ $kegiatan->nama_kegiatan ?? '-' }}</strong>
+                                                        <div class="agenda-meta">
+                                                            {{ $kegiatan->waktu ?? '-' }} - {{ $kegiatan->tempat ?? '-' }}
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <div class="empty-note">
+                                                {{ $item['status'] === 'Tidak di Kantor'
+                                                    ? 'Di luar jam kerja / libur. Tidak ada agenda dinas luar hari ini.'
+                                                    : 'Di kantor. Tidak ada agenda dinas luar hari ini.' }}
+                                            </div>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </section>
         </div>
     </main>
