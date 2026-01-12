@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Group;
 use App\Models\Schedule;
 use App\Models\Kegiatan;
 use App\Models\PersonilCategory;
@@ -40,12 +41,20 @@ class ScheduleResponder
         [$start, $end, $onlyPending, $label, $isRange] = $this->commandMeta($command);
 
         $groupCandidates = $this->candidateGroupIds($groupIdRaw);
+        $agendaScope = $this->resolveAgendaScope($groupCandidates);
+        $onlyPkk = $agendaScope === 'pkk_only';
+        $skipFallback = $agendaScope === 'linked_only' || $onlyPkk;
 
         // Cari data dari tabel kegiatan (utama) dan fallback ke tabel schedules jika ada.
-        $kegiatan = $this->getKegiatanForGroup($groupCandidates, $start, $end, $onlyPending);
-        $schedules = $kegiatan->isNotEmpty()
-            ? collect()
-            : $this->getSchedulesForGroup($groupCandidates, $start, $end, $onlyPending);
+        if ($onlyPkk) {
+            $kegiatan = $this->getKegiatanForGroup($groupCandidates, $start, $end, $onlyPending, true, $skipFallback);
+            $schedules = collect();
+        } else {
+            $kegiatan = $this->getKegiatanForGroup($groupCandidates, $start, $end, $onlyPending, false, $skipFallback);
+            $schedules = $kegiatan->isNotEmpty()
+                ? collect()
+                : $this->getSchedulesForGroup($groupCandidates, $start, $end, $onlyPending);
+        }
 
         if ($kegiatan->isNotEmpty()) {
             $message = $onlyPending
@@ -74,6 +83,7 @@ class ScheduleResponder
             'count_kegiatan' => $kegiatan->count(),
             'count_schedules' => $schedules->count(),
             'sent'         => $sentOk,
+            'agenda_scope' => $agendaScope,
             'error'        => $sentOk ? null : ($sent['error'] ?? null),
         ]);
 
@@ -400,6 +410,42 @@ class ScheduleResponder
         return array_values(array_unique(array_filter($ids)));
     }
 
+    protected function resolveAgendaScope(array $groupIds): string
+    {
+        $normalizedIncoming = collect($groupIds)
+            ->flatMap(fn ($id) => [$id, $this->normalizeGroupIdValue((string) $id)])
+            ->map(fn ($id) => trim((string) $id))
+            ->filter()
+            ->unique();
+
+        if ($normalizedIncoming->isEmpty()) {
+            return 'default';
+        }
+
+        $groups = Group::query()
+            ->whereNotNull('wa_gateway_group_id')
+            ->where('wa_gateway_group_id', '!=', '')
+            ->get(['wa_gateway_group_id', 'agenda_scope']);
+
+        /** @var ?Group $matched */
+        $matched = $groups->first(function (Group $group) use ($normalizedIncoming) {
+            $stored = trim((string) $group->wa_gateway_group_id);
+            $storedNormalized = $this->normalizeGroupIdValue($stored);
+
+            return $normalizedIncoming->contains($stored)
+                || $normalizedIncoming->contains($storedNormalized);
+        });
+
+        if (! $matched) {
+            return 'default';
+        }
+
+        $scope = $matched->agenda_scope ?? 'default';
+        $allowed = ['default', 'linked_only', 'pkk_only'];
+
+        return in_array($scope, $allowed, true) ? $scope : 'default';
+    }
+
     protected function normalizeGroupIdValue(string $value): string
     {
         $value = trim($value);
@@ -409,7 +455,14 @@ class ScheduleResponder
         return $value;
     }
 
-    protected function getKegiatanForGroup(array $groupIds, Carbon $start, Carbon $end, bool $onlyPending)
+    protected function getKegiatanForGroup(
+        array $groupIds,
+        Carbon $start,
+        Carbon $end,
+        bool $onlyPending,
+        bool $onlyPkk = false,
+        bool $skipFallback = false
+    )
     {
         $normalized = collect($groupIds)
             ->map(fn ($id) => $this->normalizeGroupIdValue($id))
@@ -425,9 +478,10 @@ class ScheduleResponder
                     $w->whereNull('sudah_disposisi')
                         ->orWhere('sudah_disposisi', false);
                 });
-            });
+            })
+            ->when($onlyPkk, fn ($q) => $q->where('is_pkk', true));
 
-        if (! empty($normalized)) {
+        if (! $onlyPkk && ! empty($normalized)) {
             $query->whereHas('groups', function ($q) use ($normalized) {
                 $q->whereIn('wa_gateway_group_id', $normalized);
             });
@@ -440,7 +494,7 @@ class ScheduleResponder
             ->get();
 
         // Jika belum ada relasi group_kegiatan, fallback: ambil semua kegiatan di tanggal tersebut.
-        if ($results->isEmpty()) {
+        if ($results->isEmpty() && ! $onlyPkk && ! $skipFallback) {
             $results = Kegiatan::query()
                 ->whereBetween('tanggal', [$start->toDateString(), $end->toDateString()])
                 ->when($onlyPending, function ($q) {
