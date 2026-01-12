@@ -19,8 +19,8 @@ class KegiatanPkkResource extends Resource
     protected static ?string $model = Kegiatan::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-calendar';
-    protected static ?string $navigationLabel = 'Agenda Surat Masuk PKK Kecamatan';
-    protected static ?string $pluralModelLabel = 'Agenda Surat Masuk PKK Kecamatan';
+    protected static ?string $navigationLabel = 'Agenda PKK Kecamatan';
+    protected static ?string $pluralModelLabel = 'Agenda PKK Kecamatan';
     protected static ?string $modelLabel = 'Agenda PKK';
     protected static string|UnitEnum|null $navigationGroup = 'Manajemen Kegiatan';
     protected static ?string $slug = 'kegiatans-pkk';
