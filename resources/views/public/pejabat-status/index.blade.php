@@ -331,6 +331,11 @@
             font-size: 0.9rem;
             font-weight: 600;
             color: #64748b;
+            transition: opacity 0.2s ease;
+        }
+
+        .avatar img.is-loaded ~ .avatar-fallback {
+            opacity: 0;
         }
 
         .status-pill {
@@ -490,12 +495,12 @@
         <div class="max-w-screen-2xl mx-auto px-4 md:px-6 hero-inner reveal" style="animation-delay: 0.05s;">
             <div class="hero-title">
                 <span class="kicker">Dashboard Publik</span>
-                <h1 class="flex items-center gap-3 whitespace-nowrap">
+                <h1 class="flex items-center gap-3">
                     <picture class="shrink-0">
                         <source srcset="{{ asset('images/logo/logo-icon-64x64-dark.png') }}" media="(prefers-color-scheme: dark)">
                         <img src="{{ asset('images/logo/logo-icon-64x64.png') }}" alt="Logo {{ config('app.name', 'Jadwal') }}" class="h-12 w-12">
                     </picture>
-                    <span>Status Pejabat Kecamatan Watumalang</span>
+                    <span>Status Pejabat</span>
                 </h1>
                 <p>Ringkasan keberadaan pejabat berdasarkan agenda resmi hari ini.</p>
             </div>

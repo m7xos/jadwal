@@ -21,7 +21,7 @@ class RoleAccess
             'filament.admin.pages.dashboard' => 'Dashboard',
             'filament.admin.pages.profile' => 'Profil Akun',
             'filament.admin.resources.kegiatans' => 'Agenda Surat Masuk',
-            'filament.admin.resources.kegiatans-pkk' => 'Agenda Surat Masuk PKK Kecamatan',
+            'filament.admin.resources.kegiatans-pkk' => 'Agenda PKK Kecamatan',
             'filament.admin.resources.follow-up-reminders' => 'Pengingat Kegiatan Lain',
             'filament.admin.resources.pajak-kendaraan' => 'Pajak Kendaraan Dinas',
             'filament.admin.resources.groups' => 'Group Whatsapp',

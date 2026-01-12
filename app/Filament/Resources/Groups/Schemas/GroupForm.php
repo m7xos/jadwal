@@ -27,13 +27,24 @@ class GroupForm
                         TextInput::make('wa_gateway_group_id')
                             ->label('ID Grup WA Gateway')
                             ->helperText('Isi dengan WhatsApp Group ID/JID dari WA Gateway (contoh: 1203xxxxxxxxxx@g.us atau 1203xxxxxxxxxx).')
-                            ->required(fn (Get $get) => (bool) $get('is_default'))
+                            ->required(fn (Get $get) => (bool) $get('is_default') || (string) $get('agenda_scope') !== 'default')
                             ->maxLength(255),
 
                         Toggle::make('is_default')
                             ->label('Jadikan grup default')
                             ->helperText('Dipakai sebagai tujuan utama ketika mengirim pesan ke satu grup. Hanya satu grup bisa menjadi default.')
                             ->inline(false),
+
+                        Select::make('agenda_scope')
+                            ->label('Agenda khusus')
+                            ->options([
+                                'default' => 'Default (pakai relasi grup, fallback semua agenda)',
+                                'linked_only' => 'Hanya agenda yang ditautkan ke grup ini (tanpa fallback)',
+                                'pkk_only' => 'Agenda PKK saja',
+                            ])
+                            ->default('default')
+                            ->helperText('Aktifkan opsi khusus jika grup ini hanya boleh menerima agenda tertentu.')
+                            ->native(false),
 
                         Select::make('personils')
                             ->label('Personil dalam grup ini')

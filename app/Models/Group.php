@@ -14,6 +14,7 @@ class Group extends Model
         'nama',
         'wa_gateway_group_id',
         'is_default',
+        'agenda_scope',
         'keterangan',
     ];
 
@@ -25,18 +26,17 @@ class Group extends Model
     {
         static::saving(function (Group $group): void {
             $group->is_default = (bool) $group->is_default;
+            $group->agenda_scope = $group->agenda_scope ?: 'default';
 
-            if (! $group->is_default) {
-                return;
+            if ($group->is_default) {
+                $query = static::query()->where('is_default', true);
+
+                if ($group->exists) {
+                    $query->where('id', '!=', $group->id);
+                }
+
+                $query->update(['is_default' => false]);
             }
-
-            $query = static::query()->where('is_default', true);
-
-            if ($group->exists) {
-                $query->where('id', '!=', $group->id);
-            }
-
-            $query->update(['is_default' => false]);
         });
     }
 
