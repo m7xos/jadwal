@@ -136,6 +136,33 @@ class Personil extends Authenticatable implements FilamentUser, HasAvatar, HasNa
         return $this->role === UserRole::Pengguna;
     }
 
+    public function isInFinishWhitelist(): bool
+    {
+        $normalized = static::normalizePhone($this->no_wa);
+
+        if (! $normalized) {
+            return false;
+        }
+
+        $setting = WaGatewaySetting::current();
+        $raw = (string) ($setting->finish_whitelist ?? config('wa_gateway.finish_whitelist', ''));
+
+        if ($raw === '') {
+            return false;
+        }
+
+        $tokens = preg_split('/[\\s,]+/', $raw, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+
+        $allowedNumbers = collect($tokens)
+            ->map(fn ($item) => static::normalizePhone($item))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        return in_array($normalized, $allowedNumbers, true);
+    }
+
     public function getFilamentName(): string
     {
         return $this->nama ?? $this->attributes['nama'] ?? 'Pengguna';

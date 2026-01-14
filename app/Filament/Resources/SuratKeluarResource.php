@@ -216,7 +216,7 @@ class SuratKeluarResource extends Resource
                         ->default(function () {
                             $user = auth()->user();
 
-                            if ($user?->isArsiparis() !== true) {
+                            if ($user?->isInFinishWhitelist() !== true) {
                                 return null;
                             }
 
@@ -224,9 +224,9 @@ class SuratKeluarResource extends Resource
 
                             return $akronim !== '' ? $user->id : null;
                         })
-                        ->required(fn () => auth()->user()?->isArsiparis() === true)
+                        ->required(fn () => auth()->user()?->isInFinishWhitelist() === true)
                         ->live()
-                        ->visible(fn () => auth()->user()?->isArsiparis() === true),
+                        ->visible(fn () => auth()->user()?->isInFinishWhitelist() === true),
 
                     Placeholder::make('nomor_preview')
                         ->label('Preview Nomor Surat')

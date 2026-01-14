@@ -101,7 +101,7 @@ class SuratKeluarRequestService
             return;
         }
 
-        $waGateway->sendTextToSpecificGroup($groupId, 'Silakan cek pesan pribadi untuk melanjutkan permintaan nomor surat.');
+        $waGateway->sendTextToSpecificGroup($groupId, 'Silakan cek pesan pribadi untuk melanjutkan permintaan nomor surat keluar');
     }
 
     protected function handleKlasifikasi(SuratKeluarRequest $request, string $message, WaGatewayService $waGateway): void
