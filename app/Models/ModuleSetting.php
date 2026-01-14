@@ -51,6 +51,9 @@ class ModuleSetting extends Model
     {
         $options = RoleAccess::pageOptions(false);
 
-        return array_values(array_filter(array_keys($options), fn ($key) => $key !== '*'));
+        return array_values(array_filter(array_keys($options), fn ($key) => ! in_array($key, [
+            '*',
+            'filament.admin.pages.module-settings',
+        ], true)));
     }
 }

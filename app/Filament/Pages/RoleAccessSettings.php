@@ -92,6 +92,13 @@ class RoleAccessSettings extends Page implements HasForms
                 if (! in_array('filament.admin.pages.role-access-settings', $pages, true)) {
                     $pages[] = 'filament.admin.pages.role-access-settings';
                 }
+                if (! in_array('filament.admin.pages.module-settings', $pages, true)) {
+                    $pages[] = 'filament.admin.pages.module-settings';
+                }
+            } else {
+                $pages = array_values(array_diff($pages, [
+                    'filament.admin.pages.module-settings',
+                ]));
             }
 
             $pages = array_values(array_unique($pages));

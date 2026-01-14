@@ -31,18 +31,23 @@ class ModuleSettings extends Page implements HasForms
     public function mount(): void
     {
         $options = RoleAccess::pageOptions(false);
-        $all = array_values(array_filter(array_keys($options), fn ($key) => $key !== '*'));
+        $all = array_values(array_filter(array_keys($options), fn ($key) => ! in_array($key, [
+            '*',
+            'filament.admin.pages.module-settings',
+        ], true)));
         $enabled = ModuleSetting::enabledPages();
 
         $this->form->fill([
-            'enabled_pages' => empty($enabled) ? $all : $enabled,
+            'enabled_pages' => empty($enabled)
+                ? $all
+                : array_values(array_diff($enabled, ['filament.admin.pages.module-settings'])),
         ]);
     }
 
     public function form(Schema $schema): Schema
     {
         $options = RoleAccess::pageOptions(false);
-        unset($options['*']);
+        unset($options['*'], $options['filament.admin.pages.module-settings']);
 
         return $schema
             ->components([
@@ -63,6 +68,7 @@ class ModuleSettings extends Page implements HasForms
     {
         $state = $this->form->getState();
         $pages = array_values(array_unique($state['enabled_pages'] ?? []));
+        $pages = array_values(array_diff($pages, ['filament.admin.pages.module-settings']));
 
         if (empty($pages)) {
             $pages = ModuleSetting::defaultEnabledPages();
@@ -87,6 +93,6 @@ class ModuleSettings extends Page implements HasForms
 
     public static function shouldRegisterNavigation(): bool
     {
-        return RoleAccess::canSeeNav(auth()->user(), 'filament.admin.pages.module-settings');
+        return auth()->user()?->isAdmin() === true;
     }
 }

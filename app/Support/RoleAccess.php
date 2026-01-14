@@ -67,7 +67,7 @@ class RoleAccess
                 continue;
             }
 
-            if (in_array($key, $enabled, true)) {
+            if ($key === 'filament.admin.pages.module-settings' || in_array($key, $enabled, true)) {
                 $filtered[$key] = $label;
             }
         }
@@ -137,6 +137,10 @@ class RoleAccess
 
     public static function isModuleEnabled(string $identifier): bool
     {
+        if ($identifier === 'filament.admin.pages.module-settings') {
+            return true;
+        }
+
         $enabled = ModuleSetting::enabledPages();
 
         if (empty($enabled)) {
@@ -151,6 +155,10 @@ class RoleAccess
         $enabled = ModuleSetting::enabledPages();
 
         if (empty($enabled)) {
+            return true;
+        }
+
+        if (static::matches('filament.admin.pages.module-settings', $routeName)) {
             return true;
         }
 
