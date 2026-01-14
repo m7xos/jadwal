@@ -588,6 +588,18 @@ class WaGatewayService
         return $nama !== '' ? 'Bapak/Ibu ' . $nama : 'Bapak/Ibu';
     }
 
+    protected function resolveTanggalKegiatanLabel(Kegiatan $kegiatan): string
+    {
+        $tanggalLabel = trim((string) ($kegiatan->tanggal_label ?? ''));
+        if ($tanggalLabel !== '') {
+            return $tanggalLabel;
+        }
+
+        return $kegiatan->tanggal
+            ? $kegiatan->tanggal->locale('id')->isoFormat('dddd, D MMMM Y')
+            : '-';
+    }
+
 
     /**
      * @param iterable<Personil> $personils
@@ -1205,7 +1217,7 @@ class WaGatewayService
             $lines[] = '*' . $no . '. ' . ($kegiatan->nama_kegiatan ?? '-') . '*';
             $lines = array_merge(
                 $lines,
-                $this->wrapLine(' *Tanggal*     : ', (string) ($kegiatan->tanggal_label ?? '-'))
+                $this->wrapLine(' *Tanggal*     : ', $this->resolveTanggalKegiatanLabel($kegiatan))
             );
             $lines = array_merge(
                 $lines,
@@ -1723,7 +1735,7 @@ class WaGatewayService
                 $data = [
                     'no' => (string) $no,
                     'judul' => (string) ($kegiatan->nama_kegiatan ?? '-'),
-                    'tanggal' => (string) ($kegiatan->tanggal_label ?? '-'),
+                    'tanggal' => $this->resolveTanggalKegiatanLabel($kegiatan),
                     'waktu' => (string) ($kegiatan->waktu ?? '-'),
                     'tempat' => (string) ($kegiatan->tempat ?? '-'),
                     'keterangan_block' => $this->formatTemplateInlineBlock($keteranganLines),
