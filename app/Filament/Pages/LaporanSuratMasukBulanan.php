@@ -129,7 +129,7 @@ class LaporanSuratMasukBulanan extends Page
             return [
                 'no'             => $index + 1,
                 'nomor'          => $kegiatan->nomor ?? '-',
-                'tanggal_surat'  => optional($kegiatan->tanggal)->format('d-m-Y') ?? '-',
+                'tanggal_surat'  => optional($kegiatan->tanggal_surat ?? $kegiatan->tanggal)->format('d-m-Y') ?? '-',
                 'waktu'          => $kegiatan->waktu ?? '-',
                 'nama_kegiatan'  => $kegiatan->nama_kegiatan ?? '-',
                 'tempat'         => $kegiatan->tempat ?? '-',

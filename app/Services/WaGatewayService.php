@@ -588,6 +588,7 @@ class WaGatewayService
         return $nama !== '' ? 'Bapak/Ibu ' . $nama : 'Bapak/Ibu';
     }
 
+
     /**
      * @param iterable<Personil> $personils
      * @return array<int, string>
@@ -963,7 +964,9 @@ class WaGatewayService
 
         $tanggalLabel = trim((string) ($kegiatan->tanggal_label ?? ''));
         if ($tanggalLabel === '') {
-            $tanggalLabel = '-';
+            $tanggalLabel = $kegiatan->tanggal
+                ? $kegiatan->tanggal->locale('id')->isoFormat('dddd, D MMMM Y')
+                : '-';
         }
 
         $tempat = trim((string) ($kegiatan->tempat ?? ''));
@@ -1328,99 +1331,6 @@ class WaGatewayService
         }
 
         return $tags;
-    }
-
-    /**
-     * Format pesan khusus utk 1 kegiatan ke WA personil.
-     */
-    protected function buildPersonilMessage(Kegiatan $kegiatan): string
-    {
-        $lines = [];
-
-        $lines[] = '*UNDANGAN / INFORMASI KEGIATAN*';
-        $lines[] = '────────────────────────';
-        $lines[] = '';
-
-        $lines[] = '*Nama Kegiatan*';
-        $lines[] = '*' . ($kegiatan->nama_kegiatan ?? '-') . '*';
-        $lines[] = '';
-
-        $lines[] = '*Nomor Surat*';
-        $lines[] = '*' . ($kegiatan->nomor ?? '-') . '*';
-        $lines[] = '';
-
-        $lines[] = '*Hari / Tanggal*';
-        $lines[] = ($kegiatan->tanggal_label ?? '-');
-        $lines[] = '';
-
-        $lines[] = '*Waktu*';
-        $lines[] = ($kegiatan->waktu ?? '-');
-        $lines[] = '';
-
-        $lines[] = '*Tempat*';
-        $lines[] = ($kegiatan->tempat ?? '-');
-        $lines[] = '';
-
-        if (! empty($kegiatan->keterangan)) {
-            $lines[] = '*Keterangan*';
-            $lines[] = $kegiatan->keterangan;
-            $lines[] = '';
-        }
-
-        $suratUrl = $this->getShortSuratUrl($kegiatan);
-        if ($suratUrl) {
-            $lines[] = '📎 *Lihat Surat (PDF)*';
-            $lines[] = $suratUrl;
-            $lines[] = '';
-        }
-
-        $lampiranUrl = $this->getLampiranUrl($kegiatan->lampiran_surat ?? null);
-        if ($lampiranUrl) {
-            $lines[] = '📎 *Lampiran*';
-            $lines[] = $lampiranUrl;
-            $lines[] = '';
-        }
-
-        $lines[] = 'Mohon kehadiran Bapak/Ibu sesuai jadwal di atas.';
-        $lines[] = '';
-        $lines[] = '_Harap selalu laporkan hasil kegiatan kepada atasan._';
-        $lines[] = '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._';
-
-        $fallback = implode("\n", $lines);
-
-        $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
-        $keteranganBlock = $keterangan !== ''
-            ? $this->formatTemplateBlock(['*Keterangan*', $keterangan])
-            : '';
-        $suratBlock = $suratUrl
-            ? $this->formatTemplateBlock(['📎 *Lihat Surat (PDF)*', $suratUrl])
-            : '';
-        $lampiranBlock = $lampiranUrl
-            ? $this->formatTemplateBlock(['📎 *Lampiran*', $lampiranUrl])
-            : '';
-
-        $data = [
-            'nama_kegiatan' => (string) ($kegiatan->nama_kegiatan ?? '-'),
-            'nomor_surat' => (string) ($kegiatan->nomor ?? '-'),
-            'tanggal' => (string) ($kegiatan->tanggal_label ?? '-'),
-            'waktu' => (string) ($kegiatan->waktu ?? '-'),
-            'tempat' => (string) ($kegiatan->tempat ?? '-'),
-            'keterangan_block' => $keteranganBlock,
-            'keterangan_raw' => $keterangan,
-            'surat_block' => $suratBlock,
-            'surat_url' => $suratUrl ?? '',
-            'lampiran_block' => $lampiranBlock,
-            'lampiran_url' => $lampiranUrl ?? '',
-            'footer' => implode("\n", [
-                '_Harap selalu laporkan hasil kegiatan kepada atasan._',
-                '_Pesan ini dikirim otomatis. Mohon tidak membalas ke nomor ini._',
-            ]),
-        ];
-
-        /** @var WaMessageTemplateService $templateService */
-        $templateService = app(WaMessageTemplateService::class);
-
-        return $templateService->render('agenda_personil', $data, $fallback);
     }
 
     /**
@@ -2466,62 +2376,5 @@ class WaGatewayService
         return $digits;
     }
 
-    public function sendToPersonils(Kegiatan $kegiatan): bool
-    {
-        if (! $this->isConfigured()) {
-            return false;
-        }
-
-        $kegiatan->loadMissing('personils');
-
-        $personils = $kegiatan->personils ?? collect();
-
-        if ($personils->isEmpty()) {
-            return false;
-        }
-
-        $message = $this->buildPersonilMessage($kegiatan);
-
-        $data = [];
-
-        foreach ($personils as $p) {
-            $noWa = trim($p->no_wa);
-
-            if ($noWa === '') {
-                continue;
-            }
-
-            $data[] = [
-                'phone'   => $noWa,
-                'message' => $message,
-                'isGroup' => 'false',
-            ];
-        }
-
-        if (empty($data)) {
-            return false;
-        }
-
-        $payload = ['data' => $data];
-
-        $response = $this->client()
-            ->post($this->baseUrl . '/api/v2/send-message', $payload);
-
-        if (! $response->successful()) {
-            Log::error('WA Gateway: HTTP error kirim ke personil', [
-                'status' => $response->status(),
-                'body'   => $response->body(),
-            ]);
-
-            return false;
-        }
-
-        $json = $response->json();
-
-        Log::info('WA Gateway: response sendToPersonils', [
-            'response' => $json,
-        ]);
-
-        return (bool) data_get($json, 'status', false);
-    }
+ 
 }

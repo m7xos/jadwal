@@ -204,6 +204,11 @@ class KegiatanForm
                                 static::notifyDuplicateNomor($nomor, $existing);
                             }),
 
+                        DatePicker::make('tanggal_surat')
+                            ->label('Tanggal Surat')
+                            ->displayFormat('d-m-Y')
+                            ->helperText('Diambil otomatis dari frasa "Wonosobo, ..." pada PDF.'),
+
                         TextInput::make('nama_kegiatan')
                             ->label('Nama Kegiatan')
                             ->required()
@@ -569,6 +574,11 @@ class KegiatanForm
         $perihal = $extractor->extractPerihal($absolutePath);
         if (! empty($perihal)) {
             $set('nama_kegiatan', $perihal);
+        }
+
+        $tanggalSurat = $extractor->extractTanggal($absolutePath);
+        if (! empty($tanggalSurat)) {
+            $set('tanggal_surat', $tanggalSurat);
         }
     }
 
