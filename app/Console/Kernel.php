@@ -4,7 +4,6 @@ namespace App\Console;
 
 use App\Console\Commands\KirimPengingatTindakLanjut;
 use App\Console\Commands\RemindTindakLanjutCommand;
-use App\Console\Commands\SendAgendaPersonilReminders;
 use App\Console\Commands\SendFollowUpReminders;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -19,7 +18,6 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         \App\Console\Commands\KirimPengingatTindakLanjut::class,
         RemindTindakLanjutCommand::class,
-        SendAgendaPersonilReminders::class,
         \App\Console\Commands\SendVehicleTaxReminders::class,
         SendFollowUpReminders::class,
     ];
@@ -35,8 +33,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminders:send-follow-up')->everyFiveMinutes();
         $schedule->command('kegiatan:escalate-disposisi')->everyFiveMinutes();
         $schedule->command('kegiatan:remind-disposisi-h-1')->dailyAt('17:00');
-        $schedule->command('kegiatan:remind-personil --offset=1')->dailyAt('20:00');
-        $schedule->command('kegiatan:remind-personil --offset=0')->dailyAt('05:00');
     }
 
     /**

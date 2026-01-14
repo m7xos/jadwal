@@ -21,6 +21,7 @@ class Kegiatan extends Model
     protected $fillable = [
         'sifat_surat',
         'nomor',
+        'tanggal_surat',
         'nama_kegiatan',
         'tanggal',
         'waktu',
@@ -42,6 +43,7 @@ class Kegiatan extends Model
         'batas_tindak_lanjut' => 'datetime',
         'tl_reminder_sent_at' => 'datetime',
         'tl_final_reminder_sent_at' => 'datetime',
+        'tanggal_surat' => 'date',
         'tanggal' => 'date',
         'sudah_disposisi' => 'boolean',   // <--- baru
         'tampilkan_di_public' => 'boolean',
@@ -57,6 +59,7 @@ class Kegiatan extends Model
     public function personils()
     {
         return $this->belongsToMany(Personil::class, 'kegiatan_personil')
+            ->using(KegiatanPersonil::class)
             ->withTimestamps();
     }
 

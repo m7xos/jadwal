@@ -163,7 +163,7 @@ class ListSuratKeluars extends ListRecords
                         ->default(function () {
                             $user = auth()->user();
 
-                            if ($user?->isArsiparis() !== true) {
+                            if ($user?->isInFinishWhitelist() !== true) {
                                 return null;
                             }
 
@@ -171,8 +171,8 @@ class ListSuratKeluars extends ListRecords
 
                             return $akronim !== '' ? $user->id : null;
                         })
-                        ->required(fn () => auth()->user()?->isArsiparis() === true)
-                        ->visible(fn () => auth()->user()?->isArsiparis() === true),
+                        ->required(fn () => auth()->user()?->isInFinishWhitelist() === true)
+                        ->visible(fn () => auth()->user()?->isInFinishWhitelist() === true),
                 ])
                 ->action(function (array $data) {
                     $kode = KodeSurat::find($data['kode_surat_id'] ?? null);
@@ -200,7 +200,7 @@ class ListSuratKeluars extends ListRecords
                     $user = auth()->user();
                     $requestedPersonilId = $user?->id;
 
-                    if ($user?->isArsiparis() && ! empty($data['requested_by_personil_id'])) {
+                    if ($user?->isInFinishWhitelist() === true && ! empty($data['requested_by_personil_id'])) {
                         $requestedPersonilId = (int) $data['requested_by_personil_id'];
                     }
 

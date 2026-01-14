@@ -24,7 +24,7 @@ class CreateSuratKeluar extends CreateRecord
         $requestedPersonilId = $requester?->id;
         $selectedPersonilId = $data['requested_by_personil_id'] ?? null;
 
-        if ($requester?->isArsiparis() && $selectedPersonilId) {
+        if ($requester?->isInFinishWhitelist() === true && $selectedPersonilId) {
             $requestedPersonilId = (int) $selectedPersonilId;
         }
 

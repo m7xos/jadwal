@@ -219,39 +219,6 @@ class KegiatansTable
                     ->label('Surat Tugas')
                     ->icon('heroicon-o-document-text'),
 
-                // Kirim ke WA semua personil 1 kegiatan
-                ActionGroup::make([
-                    Action::make('kirim_wa_personil')
-                        ->label('Kirim WA Personil')
-                        ->icon('heroicon-o-chat-bubble-left-right')
-                        ->requiresConfirmation()
-                        ->modalHeading('Kirim agenda ini ke WA personil yang hadir?')
-                        ->action(function (Kegiatan $record) {
-                            /** @var WaGatewayService $waGateway */
-                            $waGateway = app(WaGatewayService::class);
-
-                            $record->loadMissing('personils');
-
-                            $success = $waGateway->sendToPersonils($record);
-
-                            if ($success) {
-                                Notification::make()
-                                    ->title('Berhasil')
-                                    ->body('Agenda berhasil dikirim ke WA seluruh personil yang hadir.')
-                                    ->success()
-                                    ->send();
-                            } else {
-                                Notification::make()
-                                    ->title('Gagal')
-                                    ->body('Gagal mengirim ke WA personil. Pastikan nomor WA terisi dan konfigurasi WA Gateway benar.')
-                                    ->danger()
-                                    ->send();
-                            }
-                        }),
-                ])
-                    ->label('Kirim WA')
-                    ->icon('heroicon-o-chat-bubble-left-right'),
-
                 DeleteAction::make(),
             ])
 
