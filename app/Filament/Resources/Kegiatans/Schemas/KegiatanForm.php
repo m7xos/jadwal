@@ -388,6 +388,7 @@ class KegiatanForm
                             ->multiple()
                             ->preload()
                             ->searchable()
+                            ->required()
                             ->helperText('Pilih grup WA mana yang menjadi target agenda ini.'),
                     ])
                     ->columns(1)
