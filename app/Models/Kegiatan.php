@@ -57,6 +57,7 @@ class Kegiatan extends Model
     public function personils()
     {
         return $this->belongsToMany(Personil::class, 'kegiatan_personil')
+            ->using(KegiatanPersonil::class)
             ->withTimestamps();
     }
 

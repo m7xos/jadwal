@@ -524,6 +524,43 @@ class WaGatewayService
         return array_merge($lines, $this->wrapLine('      ', $keterangan));
     }
 
+    protected function resolveDisposisiGreeting(): string
+    {
+        $hour = (int) now()->format('G');
+
+        if ($hour >= 4 && $hour < 11) {
+            return 'Selamat Pagi';
+        }
+
+        if ($hour >= 11 && $hour < 15) {
+            return 'Selamat Siang';
+        }
+
+        if ($hour >= 15 && $hour < 18) {
+            return 'Selamat Sore';
+        }
+
+        return 'Selamat Malam';
+    }
+
+    protected function resolveDisposisiNama(Personil $personil): string
+    {
+        $nama = trim((string) ($personil->nama ?? ''));
+
+        if ($nama !== '') {
+            return $nama;
+        }
+
+        return trim((string) ($personil->jabatan ?? ''));
+    }
+
+    protected function resolveDisposisiSapaan(Personil $personil): string
+    {
+        $nama = $this->resolveDisposisiNama($personil);
+
+        return $nama !== '' ? 'Bapak/Ibu ' . $nama : 'Bapak/Ibu';
+    }
+
     /**
      * @param iterable<Personil> $personils
      * @return array<int, string>
@@ -871,6 +908,108 @@ class WaGatewayService
         }
 
         return $this->buildGroupMessage($items);
+    }
+
+    public function sendDisposisiNotification(Kegiatan $kegiatan, Personil $personil): bool
+    {
+        $number = trim((string) ($personil->no_wa ?? ''));
+        if ($number === '') {
+            return false;
+        }
+
+        $message = $this->formatDisposisiNotificationMessage($kegiatan, $personil);
+        $result = $this->sendPersonalText([$number], $message);
+
+        return (bool) ($result['success'] ?? false);
+    }
+
+    protected function formatDisposisiNotificationMessage(Kegiatan $kegiatan, Personil $personil): string
+    {
+        $greeting = $this->resolveDisposisiGreeting();
+        $sapaan = $this->resolveDisposisiSapaan($personil);
+        $nama = $this->resolveDisposisiNama($personil);
+
+        $kegiatanName = trim((string) ($kegiatan->nama_kegiatan ?? ''));
+        if ($kegiatanName === '') {
+            $kegiatanName = '-';
+        }
+
+        $tanggalLabel = trim((string) ($kegiatan->tanggal_label ?? ''));
+        if ($tanggalLabel === '') {
+            $tanggalLabel = '-';
+        }
+
+        $tempat = trim((string) ($kegiatan->tempat ?? ''));
+        if ($tempat === '') {
+            $tempat = '-';
+        }
+
+        $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
+
+        $deadline = $kegiatan->batas_tindak_lanjut ?? $kegiatan->tindak_lanjut_deadline;
+        $batasTl = '';
+        if ($deadline || $kegiatan->tindak_lanjut_deadline_label) {
+            $batasTl = $this->formatTindakLanjutDeadlineLabel($kegiatan);
+        }
+
+        $suratUrl = $this->getShortSuratUrl($kegiatan);
+
+        $keteranganLine = $keterangan !== ''
+            ? $this->formatTemplateWrappedLine('Keterangan: ', $keterangan)
+            : '';
+        $batasTlLine = $batasTl !== ''
+            ? $this->formatTemplateLine('Batas TL: ' . $batasTl)
+            : '';
+        $suratLine = $suratUrl
+            ? $this->formatTemplateLine('Link surat: ' . $suratUrl)
+            : '';
+
+        $data = [
+            'greeting' => $greeting,
+            'sapaan' => $sapaan,
+            'nama' => $nama,
+            'kegiatan' => $kegiatanName,
+            'tanggal' => $tanggalLabel,
+            'tempat' => $tempat,
+            'keterangan_raw' => $keterangan,
+            'batas_tl' => $batasTl,
+            'surat_url' => $suratUrl ?? '',
+            'kegiatan_line' => $this->formatTemplateLine('Kegiatan: ' . $kegiatanName),
+            'tanggal_line' => $this->formatTemplateLine('Hari/tanggal: ' . $tanggalLabel),
+            'tempat_line' => $this->formatTemplateLine('Tempat: ' . $tempat),
+            'keterangan_line' => $keteranganLine,
+            'batas_tl_line' => $batasTlLine,
+            'surat_line' => $suratLine,
+            'footer' => '_Harap laporkan hasil kegiatan kepada Pimpinan_',
+        ];
+
+        $lines = [];
+        $lines[] = $greeting . ' ' . $sapaan . ' telah mendapatkan disposisi agenda sebagai berikut:';
+        $lines = array_merge($lines, $this->wrapLine('Kegiatan: ', $kegiatanName));
+        $lines = array_merge($lines, $this->wrapLine('Hari/tanggal: ', $tanggalLabel));
+        $lines = array_merge($lines, $this->wrapLine('Tempat: ', $tempat));
+
+        if ($keterangan !== '') {
+            $lines = array_merge($lines, $this->wrapLine('Keterangan: ', $keterangan));
+        }
+
+        if ($batasTl !== '') {
+            $lines = array_merge($lines, $this->wrapLine('Batas TL: ', $batasTl));
+        }
+
+        if ($suratUrl) {
+            $lines = array_merge($lines, $this->wrapLine('Link surat: ', $suratUrl));
+        }
+
+        $lines[] = '';
+        $lines[] = '_Harap laporkan hasil kegiatan kepada Pimpinan_';
+
+        $fallback = implode("\n", $lines);
+
+        /** @var WaMessageTemplateService $templateService */
+        $templateService = app(WaMessageTemplateService::class);
+
+        return $templateService->render('disposisi_personil', $data, $fallback);
     }
 
     protected function buildGroupMessage(iterable $kegiatans): string

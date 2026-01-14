@@ -53,6 +53,7 @@ class Personil extends Authenticatable implements FilamentUser, HasAvatar, HasNa
     public function kegiatans()
     {
         return $this->belongsToMany(Kegiatan::class, 'kegiatan_personil')
+            ->using(KegiatanPersonil::class)
             ->withTimestamps();
     }
 
