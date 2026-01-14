@@ -435,6 +435,33 @@ class WaGatewayService
         return sprintf('%-14s: %s', $label, $value);
     }
 
+    /**
+     * @return array<int, string>
+     */
+    protected function formatDisposisiWrappedLines(string $label, string $value): array
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return [];
+        }
+
+        $prefix = sprintf('%-14s: ', $label);
+
+        return $this->wrapLine($prefix, $value);
+    }
+
+    protected function formatDisposisiTemplateLine(string $label, string $value): string
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        $prefix = sprintf('%-14s: ', $label);
+
+        return $this->formatTemplateWrappedLine($prefix, $value);
+    }
+
     protected function formatTemplateLine(string $line): string
     {
         if ($line === '') {
@@ -955,13 +982,13 @@ class WaGatewayService
         $suratUrl = $this->getShortSuratUrl($kegiatan);
 
         $keteranganLine = $keterangan !== ''
-            ? $this->formatTemplateWrappedLine('Keterangan: ', $keterangan)
+            ? $this->formatDisposisiTemplateLine('Keterangan', $keterangan)
             : '';
         $batasTlLine = $batasTl !== ''
-            ? $this->formatTemplateLine('Batas TL: ' . $batasTl)
+            ? $this->formatDisposisiTemplateLine('Batas TL', $batasTl)
             : '';
         $suratLine = $suratUrl
-            ? $this->formatTemplateLine('Link surat: ' . $suratUrl)
+            ? $this->formatDisposisiTemplateLine('Link surat', $suratUrl)
             : '';
 
         $data = [
@@ -974,9 +1001,9 @@ class WaGatewayService
             'keterangan_raw' => $keterangan,
             'batas_tl' => $batasTl,
             'surat_url' => $suratUrl ?? '',
-            'kegiatan_line' => $this->formatTemplateLine('Kegiatan: ' . $kegiatanName),
-            'tanggal_line' => $this->formatTemplateLine('Hari/tanggal: ' . $tanggalLabel),
-            'tempat_line' => $this->formatTemplateLine('Tempat: ' . $tempat),
+            'kegiatan_line' => $this->formatDisposisiTemplateLine('Kegiatan', $kegiatanName),
+            'tanggal_line' => $this->formatDisposisiTemplateLine('Hari/tanggal', $tanggalLabel),
+            'tempat_line' => $this->formatDisposisiTemplateLine('Tempat', $tempat),
             'keterangan_line' => $keteranganLine,
             'batas_tl_line' => $batasTlLine,
             'surat_line' => $suratLine,
@@ -984,25 +1011,25 @@ class WaGatewayService
         ];
 
         $lines = [];
-        $lines[] = $greeting . ' ' . $sapaan . ' telah mendapatkan disposisi agenda sebagai berikut:';
-        $lines = array_merge($lines, $this->wrapLine('Kegiatan: ', $kegiatanName));
-        $lines = array_merge($lines, $this->wrapLine('Hari/tanggal: ', $tanggalLabel));
-        $lines = array_merge($lines, $this->wrapLine('Tempat: ', $tempat));
+        $lines[] = $greeting . ' ' . $sapaan . '. Anda telah mendapatkan disposisi agenda berikut:';
+        $lines = array_merge($lines, $this->formatDisposisiWrappedLines('Kegiatan', $kegiatanName));
+        $lines = array_merge($lines, $this->formatDisposisiWrappedLines('Hari/tanggal', $tanggalLabel));
+        $lines = array_merge($lines, $this->formatDisposisiWrappedLines('Tempat', $tempat));
 
         if ($keterangan !== '') {
-            $lines = array_merge($lines, $this->wrapLine('Keterangan: ', $keterangan));
+            $lines = array_merge($lines, $this->formatDisposisiWrappedLines('Keterangan', $keterangan));
         }
 
         if ($batasTl !== '') {
-            $lines = array_merge($lines, $this->wrapLine('Batas TL: ', $batasTl));
+            $lines = array_merge($lines, $this->formatDisposisiWrappedLines('Batas TL', $batasTl));
         }
 
         if ($suratUrl) {
-            $lines = array_merge($lines, $this->wrapLine('Link surat: ', $suratUrl));
+            $lines = array_merge($lines, $this->formatDisposisiWrappedLines('Link surat', $suratUrl));
         }
 
         $lines[] = '';
-        $lines[] = '_Harap laporkan hasil kegiatan kepada Pimpinan_';
+        $lines[] = '_Harap laporkan hasilnya kepada Pimpinan_';
 
         $fallback = implode("\n", $lines);
 
