@@ -509,6 +509,22 @@ class WaGatewayService
     }
 
     /**
+     * @return array<int, string>
+     */
+    protected function buildKeteranganLines(string $keterangan): array
+    {
+        $keterangan = trim($keterangan);
+
+        if ($keterangan === '') {
+            return [];
+        }
+
+        $lines = ['   📝 Keterangan:'];
+
+        return array_merge($lines, $this->wrapLine('      ', $keterangan));
+    }
+
+    /**
      * @param iterable<Personil> $personils
      * @return array<int, string>
      */
@@ -921,10 +937,7 @@ class WaGatewayService
             // KETERANGAN (hanya kalau diisi)
             $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
             if ($keterangan !== '') {
-                $lines = array_merge(
-                    $lines,
-                    $this->wrapLine('   📝 Keterangan: ', $keterangan)
-                );
+                $lines = array_merge($lines, $this->buildKeteranganLines($keterangan));
                 $lines[] = '';
             }
 
@@ -1037,10 +1050,7 @@ class WaGatewayService
             $lines[] = '';
             $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
             if ($keterangan !== '') {
-                $lines = array_merge(
-                    $lines,
-                    $this->wrapLine('   📝 Keterangan: ', $keterangan)
-                );
+                $lines = array_merge($lines, $this->buildKeteranganLines($keterangan));
                 $lines[] = '';
             }
             $suratUrl = $this->getShortSuratUrl($kegiatan);
@@ -1502,7 +1512,7 @@ class WaGatewayService
                 $keteranganLines = [];
                 $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
                 if ($keterangan !== '') {
-                    $keteranganLines = $this->wrapLine('   📝 Keterangan: ', $keterangan);
+                $keteranganLines = $this->buildKeteranganLines($keterangan);
                 }
 
                 $suratUrl = $this->getShortSuratUrl($kegiatan);
@@ -1563,10 +1573,7 @@ class WaGatewayService
 
             $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
             if ($keterangan !== '') {
-                $lines = array_merge(
-                    $lines,
-                    $this->wrapLine('   📝 Keterangan: ', $keterangan)
-                );
+                $lines = array_merge($lines, $this->buildKeteranganLines($keterangan));
                 $lines[] = '';
             }
 
@@ -1621,7 +1628,7 @@ class WaGatewayService
                 $keteranganLines = [];
                 $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
                 if ($keterangan !== '') {
-                    $keteranganLines = $this->wrapLine('   📝 Keterangan: ', $keterangan);
+                $keteranganLines = $this->buildKeteranganLines($keterangan);
                 }
                 $personilListRaw = $this->buildPersonilListRaw($kegiatan->personils ?? collect(), $includeTag);
                 $personilNamesRaw = $this->buildPersonilNamesRaw($kegiatan->personils ?? collect());
@@ -1700,10 +1707,7 @@ class WaGatewayService
 
             $keterangan = trim((string) ($kegiatan->keterangan ?? ''));
             if ($keterangan !== '') {
-                $lines = array_merge(
-                    $lines,
-                    $this->wrapLine('   📝 Keterangan: ', $keterangan)
-                );
+                $lines = array_merge($lines, $this->buildKeteranganLines($keterangan));
                 $lines[] = '';
             }
 

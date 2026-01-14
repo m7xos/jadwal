@@ -484,7 +484,11 @@ class WaMessageTemplates extends Page implements HasForms
                     'tanggal' => 'Senin, 12 Januari 2026',
                     'waktu' => '09:00 WIB',
                     'tempat' => 'Ruang Camat',
-                    'keterangan_block' => '   📝 Keterangan: Mohon ditindaklanjuti.' . "\n",
+                    'keterangan_block' => implode("\n", [
+                        '   📝 Keterangan:',
+                        '      Mohon ditindaklanjuti.',
+                        '',
+                    ]),
                     'keterangan_raw' => 'Mohon verifikasi dokumen pendukung dan koordinasi lintas bidang.',
                     'batas_tl' => 'Selasa, 13 Januari 2026 10:00 WIB',
                     'surat_block' => implode("\n", [
