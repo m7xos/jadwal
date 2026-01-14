@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Enums\UserRole;
+use App\Models\ModuleSetting;
 use App\Models\RoleAccessSetting;
 use App\Models\User;
 use App\Models\Personil;
@@ -14,9 +15,9 @@ class RoleAccess
      *
      * Key = prefix / nama route dasar. Middleware akan mengizinkan seluruh turunan (index/create/edit, dll).
      */
-    public static function pageOptions(): array
+    public static function pageOptions(bool $applyModuleFilter = true): array
     {
-        return [
+        $options = [
             '*' => 'Semua halaman (akses penuh)',
             'filament.admin.pages.dashboard' => 'Dashboard',
             'filament.admin.pages.profile' => 'Profil Akun',
@@ -39,6 +40,7 @@ class RoleAccess
             'filament.admin.resources.layanan-publik-register' => 'Register Layanan Publik',
             'filament.admin.pages.surat-keluar-status' => 'Status Nomor Surat Keluar',
             'filament.admin.pages.role-access-settings' => 'Pengaturan Hak Akses',
+            'filament.admin.pages.module-settings' => 'Pengaturan Modul',
             'filament.admin.pages.panduan-aplikasi' => 'Panduan Aplikasi',
             'filament.admin.resources.tindak-lanjut-reminder-logs' => 'Log Pengingat TL',
             'filament.admin.resources.vehicle-tax-reminder-logs' => 'Log Pengingat Pajak',
@@ -48,6 +50,29 @@ class RoleAccess
             'filament.admin.pages.laporan-pembayaran-pajak' => 'Laporan Pembayaran Pajak',
             'filament.admin.resources.personil-categories' => 'Kategori Personil',
         ];
+
+        if (! $applyModuleFilter) {
+            return $options;
+        }
+
+        $enabled = ModuleSetting::enabledPages();
+        if (empty($enabled)) {
+            return $options;
+        }
+
+        $filtered = ['*' => $options['*']];
+
+        foreach ($options as $key => $label) {
+            if ($key === '*') {
+                continue;
+            }
+
+            if (in_array($key, $enabled, true)) {
+                $filtered[$key] = $label;
+            }
+        }
+
+        return $filtered;
     }
 
     public static function allowedPagesFor(UserRole|string|null $role): array
@@ -63,6 +88,10 @@ class RoleAccess
 
         if (! $routeName || ! str_starts_with($routeName, 'filament.')) {
             return true;
+        }
+
+        if (! static::isModuleEnabledForRoute($routeName)) {
+            return false;
         }
 
         // Izinkan rute autentikasi atau reset password tanpa pengecekan peran tambahan.
@@ -99,6 +128,38 @@ class RoleAccess
             return false;
         }
 
+        if (! static::isModuleEnabled($identifier)) {
+            return false;
+        }
+
         return static::routeMatchesAllowed($identifier, static::allowedPagesFor($user->role));
+    }
+
+    public static function isModuleEnabled(string $identifier): bool
+    {
+        $enabled = ModuleSetting::enabledPages();
+
+        if (empty($enabled)) {
+            return true;
+        }
+
+        return in_array($identifier, $enabled, true);
+    }
+
+    public static function isModuleEnabledForRoute(string $routeName): bool
+    {
+        $enabled = ModuleSetting::enabledPages();
+
+        if (empty($enabled)) {
+            return true;
+        }
+
+        foreach ($enabled as $identifier) {
+            if (static::matches($identifier, $routeName)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
