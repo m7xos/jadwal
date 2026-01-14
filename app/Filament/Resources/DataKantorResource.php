@@ -32,11 +32,11 @@ class DataKantorResource extends Resource
     protected static ?string $model = DataKantor::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-folder';
-    protected static ?string $navigationLabel = 'Data Kantor';
-    protected static ?string $pluralModelLabel = 'Data Kantor';
-    protected static ?string $modelLabel = 'Data Kantor';
+    protected static ?string $navigationLabel = 'Daftar Dokumen Umum';
+    protected static ?string $pluralModelLabel = 'Daftar Dokumen Umum';
+    protected static ?string $modelLabel = 'Daftar Dokumen Umum';
     protected static ?string $slug = 'data-kantor';
-    protected static string|UnitEnum|null $navigationGroup = 'Pengaturan';
+    protected static string|UnitEnum|null $navigationGroup = 'Data Kantor';
     protected static ?int $navigationSort = 32;
 
     public static function form(Schema $schema): Schema
