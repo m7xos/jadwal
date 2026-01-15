@@ -5,23 +5,24 @@ namespace App\Filament\Pages;
 use App\Models\BanprovVerification;
 use App\Support\RoleAccess;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Schema;
+use Filament\Tables;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use UnitEnum;
 
-class VerifikasiBanprov extends Page implements HasForms
+class VerifikasiBanprov extends Page implements HasTable
 {
-    use InteractsWithForms;
+    use InteractsWithTable;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
     protected static ?string $navigationLabel = 'Verifikasi Banprov';
@@ -31,53 +32,105 @@ class VerifikasiBanprov extends Page implements HasForms
 
     protected string $view = 'filament.pages.verifikasi-banprov';
 
-    public ?array $data = [];
     /** @var array<int, array<string, mixed>> */
     public array $previewRows = [];
     public int $previewCount = 0;
     public ?string $previewTahap = null;
     public ?string $previewError = null;
 
-    public function mount(): void
+    protected function getHeaderActions(): array
     {
-        $this->form->fill([
-            'file' => null,
-            'tahap' => null,
-        ]);
+        return [
+            Action::make('import_excel')
+                ->label('Import Excel')
+                ->icon('heroicon-o-arrow-up-tray')
+                ->color('primary')
+                ->mountUsing(function (Action $action, ?\Filament\Schemas\Schema $schema): void {
+                    $this->resetPreview();
+                    $schema?->fill([
+                        'file' => null,
+                        'tahap' => null,
+                    ]);
+                })
+                ->form([
+                    FileUpload::make('file')
+                        ->label('File Excel')
+                        ->acceptedFileTypes([
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'application/vnd.ms-excel',
+                        ])
+                        ->directory('import/banprov')
+                        ->disk('public')
+                        ->required()
+                        ->helperText('Hanya data Kecamatan Watumalang yang akan diimport.')
+                        ->afterStateUpdated(function ($state, Set $set): void {
+                            $this->loadPreviewFromFile($state, $set);
+                        }),
+                    TextInput::make('tahap')
+                        ->label('Tahap Pencairan')
+                        ->helperText('Diambil otomatis dari file, bisa disesuaikan jika perlu.')
+                        ->required(),
+                ])
+                ->modalHeading('Import Verifikasi Banprov')
+                ->modalDescription('Periksa preview sebelum menyimpan data.')
+                ->modalWidth('6xl')
+                ->modalContent(fn () => view('filament.pages.partials.verifikasi-banprov-preview', [
+                    'previewRows' => $this->previewRows,
+                    'previewCount' => $this->previewCount,
+                    'previewTahap' => $this->previewTahap,
+                    'previewError' => $this->previewError,
+                ]))
+                ->action(function (array $data): void {
+                    $this->importFromState($data);
+                    $this->resetTable();
+                }),
+        ];
     }
 
-    public function form(Schema $schema): Schema
+    public function table(Table $table): Table
     {
-        return $schema
-            ->components([
-                Section::make('Import Verifikasi Banprov')
-                    ->description('Upload file Excel verifikasi banprov yang sudah cair.')
-                    ->schema([
-                        FileUpload::make('file')
-                            ->label('File Excel')
-                            ->acceptedFileTypes([
-                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                                'application/vnd.ms-excel',
-                            ])
-                            ->directory('import/banprov')
-                            ->disk('public')
-                            ->required()
-                            ->afterStateUpdated(function ($state, Set $set) {
-                                $this->loadPreviewFromFile($state, $set);
-                            }),
-                        TextInput::make('tahap')
-                            ->label('Tahap Pencairan')
-                            ->helperText('Diambil otomatis dari file, bisa disesuaikan jika perlu.')
-                            ->required(),
-                    ])
-                    ->columns(2),
+        return $table
+            ->query(BanprovVerification::query())
+            ->defaultSort('id', 'desc')
+            ->columns([
+                Tables\Columns\TextColumn::make('tahap')
+                    ->label('Tahap')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('kecamatan')
+                    ->label('Kecamatan')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('desa')
+                    ->label('Desa')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('no_dpa')
+                    ->label('No DPA')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('jenis_kegiatan')
+                    ->label('Jenis Kegiatan')
+                    ->wrap()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('jumlah')
+                    ->label('Jumlah (Rp)')
+                    ->alignRight()
+                    ->formatStateUsing(fn ($state) => $state ? number_format((int) $state, 0, ',', '.') : '-'),
+                Tables\Columns\TextColumn::make('sumber_file')
+                    ->label('Sumber File')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Waktu Import')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->statePath('data');
+            ->emptyStateHeading('Belum ada data verifikasi banprov')
+            ->emptyStateDescription('Gunakan tombol Import Excel untuk menambahkan data.');
     }
 
-    public function save(): void
+    protected function importFromState(array $state): void
     {
-        $state = $this->form->getState();
         $file = $state['file'] ?? null;
         $tahap = trim((string) ($state['tahap'] ?? ''));
 
@@ -150,6 +203,8 @@ class VerifikasiBanprov extends Page implements HasForms
             ->body("Total data diimport: {$imported}")
             ->success()
             ->send();
+
+        $this->resetPreview();
     }
 
     protected function loadPreviewFromFile(?string $file, Set $set): void
@@ -184,6 +239,14 @@ class VerifikasiBanprov extends Page implements HasForms
         if ($this->previewTahap) {
             $set('tahap', $this->previewTahap);
         }
+    }
+
+    protected function resetPreview(): void
+    {
+        $this->previewRows = [];
+        $this->previewCount = 0;
+        $this->previewTahap = null;
+        $this->previewError = null;
     }
 
     /**
