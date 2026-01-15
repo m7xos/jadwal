@@ -10,10 +10,10 @@ use UnitEnum;
 class SeksiEkbang extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-briefcase';
-    protected static ?string $navigationLabel = 'Seksi Ekbang';
-    protected static string|UnitEnum|null $navigationGroup = 'Data Kantor';
+    protected static ?string $navigationLabel = 'Dashboard Seksi Ekbang';
+    protected static string|UnitEnum|null $navigationGroup = 'Seksi Ekbang';
     protected static ?string $slug = 'seksi-ekbang';
-    protected static ?int $navigationSort = 20;
+    protected static ?int $navigationSort = 10;
 
     protected string $view = 'filament.pages.seksi-ekbang';
 

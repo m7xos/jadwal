@@ -25,9 +25,9 @@ class VerifikasiBanprov extends Page implements HasForms
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-clipboard-document-check';
     protected static ?string $navigationLabel = 'Verifikasi Banprov';
-    protected static string|UnitEnum|null $navigationGroup = 'Data Kantor';
+    protected static string|UnitEnum|null $navigationGroup = 'Seksi Ekbang';
     protected static ?string $slug = 'verifikasi-banprov';
-    protected static ?int $navigationSort = 30;
+    protected static ?int $navigationSort = 20;
 
     protected string $view = 'filament.pages.verifikasi-banprov';
 

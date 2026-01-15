@@ -32,7 +32,7 @@ class RoleAccess
             'filament.admin.pages.pengurus-barang' => 'Pengurus Barang',
             'filament.admin.pages.wa-gateway' => 'Pengaturan WA Gateway',
             'filament.admin.pages.wa-message-templates' => 'Template Pesan WA',
-            'filament.admin.pages.seksi-ekbang' => 'Seksi Ekbang',
+            'filament.admin.pages.seksi-ekbang' => 'Dashboard Seksi Ekbang',
             'filament.admin.pages.verifikasi-banprov' => 'Verifikasi Banprov',
             'filament.admin.resources.wa-inbox-messages' => 'Chat Masuk WA',
             'filament.admin.resources.surat-keluar' => 'Surat Keluar',
