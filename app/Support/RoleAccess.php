@@ -7,6 +7,10 @@ use App\Models\ModuleSetting;
 use App\Models\RoleAccessSetting;
 use App\Models\User;
 use App\Models\Personil;
+use BackedEnum;
+use Filament\Facades\Filament;
+use Illuminate\Support\Str;
+use UnitEnum;
 
 class RoleAccess
 {
@@ -77,6 +81,38 @@ class RoleAccess
         return $filtered;
     }
 
+    /**
+     * @param  array<int, string>  $exclude
+     * @return array<string, array{label: string, options: array<string, string>}>
+     */
+    public static function pageOptionGroups(bool $applyModuleFilter = true, array $exclude = []): array
+    {
+        $options = static::pageOptions($applyModuleFilter);
+
+        foreach ($exclude as $key) {
+            unset($options[$key]);
+        }
+
+        $groupMap = static::navigationGroupMap();
+        $groups = [];
+
+        foreach ($options as $identifier => $label) {
+            $groupLabel = static::resolveGroupLabel($identifier, $groupMap);
+            $groupKey = Str::slug($groupLabel, '_');
+
+            if (! isset($groups[$groupKey])) {
+                $groups[$groupKey] = [
+                    'label' => $groupLabel,
+                    'options' => [],
+                ];
+            }
+
+            $groups[$groupKey]['options'][$identifier] = $label;
+        }
+
+        return $groups;
+    }
+
     public static function allowedPagesFor(UserRole|string|null $role): array
     {
         return RoleAccessSetting::allowedPagesFor($role);
@@ -135,6 +171,66 @@ class RoleAccess
         }
 
         return static::routeMatchesAllowed($identifier, static::allowedPagesFor($user->role));
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected static function navigationGroupMap(): array
+    {
+        $map = [];
+
+        foreach (Filament::getPages() as $page) {
+            if (! class_exists($page)) {
+                continue;
+            }
+
+            $route = $page::getRouteName();
+            $group = static::normalizeGroupLabel($page::getNavigationGroup());
+
+            if ($route !== '') {
+                $map[$route] = $group;
+            }
+        }
+
+        foreach (Filament::getResources() as $resource) {
+            if (! class_exists($resource)) {
+                continue;
+            }
+
+            $route = $resource::getRouteBaseName();
+            $group = static::normalizeGroupLabel($resource::getNavigationGroup());
+
+            if ($route !== '') {
+                $map[$route] = $group;
+            }
+        }
+
+        return $map;
+    }
+
+    protected static function resolveGroupLabel(string $identifier, array $groupMap): string
+    {
+        $label = $groupMap[$identifier] ?? null;
+
+        if ($label !== null && $label !== '') {
+            return $label;
+        }
+
+        return 'Umum';
+    }
+
+    protected static function normalizeGroupLabel(string|UnitEnum|null $group): string
+    {
+        if ($group instanceof BackedEnum) {
+            $group = (string) $group->value;
+        } elseif ($group instanceof UnitEnum) {
+            $group = $group->name;
+        }
+
+        $group = trim((string) $group);
+
+        return $group === '' ? 'Umum' : $group;
     }
 
     public static function isModuleEnabled(string $identifier): bool

@@ -10,6 +10,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use UnitEnum;
@@ -30,36 +31,37 @@ class ModuleSettings extends Page implements HasForms
 
     public function mount(): void
     {
-        $options = RoleAccess::pageOptions(false);
-        $all = array_values(array_filter(array_keys($options), fn ($key) => ! in_array($key, [
-            '*',
-            'filament.admin.pages.module-settings',
-        ], true)));
+        $groups = $this->getModuleOptionGroups();
+        $all = $this->flattenGroupOptions($groups);
         $enabled = ModuleSetting::enabledPages();
+        $enabled = array_values(array_diff($enabled, ['filament.admin.pages.module-settings']));
 
         $this->form->fill([
-            'enabled_pages' => empty($enabled)
-                ? $all
-                : array_values(array_diff($enabled, ['filament.admin.pages.module-settings'])),
+            'enabled_page_groups' => $this->buildGroupedState(empty($enabled) ? $all : $enabled, $groups),
         ]);
     }
 
     public function form(Schema $schema): Schema
     {
-        $options = RoleAccess::pageOptions(false);
-        unset($options['*'], $options['filament.admin.pages.module-settings']);
+        $groups = $this->getModuleOptionGroups();
+        $components = [];
+
+        foreach ($groups as $groupKey => $group) {
+            $components[] = Fieldset::make($group['label'])
+                ->schema([
+                    CheckboxList::make("enabled_page_groups.{$groupKey}")
+                        ->hiddenLabel()
+                        ->options($group['options'])
+                        ->bulkToggleable()
+                        ->columns(2),
+                ]);
+        }
 
         return $schema
             ->components([
                 Section::make('Modul Aplikasi')
                     ->description('Pilih modul yang ditampilkan di sidebar untuk semua pengguna.')
-                    ->schema([
-                        CheckboxList::make('enabled_pages')
-                            ->label('Modul yang ditampilkan')
-                            ->options($options)
-                            ->bulkToggleable()
-                            ->columns(2),
-                    ]),
+                    ->schema($components),
             ])
             ->statePath('data');
     }
@@ -67,7 +69,7 @@ class ModuleSettings extends Page implements HasForms
     public function save(): void
     {
         $state = $this->form->getState();
-        $pages = array_values(array_unique($state['enabled_pages'] ?? []));
+        $pages = $this->flattenGroupedSelections($state['enabled_page_groups'] ?? []);
         $pages = array_values(array_diff($pages, ['filament.admin.pages.module-settings']));
 
         if (empty($pages)) {
@@ -94,5 +96,66 @@ class ModuleSettings extends Page implements HasForms
     public static function shouldRegisterNavigation(): bool
     {
         return auth()->user()?->isAdmin() === true;
+    }
+
+    /**
+     * @return array<string, array{label: string, options: array<string, string>}>
+     */
+    protected function getModuleOptionGroups(): array
+    {
+        return RoleAccess::pageOptionGroups(false, [
+            '*',
+            'filament.admin.pages.module-settings',
+        ]);
+    }
+
+    /**
+     * @param  array<string, array{label: string, options: array<string, string>}>  $groups
+     * @return array<string, array<int, string>>
+     */
+    protected function buildGroupedState(array $selected, array $groups): array
+    {
+        $state = [];
+
+        foreach ($groups as $groupKey => $group) {
+            $options = array_keys($group['options']);
+            $state[$groupKey] = array_values(array_intersect($selected, $options));
+        }
+
+        return $state;
+    }
+
+    /**
+     * @param  array<string, array{label: string, options: array<string, string>}>  $groups
+     * @return array<int, string>
+     */
+    protected function flattenGroupOptions(array $groups): array
+    {
+        $options = [];
+
+        foreach ($groups as $group) {
+            $options = array_merge($options, array_keys($group['options']));
+        }
+
+        return array_values(array_unique($options));
+    }
+
+    /**
+     * @param  array<string, mixed>  $groupState
+     * @return array<int, string>
+     */
+    protected function flattenGroupedSelections(array $groupState): array
+    {
+        $pages = [];
+
+        foreach ($groupState as $selected) {
+            if (! is_array($selected)) {
+                continue;
+            }
+
+            $pages = array_merge($pages, $selected);
+        }
+
+        return array_values(array_unique(array_filter($pages, 'is_string')));
     }
 }
