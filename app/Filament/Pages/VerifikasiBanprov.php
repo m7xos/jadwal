@@ -116,6 +116,20 @@ class VerifikasiBanprov extends Page implements HasTable
                     ->label('Jumlah (Rp)')
                     ->alignRight()
                     ->formatStateUsing(fn ($state) => $state ? number_format((int) $state, 0, ',', '.') : '-'),
+                Tables\Columns\BadgeColumn::make('status_lpj')
+                    ->label('LPJ')
+                    ->formatStateUsing(fn ($state) => $state ? 'Sudah' : 'Belum')
+                    ->colors([
+                        'success' => true,
+                        'gray' => false,
+                    ]),
+                Tables\Columns\BadgeColumn::make('status_monev')
+                    ->label('Monev')
+                    ->formatStateUsing(fn ($state) => $state ? 'Sudah' : 'Belum')
+                    ->colors([
+                        'success' => true,
+                        'gray' => false,
+                    ]),
                 Tables\Columns\TextColumn::make('sumber_file')
                     ->label('Sumber File')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -124,6 +138,27 @@ class VerifikasiBanprov extends Page implements HasTable
                     ->dateTime('d M Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->actions([
+                Tables\Actions\Action::make('print_verifikasi')
+                    ->label('Cetak Lembar Verifikasi')
+                    ->icon('heroicon-o-printer')
+                    ->url(fn (BanprovVerification $record) => route('banprov.verifikasi.print', $record))
+                    ->openUrlInNewTab(),
+                Tables\Actions\Action::make('toggle_lpj')
+                    ->label(fn (BanprovVerification $record) => $record->status_lpj ? 'Belum LPJ' : 'Sudah LPJ')
+                    ->icon(fn (BanprovVerification $record) => $record->status_lpj ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
+                    ->color(fn (BanprovVerification $record) => $record->status_lpj ? 'gray' : 'success')
+                    ->action(function (BanprovVerification $record): void {
+                        $record->update(['status_lpj' => ! $record->status_lpj]);
+                    }),
+                Tables\Actions\Action::make('toggle_monev')
+                    ->label(fn (BanprovVerification $record) => $record->status_monev ? 'Belum Monev' : 'Sudah Monev')
+                    ->icon(fn (BanprovVerification $record) => $record->status_monev ? 'heroicon-o-x-circle' : 'heroicon-o-check-circle')
+                    ->color(fn (BanprovVerification $record) => $record->status_monev ? 'gray' : 'success')
+                    ->action(function (BanprovVerification $record): void {
+                        $record->update(['status_monev' => ! $record->status_monev]);
+                    }),
             ])
             ->emptyStateHeading('Belum ada data verifikasi banprov')
             ->emptyStateDescription('Gunakan tombol Import Excel untuk menambahkan data.');
