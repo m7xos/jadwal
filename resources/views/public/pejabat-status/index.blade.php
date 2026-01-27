@@ -403,6 +403,10 @@
             color: #be123c;
         }
 
+        .agenda-label.is-kantor {
+            color: #047857;
+        }
+
         .agenda-list {
             margin-top: 12px;
             display: grid;
@@ -420,6 +424,11 @@
         .agenda-item.is-dinas {
             border-color: rgba(239, 68, 68, 0.25);
             background: rgba(254, 226, 226, 0.5);
+        }
+
+        .agenda-item.is-kantor {
+            border-color: rgba(16, 185, 129, 0.25);
+            background: rgba(209, 250, 229, 0.55);
         }
 
         .agenda-item strong {
@@ -573,6 +582,18 @@
                             <div class="agenda-list">
                                 @foreach($item['kegiatan_luar'] as $kegiatan)
                                     <div class="agenda-item is-dinas">
+                                        <strong>{{ $kegiatan->nama_kegiatan ?? '-' }}</strong>
+                                        <div class="agenda-meta">
+                                            {{ $kegiatan->waktu ?? '-' }} - {{ $kegiatan->tempat ?? '-' }}
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @elseif(($item['kegiatan_kantor'] ?? collect())->isNotEmpty())
+                            <div class="agenda-label is-kantor">Agenda di kantor</div>
+                            <div class="agenda-list">
+                                @foreach($item['kegiatan_kantor'] as $kegiatan)
+                                    <div class="agenda-item is-kantor">
                                         <strong>{{ $kegiatan->nama_kegiatan ?? '-' }}</strong>
                                         <div class="agenda-meta">
                                             {{ $kegiatan->waktu ?? '-' }} - {{ $kegiatan->tempat ?? '-' }}

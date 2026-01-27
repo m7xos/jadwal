@@ -40,6 +40,13 @@ class PublicPejabatStatusController extends Controller
             'aula kantor kecamatan lantai 2',
             'aula kantor kecamatan',
             'aula lantai 2 kantor kecamatan watumalang',
+            'zoom cloud meeting meeting',
+            'zoom meeting',
+            'zoom',
+        ];
+
+        $allowedPlaceKeywords = [
+            'zoom',
         ];
 
         $normalizeNip = function (?string $value): ?string {
@@ -67,7 +74,25 @@ class PublicPejabatStatusController extends Controller
             return preg_replace('/\s+/', ' ', $normalized) ?? '';
         };
 
-        $statuses = collect($jabatanTargets)->map(function (string $jabatan) use ($personils, $allowedPlaces, $normalizePlace, $normalizeNip, $isWorkTime) {
+        $matchesAllowedPlace = function (string $tempat) use ($allowedPlaces, $allowedPlaceKeywords): bool {
+            if ($tempat === '') {
+                return false;
+            }
+
+            if (in_array($tempat, $allowedPlaces, true)) {
+                return true;
+            }
+
+            foreach ($allowedPlaceKeywords as $keyword) {
+                if ($keyword !== '' && str_contains($tempat, $keyword)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
+        $statuses = collect($jabatanTargets)->map(function (string $jabatan) use ($personils, $matchesAllowedPlace, $normalizePlace, $normalizeNip, $isWorkTime) {
             $personil = $personils->first(function ($item) use ($jabatan) {
                 return $item->jabatan && stripos($item->jabatan, $jabatan) !== false;
             });
@@ -80,6 +105,7 @@ class PublicPejabatStatusController extends Controller
                     'photo_url' => null,
                     'status' => 'Tidak diketahui',
                     'kegiatan' => collect(),
+                    'kegiatan_kantor' => collect(),
                     'kegiatan_luar' => collect(),
                 ];
             }
@@ -87,10 +113,16 @@ class PublicPejabatStatusController extends Controller
             $kegiatan = $personil->kegiatans ?? collect();
             $nip = $normalizeNip($personil->nip ?? null);
 
-            $kegiatanLuar = $kegiatan->filter(function ($item) use ($allowedPlaces, $normalizePlace) {
+            $kegiatanLuar = $kegiatan->filter(function ($item) use ($matchesAllowedPlace, $normalizePlace) {
                 $tempat = $normalizePlace($item->tempat ?? '');
 
-                return $tempat !== '' && ! in_array($tempat, $allowedPlaces, true);
+                return $tempat !== '' && ! $matchesAllowedPlace($tempat);
+            })->values();
+
+            $kegiatanKantor = $kegiatan->filter(function ($item) use ($matchesAllowedPlace, $normalizePlace) {
+                $tempat = $normalizePlace($item->tempat ?? '');
+
+                return $tempat === '' || $matchesAllowedPlace($tempat);
             })->values();
 
             if ($kegiatanLuar->isNotEmpty()) {
@@ -117,6 +149,7 @@ class PublicPejabatStatusController extends Controller
                 'photo_candidates' => $photoCandidates,
                 'status' => $status,
                 'kegiatan' => $kegiatan,
+                'kegiatan_kantor' => $kegiatanKantor,
                 'kegiatan_luar' => $kegiatanLuar,
             ];
         });
