@@ -11,6 +11,7 @@ use App\Http\Controllers\WaGatewayWebhookController;
 use App\Http\Controllers\FilamentThemeController;
 use App\Http\Controllers\YieldPanelPreferenceController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\BanprovVerificationController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 // routes/web.php
@@ -63,6 +64,9 @@ Route::get('/kegiatan/{kegiatan}/surat-tugas', [KegiatanSuratController::class, 
 Route::get('/kegiatan/{kegiatan}/sppd', [KegiatanSuratController::class, 'sppd'])
     ->middleware('auth:personil')
     ->name('kegiatan.sppd');
+Route::get('/banprov/verifikasi/{verification}/print', [BanprovVerificationController::class, 'print'])
+    ->middleware('auth:personil')
+    ->name('banprov.verifikasi.print');
 Route::get('/kegiatan/disposisi/print', [KegiatanDisposisiController::class, 'bulk'])
     ->middleware('auth:personil')
     ->name('kegiatan.disposisi.bulk');
