@@ -14,6 +14,12 @@ class EditSuratKeluar extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        $user = auth()->user();
+
+        if ($user?->isInFinishWhitelist() !== true) {
+            unset($data['requested_by_personil_id']);
+        }
+
         if (($this->record->status ?? SuratKeluar::STATUS_ISSUED) === SuratKeluar::STATUS_BOOKED) {
             $perihal = trim((string) ($data['perihal'] ?? ''));
             $tanggalSurat = $data['tanggal_surat'] ?? null;

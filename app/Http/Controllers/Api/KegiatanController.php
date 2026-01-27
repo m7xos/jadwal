@@ -163,6 +163,7 @@ class KegiatanController extends Controller
             'sifat_surat' => $kegiatan->sifat_surat,
             'nomor' => $kegiatan->nomor,
             'nama_kegiatan' => $kegiatan->nama_kegiatan,
+            'tanggal_surat' => $kegiatan->tanggal_surat?->format('Y-m-d'),
             'tanggal' => $kegiatan->tanggal?->format('Y-m-d'),
             'waktu' => $kegiatan->waktu,
             'tempat' => $kegiatan->tempat,

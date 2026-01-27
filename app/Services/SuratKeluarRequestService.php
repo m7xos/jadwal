@@ -101,7 +101,7 @@ class SuratKeluarRequestService
             return;
         }
 
-        $waGateway->sendTextToSpecificGroup($groupId, 'Silakan cek pesan pribadi untuk melanjutkan permintaan nomor surat.');
+        $waGateway->sendTextToSpecificGroup($groupId, 'Silakan cek pesan pribadi untuk melanjutkan permintaan nomor surat keluar');
     }
 
     protected function handleKlasifikasi(SuratKeluarRequest $request, string $message, WaGatewayService $waGateway): void
@@ -190,6 +190,7 @@ class SuratKeluarRequestService
         ]);
 
         $waGateway->sendPersonalText([$request->requester_number], $message);
+        $this->notifyArsiparisCreated($nomorLabel, $perihal, $requester, $request->requester_number, $waGateway);
     }
 
     protected function extractKodeKlasifikasi(string $message): ?string
@@ -382,6 +383,48 @@ class SuratKeluarRequestService
         $akronim = trim((string) $akronim);
 
         return $akronim !== '' ? $akronim : null;
+    }
+
+    protected function notifyArsiparisCreated(
+        string $nomorLabel,
+        string $perihal,
+        ?Personil $requester,
+        ?string $requesterNumber,
+        WaGatewayService $waGateway
+    ): void {
+        $arsiparisNumbers = Personil::query()
+            ->whereNotNull('no_wa')
+            ->where('no_wa', '!=', '')
+            ->where('jabatan', 'like', '%arsiparis%')
+            ->pluck('no_wa')
+            ->map(fn ($noWa) => trim((string) $noWa))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($arsiparisNumbers)) {
+            return;
+        }
+
+        $requesterName = trim((string) ($requester?->nama ?? ''));
+        if ($requesterName === '') {
+            $requesterName = $requesterNumber ?: 'Pemohon WA';
+        }
+
+        $perihal = trim($perihal);
+        if ($perihal === '') {
+            $perihal = '-';
+        }
+
+        $message = sprintf(
+            'Surat dengan nomor: %s Hal: %s berhasil dibuat oleh "%s" via WA. bantu cek apakah akronim sudah sesuai kewenangan pembuat surat',
+            $nomorLabel,
+            $perihal,
+            $requesterName
+        );
+
+        $waGateway->sendPersonalText($arsiparisNumbers, $message);
     }
 
     protected function extractGroupId(array $payload): ?string
