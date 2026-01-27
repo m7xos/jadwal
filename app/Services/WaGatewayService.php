@@ -18,6 +18,14 @@ class WaGatewayService
 {
     protected const WA_WRAP_WIDTH = 48;
 
+    // Anti-spam configuration
+    protected const MIN_DELAY_MS = 3000;        // Minimum delay 3 detik
+    protected const MAX_DELAY_MS = 7000;        // Maximum delay 7 detik
+    protected const RATE_LIMIT_PER_HOUR = 50;   // Max pesan per jam
+    protected const RATE_LIMIT_PER_DAY = 300;   // Max pesan per hari
+    protected const CIRCUIT_BREAKER_THRESHOLD = 3;  // Max kegagalan berturut-turut
+    protected const CIRCUIT_BREAKER_COOLDOWN_SECONDS = 900; // Cooldown 15 menit
+
     protected string $baseUrl;
     protected string $token;
     protected ?string $secretKey;
@@ -25,6 +33,12 @@ class WaGatewayService
     protected string $groupId;
     protected array $groupMappings;
     protected string $masterKey;
+
+    // Anti-spam state tracking
+    protected static int $messagesSentThisSession = 0;
+    protected static int $consecutiveFailures = 0;
+    protected static ?int $circuitBreakerUntil = null;
+    protected static ?int $lastSendTimestamp = null;
 
     public function __construct()
     {
@@ -48,6 +62,208 @@ class WaGatewayService
             && $this->token !== ''
             && $this->groupId !== ''
             && trim($this->masterKey) !== '';
+    }
+
+    /**
+     * Menerapkan delay random antar pengiriman untuk menghindari deteksi spam.
+     */
+    protected function applyAntiSpamDelay(): void
+    {
+        if (self::$lastSendTimestamp !== null) {
+            $delayMs = random_int(self::MIN_DELAY_MS, self::MAX_DELAY_MS);
+            usleep($delayMs * 1000); // Convert to microseconds
+
+            Log::debug('WA Gateway: anti-spam delay applied', [
+                'delay_ms' => $delayMs,
+            ]);
+        }
+
+        self::$lastSendTimestamp = time();
+    }
+
+    /**
+     * Cek apakah circuit breaker aktif (terlalu banyak kegagalan).
+     */
+    protected function isCircuitBreakerOpen(): bool
+    {
+        if (self::$circuitBreakerUntil === null) {
+            return false;
+        }
+
+        if (time() >= self::$circuitBreakerUntil) {
+            // Cooldown selesai, reset circuit breaker
+            self::$circuitBreakerUntil = null;
+            self::$consecutiveFailures = 0;
+
+            Log::info('WA Gateway: circuit breaker reset setelah cooldown');
+
+            return false;
+        }
+
+        $remainingSeconds = self::$circuitBreakerUntil - time();
+
+        Log::warning('WA Gateway: circuit breaker masih aktif', [
+            'remaining_seconds' => $remainingSeconds,
+        ]);
+
+        return true;
+    }
+
+    /**
+     * Catat kegagalan dan aktifkan circuit breaker jika perlu.
+     */
+    protected function recordFailure(): void
+    {
+        self::$consecutiveFailures++;
+
+        if (self::$consecutiveFailures >= self::CIRCUIT_BREAKER_THRESHOLD) {
+            self::$circuitBreakerUntil = time() + self::CIRCUIT_BREAKER_COOLDOWN_SECONDS;
+
+            Log::error('WA Gateway: circuit breaker AKTIF karena kegagalan berturut-turut', [
+                'failures' => self::$consecutiveFailures,
+                'cooldown_until' => date('Y-m-d H:i:s', self::$circuitBreakerUntil),
+            ]);
+        }
+    }
+
+    /**
+     * Reset counter kegagalan setelah pengiriman sukses.
+     */
+    protected function recordSuccess(): void
+    {
+        self::$consecutiveFailures = 0;
+        self::$messagesSentThisSession++;
+    }
+
+    /**
+     * Cek rate limit berdasarkan cache.
+     */
+    protected function isRateLimited(): bool
+    {
+        $cacheKey = 'wa_gateway_rate_limit_' . date('Y-m-d-H');
+        $hourlyCount = (int) cache($cacheKey, 0);
+
+        if ($hourlyCount >= self::RATE_LIMIT_PER_HOUR) {
+            Log::warning('WA Gateway: rate limit per jam tercapai', [
+                'count' => $hourlyCount,
+                'limit' => self::RATE_LIMIT_PER_HOUR,
+            ]);
+
+            return true;
+        }
+
+        $dailyCacheKey = 'wa_gateway_rate_limit_daily_' . date('Y-m-d');
+        $dailyCount = (int) cache($dailyCacheKey, 0);
+
+        if ($dailyCount >= self::RATE_LIMIT_PER_DAY) {
+            Log::warning('WA Gateway: rate limit per hari tercapai', [
+                'count' => $dailyCount,
+                'limit' => self::RATE_LIMIT_PER_DAY,
+            ]);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Increment counter rate limit.
+     */
+    protected function incrementRateLimitCounter(): void
+    {
+        $hourlyKey = 'wa_gateway_rate_limit_' . date('Y-m-d-H');
+        $hourlyCount = (int) cache($hourlyKey, 0);
+        cache([$hourlyKey => $hourlyCount + 1], now()->endOfHour());
+
+        $dailyKey = 'wa_gateway_rate_limit_daily_' . date('Y-m-d');
+        $dailyCount = (int) cache($dailyKey, 0);
+        cache([$dailyKey => $dailyCount + 1], now()->endOfDay());
+    }
+
+    /**
+     * Tambahkan referensi unik ke pesan untuk variasi konten.
+     */
+    protected function appendMessageVariation(string $message): string
+    {
+        $ref = strtoupper(substr(md5(uniqid((string) mt_rand(), true)), 0, 6));
+
+        return $message . "\n\n_Ref: " . $ref . '_';
+    }
+
+    /**
+     * Cek semua kondisi anti-spam sebelum mengirim.
+     *
+     * @return array{allowed: bool, reason: string|null}
+     */
+    protected function checkAntiSpamConditions(): array
+    {
+        if ($this->isCircuitBreakerOpen()) {
+            return [
+                'allowed' => false,
+                'reason' => 'Circuit breaker aktif, coba lagi nanti',
+            ];
+        }
+
+        if ($this->isRateLimited()) {
+            return [
+                'allowed' => false,
+                'reason' => 'Rate limit tercapai, coba lagi nanti',
+            ];
+        }
+
+        return [
+            'allowed' => true,
+            'reason' => null,
+        ];
+    }
+
+    /**
+     * Dapatkan status anti-spam saat ini untuk monitoring.
+     *
+     * @return array{
+     *     messages_sent_session: int,
+     *     consecutive_failures: int,
+     *     circuit_breaker_active: bool,
+     *     circuit_breaker_until: string|null,
+     *     hourly_count: int,
+     *     hourly_limit: int,
+     *     daily_count: int,
+     *     daily_limit: int,
+     *     can_send: bool
+     * }
+     */
+    public function getAntiSpamStatus(): array
+    {
+        $hourlyKey = 'wa_gateway_rate_limit_' . date('Y-m-d-H');
+        $dailyKey = 'wa_gateway_rate_limit_daily_' . date('Y-m-d');
+
+        $circuitBreakerActive = self::$circuitBreakerUntil !== null && time() < self::$circuitBreakerUntil;
+
+        return [
+            'messages_sent_session' => self::$messagesSentThisSession,
+            'consecutive_failures' => self::$consecutiveFailures,
+            'circuit_breaker_active' => $circuitBreakerActive,
+            'circuit_breaker_until' => $circuitBreakerActive
+                ? date('Y-m-d H:i:s', self::$circuitBreakerUntil)
+                : null,
+            'hourly_count' => (int) cache($hourlyKey, 0),
+            'hourly_limit' => self::RATE_LIMIT_PER_HOUR,
+            'daily_count' => (int) cache($dailyKey, 0),
+            'daily_limit' => self::RATE_LIMIT_PER_DAY,
+            'can_send' => $this->checkAntiSpamConditions()['allowed'],
+        ];
+    }
+
+    /**
+     * Reset circuit breaker secara manual (untuk admin).
+     */
+    public function resetCircuitBreaker(): void
+    {
+        self::$circuitBreakerUntil = null;
+        self::$consecutiveFailures = 0;
+
+        Log::info('WA Gateway: circuit breaker di-reset secara manual');
     }
 
     protected function getAuthHeaderValue(): string
@@ -684,7 +900,7 @@ class WaGatewayService
     /**
      * @return array{success: bool, response: mixed, error: string|null}
      */
-    protected function sendTextToGroup(string $groupId, string $message): array
+    protected function sendTextToGroup(string $groupId, string $message, bool $applyVariation = true): array
     {
         $groupId = $this->normalizeGroupId($groupId);
 
@@ -696,11 +912,32 @@ class WaGatewayService
             ];
         }
 
+        // Cek kondisi anti-spam
+        $antiSpamCheck = $this->checkAntiSpamConditions();
+        if (! $antiSpamCheck['allowed']) {
+            Log::warning('WA Gateway: pengiriman diblokir oleh anti-spam', [
+                'reason' => $antiSpamCheck['reason'],
+                'group_id' => $groupId,
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $antiSpamCheck['reason'],
+                'response' => null,
+            ];
+        }
+
+        // Terapkan delay anti-spam
+        $this->applyAntiSpamDelay();
+
+        // Tambahkan variasi pesan untuk menghindari deteksi spam
+        $finalMessage = $applyVariation ? $this->appendMessageVariation($message) : $message;
+
         $payload = [
             'data' => [
                 [
                     'phone' => $groupId,
-                    'message' => $message,
+                    'message' => $finalMessage,
                     'isGroup' => true,
                 ],
             ],
@@ -713,6 +950,8 @@ class WaGatewayService
                 'message' => $exception->getMessage(),
                 'group_id' => $groupId,
             ]);
+
+            $this->recordFailure();
 
             return [
                 'success' => false,
@@ -728,6 +967,8 @@ class WaGatewayService
                 'group_id' => $groupId,
             ]);
 
+            $this->recordFailure();
+
             return [
                 'success' => false,
                 'error' => 'HTTP ' . $response->status(),
@@ -737,6 +978,13 @@ class WaGatewayService
 
         $json = $response->json();
         $success = (bool) data_get($json, 'status', false);
+
+        if ($success) {
+            $this->recordSuccess();
+            $this->incrementRateLimitCounter();
+        } else {
+            $this->recordFailure();
+        }
 
         Log::info('WA Gateway: response sendGroupText', [
             'response' => $json,
@@ -760,7 +1008,7 @@ class WaGatewayService
      *
      * @param  array<int, string|null>  $numbers
      */
-    public function sendPersonalText(array $numbers, string $message): array
+    public function sendPersonalText(array $numbers, string $message, bool $applyVariation = true): array
     {
         if (! $this->isConfigured()) {
             return [
@@ -769,6 +1017,26 @@ class WaGatewayService
                 'response' => null,
             ];
         }
+
+        // Cek kondisi anti-spam
+        $antiSpamCheck = $this->checkAntiSpamConditions();
+        if (! $antiSpamCheck['allowed']) {
+            Log::warning('WA Gateway: pengiriman personal diblokir oleh anti-spam', [
+                'reason' => $antiSpamCheck['reason'],
+            ]);
+
+            return [
+                'success' => false,
+                'error' => $antiSpamCheck['reason'],
+                'response' => null,
+            ];
+        }
+
+        // Terapkan delay anti-spam
+        $this->applyAntiSpamDelay();
+
+        // Tambahkan variasi pesan
+        $finalMessage = $applyVariation ? $this->appendMessageVariation($message) : $message;
 
         $data = [];
 
@@ -790,7 +1058,7 @@ class WaGatewayService
 
             $data[] = [
                 'phone' => $normalized,
-                'message' => $message,
+                'message' => $finalMessage,
                 'isGroup' => 'false',
             ];
         }
@@ -811,6 +1079,8 @@ class WaGatewayService
                 'message' => $exception->getMessage(),
             ]);
 
+            $this->recordFailure();
+
             return [
                 'success' => false,
                 'error' => $exception->getMessage(),
@@ -824,6 +1094,8 @@ class WaGatewayService
                 'body' => $response->body(),
             ]);
 
+            $this->recordFailure();
+
             return [
                 'success' => false,
                 'error' => 'HTTP ' . $response->status(),
@@ -833,6 +1105,16 @@ class WaGatewayService
 
         $json = $response->json();
         $success = (bool) data_get($json, 'status', false);
+
+        if ($success) {
+            $this->recordSuccess();
+            // Increment rate limit untuk setiap nomor yang berhasil
+            foreach ($data as $_) {
+                $this->incrementRateLimitCounter();
+            }
+        } else {
+            $this->recordFailure();
+        }
 
         return [
             'success' => $success,
@@ -2161,63 +2443,10 @@ class WaGatewayService
             ];
         }
 
+        // Gunakan sendTextToGroup yang sudah memiliki anti-spam
         $message = $this->buildGroupMessage($items);
 
-        $targetGroupId = $this->normalizeGroupId($this->groupId);
-
-        $payload = [
-            'data' => [
-                [
-                    'phone'   => $targetGroupId,
-                    'message' => $message,
-                    'isGroup' => 'true',
-                ],
-            ],
-        ];
-
-        try {
-            $response = $this->client()
-                ->post($this->baseUrl . '/api/v2/send-message', $payload);
-        } catch (\Throwable $exception) {
-            Log::error('WA Gateway: HTTP error kirim group', [
-                'message' => $exception->getMessage(),
-            ]);
-
-            return [
-                'success' => false,
-                'error' => $exception->getMessage(),
-                'response' => null,
-            ];
-        }
-
-        if (! $response->successful()) {
-            Log::error('WA Gateway: HTTP error kirim group', [
-                'status' => $response->status(),
-                'body'   => $response->body(),
-            ]);
-
-            $detail = data_get($response->json(), 'message') ?: $response->body();
-
-            return [
-                'success' => false,
-                'error' => 'HTTP ' . $response->status() . ($detail ? (': ' . $detail) : ''),
-                'response' => $response->json(),
-            ];
-        }
-
-        $json = $response->json();
-
-        Log::info('WA Gateway: response sendGroupRekap', [
-            'response' => $json,
-        ]);
-
-        $success = (bool) data_get($json, 'status', false);
-
-        return [
-            'success' => $success,
-            'error' => $success ? null : (data_get($json, 'message') ?: 'Pengiriman gagal'),
-            'response' => $json,
-        ];
+        return $this->sendTextToGroup($this->groupId, $message);
     }
 
     public function sendGroupBelumDisposisi(iterable $kegiatans): bool
@@ -2240,37 +2469,11 @@ class WaGatewayService
             return false;
         }
 
+        // Gunakan sendTextToGroup yang sudah memiliki anti-spam
         $message = $this->buildGroupMessageBelumDisposisi($items);
+        $result = $this->sendTextToGroup($this->groupId, $message);
 
-        $payload = [
-            'data' => [
-                [
-                    'phone'   => $this->normalizeGroupId($this->groupId),
-                    'message' => $message,
-                    'isGroup' => 'true',
-                ],
-            ],
-        ];
-
-        $response = $this->client()
-            ->post($this->baseUrl . '/api/v2/send-message', $payload);
-
-        if (! $response->successful()) {
-            Log::error('WA Gateway: HTTP error kirim agenda belum disposisi', [
-                'status' => $response->status(),
-                'body'   => $response->body(),
-            ]);
-
-            return false;
-        }
-
-        $json = $response->json();
-
-        Log::info('WA Gateway: response sendGroupBelumDisposisi', [
-            'response' => $json,
-        ]);
-
-        return (bool) data_get($json, 'status', false);
+        return $result['success'];
     }
 
     protected function normalizePhone(?string $number): ?string
@@ -2312,46 +2515,23 @@ class WaGatewayService
 
         $message = $this->buildPersonilMessage($kegiatan);
 
-        $data = [];
+        $numbers = [];
 
         foreach ($personils as $p) {
-            $noWa = trim($p->no_wa);
+            $noWa = trim($p->no_wa ?? '');
 
-            if ($noWa === '') {
-                continue;
+            if ($noWa !== '') {
+                $numbers[] = $noWa;
             }
-
-            $data[] = [
-                'phone'   => $noWa,
-                'message' => $message,
-                'isGroup' => 'false',
-            ];
         }
 
-        if (empty($data)) {
+        if (empty($numbers)) {
             return false;
         }
 
-        $payload = ['data' => $data];
+        // Gunakan sendPersonalText yang sudah memiliki anti-spam
+        $result = $this->sendPersonalText($numbers, $message);
 
-        $response = $this->client()
-            ->post($this->baseUrl . '/api/v2/send-message', $payload);
-
-        if (! $response->successful()) {
-            Log::error('WA Gateway: HTTP error kirim ke personil', [
-                'status' => $response->status(),
-                'body'   => $response->body(),
-            ]);
-
-            return false;
-        }
-
-        $json = $response->json();
-
-        Log::info('WA Gateway: response sendToPersonils', [
-            'response' => $json,
-        ]);
-
-        return (bool) data_get($json, 'status', false);
+        return $result['success'];
     }
 }
